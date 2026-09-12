@@ -1,0 +1,2737 @@
+[
+  {
+    "id": "1",
+    "name": "Hatibagan Sarbojanin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.5,
+    "theme": "Traditional",
+    "description": "Hatibagan Sarbojanin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.594708651957678,
+      "lng": 88.37200415048332
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "High",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)"
+    ],
+    "nearestRailway": [
+      "Kolkata Station (Circular)"
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Kasi Bose Lane",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.4,
+    "theme": "Traditional",
+    "description": "Kasi Bose Lane pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.590944825971604,
+      "lng": 88.36891220386143
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "High",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)",
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Sovabazar Ahiritola (Circular)"
+    ]
+  },
+  {
+    "id": "3",
+    "name": "Nalin Sarkar Street",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.3,
+    "theme": "Traditional",
+    "description": "Nalin Sarkar Street pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.594753104622246,
+      "lng": 88.37436818770884
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "High",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)"
+    ],
+    "nearestRailway": [
+      "Kolkata Station (Circular)"
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Nabin Pally",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.3,
+    "theme": "Traditional",
+    "description": "Nabin Pally pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.5963133095658,
+      "lng": 88.37344181448685
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)"
+    ],
+    "nearestRailway": [
+      "Kolkata Station (Circular)"
+    ]
+  },
+  {
+    "id": "5",
+    "name": "Chaltabagan",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.2,
+    "theme": "Traditional",
+    "description": "Chaltabagan pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.585233759558886,
+      "lng": 88.36896713818412
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "6",
+    "name": "Loha Patti",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.2,
+    "theme": "Traditional",
+    "description": "Loha Patti pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58463361741451,
+      "lng": 88.3723062241459
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Low",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "7",
+    "name": "Vivekananda Sporting",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.1,
+    "theme": "Traditional",
+    "description": "Vivekananda Sporting pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.585576675741468,
+      "lng": 88.3750917632037
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Low",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "8",
+    "name": "Bayan Samity",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4.1,
+    "theme": "Traditional",
+    "description": "Bayan Samity pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.585312388674147,
+      "lng": 88.36496140211423
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "9",
+    "name": "Lala Bagan",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Lala Bagan pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.588574019467416,
+      "lng": 88.37675006779847
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Low",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "10",
+    "name": "Kar Bagan",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Kar Bagan pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.59551351129032,
+      "lng": 88.38378787676096
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "11",
+    "name": "Kumortuli Park Sarbojanin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Kumortuli Park Sarbojanin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.59904970969278,
+      "lng": 88.36146876066005
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue)"
+    ],
+    "nearestRailway": [
+      "Bagbazar (Circular)"
+    ]
+  },
+  {
+    "id": "12",
+    "name": "Ahiritola",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Ahiritola pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.594694956624956,
+      "lng": 88.36033344463092
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue)"
+    ],
+    "nearestRailway": [
+      "Sovabazar Ahiritola (Circular)"
+    ]
+  },
+  {
+    "id": "13",
+    "name": "Shimla Street",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Shimla Street pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.584821977651135,
+      "lng": 88.36674845267551
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "14",
+    "name": "Kumortuli Sarbajanin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Kumortuli Sarbajanin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.600992900129793,
+      "lng": 88.36202264651196
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue)"
+    ],
+    "nearestRailway": [
+      "Bagbazar (Circular)"
+    ]
+  },
+  {
+    "id": "15",
+    "name": "Jagat Mukharjee Park",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Jagat Mukharjee Park pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.599550202591633,
+      "lng": 88.36603241094102
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue)",
+      "Shyambazar (Blue)"
+    ],
+    "nearestRailway": [
+      "Bagbazar (Circular)"
+    ]
+  },
+  {
+    "id": "16",
+    "name": "Beniatola",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Beniatola pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.595738832613545,
+      "lng": 88.36118710157113
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Low",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue)"
+    ],
+    "nearestRailway": [
+      "Sovabazar Ahiritola (Circular)"
+    ]
+  },
+  {
+    "id": "17",
+    "name": "Pathuriaghata",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Pathuriaghata pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.588906103957683,
+      "lng": 88.35656022874166
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Howrah Jn (ER/SER)"
+    ]
+  },
+  {
+    "id": "18",
+    "name": "Darpanarayan Street",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Darpanarayan Street pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.587460967780668,
+      "lng": 88.35439696684566
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Low",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Howrah Jn (ER/SER)"
+    ]
+  },
+  {
+    "id": "19",
+    "name": "Bagbazar Sarbajanin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Bagbazar Sarbajanin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.604576933769234,
+      "lng": 88.36561535584342
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)",
+      "Sovabazar Sutanuti (Blue)"
+    ],
+    "nearestRailway": [
+      "Bagbazar (Circular)"
+    ]
+  },
+  {
+    "id": "20",
+    "name": "Tala Prottoy",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Tala Prottoy pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.6105673427734,
+      "lng": 88.38457595378216
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Tala (Circular)",
+      "Kolkata Station (Circular)"
+    ]
+  },
+  {
+    "id": "21",
+    "name": "Tala Barowari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Tala Barowari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.607361088964293,
+      "lng": 88.3759132284124
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)",
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Tala (Circular)"
+    ]
+  },
+  {
+    "id": "22",
+    "name": "Sobhabazar Rajbari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Sobhabazar Rajbari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.59628722811837,
+      "lng": 88.36737960925765
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue)"
+    ],
+    "nearestRailway": [
+      "Sovabazar Ahiritola (Circular)"
+    ]
+  },
+  {
+    "id": "23",
+    "name": "Beleghata 33 Pally",
+    "area": "Central Kolkata",
+    "region": "Central",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Beleghata 33 Pally pandal in Central Kolkata.",
+    "coordinates": {
+      "lat": 22.56858217447051,
+      "lng": 88.39111680212453
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Phoolbagan (Green)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "24",
+    "name": "Kankurgachi Mitali Sangha",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Kankurgachi Mitali Sangha pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.580003274666527,
+      "lng": 88.39420577902305
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Bengal Chemical (Green)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "25",
+    "name": "Kankurgachi Yubak Brinda",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Kankurgachi Yubak Brinda pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.57939898236481,
+      "lng": 88.3880997159656
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Phoolbagan (Green)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "26",
+    "name": "Ultadanga Pallysree",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Ultadanga Pallysree pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.595808388250383,
+      "lng": 88.38468736855461
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "27",
+    "name": "Ultadanga Sangrami",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Ultadanga Sangrami pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.59055008038676,
+      "lng": 88.39536112169496
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Bengal Chemical (Green)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "28",
+    "name": "Golaghata Sarbojanin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Golaghata Sarbojanin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.597359322172846,
+      "lng": 88.39914334076441
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "29",
+    "name": "Sree Bhumi Sporting Club",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Sree Bhumi Sporting Club pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.599022513070853,
+      "lng": 88.40290942178218
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "30",
+    "name": "Dum Dum Park Bharat Chakra",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Dum Dum Park Bharat Chakra pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.611039171515827,
+      "lng": 88.41458936684647
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Dum Dum (Blue)",
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "31",
+    "name": "Dum Dum Park Tarun Sangha",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Dum Dum Park Tarun Sangha pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.611001360142634,
+      "lng": 88.41386448063385
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Dum Dum (Blue)",
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "32",
+    "name": "Lake Town Netaji Sporting",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Lake Town Netaji Sporting pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.608356155332242,
+      "lng": 88.40038595281334
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "33",
+    "name": "Lake Town Adibashi Brinda",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Lake Town Adibashi Brinda pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.6044899963704,
+      "lng": 88.4039660357379
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "74",
+    "name": "FD Block Durga Puja",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "FD Block Durga Puja pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58355976749163,
+      "lng": 88.41226084556045
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "City Centre (Green Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "75",
+    "name": "New Town Sarbojonin Durgotsab",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "New Town Sarbojonin Durgotsab pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58192007389928,
+      "lng": 88.45893357483945
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Tirtha (Orange Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "76",
+    "name": "BD Block Durga Puja",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "BD Block Durga Puja pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.583703104056127,
+      "lng": 88.46985015087706
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Central Park (Green Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "77",
+    "name": "BJ Block Durga Puja",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "BJ Block Durga Puja pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.59088729215816,
+      "lng": 88.42657832507828
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "City Centre (Green Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "78",
+    "name": "AJ Block Durga Puja",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "AJ Block Durga Puja pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.59230374843462,
+      "lng": 88.42833785385004
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Salt Lake Sector V (Green Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "79",
+    "name": "CJ Block Durga Puja",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "CJ Block Durga Puja pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.589748058339886,
+      "lng": 88.4243789136311
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Central Park (Green Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "80",
+    "name": "Prafulla Kanan Balak Brinda",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Prafulla Kanan Balak Brinda pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.602220285494035,
+      "lng": 88.42488218274829
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Salt Lake Sector V (Green Line)"
+    ],
+    "nearestRailway": [
+      "Bidhan Nagar Road"
+    ]
+  },
+  {
+    "id": "83",
+    "name": "Bijoypur Sarbojanin Durga Puja",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Bijoypur Sarbojanin Durga Puja pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.69456604443557,
+      "lng": 88.39158666741064
+    },
+    "transport": [
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [],
+    "nearestRailway": [
+      "Naihati Junction"
+    ]
+  },
+  {
+    "id": "84",
+    "name": "Sahid Colony Sarbojanin Durga Pujo",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Sahid Colony Sarbojanin Durga Pujo pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.695238639747952,
+      "lng": 88.37645049624554
+    },
+    "transport": [
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [],
+    "nearestRailway": [
+      "Sodepur"
+    ]
+  },
+  {
+    "id": "85",
+    "name": "Naboday Sangha",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Naboday Sangha pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.70456730788083,
+      "lng": 88.37758263926598
+    },
+    "transport": [
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [],
+    "nearestRailway": [
+      "Sodepur"
+    ]
+  },
+  {
+    "id": "86",
+    "name": "Sodepur Dakshin Pally Sarbojonin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Sodepur Dakshin Pally Sarbojonin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.69901953992159,
+      "lng": 88.38625936048552
+    },
+    "transport": [
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [],
+    "nearestRailway": [
+      "Sodepur"
+    ]
+  },
+  {
+    "id": "87",
+    "name": "Dakshinpara Durgotsab Committee",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Dakshinpara Durgotsab Committee pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.613555820023663,
+      "lng": 88.42126015718817
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Dum Dum (Blue Line)"
+    ],
+    "nearestRailway": [
+      "DumDum"
+    ]
+  },
+  {
+    "id": "88",
+    "name": "Arjunpur Amra Sabai Club",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Arjunpur Amra Sabai Club pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.624499946964566,
+      "lng": 88.42452536740923
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Dum Dum (Blue Line)",
+      "Belgachia (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road"
+    ]
+  },
+  {
+    "id": "89",
+    "name": "Khelat Chandra Ghosh Bari Pujo",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Khelat Chandra Ghosh Bari Pujo pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.588929166470635,
+      "lng": 88.356527387135
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Sovabazar Sutanuti (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sovabazar Ahiritola"
+    ]
+  },
+  {
+    "id": "90",
+    "name": "Thonthonia Dutta Bari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Thonthonia Dutta Bari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.580660177013783,
+      "lng": 88.36578713847163
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "91",
+    "name": "Madan Mohan Dutta Bari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Madan Mohan Dutta Bari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.593926316220895,
+      "lng": 88.35405216748134
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "92",
+    "name": "Dorji Para Mitra Bari'r Pujo",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Dorji Para Mitra Bari'r Pujo pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.583377407750557,
+      "lng": 88.36242869807371
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "93",
+    "name": "Chatu Babu & Latu Babu's Thakur Bari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Chatu Babu & Latu Babu's Thakur Bari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.5903828059963,
+      "lng": 88.36437047116512
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "94",
+    "name": "Harakutir Ray-Banerjee Barir Durga Pujo",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Harakutir Ray-Banerjee Barir Durga Pujo pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58941379580655,
+      "lng": 88.3574145380188
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sobhabazar Ahiritola"
+    ]
+  },
+  {
+    "id": "95",
+    "name": "Chorbagan Mitra Bari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Chorbagan Mitra Bari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58679263527138,
+      "lng": 88.36200221314215
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Central (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "96",
+    "name": "Badan Chand Roy Bari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Badan Chand Roy Bari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.576020395038398,
+      "lng": 88.35792839807368
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Baghbazar"
+    ]
+  },
+  {
+    "id": "97",
+    "name": "Jorasanko Shib Krishna Daw Bari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Jorasanko Shib Krishna Daw Bari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58663765177169,
+      "lng": 88.35975156973977
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Barra Bazar"
+    ]
+  },
+  {
+    "id": "98",
+    "name": "Chorbagan Sil Thakurbari",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Bonedi Bari",
+    "description": "Chorbagan Sils Thakurbari pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.583145956615546,
+      "lng": 88.35928403407279
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Mahatma Gandhi Road (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Barra Bazar"
+    ]
+  },
+  {
+    "id": "34",
+    "name": "Suruchi Sangha",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.5,
+    "theme": "Traditional",
+    "description": "Suruchi Sangha pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.509006637227962,
+      "lng": 88.3339509913921
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Sarovar (Blue)",
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Majerhat (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "35",
+    "name": "Behala Natun Dal",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.4,
+    "theme": "Traditional",
+    "description": "Behala Natun Dal pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.500240587807554,
+      "lng": 88.32024490811331
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Behala Bazar (Purple)",
+      "Taratala (Purple)"
+    ],
+    "nearestRailway": [
+      "Brace Bridge (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "36",
+    "name": "Friends Club",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.4,
+    "theme": "Traditional",
+    "description": "Friends Club pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.501417208626417,
+      "lng": 88.32039732451472
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Behala Bazar (Purple)",
+      "Taratala (Purple)"
+    ],
+    "nearestRailway": [
+      "Brace Bridge (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "37",
+    "name": "Debdaru Fatak",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.3,
+    "theme": "Traditional",
+    "description": "Debdaru Fatak pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.502710703786324,
+      "lng": 88.31753568425586
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Behala Bazar (Purple)"
+    ],
+    "nearestRailway": [
+      "Brace Bridge (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "38",
+    "name": "Shree Sangha",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.3,
+    "theme": "Traditional",
+    "description": "Shree Sangha pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.498013595046597,
+      "lng": 88.32014733723818
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Behala Bazar (Purple)"
+    ],
+    "nearestRailway": [
+      "Brace Bridge (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "39",
+    "name": "Naktala Udyan Sangha",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.2,
+    "theme": "Traditional",
+    "description": "Naktala Udyan Sangha pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.47436097154578,
+      "lng": 88.3666019186437
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Gitanjali (Blue)"
+    ],
+    "nearestRailway": [
+      "Baghajatin (Sealdah South)"
+    ]
+  },
+  {
+    "id": "40",
+    "name": "Nabadurga",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.2,
+    "theme": "Traditional",
+    "description": "Nabadurga pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.462787714732727,
+      "lng": 88.3805732736653
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kavi Nazrul (Blue)",
+      "Shahid Khudiram (Blue)"
+    ],
+    "nearestRailway": [
+      "New Garia (Sealdah South)"
+    ]
+  },
+  {
+    "id": "41",
+    "name": "Beleghata 33 Pally",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.1,
+    "theme": "Traditional",
+    "description": "Beleghata 33 Pally pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.56876672397637,
+      "lng": 88.39109620917345
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Phoolbagan (Green)",
+      "Salt Lake Stadium (Green)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "42",
+    "name": "Kankurgachi Mitali Sangha",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.1,
+    "theme": "Traditional",
+    "description": "Kankurgachi Mitali Sangha pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.5801069823505,
+      "lng": 88.39413241334154
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Bengal Chemical (Green)",
+      "Phoolbagan (Green)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "43",
+    "name": "Kankurgachi Yubak Brinda",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4.1,
+    "theme": "Traditional",
+    "description": "Kankurgachi Yubak Brinda pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.579830531534665,
+      "lng": 88.3880205450575
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Phoolbagan (Green)"
+    ],
+    "nearestRailway": [
+      "Bidhannagar Road (Sealdah North/Circular)"
+    ]
+  },
+  {
+    "id": "44",
+    "name": "Chetla Agrani",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Chetla Agrani pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.516399103834,
+      "lng": 88.33684898187377
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)",
+      "Jatin Das Park (Blue)"
+    ],
+    "nearestRailway": [
+      "New Alipore (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "45",
+    "name": "Akal Bodhan",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Akal Bodhan pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.515782978016173,
+      "lng": 88.33642862451518
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)",
+      "Jatin Das Park (Blue)"
+    ],
+    "nearestRailway": [
+      "New Alipore (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "46",
+    "name": "Alipore Sarbojanin",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Alipore Sarbojanin pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.518515128683273,
+      "lng": 88.333243780336
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Jatin Das Park (Blue)",
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Majerhat (Circular/Sealdah South)"
+    ]
+  },
+  {
+    "id": "47",
+    "name": "Bhawanipuri Rupchand",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Bhawanipuri Rupchand pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.527566683172378,
+      "lng": 88.34533303800798
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji Bhavan (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "48",
+    "name": "Abasar Sarbajanin",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Abasar Sarbajanin pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.52841419208474,
+      "lng": 88.34836078033636
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji Bhavan (Blue)",
+      "Rabindra Sadan (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "49",
+    "name": "Ballygunge Cultural",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Ballygunge Cultural pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.516262088049462,
+      "lng": 88.35580686776561
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "50",
+    "name": "66 Pally",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "66 Pally pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.51809690841492,
+      "lng": 88.34275747660887
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "51",
+    "name": "Badamtala",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Badamtala pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.518174854736788,
+      "lng": 88.34371374216566
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "52",
+    "name": "Nepal Bhattacharjee Street",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Nepal Bhattacharjee Street pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.517948879693513,
+      "lng": 88.34124729819519
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "53",
+    "name": "Shib Mandir",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Shib Mandir pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.51102475624731,
+      "lng": 88.34984557659237
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Sarobar (Blue)"
+    ],
+    "nearestRailway": [
+      "Tollygunge (Sealdah South)"
+    ]
+  },
+  {
+    "id": "54",
+    "name": "Mudiali Club",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Mudiali Club pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.510224670239975,
+      "lng": 88.34630815621422
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Sarobar (Blue)"
+    ],
+    "nearestRailway": [
+      "Tollygunge (Sealdah South)"
+    ]
+  },
+  {
+    "id": "55",
+    "name": "Ajeyo Sanghati",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Ajeyo Sanghati pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.481038122853843,
+      "lng": 88.33770529567829
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Mahanayak Uttam Kumar (Blue)",
+      "Netaji (Blue)"
+    ],
+    "nearestRailway": [
+      "Tollygunge (Sealdah South)"
+    ]
+  },
+  {
+    "id": "56",
+    "name": "41 Pally",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "41 Pally pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.483313120650955,
+      "lng": 88.33839631332249
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji (Blue)"
+    ],
+    "nearestRailway": [
+      "Tollygunge (Sealdah South)"
+    ]
+  },
+  {
+    "id": "57",
+    "name": "Vivekananda Park Athletic",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Vivekananda Park Athletic pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.481453517695943,
+      "lng": 88.33732690008246
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji (Blue)"
+    ],
+    "nearestRailway": [
+      "Tollygunge (Sealdah South)"
+    ]
+  },
+  {
+    "id": "58",
+    "name": "Ekdalia Evergreen",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Ekdalia Evergreen pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.521416891999447,
+      "lng": 88.36658435335126
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "59",
+    "name": "Singhi Park",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Singhi Park pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.491533094854923,
+      "lng": 88.38277688646762
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)",
+      "Jatin Das Park (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "60",
+    "name": "Santhoshpur Lakepally",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Santhoshpur Lakepally pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.491533094854923,
+      "lng": 88.38277688646762
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Jyotirindra Nandi (Orange)"
+    ],
+    "nearestRailway": [
+      "Jadavpur (Sealdah South)"
+    ]
+  },
+  {
+    "id": "61",
+    "name": "Trikon Park",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Trikon Park pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.493209635867743,
+      "lng": 88.378421405798
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Gitanjali (Blue)"
+    ],
+    "nearestRailway": [
+      "Jadavpur (Sealdah South)"
+    ]
+  },
+  {
+    "id": "62",
+    "name": "Pally Mangal Samity",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Pally Mangal Samity pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.505325739159943,
+      "lng": 88.37453883971467
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Sarobar (Blue)"
+    ],
+    "nearestRailway": [
+      "Dhakuria (Sealdah South)"
+    ]
+  },
+  {
+    "id": "63",
+    "name": "95 Pally",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "95 Pally pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.508453033721732,
+      "lng": 88.3627601956791
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Sarobar (Blue)"
+    ],
+    "nearestRailway": [
+      "Dhakuria (Sealdah South)"
+    ]
+  },
+  {
+    "id": "64",
+    "name": "Babubagan",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Babubagan pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.508017663824685,
+      "lng": 88.36908357916347
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Rabindra Sarobar (Blue)"
+    ],
+    "nearestRailway": [
+      "Dhakuria (Sealdah South)"
+    ]
+  },
+  {
+    "id": "65",
+    "name": "Deshapriya Park",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Deshapriya Park pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.518790006588734,
+      "lng": 88.35346069567942
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)",
+      "Rabindra Sarobar (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "66",
+    "name": "Tridhara",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Tridhara pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.51982852747677,
+      "lng": 88.35539147100177
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "67",
+    "name": "Hindusthan Park",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Hindusthan Park pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.518188288823495,
+      "lng": 88.36193203916687
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "68",
+    "name": "Hindusthan Club",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Hindusthan Club pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.534558115095855,
+      "lng": 88.34212149962313
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji Bhavan (Blue)",
+      "Rabindra Sadan (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "69",
+    "name": "Samaj Sebi",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Samaj Sebi pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.51596454391618,
+      "lng": 88.35627623800768
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "70",
+    "name": "Maddox Square",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Maddox Square pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.52668668073286,
+      "lng": 88.3548667984865
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Jatin Das Park (Blue)",
+      "Rabindra Sadan (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "71",
+    "name": "Bosepukur Sitala Mandir",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Bosepukur Sitala Mandir pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.51945593790458,
+      "lng": 88.38486832451528
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "72",
+    "name": "Talbagan",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Talbagan pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.519034563017,
+      "lng": 88.38283396684356
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kalighat (Blue)"
+    ],
+    "nearestRailway": [
+      "Ballygunge Jn (Sealdah South/Circular)"
+    ]
+  },
+  {
+    "id": "99",
+    "name": "Chakraberia Sarbojanin",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Chakraberia Sarbojanin pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.53385422285262,
+      "lng": 88.35189993857243
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji Bhawan"
+    ],
+    "nearestRailway": [
+      "Ballygunge"
+    ]
+  },
+  {
+    "id": "100",
+    "name": "Bakul Bagan",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Bakul Bagan pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.52699987214106,
+      "lng": 88.34825997639405
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Jatin das Park (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Ballygunge"
+    ]
+  },
+  {
+    "id": "101",
+    "name": "75 Pally",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "75 Pally pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.533397707069817,
+      "lng": 88.34570125943982
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Netaji Bhawan (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Ballygunge"
+    ]
+  },
+  {
+    "id": "102",
+    "name": "Kendua Shanti Sangha",
+    "area": "South Kolkata",
+    "region": "South",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Kendua Shanti Sangha pandal in South Kolkata.",
+    "coordinates": {
+      "lat": 22.47205277266847,
+      "lng": 88.38151769754046
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Kavi Nazrul and Sahid Khudiram (Blue line)"
+    ],
+    "nearestRailway": [
+      "Ballygunge"
+    ]
+  },
+  {
+    "id": "73",
+    "name": "Santosh Mitra Square",
+    "area": "Central Kolkata",
+    "region": "Central",
+    "rating": 4.3,
+    "theme": "Traditional",
+    "description": "Santosh Mitra Square pandal in Central Kolkata.",
+    "coordinates": {
+      "lat": 22.566196762910156,
+      "lng": 88.36568299382996
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Central (Blue)"
+    ],
+    "nearestRailway": [
+      "Sealdah (Main/North/South)"
+    ]
+  },
+  {
+    "id": "81",
+    "name": "Mohammed Ali Park",
+    "area": "Central Kolkata",
+    "region": "Central",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Mohammed Ali Park pandal in Central Kolkata.",
+    "coordinates": {
+      "lat": 22.57724810401376,
+      "lng": 88.36072417400061
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Central (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "82",
+    "name": "College Square",
+    "area": "Central Kolkata",
+    "region": "Central",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "College Square pandal in Central Kolkata.",
+    "coordinates": {
+      "lat": 22.574755682909267,
+      "lng": 88.36444018989705
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Central (Blue Line)"
+    ],
+    "nearestRailway": [
+      "Sealdah"
+    ]
+  },
+  {
+    "id": "103",
+    "name": "Tala Park",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Tala Park pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.608160635614396,
+      "lng": 88.3832549571882
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Belgachia (Blue)"
+    ],
+    "nearestRailway": []
+  },
+  {
+    "id": "104",
+    "name": "Sikder Bagan",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Sikder Bagan pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.595702548183542,
+      "lng": 88.37336016740859
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Shyambazar (Blue)"
+    ],
+    "nearestRailway": []
+  },
+  {
+    "id": "105",
+    "name": "Chorbagan Sarbojanin",
+    "area": "North Kolkata",
+    "region": "North",
+    "rating": 4,
+    "theme": "Traditional",
+    "description": "Chorbagan Sarbojanin pandal in North Kolkata.",
+    "coordinates": {
+      "lat": 22.58355310520901,
+      "lng": 88.36340131074178
+    },
+    "transport": [
+      "Metro",
+      "Railway"
+    ],
+    "crowdLevel": "Medium",
+    "timings": "12:00 AM - 12:00 PM",
+    "specialFeatures": [],
+    "nearestMetro": [
+      "Girish Park (Blue)"
+    ],
+    "nearestRailway": []
+  }
+]

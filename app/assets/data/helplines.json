@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Police Helpline",
+    "number": "100"
+  },
+  {
+    "label": "Fire Department",
+    "number": "101"
+  },
+  {
+    "label": "Medical Emergency / Ambulance",
+    "number": "102"
+  },
+  {
+    "label": "Women’s Helpline",
+    "number": "1091"
+  },
+  {
+    "label": "Local Disaster Management / Municipality",
+    "number": "1077"
+  }
+]

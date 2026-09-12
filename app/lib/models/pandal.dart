@@ -49,6 +49,12 @@ class Pandal {
   final List<String> transport;
   final List<String> specialFeatures;
 
+  double get latitude => lat;
+  double get longitude => lng;
+  String? get circularRailway => nearestRailway;
+  String? get entryFee => 'Free entry';
+  String get zoneLabel => zone.label;
+
   factory Pandal.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     return Pandal.fromMap(doc.id, doc.data() ?? {});
   }
