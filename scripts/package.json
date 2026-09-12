@@ -1,0 +1,15 @@
+{
+  "name": "kolkata-puja-seed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Seeds the curated pandal CSV into Firestore (architecture doc section 3).",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed_pandals.js",
+    "seed:dry": "node seed_pandals.js --dry-run"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.0",
+    "firebase-admin": "^12.0.0"
+  }
+}

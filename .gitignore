@@ -1,0 +1,30 @@
+# --- Flutter / Dart ---
+app/build/
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+app/.fvm/
+app/coverage/
+**/generated_plugin_registrant.dart
+
+# --- Secrets / Firebase config (never commit) ---
+.env
+.env.*
+*.keystore
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
+firebase-adminsdk-*.json
+service-account*.json
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# --- Node (seed scripts) ---
+scripts/node_modules/
