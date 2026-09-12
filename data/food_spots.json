@@ -1,0 +1,32 @@
+[
+  {
+    "id": "f1",
+    "name": "Bhog at Shreebhumi",
+    "type": "Bhog",
+    "coordinates": {
+      "lat": 22.572,
+      "lng": 88.4135
+    },
+    "nearbyPandal": "Shreebhumi Sporting Club"
+  },
+  {
+    "id": "f2",
+    "name": "Gariahat Street Food",
+    "type": "Street Food",
+    "coordinates": {
+      "lat": 22.518,
+      "lng": 88.3635
+    },
+    "nearbyPandal": "Ekdalia Evergreen"
+  },
+  {
+    "id": "f3",
+    "name": "Kumartuli Puchka Corner",
+    "type": "Street Food",
+    "coordinates": {
+      "lat": 22.5955,
+      "lng": 88.3635
+    },
+    "nearbyPandal": "Kumartuli Park"
+  }
+]

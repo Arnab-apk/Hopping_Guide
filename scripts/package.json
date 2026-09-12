@@ -5,6 +5,7 @@
   "description": "Seeds the curated pandal CSV into Firestore (architecture doc section 3).",
   "type": "module",
   "scripts": {
+    "scrape": "node scrape_pujoplanner.js",
     "seed": "node seed_pandals.js",
     "seed:dry": "node seed_pandals.js --dry-run"
   },

@@ -20,12 +20,13 @@ flutter run              # run on connected device/emulator
 flutter build apk --release   # release Android build
 ```
 
-## Data seeding (from scripts/)
+## Data seeding & scraping (from scripts/)
 
 ```bash
 cd scripts
 npm install
-npm run seed:dry         # preview parsed CSV (no writes)
+npm run scrape           # scrape latest pandals, food, events from pujoplanner.com
+npm run seed:dry         # preview parsed data (no writes)
 npm run seed             # write pandals into Firestore (needs FIREBASE_PROJECT_ID)
 ```
 

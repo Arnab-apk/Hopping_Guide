@@ -1,5 +1,8 @@
 # Kolkata Puja Pandal-Hopping App
 
+<!-- After pushing to GitHub, replace <OWNER>/<REPO> below with your repo slug. -->
+[![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
+
 A community pandal-hopping companion for Durga Puja in Kolkata — interactive
 map of pandals, "nearest to me", zone browsing, group creation, and live
 location sharing with friends.

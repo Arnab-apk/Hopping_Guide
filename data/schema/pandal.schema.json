@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kolkatapuja.app/schemas/pandal.schema.json",
+  "title": "Pandal",
+  "description": "Schema for Kolkata Durga Puja pandals in the mobile application and Firestore database.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "lat",
+    "lng",
+    "zone"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique slug identifier for the pandal (e.g. 'hatibagan_sarbojanin')."
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Original source ID from pujoplanner.com if applicable."
+    },
+    "name": {
+      "type": "string",
+      "description": "Official or commonly known name of the Durga Puja pandal."
+    },
+    "lat": {
+      "type": "number",
+      "minimum": 20.0,
+      "maximum": 25.0,
+      "description": "Latitude coordinate."
+    },
+    "lng": {
+      "type": "number",
+      "minimum": 86.0,
+      "maximum": 90.0,
+      "description": "Longitude coordinate."
+    },
+    "zone": {
+      "type": "string",
+      "enum": [
+        "northKolkata",
+        "centralKolkata",
+        "southKolkata",
+        "saltLake",
+        "newTown"
+      ],
+      "description": "Zone classification used for regional filtering."
+    },
+    "area": {
+      "type": "string",
+      "description": "Human-readable area/neighborhood (e.g. 'North Kolkata', 'Gariahat')."
+    },
+    "region": {
+      "type": "string",
+      "description": "Broad region tag (e.g. 'North', 'Central', 'South')."
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 5.0,
+      "description": "Pandal rating out of 5.0."
+    },
+    "theme": {
+      "type": "string",
+      "description": "Artistic theme, style, or categorization (e.g. 'Traditional', 'Bonedi Bari', 'Theme-based Idol')."
+    },
+    "crowd_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "General or estimated crowd level for planning."
+    },
+    "timings": {
+      "type": "string",
+      "description": "Visiting hours / opening timings for visitors."
+    },
+    "transport": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recommended transit modes (e.g. ['Metro', 'Railway', 'Bus', 'Auto'])."
+    },
+    "nearest_metro": {
+      "type": ["string", "null"],
+      "description": "Nearest metro station name and line (e.g. 'Shyambazar (Blue)')."
+    },
+    "nearest_metro_list": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of nearby metro stations."
+    },
+    "nearest_railway": {
+      "type": ["string", "null"],
+      "description": "Nearest suburban or circular railway station (e.g. 'Kolkata Station (Circular)')."
+    },
+    "nearest_railway_list": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of nearby railway stations."
+    },
+    "special_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Notable accessibility features, laser shows, lighting, or attractions."
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL of pandal banner/display photograph."
+    },
+    "description": {
+      "type": "string",
+      "description": "Historical context, highlights, or overview of the pandal."
+    }
+  }
+}
