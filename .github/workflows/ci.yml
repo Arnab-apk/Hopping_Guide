@@ -41,6 +41,40 @@ jobs:
           flutter --version
           dart --version
 
+      - name: Setup CI Firebase placeholders (if missing)
+        run: |
+          if [ ! -f lib/firebase_options.dart ]; then
+            echo "Copying template to lib/firebase_options.dart for CI"
+            cp lib/firebase_options.template.dart lib/firebase_options.dart
+          fi
+          if [ ! -f android/app/google-services.json ]; then
+            echo "Creating dummy google-services.json for CI"
+            cat << 'EOF' > android/app/google-services.json
+          {
+            "project_info": {
+              "project_number": "1034026195231",
+              "project_id": "kolkata-puja-2026",
+              "storage_bucket": "kolkata-puja-2026.firebasestorage.app"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:1034026195231:android:ffe9cec9fe348339cbb82a"
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "dummy-ci-key"
+                  }
+                ],
+                "services": {}
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+          fi
+
       - name: Install dependencies
         run: flutter pub get
 
