@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../config/theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_tutorial_dialog.dart';
+import '../widgets/durga_face_icon.dart';
 import 'map_screen.dart';
 import 'pandal_list_screen.dart';
 import 'routes_screen.dart';
@@ -58,8 +59,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   Widget _buildNavIcon({
-    required IconData outlineIcon,
-    required IconData filledIcon,
+    IconData? outlineIcon,
+    IconData? filledIcon,
+    Widget? customWidget,
     required bool isSelected,
     required BuildContext context,
   }) {
@@ -70,12 +72,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       curve: Curves.easeOutBack,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
-        child: Icon(
-          isSelected ? filledIcon : outlineIcon,
-          key: ValueKey(isSelected),
-          size: iconSize,
-          color: isSelected ? PujaColors.festivalGold : null,
-        ),
+        child: customWidget ??
+            Icon(
+              isSelected ? filledIcon : outlineIcon,
+              key: ValueKey(isSelected),
+              size: iconSize,
+              color: isSelected ? PujaColors.festivalGold : null,
+            ),
       ),
     );
   }
@@ -119,14 +122,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             elevation: 0,
             selectedItemColor: PujaColors.festivalGold,
             unselectedItemColor: isDark ? Colors.white60 : Colors.black54,
-            selectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: isSmall ? 10 : 11.5,
-              letterSpacing: 0.3,
+            selectedFontSize: isSmall ? 10.5 : 12.0,
+            unselectedFontSize: isSmall ? 9.5 : 11.0,
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
             ),
-            unselectedLabelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isSmall ? 9.5 : 11,
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
             ),
             items: [
               BottomNavigationBarItem(
@@ -140,8 +143,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               ),
               BottomNavigationBarItem(
                 icon: _buildNavIcon(
-                  outlineIcon: Icons.temple_hindu_outlined,
-                  filledIcon: Icons.temple_hindu,
+                  customWidget: DurgaFaceIcon(
+                    size: context.dynamicIcon(22),
+                    color: _currentIndex == 1
+                        ? PujaColors.festivalGold
+                        : (isDark ? Colors.white60 : Colors.black54),
+                    bindiColor: _currentIndex == 1 ? const Color(0xFFFF1744) : const Color(0xFFD50000),
+                  ),
                   isSelected: _currentIndex == 1,
                   context: context,
                 ),

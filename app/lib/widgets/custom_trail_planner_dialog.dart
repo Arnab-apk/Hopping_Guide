@@ -9,6 +9,7 @@ import '../repositories/local_pandal_repository.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
 import '../utils/responsive.dart';
+import 'durga_face_icon.dart';
 
 /// Interactive modal dialog allowing users to specify their starting location,
 /// hopping style, time budget, and travel mode to generate a custom itinerary.
@@ -549,7 +550,11 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildMetricItem(
-                icon: Icons.temple_hindu_rounded,
+                customWidget: const DurgaFaceIcon(
+                  size: 19,
+                  color: PujaColors.festivalGold,
+                  bindiColor: Color(0xFFFF1744),
+                ),
                 value: '${trail.totalStops}',
                 label: 'Pandals',
               ),
@@ -734,10 +739,16 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
     );
   }
 
-  Widget _buildMetricItem({required IconData icon, required String value, required String label}) {
+  Widget _buildMetricItem({
+    IconData? icon,
+    Widget? customWidget,
+    required String value,
+    required String label,
+  }) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 18, color: PujaColors.festivalGold),
+        customWidget ?? Icon(icon!, size: 18, color: PujaColors.festivalGold),
         const SizedBox(height: 2),
         Text(
           value,

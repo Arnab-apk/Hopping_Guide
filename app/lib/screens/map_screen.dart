@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,12 +23,14 @@ import '../services/squad_service.dart';
 import '../services/theme_service.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
+import '../utils/pandal_spatial_cluster.dart';
 import '../utils/responsive.dart';
 import '../widgets/crowd_badge.dart';
 import '../widgets/custom_trail_planner_dialog.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/app_tutorial_dialog.dart';
 import '../widgets/animated_fade_slide.dart';
+import '../widgets/durga_face_icon.dart';
 import 'main_navigation_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -69,6 +72,32 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   bool _isCalculatingRoute = false;
   bool _followUser = false;
 
+  // Floating Status Pill State (Minimal Negative Feedback)
+  String? _statusPillMessage;
+  IconData? _statusPillIcon;
+  Color? _statusPillColor;
+  Timer? _statusPillTimer;
+
+  void _showStatusPill(
+    String message, {
+    IconData? icon,
+    Color? color,
+    Duration duration = const Duration(milliseconds: 2400),
+  }) {
+    _statusPillTimer?.cancel();
+    if (!mounted) return;
+    setState(() {
+      _statusPillMessage = message;
+      _statusPillIcon = icon ?? Icons.info_outline_rounded;
+      _statusPillColor = color;
+    });
+    _statusPillTimer = Timer(duration, () {
+      if (mounted) {
+        setState(() => _statusPillMessage = null);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -84,6 +113,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _statusPillTimer?.cancel();
     LocationService.instance.stopLiveTracking();
     _cameraMoveController?.stop();
     _cameraMoveController?.dispose();
@@ -193,21 +223,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           LatLng(_userPosition!.latitude, _userPosition!.longitude),
           16.0,
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('🧭 Live Tracking: Following your location'),
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showStatusPill('🧭 Live Tracking: Following your location', icon: Icons.my_location_rounded);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Free-roam mode enabled'),
-            duration: Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _showStatusPill('Free-roam mode enabled', icon: Icons.explore_outlined);
       }
     } else {
       _animatedMapMove(
@@ -224,11 +242,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     if (userPos == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('📍 Location permission needed to trace walking path.'),
-            behavior: SnackBarBehavior.floating,
-          ),
+        _showStatusPill(
+          '📍 Location permission needed to trace walking path.',
+          icon: Icons.location_disabled_rounded,
+          color: Colors.amber,
         );
       }
       return;
@@ -323,16 +340,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _mapController.rotate(0.0);
 
       final msg = isFarAway
-          ? '📍 Showing ${effectivePandals.length} pandals within 10 km of central Kolkata • Nearest: ${nearest.name}'
-          : '📍 Showing ${effectivePandals.length} pandals within 10 km of you • Nearest: ${nearest.name}';
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 3),
-          content: Text(msg),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+          ? '📍 ${effectivePandals.length} pandals within 10 km • Nearest: ${nearest.name}'
+          : '📍 ${effectivePandals.length} pandals within 10 km • Nearest: ${nearest.name}';
+      _showStatusPill(msg, icon: Icons.near_me_rounded);
     }
   }
 
@@ -343,11 +353,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     if (userPos == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('📍 Location needed to trace route to squad member.'),
-            behavior: SnackBarBehavior.floating,
-          ),
+        _showStatusPill(
+          '📍 Location needed to trace route to squad member.',
+          icon: Icons.location_disabled_rounded,
+          color: Colors.amber,
         );
       }
       return;
@@ -443,12 +452,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         const LatLng(22.65, 88.38),
         10.8,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 1),
-          content: Text('Showing all ${_pandals.length} pandals across Kolkata & Suburbs'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      _showStatusPill(
+        'Showing all ${_pandals.length} pandals across Kolkata & Suburbs',
+        icon: Icons.auto_awesome_rounded,
       );
     } else {
       final center = _getZoneCenter(zone);
@@ -456,12 +462,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _animatedMapMove(center, zoom);
 
       final count = _pandals.where((p) => p.zone == zone).length;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Text('📍 Centered on ${zone.label} · $count Pandals'),
-          behavior: SnackBarBehavior.floating,
-        ),
+      _showStatusPill(
+        '📍 ${zone.label} · $count Pandals',
+        icon: Icons.location_on_rounded,
       );
     }
   }
@@ -557,12 +560,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             onPressed: () {
               HapticFeedback.lightImpact();
               setState(() => _showFoodSpots = !_showFoodSpots);
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  duration: const Duration(seconds: 1),
-                  content: Text(_showFoodSpots ? '🍲 Showing ${_foodSpots.length} Food & Bhog stalls' : 'Food stalls hidden'),
-                ),
+              _showStatusPill(
+                _showFoodSpots
+                    ? '🍲 Showing ${_foodSpots.length} Food & Bhog stalls'
+                    : 'Food stalls hidden',
+                icon: Icons.restaurant_rounded,
               );
             },
           ),
@@ -633,20 +635,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             children: [
               RepaintBoundary(
                 child: TileLayer(
-                  urlTemplate: AppConfig.tileUrlTemplate,
-                  subdomains: AppConfig.osmSubdomains,
+                  urlTemplate: isDark ? AppConfig.tileCartoDark : AppConfig.tileCartoVoyager,
+                  fallbackUrl: AppConfig.tileUrlTemplate,
+                  subdomains: AppConfig.cartoSubdomains,
                   userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
-                  panBuffer: 1,
-                  keepBuffer: 3,
-                  tileBuilder: (context, tileWidget, tile) {
-                    if (isDark) {
-                      return ColorFiltered(
-                        colorFilter: _kDarkMatrix,
-                        child: tileWidget,
-                      );
-                    }
-                    return tileWidget;
-                  },
+                  panBuffer: 2,
+                  keepBuffer: 8,
+                  tileDisplay: const TileDisplay.fadeIn(
+                    duration: Duration(milliseconds: 220),
+                  ),
                 ),
               ),
 
@@ -771,154 +768,21 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Pandal Markers Layer
-              MarkerLayer(
-                markers: visible.map((p) {
-                  final isSelected = _selectedPandal?.id == p.id;
-                  return Marker(
-                    point: LatLng(p.lat, p.lng),
-                    width: isSelected ? 52 : 38,
-                    height: isSelected ? 52 : 38,
-                    child: GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() => _selectedPandal = p);
-                        _animatedMapMove(
-                          LatLng(p.lat, p.lng),
-                          (_mapController.camera.zoom < 15.0 ? 15.0 : _mapController.camera.zoom),
-                        );
-                      },
-                      child: isSelected
-                          ? RepaintBoundary(
-                              child: AnimatedBuilder(
-                                animation: _pulseController,
-                                builder: (context, child) {
-                                  final pulse = _pulseController.value;
-                                  return Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Container(
-                                        width: 42 + (10 * pulse),
-                                        height: 42 + (10 * pulse),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: PujaColors.festivalGold.withValues(
-                                            alpha: 0.35 * (1.0 - pulse),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: 44,
-                                        height: 44,
-                                        decoration: BoxDecoration(
-                                          color: PujaColors.goldBright,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 3,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: PujaColors.festivalGold.withValues(alpha: 0.7),
-                                              blurRadius: 12,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.temple_hindu,
-                                            color: PujaColors.crimsonVelvet,
-                                            size: 22,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            )
-                          : RepaintBoundary(
-                              child: Builder(
-                                builder: (context) {
-                                  final trailService = Provider.of<CustomHoppingTrailService>(context, listen: false);
-                                  final activeTrail = trailService.activeTrail;
-                                  int trailIndex = -1;
-                                  if (activeTrail != null) {
-                                    trailIndex = activeTrail.stops.indexWhere((s) => s.id == p.id);
-                                  }
-
-                                  if (trailIndex != -1 && activeTrail != null) {
-                                    final isVisited = activeTrail.visitedPandalIds.contains(p.id);
-                                    final isCurrent = trailIndex == activeTrail.currentStopIndex;
-
-                                    return Container(
-                                      width: isCurrent ? 42 : 36,
-                                      height: isCurrent ? 42 : 36,
-                                      decoration: BoxDecoration(
-                                        color: isVisited
-                                            ? const Color(0xFF00C853)
-                                            : (isCurrent ? const Color(0xFFFF1744) : PujaColors.festivalGold),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2.2,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: (isCurrent ? const Color(0xFFFF1744) : Colors.black).withValues(alpha: 0.4),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: isVisited
-                                            ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
-                                            : Text(
-                                                '${trailIndex + 1}',
-                                                style: TextStyle(
-                                                  color: isCurrent ? Colors.white : Colors.black87,
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: isCurrent ? 15 : 13,
-                                                ),
-                                              ),
-                                      ),
-                                    );
-                                  }
-
-                                  return Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: PujaColors.crimsonVelvet,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: PujaColors.festivalGold,
-                                        width: 1.8,
-                                      ),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black45,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.temple_hindu,
-                                        color: PujaColors.goldBright,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                    ),
+              // Clustered Pandal Markers Layer (Smooth Spatial LOD)
+              _ClusteredPandalLayer(
+                visiblePandals: visible,
+                selectedPandal: _selectedPandal,
+                pulseController: _pulseController,
+                onSelectPandal: (p) {
+                  setState(() => _selectedPandal = p);
+                  _animatedMapMove(
+                    LatLng(p.lat, p.lng),
+                    (_mapController.camera.zoom < 15.0 ? 15.0 : _mapController.camera.zoom),
                   );
-                }).toList(),
+                },
+                onZoomToCluster: (point, targetZoom) {
+                  _animatedMapMove(point, targetZoom);
+                },
               ),
 
               // Designated Squad Meet-up Landmark Flag Marker
@@ -1330,6 +1194,61 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
+
+          // Non-Intrusive Floating Status Pill (Minimal Negative Feedback)
+          if (_statusPillMessage != null)
+            Positioned(
+              top: 58,
+              left: 24,
+              right: 24,
+              child: Center(
+                child: AnimatedFadeSlide(
+                  duration: const Duration(milliseconds: 220),
+                  offset: const Offset(0, -0.2),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: (isDark ? const Color(0xFF1E1E24) : Colors.white).withValues(alpha: 0.96),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: _statusPillColor ?? PujaColors.festivalGold.withValues(alpha: 0.6),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _statusPillIcon,
+                          size: 16,
+                          color: _statusPillColor ?? PujaColors.festivalGold,
+                        ),
+                        const SizedBox(width: 7),
+                        Flexible(
+                          child: Text(
+                            _statusPillMessage!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           // Top Floating Route HUD Banner
           if (_highlightedRoute != null)
@@ -2650,7 +2569,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.temple_hindu, size: 18, color: PujaColors.festivalGold),
+                      const DurgaFaceIcon(size: 18, color: PujaColors.festivalGold),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -2777,3 +2696,249 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 }
+
+class _ClusteredPandalLayer extends StatelessWidget {
+  const _ClusteredPandalLayer({
+    required this.visiblePandals,
+    required this.selectedPandal,
+    required this.pulseController,
+    required this.onSelectPandal,
+    required this.onZoomToCluster,
+  });
+
+  final List<Pandal> visiblePandals;
+  final Pandal? selectedPandal;
+  final AnimationController pulseController;
+  final ValueChanged<Pandal> onSelectPandal;
+  final void Function(LatLng point, double targetZoom) onZoomToCluster;
+
+  @override
+  Widget build(BuildContext context) {
+    final camera = MapCamera.of(context);
+    final trailService = Provider.of<CustomHoppingTrailService>(context, listen: false);
+    final activeTrail = trailService.activeTrail;
+    final activeTrailIds = activeTrail?.stops.map((s) => s.id).toSet();
+
+    final clusterItems = PandalSpatialClusterer.cluster(
+      pandals: visiblePandals,
+      camera: camera,
+      selectedPandalId: selectedPandal?.id,
+      activeTrailPandalIds: activeTrailIds,
+    );
+
+    return MarkerLayer(
+      markers: clusterItems.map((item) {
+        if (item.isCluster) {
+          final count = item.count;
+          final isLarge = count > 99;
+          final size = isLarge ? 48.0 : 42.0;
+
+          return Marker(
+            point: item.point,
+            width: size,
+            height: size,
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                final nextZoom = (camera.zoom + 1.8).clamp(11.0, 16.5);
+                onZoomToCluster(item.point, nextZoom);
+              },
+              child: RepaintBoundary(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [PujaColors.crimsonVelvet, Color(0xFF4A000D)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: PujaColors.festivalGold,
+                      width: 2.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: PujaColors.festivalGold.withValues(alpha: 0.45),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                      const BoxShadow(
+                        color: Colors.black45,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const DurgaFaceIcon(
+                          size: 14,
+                          color: PujaColors.goldBright,
+                          bindiColor: Color(0xFFFF1744),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          count > 999 ? '${(count / 1000).toStringAsFixed(1)}k' : '$count',
+                          style: const TextStyle(
+                            color: PujaColors.goldBright,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 10,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        final p = item.pandal!;
+        final isSelected = selectedPandal?.id == p.id;
+
+        return Marker(
+          point: LatLng(p.lat, p.lng),
+          width: isSelected ? 52 : 38,
+          height: isSelected ? 52 : 38,
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onSelectPandal(p);
+            },
+            child: isSelected
+                ? RepaintBoundary(
+                    child: AnimatedBuilder(
+                      animation: pulseController,
+                      builder: (context, child) {
+                        final pulse = pulseController.value;
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 42 + (10 * pulse),
+                              height: 42 + (10 * pulse),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: PujaColors.festivalGold.withValues(
+                                  alpha: 0.35 * (1.0 - pulse),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: PujaColors.goldBright,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 3,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: PujaColors.festivalGold.withValues(alpha: 0.7),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: DurgaFaceIcon(
+                                  size: 24,
+                                  color: PujaColors.crimsonVelvet,
+                                  bindiColor: Color(0xFFB71C1C),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                : RepaintBoundary(
+                    child: Builder(
+                      builder: (context) {
+                        int trailIndex = -1;
+                        if (activeTrail != null) {
+                          trailIndex = activeTrail.stops.indexWhere((s) => s.id == p.id);
+                        }
+
+                        if (trailIndex != -1 && activeTrail != null) {
+                          final isVisited = activeTrail.visitedPandalIds.contains(p.id);
+                          final isCurrent = trailIndex == activeTrail.currentStopIndex;
+
+                          return Container(
+                            width: isCurrent ? 42 : 36,
+                            height: isCurrent ? 42 : 36,
+                            decoration: BoxDecoration(
+                              color: isVisited
+                                  ? const Color(0xFF00C853)
+                                  : (isCurrent ? const Color(0xFFFF1744) : PujaColors.festivalGold),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (isCurrent ? const Color(0xFFFF1744) : Colors.black).withValues(alpha: 0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: isVisited
+                                  ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                                  : Text(
+                                      '${trailIndex + 1}',
+                                      style: TextStyle(
+                                        color: isCurrent ? Colors.white : Colors.black87,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: isCurrent ? 15 : 13,
+                                      ),
+                                    ),
+                            ),
+                          );
+                        }
+
+                        return Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: PujaColors.crimsonVelvet,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: PujaColors.festivalGold,
+                              width: 1.8,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black45,
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: DurgaFaceIcon(
+                              size: 20,
+                              color: PujaColors.goldBright,
+                              bindiColor: Color(0xFFFF1744),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+

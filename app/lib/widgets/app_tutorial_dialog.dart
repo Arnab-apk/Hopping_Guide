@@ -5,12 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/theme.dart';
 import '../utils/responsive.dart';
+import 'durga_face_icon.dart';
 
 class TutorialStep {
   final String title;
   final String subtitle;
   final String description;
   final IconData icon;
+  final Widget? customWidget;
   final Color iconColor;
   final List<String> highlights;
 
@@ -19,6 +21,7 @@ class TutorialStep {
     required this.subtitle,
     required this.description,
     required this.icon,
+    this.customWidget,
     required this.iconColor,
     required this.highlights,
   });
@@ -82,6 +85,11 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
       description:
           'Search pandals by name, locality, or artistic concept. Tap the heart to bookmark favorites, and mark pandals as hopped to track your festive journey.',
       icon: Icons.temple_hindu_rounded,
+      customWidget: DurgaFaceIcon(
+        size: 38,
+        color: PujaColors.goldBright,
+        bindiColor: Color(0xFFFF1744),
+      ),
       iconColor: PujaColors.durgaRedLight,
       highlights: [
         '❤️ Favorite list saved offline',
@@ -273,11 +281,12 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                                 ),
                               ],
                             ),
-                            child: Icon(
-                              step.icon,
-                              size: context.dynamicIcon(38),
-                              color: step.iconColor,
-                            ),
+                            child: step.customWidget ??
+                                Icon(
+                                  step.icon,
+                                  size: context.dynamicIcon(38),
+                                  color: step.iconColor,
+                                ),
                           ),
                           const SizedBox(height: 14),
 

@@ -11,9 +11,10 @@ import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
+import '../widgets/animated_fade_slide.dart';
+import '../widgets/durga_face_icon.dart';
 import '../widgets/pandal_card.dart';
 import '../widgets/pandal_detail_sheet.dart';
-import '../widgets/animated_fade_slide.dart';
 
 enum PandalTabFilter {
   all,
@@ -256,7 +257,15 @@ class _PandalListScreenState extends State<PandalListScreen> {
               children: [
                 _buildTabPill(
                   label: 'All (${_allPandals.length})',
-                  icon: Icons.temple_hindu_outlined,
+                  customIcon: DurgaFaceIcon(
+                    size: context.dynamicIcon(15),
+                    color: _activeTab == PandalTabFilter.all
+                        ? PujaColors.goldBright
+                        : PujaColors.festivalGold,
+                    bindiColor: _activeTab == PandalTabFilter.all
+                        ? const Color(0xFFFF1744)
+                        : const Color(0xFFD50000),
+                  ),
                   isSelected: _activeTab == PandalTabFilter.all,
                   onTap: () => setState(() => _activeTab = PandalTabFilter.all),
                 ),
@@ -409,7 +418,8 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
   Widget _buildTabPill({
     required String label,
-    required IconData icon,
+    IconData? icon,
+    Widget? customIcon,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
@@ -447,11 +457,12 @@ class _PandalListScreenState extends State<PandalListScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: context.dynamicIcon(14),
-              color: isSelected ? PujaColors.goldBright : PujaColors.festivalGold,
-            ),
+            customIcon ??
+                Icon(
+                  icon!,
+                  size: context.dynamicIcon(14),
+                  color: isSelected ? PujaColors.goldBright : PujaColors.festivalGold,
+                ),
             const SizedBox(width: 6),
             Text(
               label,
