@@ -26,6 +26,11 @@ class PandalDetailSheet extends StatelessWidget {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
+      sheetAnimationStyle: const AnimationStyle(
+        curve: Curves.easeOutCubic,
+        duration: Duration(milliseconds: 320),
+        reverseCurve: Curves.easeInCubic,
+      ),
       builder: (context) => PandalDetailSheet(pandal: pandal),
     );
   }
@@ -139,13 +144,22 @@ class PandalDetailSheet extends StatelessWidget {
                       CrowdBadge(crowdLevel: pandal.crowdLevel),
                       const Spacer(),
 
-                      // Favorite toggle
+                      // Favorite toggle with animated bounce
                       IconButton(
                         tooltip: isFav ? 'Remove from favorites' : 'Add to favorites',
-                        icon: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
-                          color: isFav ? Colors.red : Colors.grey,
-                          size: context.dynamicIcon(22),
+                        icon: AnimatedScale(
+                          scale: isFav ? 1.25 : 1.0,
+                          duration: const Duration(milliseconds: 240),
+                          curve: Curves.easeOutBack,
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: Icon(
+                              isFav ? Icons.favorite : Icons.favorite_border,
+                              key: ValueKey(isFav),
+                              color: isFav ? Colors.red : Colors.grey,
+                              size: context.dynamicIcon(22),
+                            ),
+                          ),
                         ),
                         onPressed: () {
                           HapticFeedback.selectionClick();

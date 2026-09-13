@@ -12,6 +12,7 @@ import '../utils/constants.dart';
 import '../utils/responsive.dart';
 import '../widgets/pandal_card.dart';
 import '../widgets/pandal_detail_sheet.dart';
+import '../widgets/animated_fade_slide.dart';
 
 enum PandalTabFilter {
   all,
@@ -383,9 +384,14 @@ class _PandalListScreenState extends State<PandalListScreen> {
                           itemCount: displayList.length,
                           itemBuilder: (context, index) {
                             final p = displayList[index];
-                            return PandalCard(
-                              pandal: p,
-                              onTap: () => PandalDetailSheet.show(context, p),
+                            final delayMs = (index < 10) ? index * 35 : 0;
+                            return AnimatedFadeSlide(
+                              key: ValueKey('pandal_${p.id}'),
+                              delay: Duration(milliseconds: delayMs),
+                              child: PandalCard(
+                                pandal: p,
+                                onTap: () => PandalDetailSheet.show(context, p),
+                              ),
                             );
                           },
                         ),

@@ -19,6 +19,7 @@ import '../utils/responsive.dart';
 import '../widgets/crowd_badge.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/app_tutorial_dialog.dart';
+import '../widgets/animated_fade_slide.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository});
@@ -29,10 +30,11 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends State<MapScreen> {
+class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   late final MapController _mapController;
   late final PandalRepository _repo;
   final SupplementaryRepository _suppRepo = SupplementaryRepository();
+  late final AnimationController _pulseController;
 
   List<Pandal> _pandals = [];
   List<FoodSpot> _foodSpots = [];
@@ -47,9 +49,59 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _mapController = MapController();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
     _repo = widget.repository ?? LocalAssetPandalRepository();
     _loadData();
     _tryGetLocation();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    final camera = _mapController.camera;
+    final latTween = Tween<double>(
+      begin: camera.center.latitude,
+      end: destLocation.latitude,
+    );
+    final lngTween = Tween<double>(
+      begin: camera.center.longitude,
+      end: destLocation.longitude,
+    );
+    final zoomTween = Tween<double>(
+      begin: camera.zoom,
+      end: destZoom,
+    );
+
+    final controller = AnimationController(
+      duration: const Duration(milliseconds: 650),
+      vsync: this,
+    );
+    final animation = CurvedAnimation(
+      parent: controller,
+      curve: Curves.fastOutSlowIn,
+    );
+
+    controller.addListener(() {
+      _mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
+    });
+
+    controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
   }
 
   Future<void> _loadData() async {
@@ -79,20 +131,20 @@ class _MapScreenState extends State<MapScreen> {
 
   void _centerOnUser() async {
     if (_userPosition != null) {
-      _mapController.move(
+      _animatedMapMove(
         LatLng(_userPosition!.latitude, _userPosition!.longitude),
-        15,
+        15.5,
       );
     } else {
       await _tryGetLocation();
       if (_userPosition != null) {
-        _mapController.move(
+        _animatedMapMove(
           LatLng(_userPosition!.latitude, _userPosition!.longitude),
-          15,
+          15.5,
         );
       } else {
         // Default center on central Kolkata
-        _mapController.move(
+        _animatedMapMove(
           const LatLng(AppConfig.defaultLat, AppConfig.defaultLng),
           AppConfig.defaultZoom,
         );
@@ -145,7 +197,7 @@ class _MapScreenState extends State<MapScreen> {
     });
 
     if (zone == null) {
-      _mapController.move(
+      _animatedMapMove(
         const LatLng(22.65, 88.38),
         10.8,
       );
@@ -159,7 +211,7 @@ class _MapScreenState extends State<MapScreen> {
     } else {
       final center = _getZoneCenter(zone);
       final zoom = _getZoneZoom(zone);
-      _mapController.move(center, zoom);
+      _animatedMapMove(center, zoom);
 
       final count = _pandals.where((p) => p.zone == zone).length;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -245,6 +297,7 @@ class _MapScreenState extends State<MapScreen> {
                       child: GestureDetector(
                         onTap: () {
                           HapticFeedback.selectionClick();
+                          _animatedMapMove(LatLng(f.lat, f.lng), (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom));
                           _showFoodSpotSheet(f, isDark);
                         },
                         child: Container(
@@ -273,66 +326,113 @@ class _MapScreenState extends State<MapScreen> {
                   final isSelected = _selectedPandal?.id == p.id;
                   return Marker(
                     point: LatLng(p.lat, p.lng),
-                    width: isSelected ? 48 : 38,
-                    height: isSelected ? 48 : 38,
+                    width: isSelected ? 52 : 38,
+                    height: isSelected ? 52 : 38,
                     child: GestureDetector(
                       onTap: () {
                         HapticFeedback.selectionClick();
                         setState(() => _selectedPandal = p);
-                        _mapController.move(LatLng(p.lat, p.lng), _mapController.camera.zoom);
+                        _animatedMapMove(
+                          LatLng(p.lat, p.lng),
+                          (_mapController.camera.zoom < 15.0 ? 15.0 : _mapController.camera.zoom),
+                        );
                       },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        decoration: BoxDecoration(
-                          color: isSelected ? PujaColors.goldBright : PujaColors.crimsonVelvet,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.white : PujaColors.festivalGold,
-                            width: isSelected ? 3 : 1.8,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isSelected
-                                  ? PujaColors.festivalGold.withValues(alpha: 0.7)
-                                  : Colors.black45,
-                              blurRadius: isSelected ? 12 : 5,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.temple_hindu,
-                            color: isSelected ? PujaColors.crimsonVelvet : PujaColors.goldBright,
-                            size: isSelected ? 24 : 18,
-                          ),
-                        ),
+                      child: AnimatedBuilder(
+                        animation: _pulseController,
+                        builder: (context, child) {
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              if (isSelected)
+                                Container(
+                                  width: 42 + (10 * _pulseController.value),
+                                  height: 42 + (10 * _pulseController.value),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: PujaColors.festivalGold.withValues(
+                                      alpha: 0.35 * (1.0 - _pulseController.value),
+                                    ),
+                                  ),
+                                ),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                width: isSelected ? 44 : 36,
+                                height: isSelected ? 44 : 36,
+                                decoration: BoxDecoration(
+                                  color: isSelected ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isSelected ? Colors.white : PujaColors.festivalGold,
+                                    width: isSelected ? 3 : 1.8,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isSelected
+                                          ? PujaColors.festivalGold.withValues(alpha: 0.7)
+                                          : Colors.black45,
+                                      blurRadius: isSelected ? 12 : 5,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.temple_hindu,
+                                    color: isSelected ? PujaColors.crimsonVelvet : PujaColors.goldBright,
+                                    size: isSelected ? 22 : 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   );
                 }).toList(),
               ),
 
-              // User Location Marker
+              // User Location Marker with Animated Radar Pulse
               if (_userPosition != null)
                 MarkerLayer(
                   markers: [
                     Marker(
                       point: LatLng(_userPosition!.latitude, _userPosition!.longitude),
-                      width: 28,
-                      height: 28,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: PujaColors.metroBlue,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
+                      width: 48,
+                      height: 48,
+                      child: AnimatedBuilder(
+                        animation: _pulseController,
+                        builder: (context, child) {
+                          final pulse = _pulseController.value;
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 22 + (20 * pulse),
+                                height: 22 + (20 * pulse),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: PujaColors.metroBlue.withValues(alpha: 0.35 * (1.0 - pulse)),
+                                ),
+                              ),
+                              Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: PujaColors.metroBlue,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2.5),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black38,
+                                      blurRadius: 6,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -393,13 +493,16 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // Bottom Mini-Card Preview when a Pandal is tapped
+          // Bottom Mini-Card Preview when a Pandal is tapped (Animated entrance)
           if (_selectedPandal != null)
             Positioned(
               left: 16,
               right: 16,
               bottom: 24,
-              child: Card(
+              child: AnimatedFadeSlide(
+                duration: const Duration(milliseconds: 320),
+                offset: const Offset(0, 0.14),
+                child: Card(
                 elevation: 8,
                 shadowColor: Colors.black54,
                 color: isDark ? PujaColors.nightCard : Colors.white,
@@ -529,6 +632,7 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               ),
             ),
+          ),
 
           if (_isLoading)
             const Center(

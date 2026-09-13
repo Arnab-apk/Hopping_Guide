@@ -6,6 +6,7 @@ import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../utils/responsive.dart';
 import '../widgets/pandal_detail_sheet.dart';
+import '../widgets/animated_fade_slide.dart';
 
 class HoppingRoute {
   const HoppingRoute({
@@ -129,9 +130,12 @@ class _RoutesScreenState extends State<RoutesScreen> {
           : ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               children: [
-                // Header Banner
-                Container(
-                  padding: const EdgeInsets.all(20),
+                // Header Banner (Animated entrance)
+                AnimatedFadeSlide(
+                  duration: const Duration(milliseconds: 380),
+                  offset: const Offset(0, -0.08),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [PujaColors.crimsonVelvet, PujaColors.durgaRedDark],
@@ -189,6 +193,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                     ],
                   ),
                 ),
+                ),
 
                 const SizedBox(height: 24),
 
@@ -199,7 +204,13 @@ class _RoutesScreenState extends State<RoutesScreen> {
 
                 const SizedBox(height: 12),
 
-                ..._curatedRoutes.map((route) => _buildRouteCard(route, isDark)),
+                ..._curatedRoutes.asMap().entries.map(
+                      (entry) => AnimatedFadeSlide(
+                        key: ValueKey('route_${entry.value.id}'),
+                        delay: Duration(milliseconds: 60 + (entry.key * 45)),
+                        child: _buildRouteCard(entry.value, isDark),
+                      ),
+                    ),
               ],
             ),
     );

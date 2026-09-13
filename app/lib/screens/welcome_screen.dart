@@ -17,10 +17,15 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
   late Timer _timer;
   late Duration _timeUntilPuja;
   late TabController _tabController;
+  late final AnimationController _entranceController;
+  late final Animation<double> _headerFade;
+  late final Animation<Offset> _headerSlide;
+  late final Animation<double> _cardFade;
+  late final Animation<Offset> _cardSlide;
 
   final TextEditingController _phoneOrEmailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -36,6 +41,37 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     _tabController = TabController(length: 2, vsync: this);
     _calculateTime();
     _timer = Timer.periodic(const Duration(minutes: 1), (_) => _calculateTime());
+
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+
+    _headerFade = CurvedAnimation(
+      parent: _entranceController,
+      curve: const Interval(0.0, 0.65, curve: Curves.easeOutCubic),
+    );
+    _headerSlide = Tween<Offset>(
+      begin: const Offset(0, -0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: const Interval(0.0, 0.7, curve: Curves.easeOutCubic),
+    ));
+
+    _cardFade = CurvedAnimation(
+      parent: _entranceController,
+      curve: const Interval(0.3, 0.9, curve: Curves.easeOutCubic),
+    );
+    _cardSlide = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _entranceController,
+      curve: const Interval(0.3, 1.0, curve: Curves.easeOutCubic),
+    ));
+
+    _entranceController.forward();
   }
 
   void _calculateTime() {
@@ -51,6 +87,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   void dispose() {
     _timer.cancel();
     _tabController.dispose();
+    _entranceController.dispose();
     _phoneOrEmailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -66,10 +103,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
 
   Future<void> _enterWithGoogle() async {
     setState(() => _isLoading = true);
-    await AuthService.instance.signInWithGoogle();
+    final result = await AuthService.instance.signInWithGoogleDetailed();
     if (!mounted) return;
     setState(() => _isLoading = false);
-    Navigator.of(context).pushReplacementNamed('/main');
+
+    if (result.success) {
+      Navigator.of(context).pushReplacementNamed('/main');
+    } else if (result.isCancelled) {
+      // User cancelled account selection; stay on welcome screen smoothly
+    } else {
+      // Descriptive error with guest fallback option
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 5),
+          backgroundColor: PujaColors.nightSurface,
+          content: Text(
+            'Google Sign-In: ${result.errorMessage ?? "Sign-in cancelled or service unavailable."}',
+            style: const TextStyle(color: Colors.white, fontSize: 12.5),
+          ),
+          action: SnackBarAction(
+            label: 'Enter as Guest',
+            textColor: PujaColors.goldBright,
+            onPressed: _enterAsGuest,
+          ),
+        ),
+      );
+    }
   }
 
   void _handleSignIn() {
@@ -161,9 +220,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                     children: [
                       if (!isCompact) const SizedBox(height: 12),
 
-                      // Bengali Sacred Badge (HackSpire style)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      // Animated Header Group
+                      FadeTransition(
+                        opacity: _headerFade,
+                        child: SlideTransition(
+                          position: _headerSlide,
+                          child: Column(
+                            children: [
+                              // Bengali Sacred Badge (HackSpire style)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(30),
@@ -269,13 +335,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                           ),
                         ),
                       ),
+                            ],
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 22),
 
-                      // Glassmorphism Login & Guest Card
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                      // Glassmorphism Login & Guest Card (Animated entrance)
+                      FadeTransition(
+                        opacity: _cardFade,
+                        child: SlideTransition(
+                          position: _cardSlide,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                           child: Container(
                             padding: const EdgeInsets.all(22),
                             decoration: BoxDecoration(
@@ -505,6 +579,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                           ),
                         ),
                       ),
+                          ),
+                        ),
                       const SizedBox(height: 18),
 
                       // Feature Highlights Pill
