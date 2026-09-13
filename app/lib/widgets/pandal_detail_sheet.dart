@@ -83,8 +83,8 @@ class PandalDetailSheet extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(
           top: BorderSide(
-            color: PujaColors.festivalGold.withValues(alpha: 0.45),
-            width: 1.5,
+            color: isDark ? PujaColors.nightBorder : PujaColors.festivalGold.withValues(alpha: 0.45),
+            width: 1.2,
           ),
         ),
         boxShadow: const [
@@ -180,8 +180,8 @@ class PandalDetailSheet extends StatelessWidget {
                   // Pandal Name
                   Text(
                     pandal.name,
-                    style: GoogleFonts.outfit(
-                      fontSize: 22,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 21,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.2,
                       height: 1.25,
@@ -348,7 +348,7 @@ class PandalDetailSheet extends StatelessWidget {
                   // Theme / Concept Description
                   Text(
                     'Theme & Artistic Concept',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: context.dynamicFont(15.5),
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.1,
@@ -381,7 +381,7 @@ class PandalDetailSheet extends StatelessWidget {
                   // Transit & Metro Information
                   Text(
                     'Transit & Accessibility',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: context.dynamicFont(15.5),
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.1,

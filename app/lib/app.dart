@@ -21,7 +21,7 @@ class KolkataPujaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       darkTheme: appDarkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),

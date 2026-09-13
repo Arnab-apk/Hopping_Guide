@@ -182,11 +182,11 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 440, maxHeight: 600),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1C090D) : Colors.white,
+          color: isDark ? PujaColors.nightCard : Colors.white,
           borderRadius: BorderRadius.circular(26),
           border: Border.all(
-            color: PujaColors.festivalGold.withValues(alpha: 0.45),
-            width: 1.5,
+            color: isDark ? PujaColors.nightBorder : PujaColors.festivalGold.withValues(alpha: 0.45),
+            width: 1.2,
           ),
           boxShadow: [
             BoxShadow(
@@ -284,7 +284,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                           Text(
                             step.title,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: context.dynamicFont(20),
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.2,

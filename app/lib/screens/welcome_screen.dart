@@ -211,7 +211,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         ).createShader(bounds),
                         child: Text(
                           'Kolkata Puja',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: isCompact ? 32 : 38,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.6,
@@ -538,7 +538,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
         children: [
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.plusJakartaSans(
               color: PujaColors.festivalGold,
               fontSize: context.dynamicFont(22),
               fontWeight: FontWeight.w800,

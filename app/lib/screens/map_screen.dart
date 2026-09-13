@@ -910,12 +910,12 @@ class _MapScreenState extends State<MapScreen> {
         return Container(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C090D) : Colors.white,
+            color: isDark ? PujaColors.nightCard : Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border(
               top: BorderSide(
-                color: PujaColors.festivalGold.withValues(alpha: 0.5),
-                width: 1.5,
+                color: isDark ? PujaColors.nightBorder : PujaColors.festivalGold.withValues(alpha: 0.5),
+                width: 1.2,
               ),
             ),
             boxShadow: const [
@@ -971,7 +971,7 @@ class _MapScreenState extends State<MapScreen> {
                         children: [
                           Text(
                             f.name,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: isDark ? Colors.white : Colors.black87,

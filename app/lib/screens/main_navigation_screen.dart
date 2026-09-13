@@ -99,16 +99,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: isDark ? PujaColors.crimsonVelvet : Colors.white,
+          color: isDark ? PujaColors.nightCard : Colors.white,
           border: Border(
             top: BorderSide(
-              color: PujaColors.festivalGold.withValues(alpha: isDark ? 0.35 : 0.25),
-              width: 1.2,
+              color: isDark ? PujaColors.nightBorder : PujaColors.festivalGold.withValues(alpha: 0.25),
+              width: 1.0,
             ),
           ),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black54 : PujaColors.crimsonVelvet.withValues(alpha: 0.12),
+              color: isDark ? Colors.black45 : PujaColors.crimsonVelvet.withValues(alpha: 0.12),
               blurRadius: 16,
               offset: const Offset(0, -3),
             ),
