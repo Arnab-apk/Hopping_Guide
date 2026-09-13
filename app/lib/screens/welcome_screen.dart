@@ -181,16 +181,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.auto_awesome, color: PujaColors.festivalGold, size: 16),
-                            SizedBox(width: 8),
+                          children: [
+                            const Icon(Icons.auto_awesome, color: PujaColors.festivalGold, size: 16),
+                            const SizedBox(width: 8),
                             Text(
                               'শারদীয়া দুর্গোৎসব ২০২৬',
-                              style: TextStyle(
+                              style: GoogleFonts.plusJakartaSans(
                                 color: PujaColors.festivalGold,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                letterSpacing: 1.2,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12.5,
+                                letterSpacing: 0.4,
                               ),
                             ),
                           ],
@@ -211,15 +211,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         ).createShader(bounds),
                         child: Text(
                           'Kolkata Puja',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: isCompact ? 30 : 36,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
+                          style: GoogleFonts.outfit(
+                            fontSize: isCompact ? 32 : 38,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
                             color: Colors.white,
                             shadows: [
                               Shadow(
-                                color: PujaColors.festivalGold.withValues(alpha: 0.8),
-                                blurRadius: 20,
+                                color: PujaColors.festivalGold.withValues(alpha: 0.7),
+                                blurRadius: 18,
                               ),
                             ],
                           ),
@@ -229,13 +229,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                       Text(
                         'Where Tradition Meets Divine Shakti',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.jetBrainsMono(
+                        style: GoogleFonts.plusJakartaSans(
                           color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: context.dynamicFont(12.5),
-                          letterSpacing: 0.8,
-                          fontWeight: FontWeight.w600,
+                          fontSize: context.dynamicFont(13),
+                          letterSpacing: 0.2,
+                          fontWeight: FontWeight.w500,
                           shadows: const [
-                            Shadow(color: Colors.black, blurRadius: 8),
+                            Shadow(color: Colors.black54, blurRadius: 6),
                           ],
                         ),
                       ),
@@ -311,6 +311,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                     indicatorSize: TabBarIndicatorSize.tab,
                                     labelColor: Colors.white,
                                     unselectedLabelColor: Colors.white60,
+                                    labelStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                                    unselectedLabelStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, fontSize: 13),
                                     dividerColor: Colors.transparent,
                                     tabs: const [
                                       Tab(text: '⚡ Instant Guest'),
@@ -332,7 +334,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             const Text(
-                                              'Hop seamlessly without passwords.\nExplore all 105 Pandals, Metro routes & Crowd maps.',
+                                              'Hop seamlessly without passwords.\nExplore all 117 Pandals, Metro routes & Crowd maps.',
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                 color: Colors.white70,
@@ -511,7 +513,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         spacing: 8,
                         runSpacing: 6,
                         children: [
-                          _buildFeatureBadge(Icons.temple_hindu, '105 Pandals'),
+                          _buildFeatureBadge(Icons.temple_hindu, '117 Pandals'),
                           _buildFeatureBadge(Icons.subway_rounded, 'Metro Routes'),
                           _buildFeatureBadge(Icons.shield_outlined, 'Crowd SOS'),
                         ],
@@ -536,21 +538,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
         children: [
           Text(
             value,
-            style: GoogleFonts.jetBrainsMono(
+            style: GoogleFonts.outfit(
               color: PujaColors.festivalGold,
-              fontSize: context.dynamicFont(21),
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
+              fontSize: context.dynamicFont(22),
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             label,
-            style: GoogleFonts.jetBrainsMono(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: context.dynamicFont(9.5),
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white.withValues(alpha: 0.75),
+              fontSize: context.dynamicFont(10),
               fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
+              letterSpacing: 0.8,
             ),
           ),
         ],
@@ -581,10 +583,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
           const SizedBox(width: 4),
           Text(
             text,
-            style: GoogleFonts.jetBrainsMono(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: context.dynamicFont(11),
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: context.dynamicFont(11.5),
               fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
             ),
           ),
         ],

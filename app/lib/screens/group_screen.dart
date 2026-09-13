@@ -1,8 +1,11 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/theme.dart';
+import '../services/auth_service.dart';
 import '../utils/responsive.dart';
 
 /// Group Member model for hopping squads

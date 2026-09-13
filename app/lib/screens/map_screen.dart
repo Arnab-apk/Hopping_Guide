@@ -413,23 +413,29 @@ class _MapScreenState extends State<MapScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: PujaColors.crimsonVelvet.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: PujaColors.festivalGold.withValues(alpha: 0.4)),
-                            ),
-                            child: Text(
-                              _selectedPandal!.zone.label,
-                              style: const TextStyle(
-                                color: PujaColors.durgaRed,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: PujaColors.crimsonVelvet.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: PujaColors.festivalGold.withValues(alpha: 0.4)),
+                              ),
+                              child: Text(
+                                _selectedPandal!.zone.label,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  color: PujaColors.durgaRed,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           CrowdBadge(crowdLevel: _selectedPandal!.crowdLevel),
+                          const SizedBox(width: 4),
                           IconButton(
                             icon: const Icon(Icons.close, size: 20),
                             onPressed: () => setState(() => _selectedPandal = null),
@@ -606,7 +612,6 @@ class _MapScreenState extends State<MapScreen> {
       padding: const EdgeInsets.only(right: 6.0),
       child: Material(
         elevation: isSelected ? 3 : 0,
-        borderRadius: BorderRadius.circular(999),
         color: isSelected
             ? PujaColors.crimsonVelvet
             : (isDark ? PujaColors.nightSurface : Colors.grey.shade100),

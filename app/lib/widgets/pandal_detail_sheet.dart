@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -179,10 +180,11 @@ class PandalDetailSheet extends StatelessWidget {
                   // Pandal Name
                   Text(
                     pandal.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
+                    style: GoogleFonts.outfit(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                      height: 1.25,
                     ),
                   ),
 
@@ -191,8 +193,8 @@ class PandalDetailSheet extends StatelessWidget {
                     Text(
                       pandal.area!,
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w500,
                         color: isDark ? Colors.white60 : Colors.black54,
                       ),
                     ),
@@ -346,7 +348,11 @@ class PandalDetailSheet extends StatelessWidget {
                   // Theme / Concept Description
                   Text(
                     'Theme & Artistic Concept',
-                    style: TextStyle(fontSize: context.dynamicFont(16), fontWeight: FontWeight.w800),
+                    style: GoogleFonts.outfit(
+                      fontSize: context.dynamicFont(15.5),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.1,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -375,7 +381,11 @@ class PandalDetailSheet extends StatelessWidget {
                   // Transit & Metro Information
                   Text(
                     'Transit & Accessibility',
-                    style: TextStyle(fontSize: context.dynamicFont(16), fontWeight: FontWeight.w800),
+                    style: GoogleFonts.outfit(
+                      fontSize: context.dynamicFont(15.5),
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.1,
+                    ),
                   ),
                   const SizedBox(height: 10),
 

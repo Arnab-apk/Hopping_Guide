@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/app_user.dart';
 
 /// Thin auth facade over Firebase Auth + Google Sign-In + Guest mode.
@@ -37,12 +39,31 @@ class AuthService {
   }
 
   Future<AppUser?> signInWithGoogle() async {
-    // Once Firebase is configured with `flutterfire configure`, GoogleSignIn flow connects here.
-    return signInAsGuest();
+    try {
+      final googleAccount = await GoogleSignIn.instance.authenticate();
+      final idToken = googleAccount.authentication.idToken;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        idToken: idToken,
+      );
+
+      final UserCredential? userCredential = await _auth?.signInWithCredential(credential);
+      _currentGuestUser = null;
+      if (userCredential?.user != null) {
+        return AppUser.fromFirebase(userCredential!.user);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Google Sign-In note: $e');
+      // Graceful fallback so user is never blocked
+      return signInAsGuest();
+    }
   }
 
   Future<void> signOut() async {
     _currentGuestUser = null;
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
     await _auth?.signOut();
   }
 }
