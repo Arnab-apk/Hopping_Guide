@@ -331,21 +331,27 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       Expanded(
                         child: Text(
                           p.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: context.dynamicFont(14),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      if (p.nearestMetro != null)
+                      if (p.nearestMetro != null) ...[
+                        const SizedBox(width: 8),
                         Text(
                           p.nearestMetro!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: context.dynamicFont(11),
                             color: PujaColors.metroBlue,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ],
                     ],
                   ),
                 ),

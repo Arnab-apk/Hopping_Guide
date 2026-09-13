@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Design tokens matching Theme 1: Crimson Gold Line Art
 /// Palette: Deep Velvet Crimson, Royal Warm Gold, Ivory, and Dark Burgundy Night
@@ -45,20 +46,20 @@ ThemeData get appTheme => ThemeData(
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: PujaColors.ivoryBg,
-      appBarTheme: const AppBarTheme(
+      textTheme: GoogleFonts.jetBrainsMonoTextTheme(ThemeData.light().textTheme),
+      appBarTheme: AppBarTheme(
         centerTitle: true,
         backgroundColor: PujaColors.crimsonVelvet,
         foregroundColor: PujaColors.goldBright,
         elevation: 2,
         shadowColor: Colors.black38,
-        iconTheme: IconThemeData(color: PujaColors.goldBright),
-        actionsIconTheme: IconThemeData(color: PujaColors.goldBright),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: PujaColors.goldBright),
+        actionsIconTheme: const IconThemeData(color: PujaColors.goldBright),
+        titleTextStyle: GoogleFonts.jetBrainsMono(
           color: PujaColors.goldBright,
-          fontSize: 20,
+          fontSize: 19,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.5,
-          fontFamily: 'serif',
         ),
       ),
       cardTheme: CardThemeData(
@@ -159,20 +160,20 @@ ThemeData get appDarkTheme => ThemeData(
         brightness: Brightness.dark,
       ),
       scaffoldBackgroundColor: PujaColors.nightBg,
-      appBarTheme: const AppBarTheme(
+      textTheme: GoogleFonts.jetBrainsMonoTextTheme(ThemeData.dark().textTheme),
+      appBarTheme: AppBarTheme(
         centerTitle: true,
         backgroundColor: PujaColors.crimsonVelvet,
         foregroundColor: PujaColors.goldBright,
         elevation: 2,
         shadowColor: Colors.black54,
-        iconTheme: IconThemeData(color: PujaColors.goldBright),
-        actionsIconTheme: IconThemeData(color: PujaColors.goldBright),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: PujaColors.goldBright),
+        actionsIconTheme: const IconThemeData(color: PujaColors.goldBright),
+        titleTextStyle: GoogleFonts.jetBrainsMono(
           color: PujaColors.goldBright,
-          fontSize: 20,
+          fontSize: 19,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.5,
-          fontFamily: 'serif',
         ),
       ),
       cardTheme: CardThemeData(

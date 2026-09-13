@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'config/theme.dart';
-import 'screens/auth_screen.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
 import 'screens/main_navigation_screen.dart';
@@ -38,7 +37,7 @@ class KolkataPujaApp extends StatelessWidget {
         '/detail': (context) => const PandalDetailScreen(),
         '/routes': (context) => const RoutesScreen(),
         '/group': (context) => const GroupScreen(),
-        '/auth': (context) => const AuthScreen(),
+        '/auth': (context) => const WelcomeScreen(),
         '/helplines': (context) => const HelplinesScreen(),
       },
     );

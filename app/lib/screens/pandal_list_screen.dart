@@ -94,9 +94,11 @@ class _PandalListScreenState extends State<PandalListScreen> {
       list = list.where((p) {
         final nameMatch = p.name.toLowerCase().contains(q);
         final areaMatch = (p.area ?? '').toLowerCase().contains(q);
+        final regionMatch = (p.region ?? '').toLowerCase().contains(q);
+        final zoneMatch = p.zone.label.toLowerCase().contains(q);
         final themeMatch = p.theme.toLowerCase().contains(q);
         final metroMatch = (p.nearestMetro ?? '').toLowerCase().contains(q);
-        return nameMatch || areaMatch || themeMatch || metroMatch;
+        return nameMatch || areaMatch || regionMatch || zoneMatch || themeMatch || metroMatch;
       }).toList();
     }
 
@@ -341,6 +343,8 @@ class _PandalListScreenState extends State<PandalListScreen> {
             child: Row(
               children: [
                 FilterChip(
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   label: const Text('All Zones'),
                   selected: _selectedZone == null,
                   onSelected: (_) => setState(() => _selectedZone = null),
@@ -349,6 +353,8 @@ class _PandalListScreenState extends State<PandalListScreen> {
                   (zone) => Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: FilterChip(
+                      visualDensity: VisualDensity.compact,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       label: Text(zone.label),
                       selected: _selectedZone == zone,
                       onSelected: (selected) {

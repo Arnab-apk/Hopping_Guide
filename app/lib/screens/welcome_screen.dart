@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../config/theme.dart';
 import '../services/auth_service.dart';
@@ -210,11 +211,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         ).createShader(bounds),
                         child: Text(
                           'Kolkata Puja',
-                          style: TextStyle(
-                            fontFamily: 'serif',
-                            fontSize: isCompact ? 32 : 38,
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: isCompact ? 30 : 36,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 3,
+                            letterSpacing: 2,
                             color: Colors.white,
                             shadows: [
                               Shadow(
@@ -229,11 +229,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                       Text(
                         'Where Tradition Meets Divine Shakti',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: GoogleFonts.jetBrainsMono(
                           color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 13,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w500,
+                          fontSize: context.dynamicFont(12.5),
+                          letterSpacing: 0.8,
+                          fontWeight: FontWeight.w600,
                           shadows: const [
                             Shadow(color: Colors.black, blurRadius: 8),
                           ],
@@ -322,7 +322,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
 
                                 // Tab Content
                                 SizedBox(
-                                  height: 188,
+                                  height: 200,
                                   child: TabBarView(
                                     controller: _tabController,
                                     children: [
@@ -330,127 +330,129 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                       SingleChildScrollView(
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          const Text(
-                                            'Hop seamlessly without passwords.\nExplore all 105 Pandals, Metro routes & Crowd maps.',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 12.5,
-                                              height: 1.4,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 18),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            height: 48,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: PujaColors.festivalGold,
-                                                foregroundColor: Colors.black,
-                                                elevation: 6,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(14),
-                                                ),
+                                          children: [
+                                            const Text(
+                                              'Hop seamlessly without passwords.\nExplore all 105 Pandals, Metro routes & Crowd maps.',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 12.5,
+                                                height: 1.4,
                                               ),
-                                              onPressed: _isLoading ? null : _enterAsGuest,
-                                              child: _isLoading
-                                                  ? const SizedBox(
-                                                      height: 20,
-                                                      width: 20,
-                                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                                                    )
-                                                  : const Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                        Icon(Icons.explore_rounded, size: 20),
-                                                        SizedBox(width: 8),
-                                                        Text(
-                                                          'Enter Hopping Guide',
-                                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                                        ),
-                                                      ],
-                                                    ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Text(
-                                            'Zero login friction • Offline first',
-                                            style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 18),
+                                            SizedBox(
+                                              width: double.infinity,
+                                              height: 48,
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: PujaColors.festivalGold,
+                                                  foregroundColor: Colors.black,
+                                                  elevation: 6,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(14),
+                                                  ),
+                                                ),
+                                                onPressed: _isLoading ? null : _enterAsGuest,
+                                                child: _isLoading
+                                                    ? const SizedBox(
+                                                        height: 20,
+                                                        width: 20,
+                                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                                      )
+                                                    : const Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Icon(Icons.explore_rounded, size: 20),
+                                                          SizedBox(width: 8),
+                                                          Text(
+                                                            'Enter Hopping Guide',
+                                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                                          ),
+                                                        ],
+                                                      ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 10),
+                                            Text(
+                                              'Zero login friction • Offline first',
+                                              style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.45)),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
 
-                                    // Tab 2: Member Sign-in
-                                      Column(
-                                        children: [
-                                          TextField(
-                                            controller: _phoneOrEmailController,
-                                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.black.withValues(alpha: 0.45),
-                                              hintText: 'Mobile number or email',
-                                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
-                                              prefixIcon: const Icon(Icons.phone_android, color: PujaColors.festivalGold, size: 18),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: const BorderSide(color: PujaColors.festivalGold),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 10),
-                                          TextField(
-                                            controller: _passwordController,
-                                            obscureText: _obscurePassword,
-                                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.black.withValues(alpha: 0.45),
-                                              hintText: 'Password / OTP',
-                                              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
-                                              prefixIcon: const Icon(Icons.lock_outline, color: PujaColors.festivalGold, size: 18),
-                                              suffixIcon: IconButton(
-                                                icon: Icon(
-                                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                                                  color: Colors.white54,
-                                                  size: 18,
-                                                ),
-                                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                                              ),
-                                              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(12),
-                                                borderSide: const BorderSide(color: PujaColors.festivalGold),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 12),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            height: 44,
-                                            child: FilledButton(
-                                              style: FilledButton.styleFrom(
-                                                backgroundColor: PujaColors.durgaRed,
-                                                shape: RoundedRectangleBorder(
+                                      // Tab 2: Member Sign-in
+                                      SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            TextField(
+                                              controller: _phoneOrEmailController,
+                                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.black.withValues(alpha: 0.45),
+                                                hintText: 'Mobile number or email',
+                                                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
+                                                prefixIcon: const Icon(Icons.phone_android, color: PujaColors.festivalGold, size: 18),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                border: OutlineInputBorder(
                                                   borderRadius: BorderRadius.circular(12),
+                                                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: const BorderSide(color: PujaColors.festivalGold),
                                                 ),
                                               ),
-                                              onPressed: _isLoading ? null : _handleSignIn,
-                                              child: const Text('Sign In / Register', style: TextStyle(fontWeight: FontWeight.bold)),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 10),
+                                            TextField(
+                                              controller: _passwordController,
+                                              obscureText: _obscurePassword,
+                                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: Colors.black.withValues(alpha: 0.45),
+                                                hintText: 'Password / OTP',
+                                                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
+                                                prefixIcon: const Icon(Icons.lock_outline, color: PujaColors.festivalGold, size: 18),
+                                                suffixIcon: IconButton(
+                                                  icon: Icon(
+                                                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                                    color: Colors.white54,
+                                                    size: 18,
+                                                  ),
+                                                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                                ),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderSide: const BorderSide(color: PujaColors.festivalGold),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 12),
+                                            SizedBox(
+                                              width: double.infinity,
+                                              height: 44,
+                                              child: FilledButton(
+                                                style: FilledButton.styleFrom(
+                                                  backgroundColor: PujaColors.durgaRed,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                ),
+                                                onPressed: _isLoading ? null : _handleSignIn,
+                                                child: const Text('Sign In / Register', style: TextStyle(fontWeight: FontWeight.bold)),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -534,7 +536,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: GoogleFonts.jetBrainsMono(
               color: PujaColors.festivalGold,
               fontSize: context.dynamicFont(21),
               fontWeight: FontWeight.w900,
@@ -544,10 +546,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
           const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
+            style: GoogleFonts.jetBrainsMono(
               color: Colors.white.withValues(alpha: 0.7),
               fontSize: context.dynamicFont(9.5),
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
               letterSpacing: 1.2,
             ),
           ),
@@ -579,9 +581,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
           const SizedBox(width: 4),
           Text(
             text,
-            style: TextStyle(
+            style: GoogleFonts.jetBrainsMono(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: context.dynamicFont(11),
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

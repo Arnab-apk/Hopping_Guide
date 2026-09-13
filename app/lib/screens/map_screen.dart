@@ -97,6 +97,78 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  LatLng _getZoneCenter(KolkataZone zone) {
+    switch (zone) {
+      case KolkataZone.northKolkata:
+        return const LatLng(22.597, 88.368);
+      case KolkataZone.centralKolkata:
+        return const LatLng(22.571, 88.363);
+      case KolkataZone.southKolkata:
+        return const LatLng(22.520, 88.358);
+      case KolkataZone.saltLake:
+        return const LatLng(22.588, 88.415);
+      case KolkataZone.newTown:
+        return const LatLng(22.585, 88.468);
+      case KolkataZone.nadiaKalyani:
+        return const LatLng(22.980, 88.433);
+      case KolkataZone.hooghlyChinsurah:
+        return const LatLng(22.896, 88.389);
+      case KolkataZone.hooghlyBandel:
+        return const LatLng(22.919, 88.381);
+    }
+  }
+
+  double _getZoneZoom(KolkataZone zone) {
+    switch (zone) {
+      case KolkataZone.nadiaKalyani:
+        return 13.5;
+      case KolkataZone.hooghlyChinsurah:
+      case KolkataZone.hooghlyBandel:
+        return 13.8;
+      case KolkataZone.northKolkata:
+      case KolkataZone.centralKolkata:
+      case KolkataZone.southKolkata:
+      case KolkataZone.saltLake:
+      case KolkataZone.newTown:
+        return 13.5;
+    }
+  }
+
+  void _locateZone(KolkataZone? zone) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedZone = zone;
+      _selectedPandal = null;
+    });
+
+    if (zone == null) {
+      _mapController.move(
+        const LatLng(22.65, 88.38),
+        10.8,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 1),
+          content: Text('Showing all ${_pandals.length} pandals across Kolkata & Suburbs'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } else {
+      final center = _getZoneCenter(zone);
+      final zoom = _getZoneZoom(zone);
+      _mapController.move(center, zoom);
+
+      final count = _pandals.where((p) => p.zone == zone).length;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text('📍 Centered on ${zone.label} · $count Pandals'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   List<Pandal> get _visiblePandals {
     if (_selectedZone == null) return _pandals;
     return _pandals.where((p) => p.zone == _selectedZone).toList();
@@ -127,6 +199,11 @@ class _MapScreenState extends State<MapScreen> {
                 ),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.travel_explore),
+            tooltip: 'Locate Region & Suburbs',
+            onPressed: () => _showRegionPickerSheet(context, isDark),
           ),
           IconButton(
             icon: const Icon(Icons.list_alt),
@@ -257,21 +334,54 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
-          // Floating Zone Filter Chips Bar
+          // Floating Zone Filter & Locate Bar (Responsive, Pinned & Never Cut Out)
           Positioned(
-            top: 12,
-            left: 0,
-            right: 0,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            top: 10,
+            left: 12,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              decoration: BoxDecoration(
+                color: (isDark ? PujaColors.nightCard : Colors.white).withValues(alpha: 0.94),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.16),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+                border: Border.all(
+                  color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                  width: 1.2,
+                ),
+              ),
               child: Row(
                 children: [
-                  _buildZoneChip('All (${_pandals.length})', null, isDark),
-                  ...KolkataZone.values.map((zone) {
-                    final count = _pandals.where((p) => p.zone == zone).length;
-                    return _buildZoneChip('${zone.label} ($count)', zone, isDark);
-                  }),
+                  // Pinned "Regions ▾" button that opens bottom sheet
+                  _buildRegionMenuButton(isDark),
+                  Container(
+                    height: 22,
+                    width: 1,
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  // Scrollable zone chips with short labels
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          _buildZoneChip('All (${_pandals.length})', null, isDark),
+                          ...KolkataZone.values.map((zone) {
+                            final count = _pandals.where((p) => p.zone == zone).length;
+                            return _buildZoneChip('${zone.shortLabel} ($count)', zone, isDark);
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -331,6 +441,8 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(height: 8),
                       Text(
                         _selectedPandal!.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: context.dynamicFont(18),
                           fontWeight: FontWeight.w800,
@@ -339,6 +451,8 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '${_selectedPandal!.theme} · ${_selectedPandal!.nearestMetro ?? _selectedPandal!.timings}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: context.dynamicFont(13),
                           color: isDark ? Colors.white70 : Colors.black54,
@@ -411,49 +525,324 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
       floatingActionButton: _selectedPandal == null
-          ? FloatingActionButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                _centerOnUser();
-              },
-              backgroundColor: PujaColors.crimsonVelvet,
-              foregroundColor: PujaColors.goldBright,
-              tooltip: 'Center on My Location',
-              child: Icon(Icons.my_location, size: context.dynamicIcon(24)),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FloatingActionButton.small(
+                  heroTag: 'locate_region_fab',
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _showRegionPickerSheet(context, isDark);
+                  },
+                  backgroundColor: isDark ? PujaColors.nightCard : Colors.white,
+                  foregroundColor: PujaColors.durgaRed,
+                  tooltip: 'Locate Region & Suburbs',
+                  child: const Icon(Icons.travel_explore),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton(
+                  heroTag: 'locate_user_fab',
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _centerOnUser();
+                  },
+                  backgroundColor: PujaColors.crimsonVelvet,
+                  foregroundColor: PujaColors.goldBright,
+                  tooltip: 'Center on My Location',
+                  child: Icon(Icons.my_location, size: context.dynamicIcon(24)),
+                ),
+              ],
             )
           : null,
+    );
+  }
+
+  Widget _buildRegionMenuButton(bool isDark) {
+    final hasFilter = _selectedZone != null;
+    return Material(
+      color: hasFilter ? PujaColors.crimsonVelvet : Colors.transparent,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          _showRegionPickerSheet(context, isDark);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.location_on,
+                size: 15,
+                color: hasFilter ? PujaColors.goldBright : PujaColors.durgaRed,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                hasFilter ? _selectedZone!.shortLabel : 'Regions',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: hasFilter ? PujaColors.goldBright : (isDark ? Colors.white : Colors.black87),
+                ),
+              ),
+              const SizedBox(width: 1),
+              Icon(
+                Icons.arrow_drop_down,
+                size: 18,
+                color: hasFilter ? PujaColors.goldBright : (isDark ? Colors.white70 : Colors.black54),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildZoneChip(String label, KolkataZone? zone, bool isDark) {
     final isSelected = _selectedZone == zone;
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: const EdgeInsets.only(right: 6.0),
       child: Material(
-        elevation: isSelected ? 4 : 2,
+        elevation: isSelected ? 3 : 0,
         borderRadius: BorderRadius.circular(999),
-        color: isSelected ? PujaColors.crimsonVelvet : (isDark ? PujaColors.nightCard : Colors.white),
+        color: isSelected
+            ? PujaColors.crimsonVelvet
+            : (isDark ? PujaColors.nightSurface : Colors.grey.shade100),
         shape: StadiumBorder(
           side: BorderSide(
-            color: isSelected ? PujaColors.festivalGold : PujaColors.festivalGold.withValues(alpha: 0.35),
-            width: 1.2,
+            color: isSelected ? PujaColors.festivalGold : PujaColors.festivalGold.withValues(alpha: 0.25),
+            width: 1,
           ),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(999),
-          onTap: () {
-            HapticFeedback.selectionClick();
-            setState(() => _selectedZone = isSelected && zone != null ? null : zone);
-          },
+          onTap: () => _locateZone(isSelected && zone != null ? null : zone),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
               label,
               style: TextStyle(
                 color: isSelected ? PujaColors.goldBright : (isDark ? Colors.white70 : Colors.black87),
-                fontSize: context.dynamicFont(12),
+                fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showRegionPickerSheet(BuildContext context, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? PujaColors.nightSurface : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black38,
+                blurRadius: 16,
+                offset: Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Sheet Handle
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black26,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.travel_explore, color: PujaColors.durgaRed),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Locate Region & Suburbs',
+                            style: TextStyle(
+                              fontSize: context.dynamicFont(18),
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : PujaColors.crimsonVelvet,
+                            ),
+                          ),
+                          Text(
+                            'Tap to center map and filter pandals',
+                            style: TextStyle(
+                              fontSize: context.dynamicFont(12),
+                              color: isDark ? Colors.white60 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _locateZone(null);
+                      },
+                      child: const Text(
+                        'Reset All',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: PujaColors.durgaRed),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  children: [
+                    _buildRegionCategoryHeader('Kolkata Metro Zones', isDark),
+                    _buildRegionTile(KolkataZone.northKolkata, 'উত্তর কলকাতা', Icons.location_city, isDark, ctx),
+                    _buildRegionTile(KolkataZone.centralKolkata, 'মধ্য কলকাতা', Icons.account_balance, isDark, ctx),
+                    _buildRegionTile(KolkataZone.southKolkata, 'দক্ষিণ কলকাতা', Icons.festival, isDark, ctx),
+                    _buildRegionTile(KolkataZone.saltLake, 'সল্টলেক', Icons.domain, isDark, ctx),
+                    _buildRegionTile(KolkataZone.newTown, 'নিউ টাউন', Icons.apartment, isDark, ctx),
+                    const SizedBox(height: 12),
+                    _buildRegionCategoryHeader('Greater Bengal Suburbs (Nadia & Hooghly)', isDark),
+                    _buildRegionTile(KolkataZone.nadiaKalyani, 'কল্যাণী (নদিয়া)', Icons.temple_hindu, isDark, ctx),
+                    _buildRegionTile(KolkataZone.hooghlyChinsurah, 'চুঁচুড়া (হুগলি)', Icons.water, isDark, ctx),
+                    _buildRegionTile(KolkataZone.hooghlyBandel, 'ব্যান্ডেল (হুগলি)', Icons.church, isDark, ctx),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRegionCategoryHeader(String title, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+      child: Text(
+        title.toUpperCase(),
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.8,
+          color: PujaColors.durgaRed,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegionTile(
+    KolkataZone zone,
+    String bengaliName,
+    IconData icon,
+    bool isDark,
+    BuildContext sheetCtx,
+  ) {
+    final isSelected = _selectedZone == zone;
+    final count = _pandals.where((p) => p.zone == zone).length;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Material(
+        color: isSelected
+            ? PujaColors.crimsonVelvet.withValues(alpha: 0.12)
+            : (isDark ? PujaColors.nightCard : Colors.grey.shade50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(
+            color: isSelected ? PujaColors.festivalGold : (isDark ? Colors.white12 : Colors.black12),
+            width: isSelected ? 1.8 : 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () {
+            Navigator.pop(sheetCtx);
+            _locateZone(zone);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? PujaColors.crimsonVelvet
+                        : (isDark ? PujaColors.nightSurface : PujaColors.goldSoft),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 18,
+                    color: isSelected ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        zone.label,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        bengaliName,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? Colors.white60 : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isSelected ? PujaColors.crimsonVelvet : PujaColors.goldSoft,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$count Pandals',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 12,
+                  color: isSelected ? PujaColors.crimsonVelvet : (isDark ? Colors.white38 : Colors.black26),
+                ),
+              ],
             ),
           ),
         ),

@@ -3048,5 +3048,376 @@
     "special_features": [],
     "image_url": "",
     "description": "Chorbagan Sarbojanin pandal in North Kolkata."
+  },
+  {
+    "id": "kalyani_iti_more_luminous_club",
+    "source_id": "106",
+    "name": "Kalyani ITI More Luminous Club",
+    "lat": 22.975482,
+    "lng": 88.435738,
+    "zone": "nadiaKalyani",
+    "area": "Kalyani",
+    "region": "Nadia",
+    "rating": 4.9,
+    "theme": "Grand Historical Monument Replicas",
+    "crowd_level": "extreme",
+    "timings": "Open 24 Hours",
+    "transport": [
+      "Railway",
+      "Auto",
+      "Bus",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Kalyani Silpanchal / Kalyani Ghoshpara",
+    "nearest_railway_list": [
+      "Kalyani Silpanchal",
+      "Kalyani Ghoshpara",
+      "Kalyani Jn"
+    ],
+    "special_features": [
+      "Monument Replica",
+      "Mega Crowd",
+      "Chandan-nagar Illumination"
+    ],
+    "image_url": "",
+    "description": "Kalyani ITI More Luminous Club is legendary across Bengal for mammoth architectural replicas and stunning light displays drawing millions."
+  },
+  {
+    "id": "kalyani_rathtala_sarbojanin",
+    "source_id": "107",
+    "name": "Kalyani Rathtala Durga Puja",
+    "lat": 22.981245,
+    "lng": 88.441923,
+    "zone": "nadiaKalyani",
+    "area": "Kalyani",
+    "region": "Nadia",
+    "rating": 4.8,
+    "theme": "Majestic Temple Architecture & Lighting",
+    "crowd_level": "very high",
+    "timings": "Open 24 Hours",
+    "transport": [
+      "Railway",
+      "Auto",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Kalyani Junction",
+    "nearest_railway_list": [
+      "Kalyani Junction"
+    ],
+    "special_features": [
+      "Temple Architecture",
+      "Lighting"
+    ],
+    "image_url": "",
+    "description": "Kalyani Rathtala Durga Puja is renowned for grand temple architecture and luminous lighting."
+  },
+  {
+    "id": "kalyani_central_park_sarbojanin",
+    "source_id": "108",
+    "name": "Kalyani Central Park Durga Puja",
+    "lat": 22.983115,
+    "lng": 88.432641,
+    "zone": "nadiaKalyani",
+    "area": "Kalyani",
+    "region": "Nadia",
+    "rating": 4.7,
+    "theme": "Massive Ground Installation Art",
+    "crowd_level": "very high",
+    "timings": "Open 24 Hours",
+    "transport": [
+      "Railway",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Kalyani Junction",
+    "nearest_railway_list": [
+      "Kalyani Junction"
+    ],
+    "special_features": [
+      "Expansive Grounds",
+      "Installation Art"
+    ],
+    "image_url": "",
+    "description": "Kalyani Central Park Durga Puja hosts expansive ground installations and creative visual artistry."
+  },
+  {
+    "id": "kalyani_a9_square_park",
+    "source_id": "109",
+    "name": "Kalyani A9 Square Park",
+    "lat": 22.986712,
+    "lng": 88.428549,
+    "zone": "nadiaKalyani",
+    "area": "Kalyani",
+    "region": "Nadia",
+    "rating": 4.6,
+    "theme": "Creative Concept & Dynamic Illumination",
+    "crowd_level": "high",
+    "timings": "Open 24 Hours",
+    "transport": [
+      "Railway",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Kalyani Junction",
+    "nearest_railway_list": [
+      "Kalyani Junction"
+    ],
+    "special_features": [
+      "Conceptual Theme",
+      "Illumination"
+    ],
+    "image_url": "",
+    "description": "Kalyani A9 Square Park is celebrated for modern conceptual themes and dynamic illumination."
+  },
+  {
+    "id": "kalyani_boat_park_durgotsav",
+    "source_id": "110",
+    "name": "Kalyani Boat Park Durga Puja",
+    "lat": 22.971204,
+    "lng": 88.419825,
+    "zone": "nadiaKalyani",
+    "area": "Kalyani",
+    "region": "Nadia",
+    "rating": 4.6,
+    "theme": "Waterfront Artistic Craftsmanship",
+    "crowd_level": "high",
+    "timings": "04:00 PM - 04:00 AM",
+    "transport": [
+      "Railway",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Kalyani Junction",
+    "nearest_railway_list": [
+      "Kalyani Junction"
+    ],
+    "special_features": [
+      "Waterfront View",
+      "Handicrafts"
+    ],
+    "image_url": "",
+    "description": "Kalyani Boat Park Durga Puja showcases picturesque waterfront artistic craftsmanship and serene ambiance."
+  },
+  {
+    "id": "kalyani_a2_square_park",
+    "source_id": "111",
+    "name": "Kalyani A2 Square Park",
+    "lat": 22.991204,
+    "lng": 88.439112,
+    "zone": "nadiaKalyani",
+    "area": "Kalyani",
+    "region": "Nadia",
+    "rating": 4.5,
+    "theme": "Social Narrative and Traditional Art",
+    "crowd_level": "medium",
+    "timings": "05:00 PM - 02:00 AM",
+    "transport": [
+      "Railway",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Kalyani Junction",
+    "nearest_railway_list": [
+      "Kalyani Junction"
+    ],
+    "special_features": [
+      "Social Awareness",
+      "Traditional Clay Idol"
+    ],
+    "image_url": "",
+    "description": "Kalyani A2 Square Park combines thoughtful social narratives with traditional Bengali artistry."
+  },
+  {
+    "id": "chinsurah_panchanantala_sarbojonin",
+    "source_id": "112",
+    "name": "Panchanantala Sarbojonin Durgatsob Samity",
+    "lat": 22.898421,
+    "lng": 88.391512,
+    "zone": "hooghlyChinsurah",
+    "area": "Chinsurah",
+    "region": "Hooghly",
+    "rating": 4.5,
+    "theme": "Contemporary Social and Cultural Issues",
+    "crowd_level": "high",
+    "timings": "04:00 PM - 03:00 AM",
+    "transport": [
+      "Railway",
+      "Auto",
+      "Ferry",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Chuchura Railway Station",
+    "nearest_railway_list": [
+      "Chuchura Station (Howrah Main)"
+    ],
+    "special_features": [
+      "Contemporary Thought",
+      "Ferry Ghat Access"
+    ],
+    "image_url": "",
+    "description": "Panchanantala Sarbojonin Durgatsob Samity in Chinsurah focuses on thought-provoking contemporary social and cultural issues."
+  },
+  {
+    "id": "chinsurah_pirtala_sarbojanin",
+    "source_id": "113",
+    "name": "Pirtala Durga Puja",
+    "lat": 22.894318,
+    "lng": 88.384215,
+    "zone": "hooghlyChinsurah",
+    "area": "Chinsurah",
+    "region": "Hooghly",
+    "rating": 4.4,
+    "theme": "Traditional Bengali Art Decor",
+    "crowd_level": "high",
+    "timings": "04:00 PM - 03:00 AM",
+    "transport": [
+      "Railway",
+      "Toto",
+      "Auto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Chuchura Railway Station",
+    "nearest_railway_list": [
+      "Chuchura Station"
+    ],
+    "special_features": [
+      "Bengali Folk Decor",
+      "Illumination"
+    ],
+    "image_url": "",
+    "description": "Pirtala Durga Puja is beloved in Chinsurah for traditional Bengali folk and art decor."
+  },
+  {
+    "id": "chinsurah_chapatala_sarbojanin",
+    "source_id": "114",
+    "name": "Chapatala Durga Puja Samity",
+    "lat": 22.891124,
+    "lng": 88.398541,
+    "zone": "hooghlyChinsurah",
+    "area": "Chinsurah",
+    "region": "Hooghly",
+    "rating": 4.4,
+    "theme": "Handicraft & Rural Heritage Themes",
+    "crowd_level": "high",
+    "timings": "05:00 PM - 02:00 AM",
+    "transport": [
+      "Railway",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Chuchura Railway Station",
+    "nearest_railway_list": [
+      "Chuchura Station"
+    ],
+    "special_features": [
+      "Rural Crafts",
+      "Heritage Motif"
+    ],
+    "image_url": "",
+    "description": "Chapatala Durga Puja Samity highlights rural handicraft and Bengal's rich cultural heritage."
+  },
+  {
+    "id": "chinsurah_peyarabagan_sarbojanin",
+    "source_id": "115",
+    "name": "Peyarabagan Sarbojanin Durgotsav",
+    "lat": 22.901542,
+    "lng": 88.381245,
+    "zone": "hooghlyChinsurah",
+    "area": "Chinsurah",
+    "region": "Hooghly",
+    "rating": 4.3,
+    "theme": "Creative Lighting and Clay Artistry",
+    "crowd_level": "medium",
+    "timings": "05:00 PM - 02:00 AM",
+    "transport": [
+      "Railway",
+      "Toto",
+      "Auto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Chuchura Railway Station",
+    "nearest_railway_list": [
+      "Chuchura Station"
+    ],
+    "special_features": [
+      "Chandan-nagar Lighting",
+      "Clay Craft"
+    ],
+    "image_url": "",
+    "description": "Peyarabagan Sarbojanin in Chinsurah is famed for dazzling lighting and exquisite clay artistry."
+  },
+  {
+    "id": "chinsurah_datta_bari_bonedi",
+    "source_id": "116",
+    "name": "Datta Bari Durga Puja (Since 1862)",
+    "lat": 22.896124,
+    "lng": 88.389412,
+    "zone": "hooghlyChinsurah",
+    "area": "Chinsurah",
+    "region": "Hooghly",
+    "rating": 4.6,
+    "theme": "Traditional Sabeki Ekchala Idol",
+    "crowd_level": "medium",
+    "timings": "08:00 AM - 11:00 PM",
+    "transport": [
+      "Railway",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Chuchura Railway Station",
+    "nearest_railway_list": [
+      "Chuchura Station"
+    ],
+    "special_features": [
+      "Bonedi Bari Heritage (Since 1862)",
+      "Traditional Sabeki Ekchala"
+    ],
+    "image_url": "",
+    "description": "Datta Bari Durga Puja in Chinsurah is an aristocratic household celebration established in 1862 with traditional Sabeki rituals."
+  },
+  {
+    "id": "bandel_keota_nabin_sangha",
+    "source_id": "117",
+    "name": "Keota Nabin Sangha Durga Puja",
+    "lat": 22.918542,
+    "lng": 88.381125,
+    "zone": "hooghlyBandel",
+    "area": "Bandel",
+    "region": "Hooghly",
+    "rating": 4.5,
+    "theme": "Innovative Illumination & Sculptural Art",
+    "crowd_level": "high",
+    "timings": "05:00 PM - 03:00 AM",
+    "transport": [
+      "Railway",
+      "Auto",
+      "Toto"
+    ],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": "Bandel Junction",
+    "nearest_railway_list": [
+      "Bandel Junction"
+    ],
+    "special_features": [
+      "Illumination",
+      "Sculptural Art"
+    ],
+    "image_url": "",
+    "description": "Keota Nabin Sangha Durga Puja in Bandel features innovative illumination, sculptural art, and grand thematic architecture."
   }
 ]

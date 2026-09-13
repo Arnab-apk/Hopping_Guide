@@ -23,6 +23,7 @@ class PandalDetailSheet extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => PandalDetailSheet(pandal: pandal),
     );
@@ -93,11 +94,13 @@ class PandalDetailSheet extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Drag handle
-          Container(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
             margin: const EdgeInsets.only(top: 12, bottom: 8),
             width: 44,
             height: 5,
@@ -444,8 +447,9 @@ class PandalDetailSheet extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTransitItem({
     required BuildContext context,

@@ -1,17 +1,37 @@
-# kolkata_puja
+# Kolkata Puja 2026 — Flutter App
 
-A new Flutter project.
+This directory contains the Flutter mobile client for **Kolkata Puja 2026** (*কলকাতা দুর্গাপূজা পরিক্রমা ও লাইভ স্কোয়াড কম্প্যানিয়ন*).
 
-## Getting Started
+For the full project overview, stats dashboard, architecture, and roadmap, see the root [README.md](../README.md).
 
-This project is a starting point for a Flutter application.
+## Quick Stats
 
-A few resources to get you started if this is your first Flutter project:
+- **Curated Pandals:** 117 (Kolkata Metro + Nadia & Hooghly Suburbs)
+- **Covered Zones:** 8 (North, Central, South, Salt Lake, New Town, Kalyani, Chinsurah, Bandel)
+- **Map Provider:** `flutter_map` with OpenStreetMap raster tiles (100% Keyless & Free)
+- **Framework:** Flutter (Dart 3)
+- **Static Analysis:** 0 issues (`flutter analyze` passing)
+- **Tests:** 100% passing (`flutter test`)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Development Commands
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Run all commands from this directory (`app/`):
+
+```bash
+# Install dependencies
+flutter pub get
+
+# Run static analysis and lint checks
+flutter analyze
+
+# Run unit and widget tests
+flutter test
+
+# Run the application locally
+flutter run
+
+# Build release APK
+flutter build apk --release
+```
+
+See [AGENTS.md](../AGENTS.md) for canonical commands and development guidelines.
