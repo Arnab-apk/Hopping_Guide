@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../config/theme.dart';
 import '../utils/responsive.dart';
+import '../widgets/app_tutorial_dialog.dart';
 import 'map_screen.dart';
 import 'pandal_list_screen.dart';
 import 'routes_screen.dart';
@@ -37,6 +38,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppTutorialDialog.checkAndShow(context);
+    });
   }
 
   void _onTabSelected(int idx) {

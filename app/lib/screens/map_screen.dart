@@ -16,6 +16,7 @@ import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 import '../widgets/crowd_badge.dart';
 import '../widgets/pandal_detail_sheet.dart';
+import '../widgets/app_tutorial_dialog.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository});
@@ -534,6 +535,18 @@ class _MapScreenState extends State<MapScreen> {
           ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                FloatingActionButton.small(
+                  heroTag: 'app_tutorial_fab',
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    AppTutorialDialog.show(context);
+                  },
+                  backgroundColor: PujaColors.festivalGold,
+                  foregroundColor: Colors.black87,
+                  tooltip: 'App Walkthrough & Guide',
+                  child: const Icon(Icons.help_outline_rounded),
+                ),
+                const SizedBox(height: 8),
                 FloatingActionButton.small(
                   heroTag: 'locate_region_fab',
                   onPressed: () {

@@ -41,7 +41,7 @@ class GroupScreen extends StatefulWidget {
 class _GroupScreenState extends State<GroupScreen> {
   String? _groupCode;
   String? _groupName;
-  String _meetupPoint = 'Deshapriya Park North Gate';
+  String _meetupPoint = 'Main Entrance Gate';
   bool _isSharingLocation = true;
   bool _batterySaver = true;
 
@@ -50,62 +50,114 @@ class _GroupScreenState extends State<GroupScreen> {
   @override
   void initState() {
     super.initState();
-    // Default to a demo squad so users can immediately test the UI features
-    _loadDemoSquad();
+    // Default state: clean onboarding, restore saved squad if user previously created or joined one
+    _loadSavedGroup();
   }
 
-  void _loadDemoSquad() {
-    setState(() {
-      _groupCode = 'PUJA26';
-      _groupName = 'South Kolkata Night Hoppers';
-      _members.clear();
-      _members.addAll([
-        GroupMember(
-          id: '1',
-          name: 'Arnab (You)',
-          status: 'Near Deshapriya Park',
-          distance: '0 m (Here)',
-          isHost: true,
-          isUser: true,
-          lastSeen: DateTime.now(),
-        ),
-        GroupMember(
-          id: '2',
-          name: 'Rituparna Sen',
-          status: 'Near Tridhara Sammilani',
-          distance: '320 m away',
-          lastSeen: DateTime.now().subtract(const Duration(minutes: 2)),
-        ),
-        GroupMember(
-          id: '3',
-          name: 'Debanjan Roy',
-          status: 'In Queue @ Singhi Park',
-          distance: '750 m away',
-          lastSeen: DateTime.now().subtract(const Duration(minutes: 5)),
-        ),
-        GroupMember(
-          id: '4',
-          name: 'Pooja Das',
-          status: 'Grabbing Roll @ Gariahat',
-          distance: '540 m away',
-          lastSeen: DateTime.now().subtract(const Duration(minutes: 1)),
-        ),
-      ]);
-    });
+  Future<void> _saveGroupState() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_groupCode != null) {
+      await prefs.setString('saved_group_code', _groupCode!);
+      await prefs.setString('saved_group_name', _groupName ?? 'My Squad');
+      await prefs.setString('saved_meetup_point', _meetupPoint);
+    }
+  }
+
+  Future<void> _loadSavedGroup() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCode = prefs.getString('saved_group_code');
+    final savedName = prefs.getString('saved_group_name');
+    final savedMeetup = prefs.getString('saved_meetup_point');
+
+    if (savedCode != null && savedName != null) {
+      final user = AuthService.instance.currentUserModel;
+      final userName = user?.displayName ?? 'You';
+      if (mounted) {
+        setState(() {
+          _groupCode = savedCode;
+          _groupName = savedName;
+          if (savedMeetup != null) _meetupPoint = savedMeetup;
+          _members.clear();
+          _members.add(
+            GroupMember(
+              id: user?.uid ?? 'user',
+              name: '$userName (You)',
+              status: 'Squad Host • Active',
+              distance: '0 m (Here)',
+              isHost: true,
+              isUser: true,
+              lastSeen: DateTime.now(),
+            ),
+          );
+        });
+      }
+    }
+  }
+
+  Future<void> _leaveGroup() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Leave Squad?'),
+        content: Text('Are you sure you want to leave "$_groupName"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      setState(() {
+        _groupCode = null;
+        _groupName = null;
+        _members.clear();
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('saved_group_code');
+      await prefs.remove('saved_group_name');
+      await prefs.remove('saved_meetup_point');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You left the squad.')),
+        );
+      }
+    }
   }
 
   void _createGroup() {
-    final controller = TextEditingController(text: 'Durgotsav Squad');
+    final nameController = TextEditingController();
+    final meetupController = TextEditingController(text: 'Main Pandal Entrance');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Create Hopping Squad'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Squad Name',
-            hintText: 'e.g. Bagbazar Pandal Crawlers',
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Squad Name',
+                hintText: 'e.g. Bagbazar Pandal Crawlers',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: meetupController,
+              decoration: const InputDecoration(
+                labelText: 'Meet-up Landmark',
+                hintText: 'e.g. Near Hatibagan Crossing',
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -114,25 +166,40 @@ class _GroupScreenState extends State<GroupScreen> {
           ),
           FilledButton(
             onPressed: () {
+              final squadName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
+              final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Gate' : meetupController.text.trim();
               Navigator.pop(ctx);
+
+              final code = 'PUJA${100 + Random().nextInt(900)}';
+              final user = AuthService.instance.currentUserModel;
+              final userName = user?.displayName ?? 'You';
+
               setState(() {
-                _groupName = controller.text.trim().isEmpty ? 'My Puja Squad' : controller.text.trim();
-                _groupCode = 'PUJA${(10 + (DateTime.now().millisecond % 90))}';
+                _groupName = squadName;
+                _groupCode = code;
+                _meetupPoint = meetup;
                 _members.clear();
                 _members.add(
                   GroupMember(
-                    id: '1',
-                    name: 'You (Host)',
-                    status: 'Active',
-                    distance: '0 m',
+                    id: user?.uid ?? 'host',
+                    name: '$userName (Host)',
+                    status: 'Active • At Pandal',
+                    distance: '0 m (Here)',
                     isHost: true,
                     isUser: true,
                     lastSeen: DateTime.now(),
                   ),
                 );
               });
+              _saveGroupState();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Created "$_groupName"! Share code $_groupCode')),
+                SnackBar(
+                  content: Text('Created "$squadName"! Invite Code: $code'),
+                  action: SnackBarAction(
+                    label: 'Share',
+                    onPressed: _shareInvite,
+                  ),
+                ),
               );
             },
             child: const Text('Create'),
@@ -154,7 +221,7 @@ class _GroupScreenState extends State<GroupScreen> {
           textCapitalization: TextCapitalization.characters,
           decoration: const InputDecoration(
             labelText: 'Enter 6-character Code',
-            hintText: 'e.g. PUJA26',
+            hintText: 'e.g. PUJA512',
           ),
         ),
         actions: [
@@ -167,11 +234,26 @@ class _GroupScreenState extends State<GroupScreen> {
               final code = controller.text.trim().toUpperCase();
               if (code.isNotEmpty) {
                 Navigator.pop(ctx);
-                _loadDemoSquad();
+                final user = AuthService.instance.currentUserModel;
+                final userName = user?.displayName ?? 'You';
                 setState(() {
                   _groupCode = code;
                   _groupName = 'Squad $code';
+                  _meetupPoint = 'Designated Meet-up Point';
+                  _members.clear();
+                  _members.add(
+                    GroupMember(
+                      id: user?.uid ?? 'member',
+                      name: '$userName (Member)',
+                      status: 'Joined • Active',
+                      distance: '0 m (Here)',
+                      isHost: false,
+                      isUser: true,
+                      lastSeen: DateTime.now(),
+                    ),
+                  );
                 });
+                _saveGroupState();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Joined squad $code!')),
                 );
@@ -291,18 +373,11 @@ class _GroupScreenState extends State<GroupScreen> {
             onSelected: (value) {
               if (value == 'create') _createGroup();
               if (value == 'join') _joinGroup();
-              if (value == 'demo') _loadDemoSquad();
-              if (value == 'leave') {
-                setState(() {
-                  _groupCode = null;
-                  _members.clear();
-                });
-              }
+              if (value == 'leave') _leaveGroup();
             },
             itemBuilder: (ctx) => [
               const PopupMenuItem(value: 'create', child: Text('Create New Squad')),
               const PopupMenuItem(value: 'join', child: Text('Join Squad Code')),
-              const PopupMenuItem(value: 'demo', child: Text('Load Demo Squad')),
               if (_groupCode != null)
                 const PopupMenuItem(value: 'leave', child: Text('Leave Current Squad', style: TextStyle(color: Colors.red))),
             ],
@@ -357,11 +432,6 @@ class _GroupScreenState extends State<GroupScreen> {
                 label: const Text('Join with Squad Code'),
                 onPressed: _joinGroup,
               ),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: _loadDemoSquad,
-              child: const Text('Explore Demo Squad Preview'),
             ),
           ],
         ),
