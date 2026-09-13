@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'services/custom_hopping_trail_service.dart';
 import 'services/location_service.dart';
+import 'services/notification_progress_service.dart';
 import 'services/pandal_user_state_service.dart';
 
 import 'services/squad_service.dart';
@@ -22,11 +24,15 @@ void main() async {
     debugPrint('Firebase initialization note: $e');
   }
 
-  // Initialize persistent user preferences, theme, squad and device location service
+  // Initialize persistent user preferences, theme, squad, notifications, and device location service
   final userStateService = await PandalUserStateService.create();
   final themeService = await ThemeService.create();
   final squadService = await SquadService.create();
   final locationService = LocationService();
+  final trailService = CustomHoppingTrailService.instance..attachUserStateService(userStateService);
+
+  // Initialize notifications
+  NotificationProgressService.instance.initialize();
 
   // Proactively fetch device location if permitted
   locationService.updateLiveLocation();
@@ -38,6 +44,7 @@ void main() async {
         ChangeNotifierProvider<ThemeService>.value(value: themeService),
         ChangeNotifierProvider<LocationService>.value(value: locationService),
         ChangeNotifierProvider<SquadService>.value(value: squadService),
+        ChangeNotifierProvider<CustomHoppingTrailService>.value(value: trailService),
       ],
       child: const KolkataPujaApp(),
     ),

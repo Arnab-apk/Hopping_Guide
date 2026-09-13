@@ -7,6 +7,7 @@ import '../repositories/local_pandal_repository.dart';
 import '../utils/responsive.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/animated_fade_slide.dart';
+import '../widgets/custom_trail_planner_dialog.dart';
 
 class HoppingRoute {
   const HoppingRoute({
@@ -195,10 +196,108 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 ),
                 ),
 
+                const SizedBox(height: 14),
+
+                // AI Custom Trail Generator Banner
+                InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () => CustomTrailPlannerDialog.show(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xFF2C1B2E), const Color(0xFF1E1F29)]
+                            : [const Color(0xFFFFF3E0), Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: PujaColors.festivalGold.withValues(alpha: 0.6),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: PujaColors.festivalGold.withValues(alpha: 0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.auto_awesome_rounded,
+                            color: PujaColors.festivalGold,
+                            size: 26,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'AI Custom Trail Planner',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15,
+                                      color: isDark ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: PujaColors.durgaRed,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'NEW',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'Set your time in hand & hopping vibe (Heritage, Blockbuster, Low Queue). Includes Auto-Visit & Notification Bar progress.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.white70 : Colors.black54,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: PujaColors.festivalGold,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
 
                 const Text(
-                  'Recommended Itineraries',
+                  'Curated Heritage Itineraries',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
 

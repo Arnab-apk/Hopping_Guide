@@ -262,7 +262,7 @@ void main() {
       expect(revived.latitude, member.latitude);
     });
 
-    test('SquadService createSquad populates members and generates code', () {
+    test('SquadService createSquad starts with only host and 0 companions', () {
       final squad = SquadService.instance;
       squad.createSquad('Bagbazar Hoppers', 'North Gate');
 
@@ -270,8 +270,8 @@ void main() {
       expect(squad.squadName, 'Bagbazar Hoppers');
       expect(squad.meetupPointName, 'North Gate');
       expect(squad.squadCode, startsWith('PUJA'));
-      expect(squad.members.length, greaterThanOrEqualTo(4));
-      expect(squad.companionMembers.length, greaterThanOrEqualTo(3));
+      expect(squad.members.length, 1);
+      expect(squad.companionMembers, isEmpty);
     });
 
     test('SquadService updateUserLocation updates user member coordinates', () {
@@ -285,8 +285,8 @@ void main() {
 
     test('SquadService focusMember and clearFocus manage camera target', () {
       final squad = SquadService.instance;
-      squad.focusMember('member_priya');
-      expect(squad.focusedMemberId, 'member_priya');
+      squad.focusMember('member_peer_1');
+      expect(squad.focusedMemberId, 'member_peer_1');
 
       squad.clearFocus();
       expect(squad.focusedMemberId, isNull);

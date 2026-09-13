@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -14,6 +15,7 @@ import '../repositories/local_pandal_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../models/squad_member.dart';
+import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
 import '../services/routing_service.dart';
 import '../services/squad_service.dart';
@@ -22,9 +24,11 @@ import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 import '../widgets/crowd_badge.dart';
+import '../widgets/custom_trail_planner_dialog.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/app_tutorial_dialog.dart';
 import '../widgets/animated_fade_slide.dart';
+import 'main_navigation_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository});
@@ -52,6 +56,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   List<Pandal> _pandals = [];
   List<FoodSpot> _foodSpots = [];
   bool _showFoodSpots = false;
+  bool _filterNearby10Km = false;
   bool _isLoading = true;
 
   KolkataZone? _selectedZone;
@@ -117,6 +122,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         LatLng(latTween.transform(t), lngTween.transform(t)),
         zoomTween.transform(t),
       );
+      _mapController.rotate(0.0);
     });
 
     controller.addStatusListener((status) {
@@ -262,34 +268,72 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     var userPos = _userPosition;
     userPos ??= await LocationService.instance.currentPosition();
 
-    if (userPos == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('📍 Please allow location to find your nearest pandal.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-      return;
-    }
+    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
+    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
 
-    final userLatLng = LatLng(userPos.latitude, userPos.longitude);
-    final nearest = RoutingService.instance.findNearestPandal(
-      userPosition: userLatLng,
-      pandals: _pandals,
-    );
+    // Check if user is far from Kolkata (e.g. testing on an emulator or remote location)
+    final distToKolkata = haversineMeters(userLat, userLng, AppConfig.defaultLat, AppConfig.defaultLng);
+    final bool isFarAway = distToKolkata > 70000;
 
-    if (nearest == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No pandals found.')),
-        );
-      }
-      return;
-    }
+    final refLat = isFarAway ? AppConfig.defaultLat : userLat;
+    final refLng = isFarAway ? AppConfig.defaultLng : userLng;
+    final refPoint = LatLng(refLat, refLng);
+
+    // Find all pandals within 10 km (10,000 meters)
+    final nearbyPandals = _pandals.where((p) {
+      final d = haversineMeters(refLat, refLng, p.lat, p.lng);
+      return d <= 10000;
+    }).toList();
+
+    // Sort by distance ascending so closest is first
+    nearbyPandals.sort((a, b) {
+      final da = haversineMeters(refLat, refLng, a.lat, a.lng);
+      final db = haversineMeters(refLat, refLng, b.lat, b.lng);
+      return da.compareTo(db);
+    });
+
+    final effectivePandals = nearbyPandals.isNotEmpty
+        ? nearbyPandals
+        : (_pandals.take(15).toList());
+
+    final nearest = effectivePandals.first;
+
+    setState(() {
+      _filterNearby10Km = true;
+      _selectedZone = null;
+      _selectedPandal = nearest;
+      _selectedSquadMember = null;
+    });
 
     await _highlightRouteTo(nearest);
+
+    if (mounted) {
+      final points = [
+        refPoint,
+        ...effectivePandals.map((p) => LatLng(p.lat, p.lng)),
+      ];
+      final bounds = LatLngBounds.fromPoints(points);
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.fromLTRB(40, 140, 40, 240),
+          maxZoom: 15.0,
+        ),
+      );
+      _mapController.rotate(0.0);
+
+      final msg = isFarAway
+          ? '📍 Showing ${effectivePandals.length} pandals within 10 km of central Kolkata • Nearest: ${nearest.name}'
+          : '📍 Showing ${effectivePandals.length} pandals within 10 km of you • Nearest: ${nearest.name}';
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 3),
+          content: Text(msg),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _highlightRouteToMember(SquadMember member) async {
@@ -389,6 +433,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   void _locateZone(KolkataZone? zone) {
     HapticFeedback.selectionClick();
     setState(() {
+      _filterNearby10Km = false;
       _selectedZone = zone;
       _selectedPandal = null;
     });
@@ -421,7 +466,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
   }
 
+  LatLng _get10KmReferenceCenter() {
+    final double userLat = _userPosition?.latitude ?? AppConfig.defaultLat;
+    final double userLng = _userPosition?.longitude ?? AppConfig.defaultLng;
+    final distToKolkata = haversineMeters(userLat, userLng, AppConfig.defaultLat, AppConfig.defaultLng);
+    if (distToKolkata > 70000) {
+      return const LatLng(AppConfig.defaultLat, AppConfig.defaultLng);
+    }
+    return LatLng(userLat, userLng);
+  }
+
   List<Pandal> get _visiblePandals {
+    if (_filterNearby10Km) {
+      final center = _get10KmReferenceCenter();
+      final nearby = _pandals.where((p) {
+        return haversineMeters(center.latitude, center.longitude, p.lat, p.lng) <= 10000;
+      }).toList();
+      return nearby.isNotEmpty ? nearby : _pandals;
+    }
     if (_selectedZone == null) return _pandals;
     return _pandals.where((p) => p.zone == _selectedZone).toList();
   }
@@ -460,7 +522,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 squadService.showSquadOnMap ? Icons.groups_rounded : Icons.groups_outlined,
                 color: squadService.showSquadOnMap
                     ? const Color(0xFF00E676)
-                    : (isDark ? Colors.white70 : Colors.black54),
+                    : Colors.white.withValues(alpha: 0.70),
               ),
               tooltip: squadService.showSquadOnMap
                   ? 'Hide Squad Members'
@@ -471,17 +533,35 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               },
             ),
           IconButton(
-            icon: Icon(
-              _showFoodSpots ? Icons.restaurant : Icons.restaurant_outlined,
-              color: _showFoodSpots ? PujaColors.goldBright : (isDark ? Colors.white : Colors.black87),
+            icon: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: _showFoodSpots
+                    ? PujaColors.festivalGold.withValues(alpha: 0.28)
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+                border: _showFoodSpots
+                    ? Border.all(color: PujaColors.goldBright, width: 1.2)
+                    : null,
+              ),
+              child: Icon(
+                _showFoodSpots ? Icons.restaurant_rounded : Icons.restaurant_outlined,
+                color: _showFoodSpots
+                    ? PujaColors.goldBright
+                    : Colors.white.withValues(alpha: 0.75),
+                size: 20,
+              ),
             ),
-            tooltip: 'Toggle Food & Bhog Spots',
+            tooltip: _showFoodSpots ? 'Hide Food & Bhog Spots' : 'Show Food & Bhog Spots (${_foodSpots.length})',
             onPressed: () {
+              HapticFeedback.lightImpact();
               setState(() => _showFoodSpots = !_showFoodSpots);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   duration: const Duration(seconds: 1),
-                  content: Text(_showFoodSpots ? 'Food & Bhog stalls shown' : 'Food stalls hidden'),
+                  content: Text(_showFoodSpots ? '🍲 Showing ${_foodSpots.length} Food & Bhog stalls' : 'Food stalls hidden'),
                 ),
               );
             },
@@ -499,7 +579,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   child: Icon(
                     isDarkActive ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                     key: ValueKey<bool>(isDarkActive),
-                    color: isDarkActive ? PujaColors.goldBright : Colors.black87,
+                    color: isDarkActive
+                        ? PujaColors.goldBright
+                        : const Color(0xFFE2E8F0),
+                    size: 22,
                   ),
                 ),
                 tooltip: isDarkActive ? 'Switch to Light Mode' : 'Switch to Dark Mode',
@@ -511,12 +594,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.travel_explore),
+            icon: const Icon(Icons.travel_explore, color: PujaColors.goldBright),
             tooltip: 'Locate Region & Suburbs',
             onPressed: () => _showRegionPickerSheet(context, isDark),
           ),
           IconButton(
-            icon: const Icon(Icons.list_alt),
+            icon: const Icon(Icons.list_alt, color: PujaColors.goldBright),
             tooltip: 'View as List',
             onPressed: () => Navigator.of(context).pushNamed('/list'),
           ),
@@ -529,6 +612,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             options: MapOptions(
               initialCenter: const LatLng(AppConfig.defaultLat, AppConfig.defaultLng),
               initialZoom: AppConfig.defaultZoom,
+              initialRotation: 0.0,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
               onTap: (_, _) {
                 if (_selectedPandal != null || _selectedSquadMember != null) {
                   setState(() {
@@ -562,6 +649,23 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   },
                 ),
               ),
+
+              // 10 km Radius Boundary Layer (shows 10km radius when Nearest filter is active)
+              if (_filterNearby10Km)
+                RepaintBoundary(
+                  child: CircleLayer(
+                    circles: [
+                      CircleMarker(
+                        point: _get10KmReferenceCenter(),
+                        radius: 10000,
+                        useRadiusInMeter: true,
+                        color: PujaColors.festivalGold.withValues(alpha: 0.08),
+                        borderColor: PujaColors.festivalGold.withValues(alpha: 0.85),
+                        borderStrokeWidth: 2.0,
+                      ),
+                    ],
+                  ),
+                ),
 
               // GPS Accuracy Circle Layer
               if (_userPosition != null &&
@@ -602,6 +706,34 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
+
+              // Custom AI Hopping Trail Connected Polyline
+              Consumer<CustomHoppingTrailService>(
+                builder: (context, trailService, _) {
+                  if (!trailService.hasActiveTrail || trailService.activeTrail!.stops.length < 2) {
+                    return const SizedBox.shrink();
+                  }
+                  final stops = trailService.activeTrail!.stops;
+                  final pts = stops.map((p) => LatLng(p.lat, p.lng)).toList();
+                  return RepaintBoundary(
+                    child: PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: pts,
+                          strokeWidth: 7.0,
+                          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                        ),
+                        Polyline(
+                          points: pts,
+                          strokeWidth: 3.8,
+                          color: PujaColors.festivalGold,
+                          pattern: StrokePattern.dashed(segments: const [10, 6]),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
 
               // Food / Bhog Spot Markers
               if (_showFoodSpots)
@@ -707,31 +839,81 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               ),
                             )
                           : RepaintBoundary(
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: PujaColors.crimsonVelvet,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: PujaColors.festivalGold,
-                                    width: 1.8,
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black45,
-                                      blurRadius: 5,
-                                      offset: Offset(0, 2),
+                              child: Builder(
+                                builder: (context) {
+                                  final trailService = Provider.of<CustomHoppingTrailService>(context, listen: false);
+                                  final activeTrail = trailService.activeTrail;
+                                  int trailIndex = -1;
+                                  if (activeTrail != null) {
+                                    trailIndex = activeTrail.stops.indexWhere((s) => s.id == p.id);
+                                  }
+
+                                  if (trailIndex != -1 && activeTrail != null) {
+                                    final isVisited = activeTrail.visitedPandalIds.contains(p.id);
+                                    final isCurrent = trailIndex == activeTrail.currentStopIndex;
+
+                                    return Container(
+                                      width: isCurrent ? 42 : 36,
+                                      height: isCurrent ? 42 : 36,
+                                      decoration: BoxDecoration(
+                                        color: isVisited
+                                            ? const Color(0xFF00C853)
+                                            : (isCurrent ? const Color(0xFFFF1744) : PujaColors.festivalGold),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2.2,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: (isCurrent ? const Color(0xFFFF1744) : Colors.black).withValues(alpha: 0.4),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: isVisited
+                                            ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                                            : Text(
+                                                '${trailIndex + 1}',
+                                                style: TextStyle(
+                                                  color: isCurrent ? Colors.white : Colors.black87,
+                                                  fontWeight: FontWeight.w900,
+                                                  fontSize: isCurrent ? 15 : 13,
+                                                ),
+                                              ),
+                                      ),
+                                    );
+                                  }
+
+                                  return Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: PujaColors.crimsonVelvet,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: PujaColors.festivalGold,
+                                        width: 1.8,
+                                      ),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black45,
+                                          blurRadius: 5,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.temple_hindu,
-                                    color: PujaColors.goldBright,
-                                    size: 18,
-                                  ),
-                                ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.temple_hindu,
+                                        color: PujaColors.goldBright,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                     ),
@@ -920,50 +1102,95 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   }).toList(),
                 ),
 
-              // User Location Marker with Animated Radar Pulse & Heading
+              // User Location Marker with Animated Radar Pulse & Directional Navigation Arrow
               if (_userPosition != null)
                 MarkerLayer(
                   markers: [
                     Marker(
                       point: LatLng(_userPosition!.latitude, _userPosition!.longitude),
-                      width: 52,
-                      height: 52,
+                      width: 58,
+                      height: 58,
                       child: RepaintBoundary(
                         child: AnimatedBuilder(
                           animation: _pulseController,
                           builder: (context, child) {
                             final pulse = _pulseController.value;
-                            final heading = _userPosition!.heading;
+                            final userLatLng = LatLng(_userPosition!.latitude, _userPosition!.longitude);
+
+                            // Calculate directional bearing towards destination pandal or squad member
+                            double? arrowBearing;
+                            bool isNavigatingToTarget = false;
+
+                            if (_selectedPandal != null) {
+                              arrowBearing = calculateBearing(
+                                userLatLng.latitude,
+                                userLatLng.longitude,
+                                _selectedPandal!.lat,
+                                _selectedPandal!.lng,
+                              );
+                              isNavigatingToTarget = true;
+                            } else if (_selectedSquadMember != null) {
+                              arrowBearing = calculateBearing(
+                                userLatLng.latitude,
+                                userLatLng.longitude,
+                                _selectedSquadMember!.latitude,
+                                _selectedSquadMember!.longitude,
+                              );
+                              isNavigatingToTarget = true;
+                            } else if (_userPosition!.heading > 0 && _userPosition!.heading <= 360) {
+                              arrowBearing = _userPosition!.heading;
+                            }
+
                             return Stack(
                               alignment: Alignment.center,
                               children: [
                                 // Pulsing radar wave
                                 Container(
-                                  width: 22 + (26 * pulse),
-                                  height: 22 + (26 * pulse),
+                                  width: 22 + (28 * pulse),
+                                  height: 22 + (28 * pulse),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: const Color(0xFF2979FF).withValues(alpha: 0.35 * (1.0 - pulse)),
+                                    color: (isNavigatingToTarget
+                                            ? PujaColors.festivalGold
+                                            : const Color(0xFF2979FF))
+                                        .withValues(alpha: 0.35 * (1.0 - pulse)),
                                   ),
                                 ),
-                                // Heading direction arrow
-                                if (heading > 0 && heading <= 360)
+                                // Directional Navigation Arrow pointing towards target pandal or forward heading
+                                if (arrowBearing != null)
                                   Transform.rotate(
-                                    angle: (heading * 3.141592653589793 / 180),
-                                    child: const Icon(
-                                      Icons.navigation_rounded,
-                                      size: 26,
-                                      color: Color(0xFF2979FF),
+                                    angle: (arrowBearing * math.pi / 180),
+                                    child: Transform.translate(
+                                      offset: const Offset(0, -15),
+                                      child: Icon(
+                                        Icons.navigation_rounded,
+                                        size: 26,
+                                        color: isNavigatingToTarget
+                                            ? PujaColors.goldBright
+                                            : const Color(0xFF2979FF),
+                                        shadows: const [
+                                          Shadow(
+                                            color: Colors.black54,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                // Inner blue location core
+                                // Inner location core with golden outline when navigating
                                 Container(
                                   width: 18,
                                   height: 18,
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF2979FF),
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2.6),
+                                    border: Border.all(
+                                      color: isNavigatingToTarget
+                                          ? PujaColors.goldBright
+                                          : Colors.white,
+                                      width: 2.8,
+                                    ),
                                     boxShadow: const [
                                       BoxShadow(
                                         color: Colors.black38,
@@ -1029,7 +1256,22 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               child: InkWell(
                                 onTap: () {
                                   HapticFeedback.lightImpact();
-                                  squadService.toggleSquadOnMap(!squadService.showSquadOnMap);
+                                  if (squadService.companionMembers.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Squad "${squadService.squadName}" is empty (0 companions). Share code ${squadService.squadCode} to add friends!',
+                                        ),
+                                        duration: const Duration(seconds: 3),
+                                        action: SnackBarAction(
+                                          label: 'Squads',
+                                          onPressed: () => MainNavigationScreen.switchTab(context, 3),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    squadService.toggleSquadOnMap(!squadService.showSquadOnMap);
+                                  }
                                 },
                                 borderRadius: BorderRadius.circular(20),
                                 child: Container(
@@ -1074,6 +1316,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               ),
                             ),
                           _buildZoneChip('All (${_pandals.length})', null, isDark),
+                          _buildNearbyChip(isDark),
+                          _buildCustomTrailChip(isDark),
                           ...KolkataZone.values.map((zone) {
                             final count = _pandals.where((p) => p.zone == zone).length;
                             return _buildZoneChip('${zone.shortLabel} ($count)', zone, isDark);
@@ -1178,6 +1422,190 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
+
+          // Top Floating Active Custom Hopping Trail HUD
+          Consumer<CustomHoppingTrailService>(
+            builder: (context, trailService, _) {
+              if (!trailService.hasActiveTrail) return const SizedBox.shrink();
+              final trail = trailService.activeTrail!;
+              final target = trail.currentTargetPandal;
+              final total = trail.totalStops;
+              final visited = trail.visitedCount;
+              final percent = total > 0 ? (visited / total) : 0.0;
+
+              return Positioned(
+                top: _highlightedRoute != null ? 140 : 66,
+                left: 14,
+                right: 14,
+                child: AnimatedFadeSlide(
+                  duration: const Duration(milliseconds: 280),
+                  offset: const Offset(0, -0.15),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: (isDark ? const Color(0xFF1E1F29) : Colors.white).withValues(alpha: 0.98),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: PujaColors.festivalGold,
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: PujaColors.festivalGold.withValues(alpha: 0.22),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF1744),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Stop ${trail.currentStopIndex + 1} of $total',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                target != null ? target.name : 'All stops visited!',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.close_rounded, size: 18),
+                              tooltip: 'End Trail',
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                trailService.endTrail();
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        // Progress Bar
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: LinearProgressIndicator(
+                                  value: percent,
+                                  minHeight: 6,
+                                  backgroundColor: isDark ? Colors.white12 : Colors.grey.shade200,
+                                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF1744)),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '$visited/$total Visited',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: PujaColors.festivalGold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Bottom row: Auto-visit status & Actions
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF00E676),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Auto-Visit (80m) Active',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? const Color(0xFF00E676) : const Color(0xFF2E7D32),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                if (target != null)
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed: () {
+                                      _highlightRouteTo(target);
+                                    },
+                                    child: const Text(
+                                      'Path 🗺️',
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                if (target != null)
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    onPressed: () => trailService.recordAutoVisit(target),
+                                    child: const Text(
+                                      '✓ Visited',
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                                    ),
+                                  ),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: () => trailService.skipCurrentStop(),
+                                  child: const Text(
+                                    'Skip ⏭',
+                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
 
           // Bottom Mini-Card Preview when a Pandal is tapped (Animated entrance)
           if (_selectedPandal != null)
@@ -1575,98 +2003,114 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             const Center(
               child: CircularProgressIndicator(color: PujaColors.durgaRed),
             ),
-        ],
-      ),
-      floatingActionButton: (_selectedPandal == null && _selectedSquadMember == null)
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                // Quick Nearest Pandal & Route Path Highlight
-                FloatingActionButton.extended(
-                  heroTag: 'nearest_pandal_fab',
-                  onPressed: _isCalculatingRoute ? null : _findAndHighlightNearestPandal,
-                  backgroundColor: PujaColors.durgaRed,
-                  foregroundColor: Colors.white,
-                  icon: _isCalculatingRoute
-                      ? const SizedBox(
-                          width: 15,
-                          height: 15,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Icon(Icons.near_me_rounded, size: 18),
-                  label: Text(
-                    _isCalculatingRoute ? 'Tracing...' : 'Nearest Pandal',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                FloatingActionButton.small(
-                  heroTag: 'app_tutorial_fab',
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    AppTutorialDialog.show(context);
-                  },
-                  backgroundColor: PujaColors.festivalGold,
-                  foregroundColor: Colors.black87,
-                  tooltip: 'App Walkthrough & Guide',
-                  child: const Icon(Icons.help_outline_rounded),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton.small(
-                  heroTag: 'toggle_food_fab',
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    setState(() => _showFoodSpots = !_showFoodSpots);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: const Duration(seconds: 1),
-                        content: Text(
-                          _showFoodSpots
-                              ? '🍲 Showing ${_foodSpots.length} Food & Bhog spots'
-                              : 'Food stalls hidden',
+
+          // Floating Quick Actions (Nearest Pandal, Cuisine, Guide, Region, GPS)
+          // Managed inside the Stack with a subtle, minimalistic fade & micro-glide
+          Positioned(
+            right: 16,
+            bottom: 24,
+            child: AnimatedOpacity(
+              opacity: (_selectedPandal == null && _selectedSquadMember == null) ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              child: IgnorePointer(
+                ignoring: (_selectedPandal != null || _selectedSquadMember != null),
+                child: AnimatedSlide(
+                  offset: (_selectedPandal == null && _selectedSquadMember == null)
+                      ? Offset.zero
+                      : const Offset(0, 0.04),
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      // Quick Nearest Pandal (Red Navigation Arrow Button)
+                      Tooltip(
+                        message: 'Nearest Pandal (10km) • Red Arrow Radar',
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF1744).withValues(alpha: 0.38),
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: FloatingActionButton(
+                            heroTag: 'nearest_pandal_red_arrow_fab',
+                            elevation: 3,
+                            highlightElevation: 6,
+                            onPressed: _isCalculatingRoute ? null : _findAndHighlightNearestPandal,
+                            backgroundColor: isDark ? const Color(0xFF22232A) : Colors.white,
+                            foregroundColor: const Color(0xFFFF1744),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              side: const BorderSide(
+                                color: Color(0xFFFF1744),
+                                width: 2.2,
+                              ),
+                            ),
+                            child: _isCalculatingRoute
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.2,
+                                      color: Color(0xFFFF1744),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.navigation_rounded,
+                                    color: Color(0xFFFF1744),
+                                    size: 28,
+                                  ),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  backgroundColor: _showFoodSpots
-                      ? Colors.orange.shade800
-                      : (isDark ? PujaColors.nightCard : Colors.white),
-                  foregroundColor: _showFoodSpots ? Colors.white : Colors.orange.shade800,
-                  tooltip: _showFoodSpots ? 'Hide Food Stalls' : 'Show Food Stalls (${_foodSpots.length})',
-                  child: Icon(_showFoodSpots ? Icons.restaurant_rounded : Icons.restaurant_outlined),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton.small(
-                  heroTag: 'locate_region_fab',
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    _showRegionPickerSheet(context, isDark);
-                  },
-                  backgroundColor: isDark ? PujaColors.nightCard : Colors.white,
-                  foregroundColor: PujaColors.durgaRed,
-                  tooltip: 'Locate Region & Suburbs',
-                  child: const Icon(Icons.travel_explore),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  heroTag: 'locate_user_fab',
-                  onPressed: _toggleFollowUser,
-                  backgroundColor: _followUser
-                      ? const Color(0xFF2979FF)
-                      : (isDark ? PujaColors.nightCard : Colors.white),
-                  foregroundColor: _followUser
-                      ? Colors.white
-                      : (isDark ? Colors.white : Colors.black87),
-                  tooltip: _followUser ? 'Live Tracking Active (Tap for free-roam)' : 'Center & Follow My GPS',
-                  child: Icon(
-                    _followUser ? Icons.navigation_rounded : Icons.my_location,
-                    size: context.dynamicIcon(24),
+                      const SizedBox(height: 10),
+                      FloatingActionButton.small(
+                        heroTag: null,
+                        elevation: 2,
+                        highlightElevation: 4,
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          AppTutorialDialog.show(context);
+                        },
+                        backgroundColor: PujaColors.festivalGold,
+                        foregroundColor: Colors.black87,
+                        tooltip: 'App Walkthrough & Guide',
+                        child: const Icon(Icons.help_outline_rounded),
+                      ),
+                      const SizedBox(height: 10),
+                      FloatingActionButton(
+                        heroTag: null,
+                        elevation: 2,
+                        highlightElevation: 4,
+                        onPressed: _toggleFollowUser,
+                        backgroundColor: _followUser
+                            ? const Color(0xFF2979FF)
+                            : (isDark ? PujaColors.nightCard : Colors.white),
+                        foregroundColor: _followUser
+                            ? Colors.white
+                            : (isDark ? Colors.white : Colors.black87),
+                        tooltip: _followUser ? 'Live Tracking Active (Tap for free-roam)' : 'Center & Follow My GPS',
+                        child: Icon(
+                          _followUser ? Icons.navigation_rounded : Icons.my_location,
+                          size: context.dynamicIcon(24),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            )
-          : null,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1714,7 +2158,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildZoneChip(String label, KolkataZone? zone, bool isDark) {
-    final isSelected = _selectedZone == zone;
+    final isSelected = !_filterNearby10Km && _selectedZone == zone;
     return Padding(
       padding: const EdgeInsets.only(right: 6.0),
       child: Material(
@@ -1730,7 +2174,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(999),
-          onTap: () => _locateZone(isSelected && zone != null ? null : zone),
+          onTap: () {
+            setState(() => _filterNearby10Km = false);
+            _locateZone(isSelected && zone != null ? null : zone);
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             child: Text(
@@ -1744,6 +2191,131 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNearbyChip(bool isDark) {
+    final isSelected = _filterNearby10Km;
+    return Padding(
+      padding: const EdgeInsets.only(right: 6.0),
+      child: Material(
+        elevation: isSelected ? 3 : 0,
+        color: isSelected
+            ? PujaColors.crimsonVelvet
+            : (isDark ? PujaColors.nightSurface : Colors.grey.shade100),
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: isSelected ? PujaColors.festivalGold : PujaColors.festivalGold.withValues(alpha: 0.25),
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: () {
+            if (_filterNearby10Km) {
+              setState(() => _filterNearby10Km = false);
+            } else {
+              _findAndHighlightNearestPandal();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.navigation_rounded,
+                  size: 14,
+                  color: Color(0xFFFF1744),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Nearby (10km)',
+                  style: TextStyle(
+                    color: isSelected ? PujaColors.goldBright : (isDark ? Colors.white70 : Colors.black87),
+                    fontSize: 11.5,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomTrailChip(bool isDark) {
+    return Consumer<CustomHoppingTrailService>(
+      builder: (context, trailService, _) {
+        final hasActive = trailService.hasActiveTrail;
+        final trail = trailService.activeTrail;
+
+        return Padding(
+          padding: const EdgeInsets.only(right: 6.0),
+          child: Material(
+            elevation: hasActive ? 3 : 0,
+            color: hasActive
+                ? PujaColors.festivalGold
+                : (isDark ? PujaColors.nightSurface : Colors.grey.shade100),
+            shape: StadiumBorder(
+              side: BorderSide(
+                color: hasActive
+                    ? PujaColors.durgaRed
+                    : PujaColors.festivalGold.withValues(alpha: 0.4),
+                width: hasActive ? 1.5 : 1.0,
+              ),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                CustomTrailPlannerDialog.show(
+                  context,
+                  initialLocation: _userPosition != null
+                      ? LatLng(_userPosition!.latitude, _userPosition!.longitude)
+                      : null,
+                  initialLocationLabel: _userPosition != null ? 'My Live Location' : null,
+                  onTrailStarted: () {
+                    final firstStop = trailService.activeTrail?.currentTargetPandal;
+                    if (firstStop != null) {
+                      _animatedMapMove(LatLng(firstStop.lat, firstStop.lng), 15.5);
+                    }
+                  },
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      size: 14,
+                      color: hasActive
+                          ? Colors.black87
+                          : PujaColors.festivalGold,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      hasActive
+                          ? 'Trail (${trail!.visitedCount}/${trail.totalStops})'
+                          : 'Plan Trail ⏱️',
+                      style: TextStyle(
+                        color: hasActive
+                            ? Colors.black87
+                            : (isDark ? Colors.white70 : Colors.black87),
+                        fontSize: 11.5,
+                        fontWeight: hasActive ? FontWeight.w800 : FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

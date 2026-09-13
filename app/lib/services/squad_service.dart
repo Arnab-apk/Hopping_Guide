@@ -1,17 +1,23 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/squad_member.dart';
 import 'auth_service.dart';
+import 'location_service.dart';
 
 /// Centralized state manager for Durga Puja hopping squads.
-/// Syncs squad members' real-time coordinates, designated meetup point,
-/// and live location streams between the Squad screen and Map screen.
+/// Grounded in real device GPS coordinates from [LocationService].
+/// When a squad is created, it begins with ONLY the host (0 companion members).
+/// Real companions join dynamically via invite code and sync live positions.
 class SquadService extends ChangeNotifier {
-  SquadService._({this._prefs});
+  SquadService._({this._prefs}) {
+    _listenToLocationService();
+  }
 
   final SharedPreferences? _prefs;
   static SquadService? _instance;
@@ -32,15 +38,15 @@ class SquadService extends ChangeNotifier {
   // Active squad metadata
   String? _squadCode;
   String? _squadName;
-  String _meetupPointName = 'Hatibagan Crossing Gate';
-  LatLng _meetupPointCoords = const LatLng(22.5995, 88.3725); // Central North Kolkata landmark
+  String _meetupPointName = 'Designated Meet-up Landmark';
+  LatLng _meetupPointCoords = LocationService.defaultKolkataCenter;
   bool _isSharingLocation = true;
   bool _batterySaver = false;
   bool _showSquadOnMap = true;
   String? _focusedMemberId;
 
   final List<SquadMember> _members = [];
-  Timer? _simulationTimer;
+  StreamSubscription? _rtdbSub;
   final Random _random = Random();
 
   // Getters
@@ -55,9 +61,27 @@ class SquadService extends ChangeNotifier {
   String? get focusedMemberId => _focusedMemberId;
   List<SquadMember> get members => List.unmodifiable(_members);
 
-  /// Companion members that are not the user
+  /// Companion members that are not the local user.
+  /// When a squad is newly created, this is strictly empty.
   List<SquadMember> get companionMembers =>
       _members.where((m) => !m.isUser).toList();
+
+  bool get _isFirebaseAvailable {
+    try {
+      return Firebase.apps.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _listenToLocationService() {
+    LocationService.instance.addListener(() {
+      final pos = LocationService.instance.currentPositionSync;
+      if (pos != null && hasActiveSquad && _isSharingLocation) {
+        updateUserLocation(pos.latitude, pos.longitude);
+      }
+    });
+  }
 
   Future<void> _loadSavedState() async {
     if (_prefs == null) return;
@@ -70,7 +94,8 @@ class SquadService extends ChangeNotifier {
       _squadName = name;
       if (meetup != null) _meetupPointName = meetup;
       _initMembers(isHost: true);
-      _startLiveSimulation();
+      _listenToCloud();
+      _pushUserToCloud();
     }
   }
 
@@ -87,96 +112,124 @@ class SquadService extends ChangeNotifier {
     }
   }
 
-  void _initMembers({required bool isHost, double userLat = 22.5958, double userLng = 88.3725}) {
+  /// Initialize members for the squad.
+  /// ONLY the local user is added. ZERO hardcoded dummy companions.
+  void _initMembers({required bool isHost, double? userLat, double? userLng}) {
     _members.clear();
     final user = AuthService.instance.currentUserModel;
     final userName = user?.displayName ?? 'You';
 
-    // Local user member
+    // Derive accurate real GPS coordinates from LocationService
+    final currentPos = LocationService.instance.currentPositionSync;
+    final lat = userLat ?? currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
+    final lng = userLng ?? currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+
+    // Local user member ONLY
     _members.add(
       SquadMember(
         id: user?.uid ?? 'user_self',
         name: '$userName (You)',
-        latitude: userLat,
-        longitude: userLng,
-        status: isHost ? 'Squad Host • Active' : 'Joined • Active',
+        latitude: lat,
+        longitude: lng,
+        status: isHost ? 'Squad Host • GPS Live' : 'Joined • GPS Live',
         lastSeen: DateTime.now(),
         isHost: isHost,
         isUser: true,
-        batteryLevel: 92,
+        batteryLevel: 95,
         avatarColorHex: 0xFFD32F2F, // Durga crimson
       ),
     );
-
-    // Realistic companions hopping nearby pandals in North/Central Kolkata
-    _members.addAll([
-      SquadMember(
-        id: 'member_priya',
-        name: 'Priya Sen',
-        latitude: userLat + 0.0042, // ~450m North near Bagbazar
-        longitude: userLng - 0.0035,
-        status: 'Near Bagbazar Sarbojanin',
-        lastSeen: DateTime.now().subtract(const Duration(seconds: 14)),
-        isHost: !isHost,
-        batteryLevel: 84,
-        avatarColorHex: 0xFFFFB300, // Amber Gold
-      ),
-      SquadMember(
-        id: 'member_rohan',
-        name: 'Rohan Das',
-        latitude: userLat - 0.0031, // ~340m South towards Hatibagan
-        longitude: userLng + 0.0022,
-        status: 'In Hatibagan Bhog Queue',
-        lastSeen: DateTime.now().subtract(const Duration(seconds: 4)),
-        batteryLevel: 68,
-        avatarColorHex: 0xFF00E676, // Emerald Green
-      ),
-      SquadMember(
-        id: 'member_anirban',
-        name: 'Anirban M.',
-        latitude: userLat + 0.0018, // ~220m West towards Kumartuli
-        longitude: userLng - 0.0048,
-        status: 'Walking along Kumartuli Lane',
-        lastSeen: DateTime.now().subtract(const Duration(seconds: 28)),
-        batteryLevel: 95,
-        avatarColorHex: 0xFF00E5FF, // Electric Cyan
-      ),
-    ]);
   }
 
-  /// Create a brand new hopping squad
-  void createSquad(String name, String meetup, [LatLng? meetupCoords]) {
+  /// Create a brand new hopping squad with real device GPS coordinates.
+  /// Starts with 0 companions (empty companion list).
+  Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
     final code = 'PUJA${100 + _random.nextInt(900)}';
     _squadCode = code;
     _squadName = name.trim().isEmpty ? 'My Puja Squad' : name.trim();
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Gate' : meetup.trim();
-    if (meetupCoords != null) {
-      _meetupPointCoords = meetupCoords;
-    }
-    _initMembers(isHost: true);
+
+    // Use current real GPS position immediately
+    final currentPos = LocationService.instance.currentPositionSync;
+    final realLat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
+    final realLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+    _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
+
+    _initMembers(isHost: true, userLat: realLat, userLng: realLng);
     _persistState();
-    _startLiveSimulation();
+    _pushUserToCloud();
+    _listenToCloud();
     notifyListeners();
+
+    // If location fix is still pending, refresh asynchronously
+    if (currentPos == null) {
+      LocationService.instance.currentPosition().then((pos) {
+        if (pos != null && hasActiveSquad) {
+          updateUserLocation(pos.latitude, pos.longitude);
+          if (meetupCoords == null) {
+            _meetupPointCoords = LatLng(pos.latitude, pos.longitude);
+            notifyListeners();
+          }
+        }
+      }).catchError((_) {});
+    }
   }
 
   /// Join an existing squad by invite code
-  void joinSquad(String code, [LatLng? initialCoords]) {
+  Future<void> joinSquad(String code, [LatLng? initialCoords]) async {
     final cleanCode = code.trim().toUpperCase();
     _squadCode = cleanCode;
     _squadName = 'Squad $cleanCode';
     _meetupPointName = 'Designated Meet-up Landmark';
-    final lat = initialCoords?.latitude ?? 22.5958;
-    final lng = initialCoords?.longitude ?? 88.3725;
+
+    final currentPos = LocationService.instance.currentPositionSync;
+    final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
+    final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+    _meetupPointCoords = LatLng(lat, lng);
+
     _initMembers(isHost: false, userLat: lat, userLng: lng);
     _persistState();
-    _startLiveSimulation();
+    _pushUserToCloud();
+    _listenToCloud();
+    notifyListeners();
+
+    if (currentPos == null) {
+      LocationService.instance.currentPosition().then((pos) {
+        if (pos != null && hasActiveSquad) {
+          updateUserLocation(pos.latitude, pos.longitude);
+        }
+      }).catchError((_) {});
+    }
+  }
+
+  /// Add or update a squad member (e.g. from peer invite or external sync)
+  void addMember(SquadMember member) {
+    final idx = _members.indexWhere((m) => m.id == member.id);
+    if (idx != -1) {
+      _members[idx] = member;
+    } else {
+      _members.add(member);
+    }
+    notifyListeners();
+  }
+
+  /// Remove a member by ID
+  void removeMember(String memberId) {
+    _members.removeWhere((m) => m.id == memberId && !m.isUser);
     notifyListeners();
   }
 
   /// Leave the current squad and clear members
   void leaveSquad() {
-    _simulationTimer?.cancel();
-    _simulationTimer = null;
+    if (_squadCode != null && _isFirebaseAvailable) {
+      try {
+        final user = AuthService.instance.currentUserModel;
+        final uid = user?.uid ?? 'user_self';
+        FirebaseDatabase.instance.ref('squads/$_squadCode/members/$uid').remove();
+      } catch (_) {}
+    }
+    _rtdbSub?.cancel();
+    _rtdbSub = null;
     _squadCode = null;
     _squadName = null;
     _focusedMemberId = null;
@@ -185,7 +238,7 @@ class SquadService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update the current user's GPS coordinates
+  /// Update the current user's real GPS coordinates
   void updateUserLocation(double lat, double lng) {
     if (!_isSharingLocation) return;
     final idx = _members.indexWhere((m) => m.isUser);
@@ -195,6 +248,7 @@ class SquadService extends ChangeNotifier {
         longitude: lng,
         lastSeen: DateTime.now(),
       );
+      _pushUserToCloud();
       notifyListeners();
     }
   }
@@ -212,13 +266,21 @@ class SquadService extends ChangeNotifier {
   /// Toggle user's live location sharing
   void toggleLocationSharing(bool val) {
     _isSharingLocation = val;
+    if (!val && _squadCode != null && _isFirebaseAvailable) {
+      try {
+        final user = AuthService.instance.currentUserModel;
+        final uid = user?.uid ?? 'user_self';
+        FirebaseDatabase.instance.ref('squads/$_squadCode/members/$uid').remove();
+      } catch (_) {}
+    } else if (val) {
+      _pushUserToCloud();
+    }
     notifyListeners();
   }
 
   /// Toggle battery saver mode
   void toggleBatterySaver(bool val) {
     _batterySaver = val;
-    _restartSimulationTimer();
     notifyListeners();
   }
 
@@ -246,45 +308,57 @@ class SquadService extends ChangeNotifier {
     }
   }
 
-  void _restartSimulationTimer() {
-    _simulationTimer?.cancel();
-    _startLiveSimulation();
+  // --- Real-Time Cloud Sync (Firebase Realtime Database) ---
+
+  void _pushUserToCloud() {
+    if (_squadCode == null || !_isSharingLocation || !_isFirebaseAvailable) return;
+    try {
+      final userMember = _members.firstWhere((m) => m.isUser);
+      final ref = FirebaseDatabase.instance.ref('squads/$_squadCode/members/${userMember.id}');
+      ref.set(userMember.toJson());
+    } catch (_) {}
   }
 
-  /// Simulates realistic companion movements along Kolkata streets
-  void _startLiveSimulation() {
-    if (_simulationTimer != null) return;
-    final interval = _batterySaver
-        ? const Duration(seconds: 12)
-        : const Duration(seconds: 5);
+  void _listenToCloud() {
+    _rtdbSub?.cancel();
+    if (_squadCode == null || !_isFirebaseAvailable) return;
+    try {
+      final ref = FirebaseDatabase.instance.ref('squads/$_squadCode/members');
+      _rtdbSub = ref.onValue.listen((event) {
+        final snap = event.snapshot;
+        if (snap.value == null) return;
+        final raw = Map<String, dynamic>.from(snap.value as Map);
+        final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
 
-    _simulationTimer = Timer.periodic(interval, (_) {
-      if (_members.isEmpty) return;
+        bool changed = false;
+        raw.forEach((key, val) {
+          if (key == currentUserId) return; // Don't overwrite local host user
+          try {
+            final memberData = Map<String, dynamic>.from(val as Map);
+            final member = SquadMember.fromJson(memberData);
+            final idx = _members.indexWhere((m) => m.id == member.id);
+            if (idx != -1) {
+              _members[idx] = member;
+            } else {
+              _members.add(member);
+            }
+            changed = true;
+          } catch (_) {}
+        });
 
-      bool changed = false;
-      for (int i = 0; i < _members.length; i++) {
-        if (!_members[i].isUser) {
-          // Micro pedestrian step: ±0.00010 to ±0.00018 degrees (~10-18m)
-          final dLat = (_random.nextDouble() - 0.5) * 0.0003;
-          final dLng = (_random.nextDouble() - 0.5) * 0.0003;
-          _members[i] = _members[i].copyWith(
-            latitude: _members[i].latitude + dLat,
-            longitude: _members[i].longitude + dLng,
-            lastSeen: DateTime.now(),
-          );
-          changed = true;
+        // Remove members that left
+        _members.removeWhere((m) => !m.isUser && !raw.containsKey(m.id));
+
+        if (changed) {
+          notifyListeners();
         }
-      }
-
-      if (changed) {
-        notifyListeners();
-      }
-    });
+      }, onError: (_) {});
+    } catch (_) {}
   }
 
   @override
   void dispose() {
-    _simulationTimer?.cancel();
+    _rtdbSub?.cancel();
     super.dispose();
   }
 }

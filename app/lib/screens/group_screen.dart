@@ -558,7 +558,9 @@ class GroupScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Squad Members (${members.length})',
+              squadService.companionMembers.isEmpty
+                  ? 'Squad Members (1 Host, 0 Companions)'
+                  : 'Squad Members (${members.length})',
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             FilledButton.tonalIcon(
@@ -577,8 +579,70 @@ class GroupScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // Member Cards
-        ...members.map((member) => _buildMemberTile(context, member, userMember, theme, isDark, squadService)),
+        // User / Host Tile
+        if (userMember != null)
+          _buildMemberTile(context, userMember, userMember, theme, isDark, squadService),
+
+        // Companions or Empty State
+        if (squadService.companionMembers.isEmpty)
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: isDark ? Colors.white12 : Colors.black12,
+                width: 1,
+              ),
+            ),
+            color: isDark ? PujaColors.nightCard.withValues(alpha: 0.6) : Colors.grey.shade50,
+            margin: const EdgeInsets.only(top: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: PujaColors.festivalGold.withValues(alpha: 0.15),
+                    ),
+                    child: const Icon(
+                      Icons.group_add_outlined,
+                      size: 36,
+                      color: PujaColors.festivalGold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No Companions Yet',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Your squad starts with only you as host. Share squad code "${squadService.squadCode}" with your friends and family so they can join and share their real device GPS coordinates.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: isDark ? Colors.white60 : Colors.black54,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.share, size: 16),
+                    label: const Text('Invite Companions'),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      _shareInvite(context, squadService);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ...squadService.companionMembers
+              .map((member) => _buildMemberTile(context, member, userMember, theme, isDark, squadService)),
       ],
     );
   }

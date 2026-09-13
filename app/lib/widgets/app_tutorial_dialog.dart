@@ -64,15 +64,16 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
   final List<TutorialStep> _steps = const [
     TutorialStep(
       title: 'Interactive Puja Map',
-      subtitle: '117 Pandals Across Kolkata & Suburbs',
+      subtitle: '4,300+ Pandals • Red Arrow Quick Radar',
       description:
-          'Pan and pinch to navigate 117 Durga Puja pandals. Tap any marker to view real-time crowd levels, theme names, and nearest metro stations.',
+          'Pan and pinch to navigate 4,300+ Durga Puja pandals. Tap the floating Red Navigation Arrow on the map to instantly scan all pandals within a 10 km radius and trace your fastest walking route.',
       icon: Icons.map_rounded,
       iconColor: PujaColors.festivalGold,
       highlights: [
-        'Filter by Regions (North, South, Nadia, Hooghly)',
-        'GPS Auto-Centering on your location',
-        'Live Crowd Level Badges (Low to Extreme)',
+        '🧭 Red Arrow: 1-Tap Nearest Pandal (10 km radius)',
+        '📍 Live Directional Arrow pointing to your target',
+        '🗺️ Filter by Regions (North, South, Central, Salt Lake)',
+        '⚡ Live Crowd Level Badges (Low to Extreme)',
       ],
     ),
     TutorialStep(
@@ -360,6 +361,48 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                                   .toList(),
                             ),
                           ),
+                          if (step.title == 'Interactive Puja Map') ...[
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF1744).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFFF1744).withValues(alpha: 0.4),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFFF1744),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.navigation_rounded,
+                                      color: Colors.white,
+                                      size: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Low-friction tip: Tap the Red Arrow button on the map anytime to find closest pandals within 10 km.',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: context.dynamicFont(11),
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? Colors.white : Colors.black87,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
