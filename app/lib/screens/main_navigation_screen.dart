@@ -87,21 +87,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final isSmall = context.isSmallScreen;
 
     return Scaffold(
-      // Ultra-smooth cross-fade transition between screens
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 240),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        transitionBuilder: (child, animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-        child: KeyedSubtree(
-          key: ValueKey<int>(_currentIndex),
-          child: _screens[_currentIndex],
-        ),
+      // Ultra-smooth zero-latency tab switching with state, scroll position, and map tiles preserved
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

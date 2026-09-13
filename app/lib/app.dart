@@ -20,7 +20,7 @@ class KolkataPujaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeService = context.watch<ThemeService?>();
     return MaterialApp(
-      title: 'Kolkata Puja',
+      title: 'Pujo Parikrama',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       darkTheme: appDarkTheme,

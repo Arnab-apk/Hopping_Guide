@@ -19,7 +19,7 @@ class GroupScreen extends StatelessWidget {
     if (!squadService.hasActiveSquad) return;
     SharePlus.instance.share(
       ShareParams(
-        text: 'Join my Durga Puja Hopping Squad "${squadService.squadName}" on Kolkata Puja App! '
+        text: 'Join my Durga Puja Hopping Squad "${squadService.squadName}" on Pujo Parikrama App! '
             'Group Code: ${squadService.squadCode}\nMeet-up Point: ${squadService.meetupPointName}\n'
             'Live GPS & Pandal Guide: https://sharodiya.com/join?code=${squadService.squadCode}',
       ),

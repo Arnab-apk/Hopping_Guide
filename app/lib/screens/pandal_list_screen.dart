@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -381,10 +382,14 @@ class _PandalListScreenState extends State<PandalListScreen> {
                     : RefreshIndicator(
                         onRefresh: _loadPandals,
                         child: ListView.builder(
+                          scrollCacheExtent: const ScrollCacheExtent.pixels(600.0),
+                          physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics(),
+                          ),
                           itemCount: displayList.length,
                           itemBuilder: (context, index) {
                             final p = displayList[index];
-                            final delayMs = (index < 10) ? index * 35 : 0;
+                            final delayMs = (index < 8) ? index * 30 : 0;
                             return AnimatedFadeSlide(
                               key: ValueKey('pandal_${p.id}'),
                               delay: Duration(milliseconds: delayMs),

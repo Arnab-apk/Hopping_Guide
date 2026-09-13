@@ -62,7 +62,7 @@ class PandalDetailSheet extends StatelessWidget {
         text: '🌟 Explore ${pandal.name} (${pandal.zone.label}) during Durga Puja 2026!\n'
             '📍 Location: https://maps.google.com/?q=${pandal.latitude},${pandal.longitude}\n'
             '🚇 Nearest Metro: ${pandal.nearestMetro ?? "Available on Map"}\n'
-            'Discovered via Kolkata Puja App.',
+            'Discovered via Pujo Parikrama App.',
       ),
     );
   }
@@ -72,12 +72,15 @@ class PandalDetailSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final userState = context.watch<PandalUserStateService?>();
-    final locationService = context.watch<LocationService?>();
-
-    final isFav = userState?.isFavorite(pandal.id) ?? false;
-    final isVis = userState?.isVisited(pandal.id) ?? false;
-    final distanceLabel = locationService?.formatDistance(pandal.latitude, pandal.longitude);
+    final isFav = context.select<PandalUserStateService?, bool>(
+      (s) => s?.isFavorite(pandal.id) ?? false,
+    );
+    final isVis = context.select<PandalUserStateService?, bool>(
+      (s) => s?.isVisited(pandal.id) ?? false,
+    );
+    final distanceLabel = context.select<LocationService?, String?>(
+      (loc) => loc?.formatDistance(pandal.latitude, pandal.longitude),
+    );
 
     return Container(
       constraints: BoxConstraints(
@@ -163,7 +166,7 @@ class PandalDetailSheet extends StatelessWidget {
                         ),
                         onPressed: () {
                           HapticFeedback.selectionClick();
-                          userState?.toggleFavorite(pandal.id);
+                          context.read<PandalUserStateService?>()?.toggleFavorite(pandal.id);
                         },
                       ),
 
@@ -339,9 +342,10 @@ class PandalDetailSheet extends StatelessWidget {
                       ),
                       onPressed: () async {
                         HapticFeedback.mediumImpact();
-                        await userState?.toggleVisited(pandal.id);
+                        final state = context.read<PandalUserStateService?>();
+                        await state?.toggleVisited(pandal.id);
                         if (context.mounted) {
-                          final nowVisited = userState?.isVisited(pandal.id) ?? false;
+                          final nowVisited = state?.isVisited(pandal.id) ?? false;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(

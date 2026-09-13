@@ -35,11 +35,19 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
+const ColorFilter _kDarkMatrix = ColorFilter.matrix(<double>[
+  -0.85, 0.0, 0.0, 0.0, 255.0,
+  0.0, -0.85, 0.0, 0.0, 255.0,
+  0.0, 0.0, -0.85, 0.0, 255.0,
+  0.0, 0.0, 0.0, 1.0, 0.0,
+]);
+
 class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   late final MapController _mapController;
   late final PandalRepository _repo;
   final SupplementaryRepository _suppRepo = SupplementaryRepository();
   late final AnimationController _pulseController;
+  AnimationController? _cameraMoveController;
 
   List<Pandal> _pandals = [];
   List<FoodSpot> _foodSpots = [];
@@ -72,11 +80,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     LocationService.instance.stopLiveTracking();
+    _cameraMoveController?.stop();
+    _cameraMoveController?.dispose();
+    _cameraMoveController = null;
     _pulseController.dispose();
     super.dispose();
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
+    _cameraMoveController?.stop();
+    _cameraMoveController?.dispose();
+
     final camera = _mapController.camera;
     final latTween = Tween<double>(
       begin: camera.center.latitude,
@@ -92,23 +106,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
 
     final controller = AnimationController(
-      duration: const Duration(milliseconds: 650),
+      duration: const Duration(milliseconds: 550),
       vsync: this,
     );
-    final animation = CurvedAnimation(
-      parent: controller,
-      curve: Curves.fastOutSlowIn,
-    );
+    _cameraMoveController = controller;
 
     controller.addListener(() {
+      final t = Curves.fastOutSlowIn.transform(controller.value);
       _mapController.move(
-        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-        zoomTween.evaluate(animation),
+        LatLng(latTween.transform(t), lngTween.transform(t)),
+        zoomTween.transform(t),
       );
     });
 
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        if (_cameraMoveController == controller) {
+          _cameraMoveController = null;
+        }
         controller.dispose();
       }
     });
@@ -437,7 +452,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kolkata Puja Map'),
+        title: const Text('Pujo Parikrama Map'),
         actions: [
           if (squadService.hasActiveSquad)
             IconButton(
@@ -529,80 +544,99 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               },
             ),
             children: [
-              TileLayer(
-                urlTemplate: isDark ? AppConfig.darkTileUrlTemplate : AppConfig.lightTileUrlTemplate,
-                subdomains: AppConfig.cartoSubdomains,
-                userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
+              RepaintBoundary(
+                child: TileLayer(
+                  urlTemplate: AppConfig.tileUrlTemplate,
+                  subdomains: AppConfig.osmSubdomains,
+                  userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
+                  panBuffer: 1,
+                  keepBuffer: 3,
+                  tileBuilder: (context, tileWidget, tile) {
+                    if (isDark) {
+                      return ColorFiltered(
+                        colorFilter: _kDarkMatrix,
+                        child: tileWidget,
+                      );
+                    }
+                    return tileWidget;
+                  },
+                ),
               ),
 
               // GPS Accuracy Circle Layer
               if (_userPosition != null &&
                   _userPosition!.accuracy > 0 &&
                   _userPosition!.accuracy < 300)
-                CircleLayer(
-                  circles: [
-                    CircleMarker(
-                      point: LatLng(_userPosition!.latitude, _userPosition!.longitude),
-                      radius: _userPosition!.accuracy,
-                      useRadiusInMeter: true,
-                      color: const Color(0xFF2979FF).withValues(alpha: 0.12),
-                      borderColor: const Color(0xFF2979FF).withValues(alpha: 0.35),
-                      borderStrokeWidth: 1.2,
-                    ),
-                  ],
+                RepaintBoundary(
+                  child: CircleLayer(
+                    circles: [
+                      CircleMarker(
+                        point: LatLng(_userPosition!.latitude, _userPosition!.longitude),
+                        radius: _userPosition!.accuracy,
+                        useRadiusInMeter: true,
+                        color: const Color(0xFF2979FF).withValues(alpha: 0.12),
+                        borderColor: const Color(0xFF2979FF).withValues(alpha: 0.35),
+                        borderStrokeWidth: 1.2,
+                      ),
+                    ],
+                  ),
                 ),
 
               // Nearest / Selected Pandal Walking Route Polyline
               if (_highlightedRoute != null && _highlightedRoute!.points.isNotEmpty)
-                PolylineLayer(
-                  polylines: [
-                    // Outer glow halo
-                    Polyline(
-                      points: _highlightedRoute!.points,
-                      strokeWidth: 7.5,
-                      color: (isDark ? const Color(0xFF00E5FF) : PujaColors.durgaRed).withValues(alpha: 0.35),
-                    ),
-                    // Core route line
-                    Polyline(
-                      points: _highlightedRoute!.points,
-                      strokeWidth: 4.2,
-                      color: isDark ? const Color(0xFF00E5FF) : PujaColors.durgaRed,
-                    ),
-                  ],
+                RepaintBoundary(
+                  child: PolylineLayer(
+                    polylines: [
+                      // Outer glow halo
+                      Polyline(
+                        points: _highlightedRoute!.points,
+                        strokeWidth: 7.5,
+                        color: (isDark ? const Color(0xFF00E5FF) : PujaColors.durgaRed).withValues(alpha: 0.35),
+                      ),
+                      // Core route line
+                      Polyline(
+                        points: _highlightedRoute!.points,
+                        strokeWidth: 4.2,
+                        color: isDark ? const Color(0xFF00E5FF) : PujaColors.durgaRed,
+                      ),
+                    ],
+                  ),
                 ),
 
               // Food / Bhog Spot Markers
               if (_showFoodSpots)
-                MarkerLayer(
-                  markers: _foodSpots.map((f) {
-                    return Marker(
-                      point: LatLng(f.lat, f.lng),
-                      width: 34,
-                      height: 34,
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          _animatedMapMove(LatLng(f.lat, f.lng), (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom));
-                          _showFoodSpotSheet(f, isDark);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFE65100), Color(0xFFFF9800)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: _foodSpots.map((f) {
+                      return Marker(
+                        point: LatLng(f.lat, f.lng),
+                        width: 34,
+                        height: 34,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            _animatedMapMove(LatLng(f.lat, f.lng), (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom));
+                            _showFoodSpotSheet(f, isDark);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFE65100), Color(0xFFFF9800)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black38, blurRadius: 5, offset: Offset(0, 2)),
+                              ],
                             ),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: const [
-                              BoxShadow(color: Colors.black38, blurRadius: 5, offset: Offset(0, 2)),
-                            ],
+                            child: const Icon(Icons.restaurant_rounded, color: Colors.white, size: 17),
                           ),
-                          child: const Icon(Icons.restaurant_rounded, color: Colors.white, size: 17),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
 
               // Pandal Markers Layer
@@ -622,56 +656,84 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           (_mapController.camera.zoom < 15.0 ? 15.0 : _mapController.camera.zoom),
                         );
                       },
-                      child: AnimatedBuilder(
-                        animation: _pulseController,
-                        builder: (context, child) {
-                          return Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              if (isSelected)
-                                Container(
-                                  width: 42 + (10 * _pulseController.value),
-                                  height: 42 + (10 * _pulseController.value),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: PujaColors.festivalGold.withValues(
-                                      alpha: 0.35 * (1.0 - _pulseController.value),
-                                    ),
-                                  ),
-                                ),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                width: isSelected ? 44 : 36,
-                                height: isSelected ? 44 : 36,
+                      child: isSelected
+                          ? RepaintBoundary(
+                              child: AnimatedBuilder(
+                                animation: _pulseController,
+                                builder: (context, child) {
+                                  final pulse = _pulseController.value;
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width: 42 + (10 * pulse),
+                                        height: 42 + (10 * pulse),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: PujaColors.festivalGold.withValues(
+                                            alpha: 0.35 * (1.0 - pulse),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          color: PujaColors.goldBright,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 3,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: PujaColors.festivalGold.withValues(alpha: 0.7),
+                                              blurRadius: 12,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.temple_hindu,
+                                            color: PujaColors.crimsonVelvet,
+                                            size: 22,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            )
+                          : RepaintBoundary(
+                              child: Container(
+                                width: 36,
+                                height: 36,
                                 decoration: BoxDecoration(
-                                  color: isSelected ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                                  color: PujaColors.crimsonVelvet,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isSelected ? Colors.white : PujaColors.festivalGold,
-                                    width: isSelected ? 3 : 1.8,
+                                    color: PujaColors.festivalGold,
+                                    width: 1.8,
                                   ),
-                                  boxShadow: [
+                                  boxShadow: const [
                                     BoxShadow(
-                                      color: isSelected
-                                          ? PujaColors.festivalGold.withValues(alpha: 0.7)
-                                          : Colors.black45,
-                                      blurRadius: isSelected ? 12 : 5,
-                                      offset: const Offset(0, 2),
+                                      color: Colors.black45,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 2),
                                     ),
                                   ],
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: Icon(
                                     Icons.temple_hindu,
-                                    color: isSelected ? PujaColors.crimsonVelvet : PujaColors.goldBright,
-                                    size: isSelected ? 22 : 18,
+                                    color: PujaColors.goldBright,
+                                    size: 18,
                                   ),
                                 ),
                               ),
-                            ],
-                          );
-                        },
-                      ),
+                            ),
                     ),
                   );
                 }).toList(),
@@ -695,38 +757,40 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             ),
                           );
                         },
-                        child: AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, _) {
-                            return Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: 30 + (8 * _pulseController.value),
-                                  height: 30 + (8 * _pulseController.value),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: PujaColors.festivalGold.withValues(
-                                      alpha: 0.3 * (1.0 - _pulseController.value),
+                        child: RepaintBoundary(
+                          child: AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, _) {
+                              return Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 30 + (8 * _pulseController.value),
+                                    height: 30 + (8 * _pulseController.value),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: PujaColors.festivalGold.withValues(
+                                        alpha: 0.3 * (1.0 - _pulseController.value),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: PujaColors.festivalGold,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
-                                    boxShadow: const [
-                                      BoxShadow(color: Colors.black45, blurRadius: 5, offset: Offset(0, 2)),
-                                    ],
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: PujaColors.festivalGold,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white, width: 2),
+                                      boxShadow: const [
+                                        BoxShadow(color: Colors.black45, blurRadius: 5, offset: Offset(0, 2)),
+                                      ],
+                                    ),
+                                    child: const Icon(Icons.flag_rounded, color: Colors.black87, size: 17),
                                   ),
-                                  child: const Icon(Icons.flag_rounded, color: Colors.black87, size: 17),
-                                ),
-                              ],
-                            );
-                          },
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -755,99 +819,101 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             _selectedPandal = null;
                           });
                         },
-                        child: AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, _) {
-                            final pulse = _pulseController.value;
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Pulsing radar aura
-                                    Container(
-                                      width: 34 + (10 * pulse),
-                                      height: 34 + (10 * pulse),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: avatarColor.withValues(alpha: 0.28 * (1.0 - pulse)),
-                                      ),
-                                    ),
-                                    // Core Avatar
-                                    Container(
-                                      width: isSelected ? 38 : 32,
-                                      height: isSelected ? 38 : 32,
-                                      decoration: BoxDecoration(
-                                        color: avatarColor,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: isSelected ? 2.4 : 1.8,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: avatarColor.withValues(alpha: isSelected ? 0.7 : 0.4),
-                                            blurRadius: isSelected ? 9 : 4,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          member.initials,
-                                          style: TextStyle(
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: isSelected ? 12.5 : 11,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    // Online dot
-                                    Positioned(
-                                      right: isSelected ? 15 : 18,
-                                      top: isSelected ? 13 : 16,
-                                      child: Container(
-                                        width: 7,
-                                        height: 7,
+                        child: RepaintBoundary(
+                          child: AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, _) {
+                              final pulse = _pulseController.value;
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Pulsing radar aura
+                                      Container(
+                                        width: 34 + (10 * pulse),
+                                        height: 34 + (10 * pulse),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF00E676),
                                           shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 1),
+                                          color: avatarColor.withValues(alpha: 0.28 * (1.0 - pulse)),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 1.5),
-                                // Name tag badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: (isDark ? const Color(0xFF1E1E1E) : Colors.white).withValues(alpha: 0.94),
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(
-                                      color: avatarColor.withValues(alpha: 0.5),
-                                      width: 0.8,
-                                    ),
-                                    boxShadow: const [
-                                      BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(0, 1)),
+                                      // Core Avatar
+                                      Container(
+                                        width: isSelected ? 38 : 32,
+                                        height: isSelected ? 38 : 32,
+                                        decoration: BoxDecoration(
+                                          color: avatarColor,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: isSelected ? 2.4 : 1.8,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: avatarColor.withValues(alpha: isSelected ? 0.7 : 0.4),
+                                              blurRadius: isSelected ? 9 : 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            member.initials,
+                                            style: TextStyle(
+                                              color: Colors.black87,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: isSelected ? 12.5 : 11,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // Online dot
+                                      Positioned(
+                                        right: isSelected ? 15 : 18,
+                                        top: isSelected ? 13 : 16,
+                                        child: Container(
+                                          width: 7,
+                                          height: 7,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF00E676),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: Colors.white, width: 1),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                  child: Text(
-                                    member.name.split(' ')[0],
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white : Colors.black87,
+                                  const SizedBox(height: 1.5),
+                                  // Name tag badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: (isDark ? const Color(0xFF1E1E1E) : Colors.white).withValues(alpha: 0.94),
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                                        color: avatarColor.withValues(alpha: 0.5),
+                                        width: 0.8,
+                                      ),
+                                      boxShadow: const [
+                                        BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(0, 1)),
+                                      ],
+                                    ),
+                                    child: Text(
+                                      member.name.split(' ')[0],
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark ? Colors.white : Colors.black87,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     );
@@ -862,53 +928,55 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       point: LatLng(_userPosition!.latitude, _userPosition!.longitude),
                       width: 52,
                       height: 52,
-                      child: AnimatedBuilder(
-                        animation: _pulseController,
-                        builder: (context, child) {
-                          final pulse = _pulseController.value;
-                          final heading = _userPosition!.heading;
-                          return Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Pulsing radar wave
-                              Container(
-                                width: 22 + (26 * pulse),
-                                height: 22 + (26 * pulse),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFF2979FF).withValues(alpha: 0.35 * (1.0 - pulse)),
-                                ),
-                              ),
-                              // Heading direction arrow
-                              if (heading > 0 && heading <= 360)
-                                Transform.rotate(
-                                  angle: (heading * 3.141592653589793 / 180),
-                                  child: const Icon(
-                                    Icons.navigation_rounded,
-                                    size: 26,
-                                    color: Color(0xFF2979FF),
+                      child: RepaintBoundary(
+                        child: AnimatedBuilder(
+                          animation: _pulseController,
+                          builder: (context, child) {
+                            final pulse = _pulseController.value;
+                            final heading = _userPosition!.heading;
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Pulsing radar wave
+                                Container(
+                                  width: 22 + (26 * pulse),
+                                  height: 22 + (26 * pulse),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: const Color(0xFF2979FF).withValues(alpha: 0.35 * (1.0 - pulse)),
                                   ),
                                 ),
-                              // Inner blue location core
-                              Container(
-                                width: 18,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF2979FF),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2.6),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black38,
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
+                                // Heading direction arrow
+                                if (heading > 0 && heading <= 360)
+                                  Transform.rotate(
+                                    angle: (heading * 3.141592653589793 / 180),
+                                    child: const Icon(
+                                      Icons.navigation_rounded,
+                                      size: 26,
+                                      color: Color(0xFF2979FF),
                                     ),
-                                  ],
+                                  ),
+                                // Inner blue location core
+                                Container(
+                                  width: 18,
+                                  height: 18,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2979FF),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2.6),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black38,
+                                        blurRadius: 6,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],

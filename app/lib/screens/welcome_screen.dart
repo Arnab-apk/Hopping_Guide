@@ -169,7 +169,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
             ),
           ),
 
-          // 2. Cinematic Ambient Gradients (Dark burgundy & golden vignette)
+          // 2. Cinematic Ambient Gradients (Preserving Durga artwork visibility)
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -177,11 +177,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.black.withValues(alpha: 0.55),
-                  Colors.black.withValues(alpha: 0.25),
-                  PujaColors.nightBg.withValues(alpha: 0.85),
-                  PujaColors.nightBg,
+                  Colors.black.withValues(alpha: 0.18),
+                  const Color(0xFF140306).withValues(alpha: 0.32),
+                  Colors.black.withValues(alpha: 0.65),
                 ],
-                stops: const [0.0, 0.35, 0.70, 1.0],
+                stops: const [0.0, 0.28, 0.65, 1.0],
               ),
             ),
           ),
@@ -276,7 +276,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                           end: Alignment.bottomCenter,
                         ).createShader(bounds),
                         child: Text(
-                          'Kolkata Puja',
+                          'Pujo Parikrama',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: isCompact ? 32 : 38,
                             fontWeight: FontWeight.w800,
@@ -311,11 +311,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1E0C0C).withValues(alpha: 0.65),
+                              color: const Color(0xFF1E0C0C).withValues(alpha: 0.38),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: PujaColors.festivalGold.withValues(alpha: 0.35),
@@ -341,7 +341,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                       ),
                       const SizedBox(height: 22),
 
-                      // Glassmorphism Login & Guest Card (Animated entrance)
+                      // Glassmorphism Login & Guest Card (Translucent so Durga design shines through)
                       FadeTransition(
                         opacity: _cardFade,
                         child: SlideTransition(
@@ -349,51 +349,67 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(24),
                             child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                          child: Container(
-                            padding: const EdgeInsets.all(22),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF160909).withValues(alpha: 0.78),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.18),
-                                width: 1.2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.5),
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Tab Switcher
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.4),
-                                    borderRadius: BorderRadius.circular(14),
+                              filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
+                              child: Container(
+                                padding: const EdgeInsets.all(22),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1A050B).withValues(alpha: 0.36),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                                    width: 1.2,
                                   ),
-                                  child: TabBar(
-                                    controller: _tabController,
-                                    indicator: BoxDecoration(
-                                      color: PujaColors.durgaRed,
-                                      borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.35),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 8),
                                     ),
-                                    indicatorSize: TabBarIndicatorSize.tab,
-                                    labelColor: Colors.white,
-                                    unselectedLabelColor: Colors.white60,
-                                    labelStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
-                                    unselectedLabelStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, fontSize: 13),
-                                    dividerColor: Colors.transparent,
-                                    tabs: const [
-                                      Tab(text: '⚡ Instant Guest'),
-                                      Tab(text: '🔐 Member Login'),
-                                    ],
-                                  ),
+                                    BoxShadow(
+                                      color: PujaColors.festivalGold.withValues(alpha: 0.08),
+                                      blurRadius: 14,
+                                      spreadRadius: -2,
+                                    ),
+                                  ],
                                 ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    // Tab Switcher
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withValues(alpha: 0.30),
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.12),
+                                          width: 0.8,
+                                        ),
+                                      ),
+                                      child: TabBar(
+                                        controller: _tabController,
+                                        indicator: BoxDecoration(
+                                          color: PujaColors.durgaRed.withValues(alpha: 0.88),
+                                          borderRadius: BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: PujaColors.durgaRed.withValues(alpha: 0.4),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        indicatorSize: TabBarIndicatorSize.tab,
+                                        labelColor: Colors.white,
+                                        unselectedLabelColor: Colors.white70,
+                                        labelStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13),
+                                        unselectedLabelStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w500, fontSize: 13),
+                                        dividerColor: Colors.transparent,
+                                        tabs: const [
+                                          Tab(text: '⚡ Instant Guest'),
+                                          Tab(text: '🔐 Member Login'),
+                                        ],
+                                      ),
+                                    ),
                                 const SizedBox(height: 18),
 
                                 // Tab Content
@@ -467,7 +483,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                               style: const TextStyle(color: Colors.white, fontSize: 14),
                                               decoration: InputDecoration(
                                                 filled: true,
-                                                fillColor: Colors.black.withValues(alpha: 0.45),
+                                                fillColor: Colors.black.withValues(alpha: 0.28),
                                                 hintText: 'Mobile number or email',
                                                 hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
                                                 prefixIcon: const Icon(Icons.phone_android, color: PujaColors.festivalGold, size: 18),
@@ -489,7 +505,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                               style: const TextStyle(color: Colors.white, fontSize: 14),
                                               decoration: InputDecoration(
                                                 filled: true,
-                                                fillColor: Colors.black.withValues(alpha: 0.45),
+                                                fillColor: Colors.black.withValues(alpha: 0.28),
                                                 hintText: 'Password / OTP',
                                                 hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
                                                 prefixIcon: const Icon(Icons.lock_outline, color: PujaColors.festivalGold, size: 18),
@@ -558,6 +574,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                                 // Google Sign-in Button
                                 OutlinedButton.icon(
                                   style: OutlinedButton.styleFrom(
+                                    backgroundColor: Colors.black.withValues(alpha: 0.22),
                                     foregroundColor: Colors.white,
                                     side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
                                     padding: const EdgeInsets.symmetric(vertical: 12),

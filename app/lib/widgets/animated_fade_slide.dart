@@ -67,17 +67,22 @@ class _AnimatedFadeSlideState extends State<AnimatedFadeSlide>
   @override
   Widget build(BuildContext context) {
     if (!_started && widget.delay > Duration.zero) {
-      return Opacity(
-        opacity: 0.0,
+      return Visibility(
+        visible: false,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
         child: widget.child,
       );
     }
 
-    return FadeTransition(
-      opacity: _fadeAnim,
-      child: SlideTransition(
-        position: _slideAnim,
-        child: widget.child,
+    return RepaintBoundary(
+      child: FadeTransition(
+        opacity: _fadeAnim,
+        child: SlideTransition(
+          position: _slideAnim,
+          child: widget.child,
+        ),
       ),
     );
   }

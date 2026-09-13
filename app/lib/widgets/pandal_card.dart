@@ -27,18 +27,22 @@ class PandalCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final userState = context.watch<PandalUserStateService?>();
-    final locationService = context.watch<LocationService?>();
+    final isFav = context.select<PandalUserStateService?, bool>(
+      (s) => s?.isFavorite(pandal.id) ?? false,
+    );
+    final isVis = context.select<PandalUserStateService?, bool>(
+      (s) => s?.isVisited(pandal.id) ?? false,
+    );
 
-    final isFav = userState?.isFavorite(pandal.id) ?? false;
-    final isVis = userState?.isVisited(pandal.id) ?? false;
-
-    // Real distance formatted string
+    // Real distance formatted string - only updates if distance label actually changes
     final distanceLabel = distanceKm != null
         ? '${distanceKm!.toStringAsFixed(1)} km'
-        : locationService?.formatDistance(pandal.latitude, pandal.longitude);
+        : context.select<LocationService?, String?>(
+            (loc) => loc?.formatDistance(pandal.latitude, pandal.longitude),
+          );
 
-    return Card(
+    return RepaintBoundary(
+      child: Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: isDark ? 1 : 2,
       shape: RoundedRectangleBorder(
@@ -114,7 +118,7 @@ class PandalCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      userState?.toggleFavorite(pandal.id);
+                      context.read<PandalUserStateService?>()?.toggleFavorite(pandal.id);
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
@@ -244,6 +248,7 @@ class PandalCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

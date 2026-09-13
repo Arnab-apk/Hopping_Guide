@@ -6,7 +6,7 @@ void main() {
   testWidgets('App builds and shows map screen title', (tester) async {
     await tester.pumpWidget(const KolkataPujaApp());
 
-    // The map screen's AppBar shows the app title.
-    expect(find.text('Kolkata Puja'), findsOneWidget);
+    // The welcome screen shows the app title.
+    expect(find.text('Pujo Parikrama'), findsOneWidget);
   });
 }
