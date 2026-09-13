@@ -140,7 +140,10 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppTutorialDialog._seenPrefKey, true);
     if (mounted) {
-      Navigator.of(context).pop();
+      final nav = Navigator.maybeOf(context);
+      if (nav != null && nav.canPop()) {
+        nav.pop();
+      }
     }
   }
 
@@ -245,117 +248,120 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                 itemBuilder: (context, index) {
                   final step = _steps[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Glowing Icon Halo
-                        Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: step.iconColor.withValues(alpha: 0.14),
-                            border: Border.all(
-                              color: step.iconColor.withValues(alpha: 0.4),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: step.iconColor.withValues(alpha: 0.25),
-                                blurRadius: 20,
-                                spreadRadius: 2,
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Glowing Icon Halo
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: step.iconColor.withValues(alpha: 0.14),
+                              border: Border.all(
+                                color: step.iconColor.withValues(alpha: 0.4),
+                                width: 1.5,
                               ),
-                            ],
-                          ),
-                          child: Icon(
-                            step.icon,
-                            size: context.dynamicIcon(42),
-                            color: step.iconColor,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Title
-                        Text(
-                          step.title,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
-                            fontSize: context.dynamicFont(21),
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.2,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-
-                        // Subtitle
-                        Text(
-                          step.subtitle,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: context.dynamicFont(12.5),
-                            fontWeight: FontWeight.w600,
-                            color: PujaColors.festivalGold,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-
-                        // Description
-                        Text(
-                          step.description,
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: context.dynamicFont(13),
-                            height: 1.45,
-                            color: isDark ? Colors.white70 : Colors.black54,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Feature Highlights
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.black.withValues(alpha: 0.35)
-                                : Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: step.iconColor.withValues(alpha: 0.25),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              step.icon,
+                              size: context.dynamicIcon(38),
+                              color: step.iconColor,
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: step.highlights
-                                .map(
-                                  (h) => Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 2.5),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle_outline_rounded,
-                                          size: 14,
-                                          color: PujaColors.festivalGold,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            h,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: context.dynamicFont(11.5),
-                                              fontWeight: FontWeight.w600,
-                                              color: isDark ? Colors.white70 : Colors.black87,
+                          const SizedBox(height: 14),
+
+                          // Title
+                          Text(
+                            step.title,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              fontSize: context.dynamicFont(20),
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.2,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+
+                          // Subtitle
+                          Text(
+                            step.subtitle,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.dynamicFont(12),
+                              fontWeight: FontWeight.w600,
+                              color: PujaColors.festivalGold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Description
+                          Text(
+                            step.description,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.dynamicFont(12.5),
+                              height: 1.42,
+                              color: isDark ? Colors.white70 : Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Feature Highlights
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.35)
+                                  : Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.15),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: step.highlights
+                                  .map(
+                                    (h) => Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 2.5),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.check_circle_outline_rounded,
+                                            size: 14,
+                                            color: PujaColors.festivalGold,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              h,
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: context.dynamicFont(11.5),
+                                                fontWeight: FontWeight.w600,
+                                                color: isDark ? Colors.white70 : Colors.black87,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
+                                  )
+                                  .toList(),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

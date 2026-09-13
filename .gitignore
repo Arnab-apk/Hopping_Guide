@@ -18,6 +18,8 @@ google-services.json
 GoogleService-Info.plist
 firebase-adminsdk-*.json
 service-account*.json
+app/lib/firebase_options.dart
+**/firebase_options.dart
 
 # --- IDE / OS ---
 .idea/

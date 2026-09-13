@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../config/app_config.dart';
 import '../config/theme.dart';
@@ -238,24 +240,27 @@ class _MapScreenState extends State<MapScreen> {
                   markers: _foodSpots.map((f) {
                     return Marker(
                       point: LatLng(f.lat, f.lng),
-                      width: 32,
-                      height: 32,
+                      width: 34,
+                      height: 34,
                       child: GestureDetector(
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('🍲 ${f.name} (${f.type}) near ${f.nearbyPandal}')),
-                          );
+                          HapticFeedback.selectionClick();
+                          _showFoodSpotSheet(f, isDark);
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade800,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE65100), Color(0xFFFF9800)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 2),
                             boxShadow: const [
-                              BoxShadow(color: Colors.black38, blurRadius: 4),
+                              BoxShadow(color: Colors.black38, blurRadius: 5, offset: Offset(0, 2)),
                             ],
                           ),
-                          child: const Icon(Icons.restaurant, color: Colors.white, size: 16),
+                          child: const Icon(Icons.restaurant_rounded, color: Colors.white, size: 17),
                         ),
                       ),
                     );
@@ -545,6 +550,30 @@ class _MapScreenState extends State<MapScreen> {
                   foregroundColor: Colors.black87,
                   tooltip: 'App Walkthrough & Guide',
                   child: const Icon(Icons.help_outline_rounded),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton.small(
+                  heroTag: 'toggle_food_fab',
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    setState(() => _showFoodSpots = !_showFoodSpots);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        duration: const Duration(seconds: 1),
+                        content: Text(
+                          _showFoodSpots
+                              ? '🍲 Showing ${_foodSpots.length} Food & Bhog spots'
+                              : 'Food stalls hidden',
+                        ),
+                      ),
+                    );
+                  },
+                  backgroundColor: _showFoodSpots
+                      ? Colors.orange.shade800
+                      : (isDark ? PujaColors.nightCard : Colors.white),
+                  foregroundColor: _showFoodSpots ? Colors.white : Colors.orange.shade800,
+                  tooltip: _showFoodSpots ? 'Hide Food Stalls' : 'Show Food Stalls (${_foodSpots.length})',
+                  child: Icon(_showFoodSpots ? Icons.restaurant_rounded : Icons.restaurant_outlined),
                 ),
                 const SizedBox(height: 8),
                 FloatingActionButton.small(
@@ -865,6 +894,204 @@ class _MapScreenState extends State<MapScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _showFoodSpotSheet(FoodSpot f, bool isDark) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final distanceStr = _userPosition != null
+            ? formatDistance(haversineMeters(_userPosition!.latitude, _userPosition!.longitude, f.lat, f.lng))
+            : null;
+
+        return Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1C090D) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(
+              top: BorderSide(
+                color: PujaColors.festivalGold.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black45,
+                blurRadius: 20,
+                offset: Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFE65100), Color(0xFFFF9800)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withValues(alpha: 0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.restaurant_rounded, color: Colors.white, size: 26),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            f.name,
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade800.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.orange.shade800.withValues(alpha: 0.3),
+                              ),
+                            ),
+                            child: Text(
+                              f.type,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? const Color(0xFFFFAB40) : Colors.orange.shade900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.black26 : Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : Colors.grey.shade200,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.temple_hindu, size: 18, color: PujaColors.festivalGold),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Nearby Pandal: ${f.nearbyPandal}',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white70 : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      if (distanceStr != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: PujaColors.crimsonVelvet.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            distanceStr,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: PujaColors.durgaRed,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          side: BorderSide(
+                            color: isDark ? Colors.white24 : Colors.grey.shade300,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                          _mapController.move(LatLng(f.lat, f.lng), 16.5);
+                        },
+                        icon: const Icon(Icons.my_location, size: 18),
+                        label: const Text('Center on Map'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.orange.shade800,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: () async {
+                          final uri = Uri.parse(
+                            'https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lng}',
+                          );
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        },
+                        icon: const Icon(Icons.directions, size: 18),
+                        label: const Text('Directions'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

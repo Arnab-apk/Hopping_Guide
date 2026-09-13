@@ -40,6 +40,6 @@ npm run seed             # write pandals into Firestore (needs FIREBASE_PROJECT_
 - Firebase is NOT yet configured. Until `flutterfire configure` is run, the app
   runs in demo mode (map only). See README "Firebase setup".
 - Do NOT commit `google-services.json`, `GoogleService-Info.plist`,
-  service-account JSONs, or `.env`.
+  `firebase_options.dart`, service-account JSONs, or `.env`.
 - Foreground-only location sharing (no `ACCESS_BACKGROUND_LOCATION`) to avoid
   the Play Store background-location review — see architecture doc section 6.

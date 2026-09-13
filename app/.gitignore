@@ -46,3 +46,14 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Secrets & Firebase
+lib/firebase_options.dart
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
+key.properties
+.env*
+.kotlin/
+android/.kotlin/
