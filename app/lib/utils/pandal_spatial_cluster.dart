@@ -30,13 +30,15 @@ class PandalSpatialClusterer {
 
   /// Clusters pandals adaptively based on map camera zoom and visible viewport bounds.
   static List<PandalClusterItem> cluster({
-    required List<Pandal> allPandals,
+    List<Pandal>? allPandals,
+    List<Pandal>? pandals,
     required double zoom,
     required LatLngBounds visibleBounds,
     Pandal? selectedPandal,
     Set<String>? priorityPandalIds,
   }) {
-    if (allPandals.isEmpty) return const [];
+    final list = pandals ?? allPandals ?? const [];
+    if (list.isEmpty) return const [];
 
     // Expanded viewport bounds (25% margin) to prevent any marker pop-in during panning
     final latSpan = (visibleBounds.north - visibleBounds.south).abs();
@@ -67,8 +69,8 @@ class PandalSpatialClusterer {
     final List<PandalClusterItem> priorityItems = [];
 
     // 1. Fast viewport filter & spatial bucketing
-    for (int i = 0; i < allPandals.length; i++) {
-      final p = allPandals[i];
+    for (int i = 0; i < list.length; i++) {
+      final p = list[i];
 
       // Selected pandal or active trail stops are kept as individual priority items
       final isSelected = selectedPandal?.id == p.id;

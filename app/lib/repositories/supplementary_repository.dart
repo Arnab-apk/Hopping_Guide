@@ -20,6 +20,10 @@ class FoodSpot {
     required this.lat,
     required this.lng,
     required this.nearbyPandal,
+    this.rating,
+    this.mustTry,
+    this.priceRange,
+    this.source,
   });
 
   final String id;
@@ -28,6 +32,10 @@ class FoodSpot {
   final double lat;
   final double lng;
   final String nearbyPandal;
+  final double? rating;
+  final String? mustTry;
+  final String? priceRange;
+  final String? source;
 
   factory FoodSpot.fromJson(Map<String, dynamic> json) {
     final coords = json['coordinates'] as Map<String, dynamic>? ?? {};
@@ -35,9 +43,13 @@ class FoodSpot {
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       type: json['type'] as String? ?? 'Food',
-      lat: (coords['lat'] as num?)?.toDouble() ?? 0,
-      lng: (coords['lng'] as num?)?.toDouble() ?? 0,
+      lat: (coords['lat'] as num?)?.toDouble() ?? (json['lat'] as num?)?.toDouble() ?? 0,
+      lng: (coords['lng'] as num?)?.toDouble() ?? (json['lng'] as num?)?.toDouble() ?? 0,
       nearbyPandal: json['nearbyPandal'] as String? ?? '',
+      rating: (json['rating'] as num?)?.toDouble(),
+      mustTry: json['mustTry'] as String?,
+      priceRange: json['priceRange'] as String?,
+      source: json['source'] as String?,
     );
   }
 }

@@ -1,412 +1,926 @@
 [
   {
-    "id": "f1",
-    "name": "Bhog at Shreebhumi",
-    "type": "Bhog & Prasadam",
+    "id": "f_golbari",
+    "name": "Golbari (New Punjabi Hotel)",
+    "type": "Iconic Kosha Mangsho & Paratha",
     "coordinates": {
-      "lat": 22.572,
-      "lng": 88.4135
+      "lat": 22.6006,
+      "lng": 88.3704
     },
-    "nearbyPandal": "Shreebhumi Sporting Club"
+    "nearbyPandal": "Shyambazar 5 Point Crossing Sarbojanin",
+    "rating": 4.4,
+    "mustTry": "Kasha Mangsho (Velvety Slow-Cooked Mutton) & Triangle Paratha",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.4 (18k+ ratings)"
   },
   {
-    "id": "f2",
-    "name": "Gariahat Street Food Lane",
-    "type": "Street Food & Rolls",
+    "id": "f_mitra_cafe_shyam",
+    "name": "Mitra Cafe (Shyambazar)",
+    "type": "Colonial Bengali Heritage Snacks",
     "coordinates": {
-      "lat": 22.518,
-      "lng": 88.3635
+      "lat": 22.5997,
+      "lng": 88.3712
     },
-    "nearbyPandal": "Ekdalia Evergreen Club"
+    "nearbyPandal": "Jagat Mukherjee Park",
+    "rating": 4.5,
+    "mustTry": "Diamond Fish Fry, Brain Chop, Mutton Kabiraji",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.5 (25k+ orders)"
   },
   {
-    "id": "f3",
-    "name": "Kumartuli Puchka Corner",
-    "type": "Street Food & Puchka",
+    "id": "f_allen_kitchen",
+    "name": "Allen Kitchen (Shobhabazar)",
+    "type": "Heritage Cabin & Cutlets (Est. 132 yrs)",
     "coordinates": {
-      "lat": 22.5955,
-      "lng": 88.3635
+      "lat": 22.5978,
+      "lng": 88.3653
     },
-    "nearbyPandal": "Kumartuli Park"
+    "nearbyPandal": "Sovabazar Rajbari Durga Puja",
+    "rating": 4.3,
+    "mustTry": "Prawn Cutlet fried in pure Ghee",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.3"
   },
   {
-    "id": "f4",
-    "name": "Surya Kumar Modak",
-    "type": "Traditional Sweets (Jolbhora)",
+    "id": "f_chittaranjan_mistanna",
+    "name": "Chittaranjan Mistanna Bhandar",
+    "type": "Legendary Bengali Sweets",
+    "coordinates": {
+      "lat": 22.5972,
+      "lng": 88.3688
+    },
+    "nearbyPandal": "Hatibagan Sarbojanin",
+    "rating": 4.8,
+    "mustTry": "White Sponge Rossogolla & Madhumanjari",
+    "priceRange": "₹",
+    "source": "Swiggy 4.8 (Top Sweet Shop)"
+  },
+  {
+    "id": "f_nakur_nandy",
+    "name": "Girish Chandra Dey & Nakur Chandra Nandy",
+    "type": "World-Renowned Sandesh (Est. 1844)",
+    "coordinates": {
+      "lat": 22.5878,
+      "lng": 88.3672
+    },
+    "nearbyPandal": "Shimla Street Sarbojanin",
+    "rating": 4.9,
+    "mustTry": "Jolbhora Sandesh, Chocolate Sandesh, Parijat",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.9 (Legendary)"
+  },
+  {
+    "id": "f_bhojohori_hatibagan",
+    "name": "Bhojohori Manna (Hatibagan)",
+    "type": "Authentic Bengali Thali & Fish",
+    "coordinates": {
+      "lat": 22.5951,
+      "lng": 88.3702
+    },
+    "nearbyPandal": "Kasi Bose Lane",
+    "rating": 4.4,
+    "mustTry": "Ilish Bhapa, Daab Chingri, Bhetki Paturi",
+    "priceRange": "₹₹₹",
+    "source": "Swiggy 4.4 (15k+ orders)"
+  },
+  {
+    "id": "f_paramount_sherbet",
+    "name": "Paramount Cold Storage & Sherbets",
+    "type": "Historic Sherbets (Est. 1918)",
+    "coordinates": {
+      "lat": 22.5746,
+      "lng": 88.3639
+    },
+    "nearbyPandal": "College Square Sarbojanin",
+    "rating": 4.7,
+    "mustTry": "Daab Sherbet (Tender Coconut Cream), Kaju Draksha",
+    "priceRange": "₹",
+    "source": "Zomato 4.7"
+  },
+  {
+    "id": "f_coffee_house_college",
+    "name": "Indian Coffee House (College Street)",
+    "type": "Historic Adda, Coffee & Snacks (Est. 1942)",
+    "coordinates": {
+      "lat": 22.5749,
+      "lng": 88.3644
+    },
+    "nearbyPandal": "College Square Sarbojanin",
+    "rating": 4.4,
+    "mustTry": "Mutton Cutlet with boiled veggies, Cold Coffee with Ice Cream",
+    "priceRange": "₹",
+    "source": "Heritage Icon 4.4"
+  },
+  {
+    "id": "f_dilkhusha_cabin",
+    "name": "Dilkhusha Cabin (College Street)",
+    "type": "Freedom Fighter Era Cabin",
+    "coordinates": {
+      "lat": 22.5741,
+      "lng": 88.3642
+    },
+    "nearbyPandal": "Md. Ali Park",
+    "rating": 4.2,
+    "mustTry": "Dimer Devil (Egg Devil) & Kabiraji Cutlet",
+    "priceRange": "₹",
+    "source": "Zomato 4.2"
+  },
+  {
+    "id": "f_putiram",
+    "name": "Putiram Sweets (College Street)",
+    "type": "Traditional Breakfast & Sweets",
+    "coordinates": {
+      "lat": 22.5735,
+      "lng": 88.3632
+    },
+    "nearbyPandal": "College Square Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Radhaballabhi with Chholar Dal & Kheer Kadam",
+    "priceRange": "₹",
+    "source": "Swiggy 4.6"
+  },
+  {
+    "id": "f_arsalan_bidhan",
+    "name": "Arsalan (Bidhan Sarani)",
+    "type": "Kolkata Mughlai & Biryani",
+    "coordinates": {
+      "lat": 22.5925,
+      "lng": 88.3698
+    },
+    "nearbyPandal": "Nalin Sarkar Street",
+    "rating": 4.5,
+    "mustTry": "Kolkata Mutton Biryani with Aloo & Chicken Chaap",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.5 (50k+ orders)"
+  },
+  {
+    "id": "f_aminia_shyam",
+    "name": "Aminia (Shyambazar)",
+    "type": "Historic Awadhi Mughlai (Est. 1929)",
+    "coordinates": {
+      "lat": 22.5999,
+      "lng": 88.3695
+    },
+    "nearbyPandal": "Shyambazar 5 Point Crossing Sarbojanin",
+    "rating": 4.4,
+    "mustTry": "Aminia Special Mutton Curry, Awadhi Biryani",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.4"
+  },
+  {
+    "id": "f_kumartuli_puchka",
+    "name": "Kumartuli Ghat Puchka & Chaat",
+    "type": "Famous Street Food & Puchka",
+    "coordinates": {
+      "lat": 22.596,
+      "lng": 88.363
+    },
+    "nearbyPandal": "Kumartuli Park",
+    "rating": 4.7,
+    "mustTry": "Gondhoraj Lebu Puchka & Dahi Phuchka",
+    "priceRange": "₹",
+    "source": "Street Food Guide"
+  },
+  {
+    "id": "f_bagbazar_ghat",
+    "name": "Bagbazar Ghat Tea & Kachori Corner",
+    "type": "Riverside Street Snacks",
+    "coordinates": {
+      "lat": 22.6035,
+      "lng": 88.3665
+    },
+    "nearbyPandal": "Bagbazar Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Koraishutir Kochuri, Club Kachori, Clay Cup Milk Tea",
+    "priceRange": "₹",
+    "source": "Heritage Guide"
+  },
+  {
+    "id": "f_ganguram_shobhabazar",
+    "name": "Ganguram Sweets (Shobhabazar)",
+    "type": "Mishti Doi Pioneers (Est. 1892)",
+    "coordinates": {
+      "lat": 22.5965,
+      "lng": 88.3668
+    },
+    "nearbyPandal": "Ahiritola Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Kheer Doi, Indrani, Chamcham",
+    "priceRange": "₹",
+    "source": "Swiggy 4.6"
+  },
+  {
+    "id": "f_adi_malancha",
+    "name": "Adi Malancha (Hatibagan)",
+    "type": "Bengali Breakfast & Kochuri",
+    "coordinates": {
+      "lat": 22.5948,
+      "lng": 88.3715
+    },
+    "nearbyPandal": "Nabin Pally",
+    "rating": 4.3,
+    "mustTry": "Hing-er Kochuri with Chholar Dal & Singara",
+    "priceRange": "₹",
+    "source": "Zomato 4.3"
+  },
+  {
+    "id": "f_tala_pratyay_food",
+    "name": "Tala Pratyay Food Mela Courtyard",
+    "type": "Puja Mela Fast Food & Rolls",
+    "coordinates": {
+      "lat": 22.6075,
+      "lng": 88.3752
+    },
+    "nearbyPandal": "Tala Pratyay",
+    "rating": 4.6,
+    "mustTry": "Fish Batter Fry, Kolkata Egg Chicken Roll, Hot Jalebi",
+    "priceRange": "₹₹",
+    "source": "Puja Mela Exclusive"
+  },
+  {
+    "id": "f_dada_boudi_biryani",
+    "name": "Dada Boudi Biryani (Barrackpore)",
+    "type": "The Legendary Biryani Hub of Bengal",
+    "coordinates": {
+      "lat": 22.7615,
+      "lng": 88.3782
+    },
+    "nearbyPandal": "Barrackpore Park Durga Puja",
+    "rating": 4.8,
+    "mustTry": "Giant Mutton Biryani (2 succulent pieces) & Mutton Chaap",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.8 (100k+ reviews)"
+  },
+  {
+    "id": "f_d_bapi_biryani",
+    "name": "D. Bapi Biryani (Barrackpore)",
+    "type": "Cult Mughlai Biryani Destination",
+    "coordinates": {
+      "lat": 22.7602,
+      "lng": 88.3795
+    },
+    "nearbyPandal": "Barrackpore Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Special Chicken Biryani with Boiled Egg & Aloo",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.6 (40k+ orders)"
+  },
+  {
+    "id": "f_shreebhumi_bhog",
+    "name": "Shreebhumi Bhog & Festival Food Court",
+    "type": "Bhog Prasadam & Festive Stalls",
+    "coordinates": {
+      "lat": 22.5725,
+      "lng": 88.4138
+    },
+    "nearbyPandal": "Shreebhumi Sporting Club",
+    "rating": 4.8,
+    "mustTry": "Khichuri Bhog with Labra & Beguni, Kolkata Kathi Rolls",
+    "priceRange": "₹₹",
+    "source": "Puja Special"
+  },
+  {
+    "id": "f_arsalan_laketown",
+    "name": "Arsalan (Lake Town Clock Tower)",
+    "type": "Awadhi Biryani & Kebabs",
+    "coordinates": {
+      "lat": 22.6032,
+      "lng": 88.4048
+    },
+    "nearbyPandal": "Lake Town Adhibasibrinda",
+    "rating": 4.5,
+    "mustTry": "Mutton Biryani, Murgh Reshmi Kebab, Firni",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.5 (30k+ orders)"
+  },
+  {
+    "id": "f_gupta_brothers_laketown",
+    "name": "Gupta Brothers (Lake Town)",
+    "type": "North Indian, Chaat & Sweets",
+    "coordinates": {
+      "lat": 22.6025,
+      "lng": 88.4035
+    },
+    "nearbyPandal": "Lake Town Adhibasibrinda",
+    "rating": 4.4,
+    "mustTry": "Raj Kachori, Chole Bhature, Motichoor Ladoo",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.4"
+  },
+  {
+    "id": "f_dumdum_park_foodcourt",
+    "name": "Dum Dum Park Tarun Sangha Food Zone",
+    "type": "Midnight Puja Food Stalls",
+    "coordinates": {
+      "lat": 22.6095,
+      "lng": 88.4115
+    },
+    "nearbyPandal": "Dum Dum Park Tarun Sangha",
+    "rating": 4.6,
+    "mustTry": "Fried Fish Fingers, Paneer Tikka, Momos & Tea",
+    "priceRange": "₹",
+    "source": "Puja Food Court"
+  },
+  {
+    "id": "f_dumdum_bharat_chakra_food",
+    "name": "Dum Dum Park Bharat Chakra Food Hub",
+    "type": "Festive Street Eats & Rolls",
+    "coordinates": {
+      "lat": 22.6108,
+      "lng": 88.4132
+    },
+    "nearbyPandal": "Dum Dum Park Bharat Chakra",
+    "rating": 4.5,
+    "mustTry": "Double Mutton Roll, Phuchka, Pav Bhaji",
+    "priceRange": "₹",
+    "source": "Swiggy Street"
+  },
+  {
+    "id": "f_nizams_new_market",
+    "name": "Nizam's Restaurant (New Market)",
+    "type": "Originator of Kathi Roll (Est. 1932)",
+    "coordinates": {
+      "lat": 22.5601,
+      "lng": 88.3524
+    },
+    "nearbyPandal": "Janbazar Sarbojanin",
+    "rating": 4.3,
+    "mustTry": "Double Mutton Double Egg Kathi Roll, Beef Boti Kebab",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.3 (20k+ reviews)"
+  },
+  {
+    "id": "f_anadi_cabin",
+    "name": "Anadi Cabin (Esplanade)",
+    "type": "Heritage Mughlai Paratha",
+    "coordinates": {
+      "lat": 22.5638,
+      "lng": 88.3537
+    },
+    "nearbyPandal": "Chandni Chowk Puja",
+    "rating": 4.4,
+    "mustTry": "Special Duck Egg Mughlai Paratha with Aloo Tarkari",
+    "priceRange": "₹",
+    "source": "Zomato 4.4"
+  },
+  {
+    "id": "f_sabir_hotel",
+    "name": "Sabir's Hotel (Chandni Chowk)",
+    "type": "Origin of Rezala (Est. 1948)",
+    "coordinates": {
+      "lat": 22.5645,
+      "lng": 88.3572
+    },
+    "nearbyPandal": "Md. Ali Park",
+    "rating": 4.3,
+    "mustTry": "Mutton Rezala with Fluffy Tandoori Naan",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.3"
+  },
+  {
+    "id": "f_kc_das_esplanade",
+    "name": "K.C. Das (Esplanade Mansion)",
+    "type": "Pioneers of Canned Rossogolla",
+    "coordinates": {
+      "lat": 22.5654,
+      "lng": 88.3512
+    },
+    "nearbyPandal": "Bowbazar Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Hot Rossogolla & Rossomalai",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.6"
+  },
+  {
+    "id": "f_bhim_chandra_nag",
+    "name": "Bhim Chandra Nag (Bowbazar)",
+    "type": "Inventor of Ledikeni Sweet (Est. 1826)",
+    "coordinates": {
+      "lat": 22.5714,
+      "lng": 88.3618
+    },
+    "nearbyPandal": "Santosh Mitra Square",
+    "rating": 4.8,
+    "mustTry": "Ledikeni, Abar Khabo, Mango Sandesh",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.8"
+  },
+  {
+    "id": "f_dacres_lane",
+    "name": "Dacres Lane (James Hickey Sarani)",
+    "type": "Kolkata's Famous Food Alley",
+    "coordinates": {
+      "lat": 22.5678,
+      "lng": 88.3515
+    },
+    "nearbyPandal": "Santosh Mitra Square",
+    "rating": 4.6,
+    "mustTry": "Chitto Da's Chicken Stew with Butter Toast, Fish Roll",
+    "priceRange": "₹",
+    "source": "Street Food Icon"
+  },
+  {
+    "id": "f_santosh_mitra_food",
+    "name": "Santosh Mitra Square Puja Food Stalls",
+    "type": "Grand Fairground Food Plaza",
+    "coordinates": {
+      "lat": 22.5705,
+      "lng": 88.3625
+    },
+    "nearbyPandal": "Santosh Mitra Square",
+    "rating": 4.7,
+    "mustTry": "Mutton Biryani Packets, Crispy Jalebi, Cold Coffee",
+    "priceRange": "₹₹",
+    "source": "Puja Mela Exclusive"
+  },
+  {
+    "id": "f_peter_cat",
+    "name": "Peter Cat (Park Street)",
+    "type": "Fine Dining Continental & Mughlai",
+    "coordinates": {
+      "lat": 22.5518,
+      "lng": 88.3522
+    },
+    "nearbyPandal": "Park Circus Sarbojanin",
+    "rating": 4.7,
+    "mustTry": "Legendary Chelo Kebab with Fried Egg & Butter Rice",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.7 (45k+ ratings)"
+  },
+  {
+    "id": "f_mocambo",
+    "name": "Mocambo Restaurant (Park Street)",
+    "type": "Colonial European Dining (Est. 1956)",
+    "coordinates": {
+      "lat": 22.5524,
+      "lng": 88.3528
+    },
+    "nearbyPandal": "Park Circus Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Devilled Crab, Chicken Tetrazzini, Fish Florentine",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.6"
+  },
+  {
+    "id": "f_kusum_rolls",
+    "name": "Kusum Rolls (Park Street)",
+    "type": "Kolkata Street Rolls Champion",
+    "coordinates": {
+      "lat": 22.5512,
+      "lng": 88.3535
+    },
+    "nearbyPandal": "Park Circus Sarbojanin",
+    "rating": 4.5,
+    "mustTry": "Double Chicken Double Cheese Egg Roll",
+    "priceRange": "₹",
+    "source": "Swiggy 4.5 (60k+ orders)"
+  },
+  {
+    "id": "f_flurys",
+    "name": "Flurys Tea Room (Park Street)",
+    "type": "Historic Tearoom & Patisserie (Est. 1927)",
+    "coordinates": {
+      "lat": 22.5516,
+      "lng": 88.3525
+    },
+    "nearbyPandal": "Park Circus Sarbojanin",
+    "rating": 4.5,
+    "mustTry": "Full English Breakfast, Rum Balls, Viennese Coffee",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.5"
+  },
+  {
+    "id": "f_ballygunge_place",
+    "name": "6 Ballygunge Place",
+    "type": "Authentic Bengali Fine Dining",
+    "coordinates": {
+      "lat": 22.5273,
+      "lng": 88.3654
+    },
+    "nearbyPandal": "Ballygunge Cultural Association",
+    "rating": 4.6,
+    "mustTry": "Kancha Lonka Murgi, Daab Chingri, Mochar Ghonto",
+    "priceRange": "₹₹₹",
+    "source": "Swiggy 4.6 (22k+ orders)"
+  },
+  {
+    "id": "f_kasturi_gariahata",
+    "name": "Kasturi Restaurant (Gariahat)",
+    "type": "Dhakai Bangladeshi Cuisine",
+    "coordinates": {
+      "lat": 22.5185,
+      "lng": 88.3652
+    },
+    "nearbyPandal": "Ekdalia Evergreen Club",
+    "rating": 4.5,
+    "mustTry": "Kochu Pata Diye Chingri Bhapa, Dhakai Kacchi Biryani",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.5"
+  },
+  {
+    "id": "f_campari_gariahata",
+    "name": "Campari (Gariahat)",
+    "type": "Heritage Bengali Fast Food & Cutlets",
+    "coordinates": {
+      "lat": 22.5192,
+      "lng": 88.3644
+    },
+    "nearbyPandal": "Singhi Park",
+    "rating": 4.5,
+    "mustTry": "Fish Roll, Mutton Roll, Chicken Cutlet with Mustard Kasundi",
+    "priceRange": "₹",
+    "source": "Swiggy 4.5"
+  },
+  {
+    "id": "f_bedouin_gariahata",
+    "name": "Bedouin King Roll & Mughlai",
+    "type": "Celebrated Roll Destination",
+    "coordinates": {
+      "lat": 22.5188,
+      "lng": 88.3639
+    },
+    "nearbyPandal": "Ekdalia Evergreen Club",
+    "rating": 4.4,
+    "mustTry": "Special Mutton Tikka Roll & Chicken Reshmi Roll",
+    "priceRange": "₹",
+    "source": "Swiggy 4.4"
+  },
+  {
+    "id": "f_sienna_store_cafe",
+    "name": "Sienna Store & Cafe (Hindustan Park)",
+    "type": "Artisan Coffee & Gourmet Bengali Fusion",
+    "coordinates": {
+      "lat": 22.5205,
+      "lng": 88.3608
+    },
+    "nearbyPandal": "Hindustan Park Sarbojanin",
+    "rating": 4.7,
+    "mustTry": "Bhetki Carpaccio, Fried Chicken Salad, Filter Coffee",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.7"
+  },
+  {
+    "id": "f_maharaj_deshapriya",
+    "name": "Maharaj & Maharani (Sarat Bose Road)",
+    "type": "Famous Morning Club Kachori & Jalebi",
+    "coordinates": {
+      "lat": 22.5198,
+      "lng": 88.3541
+    },
+    "nearbyPandal": "Deshapriya Park",
+    "rating": 4.6,
+    "mustTry": "Hing Club Kachori with spicy Aloo Sabzi, Kesariya Jilipi",
+    "priceRange": "₹",
+    "source": "Swiggy 4.6"
+  },
+  {
+    "id": "f_maddox_food_mela",
+    "name": "Maddox Square Food Court",
+    "type": "Festive Open Mela Street Stalls",
+    "coordinates": {
+      "lat": 22.5292,
+      "lng": 88.3582
+    },
+    "nearbyPandal": "Maddox Square",
+    "rating": 4.7,
+    "mustTry": "Egg Chicken Moghlai, Cold Coffee, Momos, Fish Orly",
+    "priceRange": "₹₹",
+    "source": "Puja Mela Exclusive"
+  },
+  {
+    "id": "f_balwant_singh",
+    "name": "Balwant Singh's Eating House",
+    "type": "Legendary 24/7 Dhaba & Tea",
+    "coordinates": {
+      "lat": 22.5342,
+      "lng": 88.3448
+    },
+    "nearbyPandal": "Bhowanipore 75 Palli",
+    "rating": 4.5,
+    "mustTry": "Doodh Cola, Kesar Chai in Bhar, Aloo Paratha with white butter",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.5 (25k+ reviews)"
+  },
+  {
+    "id": "f_balaram_mullick",
+    "name": "Balaram Mullick & Radharaman Mullick (Bhowanipore)",
+    "type": "Artisan Fusion Bengali Sweets",
+    "coordinates": {
+      "lat": 22.5332,
+      "lng": 88.3468
+    },
+    "nearbyPandal": "Chakraberia Sarbojanin",
+    "rating": 4.8,
+    "mustTry": "Baked Rossogolla, Mango Souffle Sandesh, Nolen Gur Ice Cream",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.8 (Top Kolkata Sweet Brand)"
+  },
+  {
+    "id": "f_apanjan_kalighat",
+    "name": "Apanjan (Sadananda Road)",
+    "type": "World Class Fish Fry (Kalighat)",
+    "coordinates": {
+      "lat": 22.5195,
+      "lng": 88.3475
+    },
+    "nearbyPandal": "Badamtala Ashar Sangha",
+    "rating": 4.6,
+    "mustTry": "Bhetki Fish Batter Fry with homemade Kasundi",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.6"
+  },
+  {
+    "id": "f_bijoli_grill_southern",
+    "name": "Bijoli Grill (Southern Avenue)",
+    "type": "Iconic Fish & Caterer Snacks",
+    "coordinates": {
+      "lat": 22.5115,
+      "lng": 88.3562
+    },
+    "nearbyPandal": "Mudiali Club",
+    "rating": 4.5,
+    "mustTry": "Fish Orly, Fish Kabiraji, Kolkata Mutton Biryani",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.5"
+  },
+  {
+    "id": "f_shib_mandir_food_lane",
+    "name": "Shib Mandir Sarbojanin Food Alley",
+    "type": "Lakeside Puja Fast Food",
+    "coordinates": {
+      "lat": 22.5122,
+      "lng": 88.3548
+    },
+    "nearbyPandal": "Shib Mandir Sarbojanin",
+    "rating": 4.5,
+    "mustTry": "Kolkata Egg Roll, Chicken Pakora, Mango Kulfi",
+    "priceRange": "₹",
+    "source": "Puja Street Eats"
+  },
+  {
+    "id": "f_arsalan_park_circus",
+    "name": "Arsalan (Park Circus 7-Point)",
+    "type": "The Biryani Epicentre of Kolkata",
+    "coordinates": {
+      "lat": 22.5445,
+      "lng": 88.3675
+    },
+    "nearbyPandal": "Park Circus Sarbojanin",
+    "rating": 4.6,
+    "mustTry": "Arsalan Special Mutton Biryani with Aloo & Mutton Chaap",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.6 (80k+ reviews)"
+  },
+  {
+    "id": "f_shiraj_golden",
+    "name": "Shiraj Golden Restaurant (Park Circus)",
+    "type": "Awadhi Heritage (Est. 1941)",
+    "coordinates": {
+      "lat": 22.5448,
+      "lng": 88.3662
+    },
+    "nearbyPandal": "Park Circus Sarbojanin",
+    "rating": 4.4,
+    "mustTry": "Mutton Biryani, Chicken Chaap, Firni in earthen pot",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.4"
+  },
+  {
+    "id": "f_suruchi_new_alipore",
+    "name": "Suruchi (New Alipore)",
+    "type": "All Women Run Bengali Kitchen",
+    "coordinates": {
+      "lat": 22.5112,
+      "lng": 88.3365
+    },
+    "nearbyPandal": "Suruchi Sangha",
+    "rating": 4.6,
+    "mustTry": "Chital Muitha, Kosha Mangsho, Gobindobhog Rice",
+    "priceRange": "₹₹",
+    "source": "Heritage Dining"
+  },
+  {
+    "id": "f_chetla_street_bites",
+    "name": "Chetla Agrani Night Food Street",
+    "type": "Festive Midnight Fast Food Alley",
+    "coordinates": {
+      "lat": 22.5145,
+      "lng": 88.3412
+    },
+    "nearbyPandal": "Chetla Agrani Club",
+    "rating": 4.5,
+    "mustTry": "Egg Devil, Paneer Roll, Kolkata Biryani Bowls",
+    "priceRange": "₹",
+    "source": "Puja Food Court"
+  },
+  {
+    "id": "f_behala_chowrasta",
+    "name": "Behala Chowrasta Phuchka Hub",
+    "type": "South-West Street Food Hub",
+    "coordinates": {
+      "lat": 22.4975,
+      "lng": 88.3185
+    },
+    "nearbyPandal": "Behala Club Sarbojanin",
+    "rating": 4.7,
+    "mustTry": "Alur Dom Puchka, Churmur, Cheese Pav Bhaji",
+    "priceRange": "₹",
+    "source": "Swiggy Street Food"
+  },
+  {
+    "id": "f_barisha_club_food",
+    "name": "Barisha Club Food Court",
+    "type": "Traditional Mela Food Stalls",
+    "coordinates": {
+      "lat": 22.4865,
+      "lng": 88.3142
+    },
+    "nearbyPandal": "Barisha Club",
+    "rating": 4.6,
+    "mustTry": "Mochar Chop, Fish Fry with Kasundi, Rabri Jalebi",
+    "priceRange": "₹",
+    "source": "Puja Mela Exclusive"
+  },
+  {
+    "id": "f_golden_joy_tangra",
+    "name": "Golden Joy (Tangra Chinatown)",
+    "type": "Kolkata Indo-Chinese Heritage",
+    "coordinates": {
+      "lat": 22.5485,
+      "lng": 88.3902
+    },
+    "nearbyPandal": "Beleghata 33 Pally",
+    "rating": 4.5,
+    "mustTry": "Golden Fried Prawns, Chilli Garlic Pepper Chicken, Hakka Chow",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.5 (30k+ reviews)"
+  },
+  {
+    "id": "f_big_boss_tangra",
+    "name": "Big Boss (Tangra)",
+    "type": "Authentic Hakka Chinese",
+    "coordinates": {
+      "lat": 22.5492,
+      "lng": 88.3915
+    },
+    "nearbyPandal": "Beleghata Sandhani",
+    "rating": 4.4,
+    "mustTry": "Crispy Chilli Lamb, Schezwan Chicken, Drums of Heaven",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.4"
+  },
+  {
+    "id": "f_oudh_saltlake",
+    "name": "Oudh 1590 (Salt Lake Sector 1)",
+    "type": "Awadhi Royal Dining",
+    "coordinates": {
+      "lat": 22.5898,
+      "lng": 88.4112
+    },
+    "nearbyPandal": "FD Block Sarbojanin, Salt Lake",
+    "rating": 4.6,
+    "mustTry": "Awadhi Sugandhi Biryani, Kakori Kebab",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.6"
+  },
+  {
+    "id": "f_santas_fantasea",
+    "name": "Santa's Fantasea (Salt Lake)",
+    "type": "Tribal & Seafood Specialities",
+    "coordinates": {
+      "lat": 22.5862,
+      "lng": 88.4128
+    },
+    "nearbyPandal": "BJ Block Sarbojanin, Salt Lake",
+    "rating": 4.5,
+    "mustTry": "Bamboo Mutton, Crab Kasha, Smoked Squid",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.5"
+  },
+  {
+    "id": "f_haka_city_centre",
+    "name": "Haka (City Centre 1, Salt Lake)",
+    "type": "Tangra Style Indo-Chinese Buffet",
+    "coordinates": {
+      "lat": 22.5888,
+      "lng": 88.4082
+    },
+    "nearbyPandal": "FD Block Sarbojanin, Salt Lake",
+    "rating": 4.4,
+    "mustTry": "Hakka Noodles, Chilli Garlic Chicken, Dimsums",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.4"
+  },
+  {
+    "id": "f_cafe_ekante",
+    "name": "Cafe Ekante (Eco Park Island)",
+    "type": "Scenic Lakefront Bengali Cuisine",
+    "coordinates": {
+      "lat": 22.6052,
+      "lng": 88.4682
+    },
+    "nearbyPandal": "New Town Sarbojanin (City Square)",
+    "rating": 4.6,
+    "mustTry": "Gondhoraj Chicken, Posto Bora, Bhetki Paturi",
+    "priceRange": "₹₹₹",
+    "source": "Zomato 4.6"
+  },
+  {
+    "id": "f_sweet_bengal_newtown",
+    "name": "Sweet Bengal (New Town Action Area 1)",
+    "type": "Premium Sweets & Mishti Doi",
+    "coordinates": {
+      "lat": 22.5885,
+      "lng": 88.4625
+    },
+    "nearbyPandal": "New Town Sarbojanin (City Square)",
+    "rating": 4.7,
+    "mustTry": "Nolen Gur Sandesh & Clay Pot Mishti Doi",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.7"
+  },
+  {
+    "id": "f_chinar_park_biryani",
+    "name": "Aminia (Chinar Park / Rajarhat)",
+    "type": "North-East Corridor Mughlai Hub",
+    "coordinates": {
+      "lat": 22.6248,
+      "lng": 88.4418
+    },
+    "nearbyPandal": "Dum Dum Park Tarun Sangha",
+    "rating": 4.5,
+    "mustTry": "Special Mutton Biryani & Mutton Pasinda",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.5"
+  },
+  {
+    "id": "f_surya_modak_chinsurah",
+    "name": "Surya Kumar Modak (Chinsurah)",
+    "type": "Inventor of Jolbhora Talsash (Est. 1818)",
     "coordinates": {
       "lat": 22.8872,
       "lng": 88.3912
     },
-    "nearbyPandal": "Sandheswartala Sarbojanin, Chinsurah"
+    "nearbyPandal": "Sandheswartala Sarbojanin, Chinsurah",
+    "rating": 4.9,
+    "mustTry": "Original Jolbhora Sandesh with pure Nolen Gur syrup",
+    "priceRange": "₹₹",
+    "source": "Heritage Gem 4.9"
   },
   {
-    "id": "f5",
-    "name": "Kutum Bari",
-    "type": "Bengali & Mughlai Cuisine",
+    "id": "f_felu_modak_rishra",
+    "name": "Felu Modak (Rishra)",
+    "type": "Centuries-Old Royal Sweetmaker",
+    "coordinates": {
+      "lat": 22.7155,
+      "lng": 88.3498
+    },
+    "nearbyPandal": "Rishra Sarbojanin",
+    "rating": 4.8,
+    "mustTry": "Motichoor Sandesh, Kheer Toast, Mango Doi",
+    "priceRange": "₹₹",
+    "source": "Zomato 4.8"
+  },
+  {
+    "id": "f_kutum_bari_chinsurah",
+    "name": "Kutum Bari (Hooghly Ghat)",
+    "type": "Riverside Bengali & Mughlai Meals",
     "coordinates": {
       "lat": 22.8941,
       "lng": 88.3905
     },
-    "nearbyPandal": "Hooghly Ghat Sarbojanin, Chinsurah"
+    "nearbyPandal": "Hooghly Ghat Sarbojanin, Chinsurah",
+    "rating": 4.4,
+    "mustTry": "Chingri Malai Curry, Basanti Pulao, Mutton Kosha",
+    "priceRange": "₹₹",
+    "source": "Swiggy 4.4"
   },
   {
-    "id": "f6",
-    "name": "Petuk Chand",
-    "type": "Fast Food & Snacks",
+    "id": "f_kalyani_iti_mela",
+    "name": "ITI More Puja Mela Food Stalls (Kalyani)",
+    "type": "Mega Carnival Street Food Hub",
     "coordinates": {
-      "lat": 22.8821,
-      "lng": 88.3842
+      "lat": 22.9782,
+      "lng": 88.4355
     },
-    "nearbyPandal": "Olaichanditala Puja Committee, Chinsurah"
+    "nearbyPandal": "ITI More Sarbojanin, Kalyani",
+    "rating": 4.7,
+    "mustTry": "Chaat, Kathi Rolls, Pav Bhaji, Malpua with Rabri",
+    "priceRange": "₹",
+    "source": "Puja Mela Exclusive"
   },
   {
-    "id": "f7",
-    "name": "Jolforing Restaurant",
-    "type": "Multi-Cuisine & Family Dining",
+    "id": "f_bapuji_sandesh_kalyani",
+    "name": "Bapuji Mishtanna Bhandar (Kalyani)",
+    "type": "Legendary Nadia Sweets",
     "coordinates": {
-      "lat": 22.8988,
-      "lng": 88.3814
+      "lat": 22.981,
+      "lng": 88.432
     },
-    "nearbyPandal": "Rabindranagar Sarbojanin, Chinsurah"
-  },
-  {
-    "id": "f8",
-    "name": "ITI More Puja Mela Food Stalls",
-    "type": "Street Food, Chaat & Rolls",
-    "coordinates": {
-      "lat": 22.9748,
-      "lng": 88.4344
-    },
-    "nearbyPandal": "Kalyani ITI More (Luminous Club)"
-  },
-  {
-    "id": "f9",
-    "name": "The Royal Biriyani House",
-    "type": "Biryani & Mughlai",
-    "coordinates": {
-      "lat": 22.9739,
-      "lng": 88.4352
-    },
-    "nearbyPandal": "Kalyani ITI More (Luminous Club)"
-  },
-  {
-    "id": "f10",
-    "name": "Babai Biryani & Cafe",
-    "type": "Biryani & Fast Food",
-    "coordinates": {
-      "lat": 22.9772,
-      "lng": 88.4358
-    },
-    "nearbyPandal": "Kalyani B-Block Sarbojanin"
-  },
-  {
-    "id": "f11",
-    "name": "Friends Cafe and Restaurant",
-    "type": "Cafe, Chinese & Snacks",
-    "coordinates": {
-      "lat": 22.9806,
-      "lng": 88.4331
-    },
-    "nearbyPandal": "Kalyani Central Park Sarbojanin"
-  },
-  {
-    "id": "f12",
-    "name": "Bhojohori Manna Kalyani",
-    "type": "Authentic Bengali Thali",
-    "coordinates": {
-      "lat": 22.9754,
-      "lng": 88.4312
-    },
-    "nearbyPandal": "Kalyani A-Block Sarbojanin"
-  },
-  {
-    "id": "f13",
-    "name": "Mitra Cafe",
-    "type": "Heritage Cutlets & Mughlai",
-    "coordinates": {
-      "lat": 22.5976,
-      "lng": 88.3621
-    },
-    "nearbyPandal": "Bagbazar Sarbojanin"
-  },
-  {
-    "id": "f14",
-    "name": "Golabari",
-    "type": "Kosha Mangsho & Paratha",
-    "coordinates": {
-      "lat": 22.6018,
-      "lng": 88.3735
-    },
-    "nearbyPandal": "Shyambazar Nabin Sangha"
-  },
-  {
-    "id": "f15",
-    "name": "Allen Kitchen",
-    "type": "Heritage Prawn Cutlet",
-    "coordinates": {
-      "lat": 22.5992,
-      "lng": 88.3614
-    },
-    "nearbyPandal": "Ahiritola Sarbojanin"
-  },
-  {
-    "id": "f16",
-    "name": "Putiram Sweets",
-    "type": "Radhaballavi & Bengali Sweets",
-    "coordinates": {
-      "lat": 22.5772,
-      "lng": 88.3624
-    },
-    "nearbyPandal": "College Square Pandal"
-  },
-  {
-    "id": "f17",
-    "name": "Dilkhusha Cabin",
-    "type": "Kabiraji & Heritage Cutlets",
-    "coordinates": {
-      "lat": 22.5765,
-      "lng": 88.363
-    },
-    "nearbyPandal": "College Square Pandal"
-  },
-  {
-    "id": "f18",
-    "name": "Indian Coffee House",
-    "type": "Heritage Cafe & Snacks",
-    "coordinates": {
-      "lat": 22.5761,
-      "lng": 88.3618
-    },
-    "nearbyPandal": "College Square Pandal"
-  },
-  {
-    "id": "f19",
-    "name": "Aminia New Market",
-    "type": "Kolkata Biryani & Rezala",
-    "coordinates": {
-      "lat": 22.5575,
-      "lng": 88.3526
-    },
-    "nearbyPandal": "Santosh Mitra Square"
-  },
-  {
-    "id": "f20",
-    "name": "Kusum Rolls",
-    "type": "Kathi Rolls & Street Food",
-    "coordinates": {
-      "lat": 22.5539,
-      "lng": 88.3516
-    },
-    "nearbyPandal": "Park Street Sarbojanin"
-  },
-  {
-    "id": "f21",
-    "name": "Arsalan Park Circus",
-    "type": "Biryani & Chaap",
-    "coordinates": {
-      "lat": 22.5392,
-      "lng": 88.37
-    },
-    "nearbyPandal": "Park Circus Sarbojanin"
-  },
-  {
-    "id": "f22",
-    "name": "Campari",
-    "type": "Fish Roll & Cutlets",
-    "coordinates": {
-      "lat": 22.5182,
-      "lng": 88.3641
-    },
-    "nearbyPandal": "Ballygunge Cultural Association"
-  },
-  {
-    "id": "f23",
-    "name": "Oudh 1590 Deshapriya Park",
-    "type": "Awadhi Biryani & Kebabs",
-    "coordinates": {
-      "lat": 22.5186,
-      "lng": 88.3637
-    },
-    "nearbyPandal": "Deshapriya Park Pandal"
-  },
-  {
-    "id": "f24",
-    "name": "6 Ballygunge Place",
-    "type": "Authentic Bengali Dining",
-    "coordinates": {
-      "lat": 22.5274,
-      "lng": 88.3659
-    },
-    "nearbyPandal": "Tridhara Sammilani"
-  },
-  {
-    "id": "f25",
-    "name": "Sharma Tea House",
-    "type": "Club Kachori, Jalebi & Chai",
-    "coordinates": {
-      "lat": 22.5219,
-      "lng": 88.3652
-    },
-    "nearbyPandal": "Singhi Park Sarbojanin"
-  },
-  {
-    "id": "f26",
-    "name": "Apanjan Kalighat",
-    "type": "Fish Fry & Bengali Snacks",
-    "coordinates": {
-      "lat": 22.5204,
-      "lng": 88.3471
-    },
-    "nearbyPandal": "Badamtala Ashar Sangha"
-  },
-  {
-    "id": "f27",
-    "name": "Balwant Singh's Eating House",
-    "type": "Dudh Cola, Tea & Dhaba Snacks",
-    "coordinates": {
-      "lat": 22.5365,
-      "lng": 88.344
-    },
-    "nearbyPandal": "Bhawanipore 75 Palli"
-  },
-  {
-    "id": "f28",
-    "name": "Balaram Mullick & Radharaman Mullick",
-    "type": "Baked Rosogolla & Sweets",
-    "coordinates": {
-      "lat": 22.5338,
-      "lng": 88.3465
-    },
-    "nearbyPandal": "Maddox Square"
-  },
-  {
-    "id": "f29",
-    "name": "Tandoor House Lake Market",
-    "type": "Biryani & Tandoor",
-    "coordinates": {
-      "lat": 22.5152,
-      "lng": 88.3495
-    },
-    "nearbyPandal": "Mudiali Club"
-  },
-  {
-    "id": "f30",
-    "name": "Maddox Square Food Court",
-    "type": "Puchka, Chowmein & Rolls",
-    "coordinates": {
-      "lat": 22.5322,
-      "lng": 88.3541
-    },
-    "nearbyPandal": "Maddox Square"
-  },
-  {
-    "id": "f31",
-    "name": "Bawarchi Restaurant",
-    "type": "Biryani & Rolls",
-    "coordinates": {
-      "lat": 22.4994,
-      "lng": 88.3658
-    },
-    "nearbyPandal": "Jadavpur Babubagan Club"
-  },
-  {
-    "id": "f32",
-    "name": "Behala Apanjan",
-    "type": "Snacks & Cutlets",
-    "coordinates": {
-      "lat": 22.4931,
-      "lng": 88.3182
-    },
-    "nearbyPandal": "Barisha Club"
-  },
-  {
-    "id": "f33",
-    "name": "Byepass Dhaba",
-    "type": "Late Night Punjabi & Dhaba",
-    "coordinates": {
-      "lat": 22.5451,
-      "lng": 88.4032
-    },
-    "nearbyPandal": "Salt Lake FD Block"
-  },
-  {
-    "id": "f34",
-    "name": "Peter Cat",
-    "type": "Continental & Chelo Kebab",
-    "coordinates": {
-      "lat": 22.5529,
-      "lng": 88.3524
-    },
-    "nearbyPandal": "Park Street Sarbojanin"
-  },
-  {
-    "id": "f35",
-    "name": "Mocambo Restaurant and Bar",
-    "type": "Heritage Continental & Devilled Crab",
-    "coordinates": {
-      "lat": 22.5532,
-      "lng": 88.3521
-    },
-    "nearbyPandal": "Park Street Sarbojanin"
-  },
-  {
-    "id": "f36",
-    "name": "Flurys",
-    "type": "Heritage Tearoom, Bakery & English Breakfast",
-    "coordinates": {
-      "lat": 22.5525,
-      "lng": 88.3528
-    },
-    "nearbyPandal": "Park Street Sarbojanin"
-  },
-  {
-    "id": "f37",
-    "name": "Kasturi Restaurant",
-    "type": "Dhakai Bangladeshi & Kochu Pata Chingri",
-    "coordinates": {
-      "lat": 22.5195,
-      "lng": 88.3627
-    },
-    "nearbyPandal": "Ekdalia Evergreen Club"
-  },
-  {
-    "id": "f38",
-    "name": "Saptapadi Restaurant Gariahat and Catering Services ( Bengali Restuarant in Kolkata )",
-    "type": "Contemporary Bengali Fine Dining",
-    "coordinates": {
-      "lat": 22.5187,
-      "lng": 88.3621
-    },
-    "nearbyPandal": "Hindustan Park Sarbojanin"
-  },
-  {
-    "id": "f39",
-    "name": "Shiraz Golden Restaurant",
-    "type": "Mughlai, Kolkata Biryani & Mutton Chaap",
-    "coordinates": {
-      "lat": 22.5448,
-      "lng": 88.3643
-    },
-    "nearbyPandal": "Mallick Bazar / Nonapukur Sarbojanin"
-  },
-  {
-    "id": "f40",
-    "name": "Royal Indian Hotel Pvt. Ltd.",
-    "type": "Heritage Lucknowi Biryani & Mutton Chaap",
-    "coordinates": {
-      "lat": 22.5833,
-      "lng": 88.3592
-    },
-    "nearbyPandal": "Mohammad Ali Park"
-  },
-  {
-    "id": "f41",
-    "name": "Barbeque Nation- Salt Lake, Kolkata",
-    "type": "Barbecue Buffet & Grills",
-    "coordinates": {
-      "lat": 22.5719,
-      "lng": 88.4338
-    },
-    "nearbyPandal": "Salt Lake BJ Block"
+    "nearbyPandal": "Luminescent Twin Towers, Kalyani",
+    "rating": 4.7,
+    "mustTry": "Kacha Golla, Nolen Gur Rossogolla, Pantua",
+    "priceRange": "₹",
+    "source": "Swiggy 4.7"
   }
 ]

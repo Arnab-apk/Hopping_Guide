@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../services/location_service.dart';
@@ -33,27 +31,6 @@ class PandalDetailSheet extends StatelessWidget {
       ),
       builder: (context) => PandalDetailSheet(pandal: pandal),
     );
-  }
-
-  Future<void> _openDirections(BuildContext context) async {
-    // Launch Google Maps navigation
-    final uri = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1&destination=${pandal.latitude},${pandal.longitude}',
-    );
-    try {
-      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!ok && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open external maps app.')),
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error launching navigation.')),
-        );
-      }
-    }
   }
 
   void _sharePandal() {

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
+import '../services/custom_hopping_trail_service.dart';
 import '../utils/responsive.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/animated_fade_slide.dart';
 import '../widgets/custom_trail_planner_dialog.dart';
+import 'main_navigation_screen.dart';
 
 class HoppingRoute {
   const HoppingRoute({
@@ -46,13 +49,14 @@ class _RoutesScreenState extends State<RoutesScreen> {
   final LocalAssetPandalRepository _repo = LocalAssetPandalRepository();
   Map<String, Pandal> _pandalMap = {};
   bool _isLoading = true;
+  bool _isGuideExpanded = false;
 
   final List<HoppingRoute> _curatedRoutes = const [
     HoppingRoute(
       id: 'north_heritage',
       title: 'North Kolkata Heritage Walk',
       bengaliTitle: 'উত্তর কলকাতার সাবেকি পরিক্রমা',
-      subtitle: 'Oldest traditional barowari idols, clay artists & vintage lighting',
+      subtitle: 'Oldest traditional barowari idols, clay artists of Kumartuli & vintage lighting',
       duration: '3h 30m',
       distance: '4.8 km',
       bestTime: 'Morning 7 AM - 11 AM or Post Midnight',
@@ -65,39 +69,99 @@ class _RoutesScreenState extends State<RoutesScreen> {
         'nabin_pally',
         'kumortuli_park_sarbojanin',
         'ahiritola',
+        'bagbazar_sarbajanin',
       ],
     ),
     HoppingRoute(
       id: 'south_classics',
       title: 'South Kolkata Grand Circuit',
       bengaliTitle: 'দক্ষিণ কলকাতার মহাউৎসব',
-      subtitle: 'Spacious pandals, iconic artistic themes and family parks',
+      subtitle: 'Blockbuster crowd-pullers, architectural replicas, and open family parks',
       duration: '4h 15m',
-      distance: '6.2 km',
-      bestTime: 'Afternoon 2 PM - 6 PM',
+      distance: '5.8 km',
+      bestTime: 'Afternoon 2 PM - 6 PM or Late Night',
       color: PujaColors.festivalGold,
-      icon: Icons.stars,
+      icon: Icons.stars_rounded,
       pandalIds: [
         'ballygunge_cultural',
-        'ekdalia_evergreen_club',
+        'ekdalia_evergreen',
         'singhi_park',
         'maddox_square',
+        'deshapriya_park',
+        'tridhara',
+      ],
+    ),
+    HoppingRoute(
+      id: 'south_west_themes',
+      title: 'South-West Thematic Wonder Trail',
+      bengaliTitle: 'দক্ষিণ-পশ্চিম থিম পরিক্রমা',
+      subtitle: 'Award-winning conceptual art installations, social messages & creative lighting',
+      duration: '3h 45m',
+      distance: '4.9 km',
+      bestTime: 'Evening 6 PM - 10 PM',
+      color: Color(0xFF00B0FF),
+      icon: Icons.palette_rounded,
+      pandalIds: [
+        'suruchi_sangha',
+        'chetla_agrani',
+        'mudiali_club',
+        'shib_mandir',
+        'badamtala',
+        'behala_natun_dal',
       ],
     ),
     HoppingRoute(
       id: 'bonedi_bari',
       title: 'Zamindar & Bonedi Bari Trail',
       bengaliTitle: 'বনেদি বাড়ির পুজো পরিক্রমা',
-      subtitle: 'Century-old aristocratic household traditions dating back to 1757',
+      subtitle: 'Century-old aristocratic household traditions, courtyard Ekchala Pratima (Est. 1757)',
       duration: '2h 45m',
-      distance: '3.5 km',
+      distance: '3.6 km',
       bestTime: 'Early Morning (Best lighting & no rush)',
       color: PujaColors.railwayPurple,
-      icon: Icons.history_edu,
+      icon: Icons.history_edu_rounded,
       pandalIds: [
         'chatu_babu_latu_babus_thakur_bari',
-        'sovabazar_rajbari',
+        'sovabazar_rajbari_286',
         'shimla_street',
+        'college_square',
+        'santosh_mitra_square',
+      ],
+    ),
+    HoppingRoute(
+      id: 'saltlake_vip_marvels',
+      title: 'Salt Lake & VIP Road Modern Marvels',
+      bengaliTitle: 'সল্টলেক ও ভিআইপি রোড চমক',
+      subtitle: 'Grand palaces, Burj Khalifa-style light spectacles & modern architectural marvels',
+      duration: '3h 15m',
+      distance: '6.4 km',
+      bestTime: 'Night 8 PM - 2 AM',
+      color: Color(0xFFFF9100),
+      icon: Icons.auto_awesome_rounded,
+      pandalIds: [
+        'sree_bhumi_sporting_club',
+        'lake_town_adibashi_brinda',
+        'dum_dum_park_tarun_sangha',
+        'dum_dum_park_bharat_chakra',
+        'fd_block_durga_puja',
+      ],
+    ),
+    HoppingRoute(
+      id: 'beginners_express',
+      title: "First-Timer's Essential Express",
+      bengaliTitle: 'নবীন দর্শনার্থীদের দ্রুত পরিক্রমা',
+      subtitle: 'The best introductory circuit with direct Metro connectivity and minimal walking',
+      duration: '3h 00m',
+      distance: '4.2 km',
+      bestTime: 'Morning 8 AM - 12 PM',
+      color: Color(0xFF00E676),
+      icon: Icons.explore_rounded,
+      pandalIds: [
+        'bagbazar_sarbajanin',
+        'kumortuli_park_sarbojanin',
+        'college_square',
+        'maddox_square',
+        'ekdalia_evergreen',
       ],
     ),
   ];
@@ -294,6 +358,11 @@ class _RoutesScreenState extends State<RoutesScreen> {
                   ),
                 ),
 
+                const SizedBox(height: 14),
+
+                // Beginner's & First-Timer's Planning Guide Card
+                _buildFirstTimersGuideCard(isDark),
+
                 const SizedBox(height: 24),
 
                 const Text(
@@ -475,7 +544,32 @@ class _RoutesScreenState extends State<RoutesScreen> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  Navigator.of(context).pushNamed('/main');
+                  if (pandalsInRoute.isNotEmpty) {
+                    final firstPandal = pandalsInRoute.first;
+                    final distNum = double.tryParse(route.distance.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 4.0;
+                    final trail = ActiveCustomTrail(
+                      id: 'circuit_${route.id}',
+                      style: HoppingStyle.express,
+                      timeBudgetMinutes: 180,
+                      transitMode: HoppingTransitMode.walking,
+                      startingLocation: LatLng(firstPandal.lat, firstPandal.lng),
+                      startingAddress: firstPandal.name,
+                      stops: pandalsInRoute,
+                      totalDistanceKm: distNum,
+                      totalEstimatedMinutes: 180,
+                      startedAt: DateTime.now(),
+                    );
+                    CustomHoppingTrailService.instance.startTrail(trail);
+                    MainNavigationScreen.switchTab(context, 0);
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('🗺️ Following "${route.title}"! Stop 1: ${pandalsInRoute.first.name}'),
+                        backgroundColor: PujaColors.crimsonVelvet,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
                 },
                 icon: Icon(Icons.map, size: context.dynamicIcon(18)),
                 label: FittedBox(
@@ -501,6 +595,183 @@ class _RoutesScreenState extends State<RoutesScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFirstTimersGuideCard(bool isDark) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? PujaColors.nightCard : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              setState(() => _isGuideExpanded = !_isGuideExpanded);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: PujaColors.durgaRed.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: PujaColors.durgaRed,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "First-Timer's Planning Guide",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Text('💡', style: TextStyle(fontSize: 14)),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Metro night hours, queue-skipping strategies & street food pairings',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _isGuideExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: PujaColors.festivalGold,
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isGuideExpanded) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildGuideBullet(
+                    icon: Icons.subway_rounded,
+                    color: PujaColors.metroBlue,
+                    title: 'Metro Lifeline (Runs Till 4 AM)',
+                    body: 'The Blue Line (Dakshineswar to Kavi Subhash) runs past midnight up to 4:00 AM on Saptami, Ashtami, & Nabami. Use Green Line for Howrah Maidan & Salt Lake. Avoid private cars in narrow North Kolkata & Gariahat lanes.',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGuideBullet(
+                    icon: Icons.access_time_filled_rounded,
+                    color: const Color(0xFFFF9100),
+                    title: 'Golden Hopping Windows',
+                    body: '• Early Morning (5 AM - 9 AM): 0 queues, golden sunlight, perfect for Bonedi Bari.\n• Afternoon (1 PM - 4 PM): Best for South Kolkata themes with minimal lines.\n• Night (11 PM - 4 AM): The quintessential Kolkata night vibe & electric illuminations.',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGuideBullet(
+                    icon: Icons.hiking_rounded,
+                    color: const Color(0xFF00C853),
+                    title: 'Footwear & Hydration',
+                    body: 'Expect 12,000 - 20,000 steps per circuit! Wear comfortable slip-on sandals (you will need to remove shoes at household thakur-dalans). Sip Daab (green coconut water) frequently.',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildGuideBullet(
+                    icon: Icons.restaurant_rounded,
+                    color: const Color(0xFFFF1744),
+                    title: 'Iconic Street Food Pairings',
+                    body: '• North: Golbari Kosha Mangsho, Mitra Cafe Fish Fry, Paramount Daab Sherbet, Nakur Sandesh.\n• South: Kusum Double Chicken Egg Roll, Peter Cat Chelo Kebab, Maharaj Club Kachori.\n• Central: Nizam\'s original Kathi Roll, Anadi Cabin Mughlai Paratha.',
+                    isDark: isDark,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuideBullet({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String body,
+    required bool isDark,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 2),
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color, size: 16),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                body,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  color: isDark ? Colors.white70 : Colors.black87.withValues(alpha: 0.75),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

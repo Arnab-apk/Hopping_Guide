@@ -7,15 +7,8 @@ class AppConfig {
   /// Pass as: --dart-define=ORS_API_KEY=...
   static const String orsApiKey = String.fromEnvironment('ORS_API_KEY');
 
-  /// High-speed global CDN raster tiles (CartoDB Voyager & Dark Matter).
-  /// Sub-millisecond Edge caching in South Asia; zero rate-limits or watermark requirements.
-  static const String tileCartoVoyager =
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
-  static const String tileCartoDark =
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-  static const List<String> cartoSubdomains = ['a', 'b', 'c', 'd'];
-
-  /// OpenStreetMap fallback raster tiles.
+  /// 100% Free, keyless OpenStreetMap raster tiles.
+  /// No API key or account required; never displays "API key required" watermark.
   static const String tileUrlTemplate =
       'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   static const String tileFallback =

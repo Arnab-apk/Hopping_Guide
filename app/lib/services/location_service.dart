@@ -16,6 +16,7 @@ class LocationService extends ChangeNotifier {
   StreamSubscription<Position>? _positionStreamSub;
 
   Position? get currentPositionSync => _currentPosition;
+  Position? get lastPosition => _currentPosition;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isLiveTracking => _positionStreamSub != null;

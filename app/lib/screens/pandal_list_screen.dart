@@ -3,18 +3,24 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../config/app_config.dart';
 import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/pandal_repository.dart';
+import '../repositories/supplementary_repository.dart';
 import '../services/location_service.dart';
+import '../services/pandal_search_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../utils/constants.dart';
+import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 import '../widgets/animated_fade_slide.dart';
 import '../widgets/durga_face_icon.dart';
 import '../widgets/pandal_card.dart';
 import '../widgets/pandal_detail_sheet.dart';
+import '../widgets/pandal_search_autocomplete.dart';
+import 'map_screen.dart';
 
 enum PandalTabFilter {
   all,
@@ -42,7 +48,9 @@ class PandalListScreen extends StatefulWidget {
 class _PandalListScreenState extends State<PandalListScreen> {
   late final PandalRepository _repo;
   List<Pandal> _allPandals = [];
+  List<FoodSpot> _allFoodSpots = [];
   bool _isLoading = true;
+  bool _showFoodOnly = false;
 
   String _searchQuery = '';
   KolkataZone? _selectedZone;
@@ -65,12 +73,67 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
   Future<void> _loadPandals() async {
     setState(() => _isLoading = true);
-    final data = await _repo.all();
+    final results = await Future.wait([
+      _repo.all(),
+      SupplementaryRepository().getFoodSpots(),
+    ]);
     if (!mounted) return;
     setState(() {
-      _allPandals = data;
+      _allPandals = results[0] as List<Pandal>;
+      _allFoodSpots = results[1] as List<FoodSpot>;
       _isLoading = false;
     });
+  }
+
+  List<FoodSpot> _getFilteredFoodSpots(LocationService? locationService) {
+    var list = List<FoodSpot>.from(_allFoodSpots);
+
+    // If on the "Nearby (10km)" tab:
+    if (_activeTab == PandalTabFilter.nearest) {
+      final pos = locationService?.lastPosition;
+      final rawLat = pos?.latitude ?? AppConfig.defaultLat;
+      final rawLng = pos?.longitude ?? AppConfig.defaultLng;
+      // If user GPS is unavailable or remote (e.g. emulator at default lat/lng), fall back to Kolkata center
+      final isFarAway = haversineMeters(rawLat, rawLng, AppConfig.defaultLat, AppConfig.defaultLng) > 70000;
+      final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
+      final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
+
+      // Filter strictly to within 10 km (10,000 meters)
+      list = list.where((f) {
+        return haversineMeters(userLat, userLng, f.lat, f.lng) <= 10000;
+      }).toList();
+
+      // Sort by distance ascending
+      list.sort((a, b) {
+        final da = haversineMeters(userLat, userLng, a.lat, a.lng);
+        final db = haversineMeters(userLat, userLng, b.lat, b.lng);
+        return da.compareTo(db);
+      });
+    } else if (_selectedZone != null) {
+      list = list.where((f) {
+        final matchingPandal = _allPandals.cast<Pandal?>().firstWhere(
+          (p) => p != null && (p.name.toLowerCase() == f.nearbyPandal.toLowerCase() ||
+                 f.nearbyPandal.toLowerCase().contains(p.name.toLowerCase()) ||
+                 p.name.toLowerCase().contains(f.nearbyPandal.toLowerCase())),
+          orElse: () => null,
+        );
+        return matchingPandal?.zone == _selectedZone;
+      }).toList();
+    }
+
+    // Search query
+    if (_searchQuery.trim().isNotEmpty) {
+      final q = _searchQuery.toLowerCase().trim();
+      list = list.where((f) {
+        final nameMatch = f.name.toLowerCase().contains(q);
+        final typeMatch = f.type.toLowerCase().contains(q);
+        final mustTryMatch = (f.mustTry ?? '').toLowerCase().contains(q);
+        final pandalMatch = f.nearbyPandal.toLowerCase().contains(q);
+        return nameMatch || typeMatch || mustTryMatch || pandalMatch;
+      }).toList();
+    }
+
+    return list;
   }
 
   List<Pandal> _getFilteredPandals(
@@ -84,6 +147,15 @@ class _PandalListScreenState extends State<PandalListScreen> {
       list = list.where((p) => userState.isFavorite(p.id)).toList();
     } else if (_activeTab == PandalTabFilter.visited && userState != null) {
       list = list.where((p) => userState.isVisited(p.id)).toList();
+    } else if (_activeTab == PandalTabFilter.nearest) {
+      final pos = locationService?.lastPosition;
+      final rawLat = pos?.latitude ?? AppConfig.defaultLat;
+      final rawLng = pos?.longitude ?? AppConfig.defaultLng;
+      final isFarAway = haversineMeters(rawLat, rawLng, AppConfig.defaultLat, AppConfig.defaultLng) > 70000;
+      final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
+      final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
+      final nearby = list.where((p) => haversineMeters(userLat, userLng, p.lat, p.lng) <= 10000).toList();
+      if (nearby.isNotEmpty) list = nearby;
     }
 
     // Zone filter
@@ -91,18 +163,23 @@ class _PandalListScreenState extends State<PandalListScreen> {
       list = list.where((p) => p.zone == _selectedZone).toList();
     }
 
-    // Search query
+    // Keyword Matching Search query
     if (_searchQuery.trim().isNotEmpty) {
-      final q = _searchQuery.toLowerCase().trim();
+      final query = _searchQuery.trim();
+      final scoredResults = <String, double>{};
       list = list.where((p) {
-        final nameMatch = p.name.toLowerCase().contains(q);
-        final areaMatch = (p.area ?? '').toLowerCase().contains(q);
-        final regionMatch = (p.region ?? '').toLowerCase().contains(q);
-        final zoneMatch = p.zone.label.toLowerCase().contains(q);
-        final themeMatch = p.theme.toLowerCase().contains(q);
-        final metroMatch = (p.nearestMetro ?? '').toLowerCase().contains(q);
-        return nameMatch || areaMatch || regionMatch || zoneMatch || themeMatch || metroMatch;
+        final result = PandalSearchService.instance.scorePandal(p, query);
+        if (result != null) {
+          scoredResults[p.id] = result.score;
+          return true;
+        }
+        return false;
       }).toList();
+
+      // If default order and not nearest tab, sort by relevance score
+      if (_currentSort == PandalSortOption.defaultOrder && _activeTab != PandalTabFilter.nearest) {
+        list.sort((a, b) => (scoredResults[b.id] ?? 0.0).compareTo(scoredResults[a.id] ?? 0.0));
+      }
     }
 
     // Sorting
@@ -112,13 +189,17 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
     switch (effectiveSort) {
       case PandalSortOption.nearestFirst:
-        if (locationService != null) {
-          list.sort((a, b) {
-            final distA = locationService.distanceToMeters(a.latitude, a.longitude);
-            final distB = locationService.distanceToMeters(b.latitude, b.longitude);
-            return distA.compareTo(distB);
-          });
-        }
+        final pos = locationService?.lastPosition;
+        final rawLat = pos?.latitude ?? AppConfig.defaultLat;
+        final rawLng = pos?.longitude ?? AppConfig.defaultLng;
+        final isFarAway = haversineMeters(rawLat, rawLng, AppConfig.defaultLat, AppConfig.defaultLng) > 70000;
+        final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
+        final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
+        list.sort((a, b) {
+          final distA = haversineMeters(userLat, userLng, a.lat, a.lng);
+          final distB = haversineMeters(userLat, userLng, b.lat, b.lng);
+          return distA.compareTo(distB);
+        });
         break;
       case PandalSortOption.ratingHighToLow:
         list.sort((a, b) => (b.rating ?? 0.0).compareTo(a.rating ?? 0.0));
@@ -152,6 +233,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
     final progress = totalCount > 0 ? (visitedCount / totalCount).clamp(0.0, 1.0) : 0.0;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Kolkata Pandals'),
         actions: [
@@ -173,6 +255,41 @@ class _PandalListScreenState extends State<PandalListScreen> {
                         ? '📍 GPS updated! Distance calculated from your current spot.'
                         : (locationService?.error ?? 'Could not acquire GPS.'),
                   ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            tooltip: _showFoodOnly ? 'Show Pandals' : 'Show Food & Stalls',
+            icon: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: _showFoodOnly ? PujaColors.festivalGold.withValues(alpha: 0.25) : Colors.transparent,
+                shape: BoxShape.circle,
+                border: _showFoodOnly ? Border.all(color: PujaColors.goldBright, width: 1.2) : null,
+              ),
+              child: Icon(
+                _showFoodOnly ? Icons.restaurant_rounded : Icons.restaurant_outlined,
+                color: _showFoodOnly ? PujaColors.goldBright : null,
+                size: context.dynamicIcon(20),
+              ),
+            ),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              setState(() => _showFoodOnly = !_showFoodOnly);
+              final count = _getFilteredFoodSpots(locationService).length;
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    _showFoodOnly
+                        ? (_activeTab == PandalTabFilter.nearest
+                            ? '🍲 Showing $count Food Stalls within 10 km range'
+                            : '🍲 Showing $count Food & Restaurant Stalls')
+                        : 'Switched back to Pandals list',
+                  ),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
@@ -205,47 +322,21 @@ class _PandalListScreenState extends State<PandalListScreen> {
       ),
       body: Column(
         children: [
-          // 1. Search Bar
+          // 1. Search Bar with Instant Keyword Matching & Autocomplete
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: TextField(
+            child: PandalSearchAutocomplete(
+              pandals: _allPandals,
               controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search by pandal, theme, metro, zone...',
-                prefixIcon: Icon(Icons.search, color: PujaColors.festivalGold, size: context.dynamicIcon(20)),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear, size: context.dynamicIcon(18)),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _searchQuery = '');
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: isDark ? PujaColors.nightCard : Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: PujaColors.festivalGold.withValues(alpha: 0.25),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(
-                    color: PujaColors.festivalGold.withValues(alpha: 0.25),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(
-                    color: PujaColors.festivalGold,
-                    width: 1.5,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              onChanged: (val) => setState(() => _searchQuery = val),
+              userLat: locationService?.lastPosition?.latitude,
+              userLng: locationService?.lastPosition?.longitude,
+              hintText: 'Search by pandal, area, metro, theme...',
+              onQueryChanged: (val) {
+                setState(() => _searchQuery = val);
+              },
+              onPandalSelected: (pandal) {
+                PandalDetailSheet.show(context, pandal);
+              },
             ),
           ),
 
@@ -285,7 +376,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
                 ),
                 const SizedBox(width: 8),
                 _buildTabPill(
-                  label: '📍 Nearest to Me',
+                  label: '📍 Nearby (10km)',
                   icon: Icons.near_me,
                   isSelected: _activeTab == PandalTabFilter.nearest,
                   onTap: () => setState(() => _activeTab = PandalTabFilter.nearest),
@@ -382,34 +473,36 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
           const Divider(height: 1),
 
-          // 5. Pandals List View
+          // 5. Pandals or Food Stalls List View
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : displayList.isEmpty
-                    ? _buildEmptyState(isDark)
-                    : RefreshIndicator(
-                        onRefresh: _loadPandals,
-                        child: ListView.builder(
-                          scrollCacheExtent: const ScrollCacheExtent.pixels(600.0),
-                          physics: const BouncingScrollPhysics(
-                            parent: AlwaysScrollableScrollPhysics(),
-                          ),
-                          itemCount: displayList.length,
-                          itemBuilder: (context, index) {
-                            final p = displayList[index];
-                            final delayMs = (index < 8) ? index * 30 : 0;
-                            return AnimatedFadeSlide(
-                              key: ValueKey('pandal_${p.id}'),
-                              delay: Duration(milliseconds: delayMs),
-                              child: PandalCard(
-                                pandal: p,
-                                onTap: () => PandalDetailSheet.show(context, p),
+                : _showFoodOnly
+                    ? _buildFoodListView(locationService, isDark)
+                    : displayList.isEmpty
+                        ? _buildEmptyState(isDark)
+                        : RefreshIndicator(
+                            onRefresh: _loadPandals,
+                            child: ListView.builder(
+                              scrollCacheExtent: const ScrollCacheExtent.pixels(600.0),
+                              physics: const BouncingScrollPhysics(
+                                parent: AlwaysScrollableScrollPhysics(),
                               ),
-                            );
-                          },
-                        ),
-                      ),
+                              itemCount: displayList.length,
+                              itemBuilder: (context, index) {
+                                final p = displayList[index];
+                                final delayMs = (index < 8) ? index * 30 : 0;
+                                return AnimatedFadeSlide(
+                                  key: ValueKey('pandal_${p.id}'),
+                                  delay: Duration(milliseconds: delayMs),
+                                  child: PandalCard(
+                                    pandal: p,
+                                    onTap: () => PandalDetailSheet.show(context, p),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
           ),
         ],
       ),
@@ -507,6 +600,264 @@ class _PandalListScreenState extends State<PandalListScreen> {
                 fontSize: 15,
                 color: isDark ? Colors.white70 : Colors.black54,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFoodListView(LocationService? locationService, bool isDark) {
+    final foodList = _getFilteredFoodSpots(locationService);
+
+    if (foodList.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.restaurant_outlined, size: 48, color: Colors.orange),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _activeTab == PandalTabFilter.nearest
+                    ? 'No food stalls found within 10 km'
+                    : 'No food stalls match your search',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _activeTab == PandalTabFilter.nearest
+                    ? 'Try selecting the "All" tab or updating your GPS location to explore stalls across Kolkata.'
+                    : 'Try clearing the search query or exploring nearby areas.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white60 : Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadPandals,
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        itemCount: foodList.length,
+        itemBuilder: (context, index) {
+          final f = foodList[index];
+          return AnimatedFadeSlide(
+            key: ValueKey('food_${f.id}'),
+            delay: Duration(milliseconds: (index < 8) ? index * 30 : 0),
+            child: _buildFoodSpotCard(f, locationService, isDark),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFoodSpotCard(FoodSpot f, LocationService? locationService, bool isDark) {
+    final pos = locationService?.lastPosition;
+    final rawLat = pos?.latitude ?? AppConfig.defaultLat;
+    final rawLng = pos?.longitude ?? AppConfig.defaultLng;
+    final isFarAway = haversineMeters(rawLat, rawLng, AppConfig.defaultLat, AppConfig.defaultLng) > 70000;
+    final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
+    final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
+    final distStr = formatDistance(haversineMeters(userLat, userLng, f.lat, f.lng));
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      elevation: isDark ? 1 : 1.5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFE65100), Color(0xFFFF9800)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.restaurant_rounded, color: Colors.white, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        f.name,
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5),
+                      ),
+                      const SizedBox(height: 3),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              f.type,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFE65100),
+                              ),
+                            ),
+                          ),
+                          if (f.rating != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00C853).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.star_rounded, size: 12, color: Color(0xFF00C853)),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    f.rating!.toStringAsFixed(1),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF00C853),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (f.priceRange != null)
+                            Text(
+                              f.priceRange!,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white60 : Colors.black54,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (distStr.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: PujaColors.durgaRed.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      distStr,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: PujaColors.durgaRed,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (f.mustTry != null) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2E1C12) : const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  '🍲 Must Try: ${f.mustTry}',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? const Color(0xFFFFAB40) : const Color(0xFFD84315),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    '📍 Near ${f.nearbyPandal}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(Icons.map_outlined, size: 14, color: PujaColors.festivalGold),
+                      label: const Text(
+                        'Map',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        MapScreen.centerOnFoodSpot(context, f);
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(Icons.directions_walk_rounded, size: 14, color: PujaColors.festivalGold),
+                      label: const Text(
+                        'Trace Path',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        MapScreen.routeToFoodSpot(context, f);
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
