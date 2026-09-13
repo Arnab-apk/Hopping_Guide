@@ -7,12 +7,21 @@ class AppConfig {
   /// Pass as: --dart-define=ORS_API_KEY=...
   static const String orsApiKey = String.fromEnvironment('ORS_API_KEY');
 
-  /// Map tile source. OSM raster tiles are keyless and free; switch to a
-  /// MapTiler vector setup if you move to maplibre_gl later.
-  static const String tileUrlTemplate =
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  /// Map tile sources.
+  /// Dark mode: CartoDB Dark Matter (sleek, high contrast, keyless)
+  static const String darkTileUrlTemplate =
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+
+  /// Light mode: CartoDB Voyager (warm, crisp, detailed, keyless)
+  static const String lightTileUrlTemplate =
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+
+  static const List<String> cartoSubdomains = ['a', 'b', 'c', 'd'];
+
+  /// Default tile template (legacy fallback)
+  static const String tileUrlTemplate = darkTileUrlTemplate;
   static const String tileFallback =
-      'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
   /// Default map center: central Kolkata (near Park Street / Maidan).
   static const double defaultLat = 22.5536;

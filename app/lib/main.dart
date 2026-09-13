@@ -7,6 +7,9 @@ import 'firebase_options.dart';
 import 'services/location_service.dart';
 import 'services/pandal_user_state_service.dart';
 
+import 'services/squad_service.dart';
+import 'services/theme_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -19,8 +22,10 @@ void main() async {
     debugPrint('Firebase initialization note: $e');
   }
 
-  // Initialize persistent user preferences & device location service
+  // Initialize persistent user preferences, theme, squad and device location service
   final userStateService = await PandalUserStateService.create();
+  final themeService = await ThemeService.create();
+  final squadService = await SquadService.create();
   final locationService = LocationService();
 
   // Proactively fetch device location if permitted
@@ -30,7 +35,9 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<PandalUserStateService>.value(value: userStateService),
+        ChangeNotifierProvider<ThemeService>.value(value: themeService),
         ChangeNotifierProvider<LocationService>.value(value: locationService),
+        ChangeNotifierProvider<SquadService>.value(value: squadService),
       ],
       child: const KolkataPujaApp(),
     ),

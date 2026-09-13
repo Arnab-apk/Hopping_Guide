@@ -19,6 +19,12 @@ class MainNavigationScreen extends StatefulWidget {
 
   final int initialIndex;
 
+  /// Programmatically switch tab from any descendant screen
+  static void switchTab(BuildContext context, int index) {
+    final state = context.findAncestorStateOfType<_MainNavigationScreenState>();
+    state?._onTabSelected(index);
+  }
+
   @override
   State<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }

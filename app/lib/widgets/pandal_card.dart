@@ -134,8 +134,8 @@ class PandalCard extends StatelessWidget {
               Text(
                 pandal.name,
                 style: TextStyle(
-                  fontSize: context.dynamicFont(17.5),
-                  fontWeight: FontWeight.w800,
+                  fontSize: context.dynamicFont(16.0),
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.2,
                 ),
                 maxLines: 2,
@@ -150,9 +150,10 @@ class PandalCard extends StatelessWidget {
                 style: TextStyle(
                   color: isDark ? Colors.white70 : Colors.black54,
                   fontSize: context.dynamicFont(12.5),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
+                  height: 1.25,
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
 

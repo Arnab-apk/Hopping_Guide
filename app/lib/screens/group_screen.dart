@@ -1,137 +1,32 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/theme.dart';
-import '../services/auth_service.dart';
+import '../models/squad_member.dart';
+import '../services/squad_service.dart';
+import '../utils/haversine.dart';
 import '../utils/responsive.dart';
+import 'main_navigation_screen.dart';
 
-/// Group Member model for hopping squads
-class GroupMember {
-  final String id;
-  final String name;
-  final String status;
-  final String distance;
-  final bool isHost;
-  final bool isUser;
-  final DateTime lastSeen;
-
-  const GroupMember({
-    required this.id,
-    required this.name,
-    required this.status,
-    required this.distance,
-    this.isHost = false,
-    this.isUser = false,
-    required this.lastSeen,
-  });
-}
-
-/// Screen for creating/joining hopping groups, tracking squad members,
-/// setting meetup points, and triggering separation alerts.
-class GroupScreen extends StatefulWidget {
+/// Screen for creating/joining hopping squads, viewing live member locations,
+/// adjusting meetup points, and dispatching crowd separation alerts.
+class GroupScreen extends StatelessWidget {
   const GroupScreen({super.key});
 
-  @override
-  State<GroupScreen> createState() => _GroupScreenState();
-}
-
-class _GroupScreenState extends State<GroupScreen> {
-  String? _groupCode;
-  String? _groupName;
-  String _meetupPoint = 'Main Entrance Gate';
-  bool _isSharingLocation = true;
-  bool _batterySaver = true;
-
-  final List<GroupMember> _members = [];
-
-  @override
-  void initState() {
-    super.initState();
-    // Default state: clean onboarding, restore saved squad if user previously created or joined one
-    _loadSavedGroup();
-  }
-
-  Future<void> _saveGroupState() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (_groupCode != null) {
-      await prefs.setString('saved_group_code', _groupCode!);
-      await prefs.setString('saved_group_name', _groupName ?? 'My Squad');
-      await prefs.setString('saved_meetup_point', _meetupPoint);
-    }
-  }
-
-  Future<void> _loadSavedGroup() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedCode = prefs.getString('saved_group_code');
-    final savedName = prefs.getString('saved_group_name');
-    final savedMeetup = prefs.getString('saved_meetup_point');
-
-    if (savedCode != null && savedName != null) {
-      final user = AuthService.instance.currentUserModel;
-      final userName = user?.displayName ?? 'You';
-      if (mounted) {
-        setState(() {
-          _groupCode = savedCode;
-          _groupName = savedName;
-          if (savedMeetup != null) _meetupPoint = savedMeetup;
-          _members.clear();
-          _members.add(
-            GroupMember(
-              id: user?.uid ?? 'user',
-              name: '$userName (You)',
-              status: 'Squad Host • Active',
-              distance: '0 m (Here)',
-              isHost: true,
-              isUser: true,
-              lastSeen: DateTime.now(),
-            ),
-          );
-        });
-      }
-    }
-  }
-
-  Future<void> _leaveGroup() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Leave Squad?'),
-        content: Text('Are you sure you want to leave "$_groupName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Leave'),
-          ),
-        ],
+  void _shareInvite(BuildContext context, SquadService squadService) {
+    if (!squadService.hasActiveSquad) return;
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'Join my Durga Puja Hopping Squad "${squadService.squadName}" on Kolkata Puja App! '
+            'Group Code: ${squadService.squadCode}\nMeet-up Point: ${squadService.meetupPointName}\n'
+            'Live GPS & Pandal Guide: https://sharodiya.com/join?code=${squadService.squadCode}',
       ),
     );
-    if (confirm == true) {
-      setState(() {
-        _groupCode = null;
-        _groupName = null;
-        _members.clear();
-      });
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('saved_group_code');
-      await prefs.remove('saved_group_name');
-      await prefs.remove('saved_meetup_point');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You left the squad.')),
-        );
-      }
-    }
   }
 
-  void _createGroup() {
+  void _createGroup(BuildContext context, SquadService squadService) {
     final nameController = TextEditingController();
     final meetupController = TextEditingController(text: 'Main Pandal Entrance');
     showDialog(
@@ -170,34 +65,14 @@ class _GroupScreenState extends State<GroupScreen> {
               final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Gate' : meetupController.text.trim();
               Navigator.pop(ctx);
 
-              final code = 'PUJA${100 + Random().nextInt(900)}';
-              final user = AuthService.instance.currentUserModel;
-              final userName = user?.displayName ?? 'You';
+              squadService.createSquad(squadName, meetup);
 
-              setState(() {
-                _groupName = squadName;
-                _groupCode = code;
-                _meetupPoint = meetup;
-                _members.clear();
-                _members.add(
-                  GroupMember(
-                    id: user?.uid ?? 'host',
-                    name: '$userName (Host)',
-                    status: 'Active • At Pandal',
-                    distance: '0 m (Here)',
-                    isHost: true,
-                    isUser: true,
-                    lastSeen: DateTime.now(),
-                  ),
-                );
-              });
-              _saveGroupState();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Created "$squadName"! Invite Code: $code'),
+                  content: Text('Created "$squadName"! Invite Code: ${squadService.squadCode}'),
                   action: SnackBarAction(
                     label: 'Share',
-                    onPressed: _shareInvite,
+                    onPressed: () => _shareInvite(context, squadService),
                   ),
                 ),
               );
@@ -209,7 +84,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-  void _joinGroup() {
+  void _joinGroup(BuildContext context, SquadService squadService) {
     final controller = TextEditingController();
     showDialog(
       context: context,
@@ -234,26 +109,7 @@ class _GroupScreenState extends State<GroupScreen> {
               final code = controller.text.trim().toUpperCase();
               if (code.isNotEmpty) {
                 Navigator.pop(ctx);
-                final user = AuthService.instance.currentUserModel;
-                final userName = user?.displayName ?? 'You';
-                setState(() {
-                  _groupCode = code;
-                  _groupName = 'Squad $code';
-                  _meetupPoint = 'Designated Meet-up Point';
-                  _members.clear();
-                  _members.add(
-                    GroupMember(
-                      id: user?.uid ?? 'member',
-                      name: '$userName (Member)',
-                      status: 'Joined • Active',
-                      distance: '0 m (Here)',
-                      isHost: false,
-                      isUser: true,
-                      lastSeen: DateTime.now(),
-                    ),
-                  );
-                });
-                _saveGroupState();
+                squadService.joinSquad(code);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Joined squad $code!')),
                 );
@@ -266,19 +122,37 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-  void _shareInvite() {
-    if (_groupCode == null) return;
-    SharePlus.instance.share(
-      ShareParams(
-        text: 'Join my Durga Puja Hopping Squad "$_groupName" on Kolkata Puja App! '
-            'Group Code: $_groupCode\nMeet-up Point: $_meetupPoint\n'
-            'Live GPS & Pandal Guide: https://sharodiya.com/join?code=$_groupCode',
+  Future<void> _leaveGroup(BuildContext context, SquadService squadService) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Leave Squad?'),
+        content: Text('Are you sure you want to leave "${squadService.squadName}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Leave'),
+          ),
+        ],
       ),
     );
+    if (confirm == true) {
+      squadService.leaveSquad();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You left the squad.')),
+        );
+      }
+    }
   }
 
-  void _setMeetupPoint() {
-    final controller = TextEditingController(text: _meetupPoint);
+  void _setMeetupPoint(BuildContext context, SquadService squadService) {
+    final controller = TextEditingController(text: squadService.meetupPointName);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -298,12 +172,10 @@ class _GroupScreenState extends State<GroupScreen> {
           FilledButton(
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
-                setState(() {
-                  _meetupPoint = controller.text.trim();
-                });
+                squadService.setMeetupPoint(controller.text.trim());
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Meet-up point updated to $_meetupPoint')),
+                  SnackBar(content: Text('Meet-up point updated to ${squadService.meetupPointName}')),
                 );
               }
             },
@@ -314,7 +186,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-  void _triggerSeparationSOS() {
+  void _triggerSeparationSOS(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -359,6 +231,7 @@ class _GroupScreenState extends State<GroupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final squadService = Provider.of<SquadService>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -367,28 +240,33 @@ class _GroupScreenState extends State<GroupScreen> {
           IconButton(
             tooltip: 'Invite Squad',
             icon: const Icon(Icons.share_rounded),
-            onPressed: _groupCode != null ? _shareInvite : null,
+            onPressed: squadService.hasActiveSquad ? () => _shareInvite(context, squadService) : null,
           ),
           PopupMenuButton<String>(
             onSelected: (value) {
-              if (value == 'create') _createGroup();
-              if (value == 'join') _joinGroup();
-              if (value == 'leave') _leaveGroup();
+              if (value == 'create') _createGroup(context, squadService);
+              if (value == 'join') _joinGroup(context, squadService);
+              if (value == 'leave') _leaveGroup(context, squadService);
             },
             itemBuilder: (ctx) => [
               const PopupMenuItem(value: 'create', child: Text('Create New Squad')),
               const PopupMenuItem(value: 'join', child: Text('Join Squad Code')),
-              if (_groupCode != null)
-                const PopupMenuItem(value: 'leave', child: Text('Leave Current Squad', style: TextStyle(color: Colors.red))),
+              if (squadService.hasActiveSquad)
+                const PopupMenuItem(
+                  value: 'leave',
+                  child: Text('Leave Current Squad', style: TextStyle(color: Colors.red)),
+                ),
             ],
           ),
         ],
       ),
-      body: _groupCode == null ? _buildNoGroupView(theme) : _buildActiveGroupView(theme, isDark),
+      body: !squadService.hasActiveSquad
+          ? _buildNoGroupView(context, theme, squadService)
+          : _buildActiveGroupView(context, theme, isDark, squadService),
     );
   }
 
-  Widget _buildNoGroupView(ThemeData theme) {
+  Widget _buildNoGroupView(BuildContext context, ThemeData theme, SquadService squadService) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -421,7 +299,7 @@ class _GroupScreenState extends State<GroupScreen> {
               child: FilledButton.icon(
                 icon: const Icon(Icons.add),
                 label: const Text('Create New Squad'),
-                onPressed: _createGroup,
+                onPressed: () => _createGroup(context, squadService),
               ),
             ),
             const SizedBox(height: 12),
@@ -430,7 +308,7 @@ class _GroupScreenState extends State<GroupScreen> {
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.login),
                 label: const Text('Join with Squad Code'),
-                onPressed: _joinGroup,
+                onPressed: () => _joinGroup(context, squadService),
               ),
             ),
           ],
@@ -439,7 +317,10 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-  Widget _buildActiveGroupView(ThemeData theme, bool isDark) {
+  Widget _buildActiveGroupView(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+    final members = squadService.members;
+    final userMember = members.where((m) => m.isUser).firstOrNull;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -466,7 +347,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _groupName ?? 'My Squad',
+                            squadService.squadName ?? 'My Squad',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontFamily: 'serif',
@@ -474,7 +355,7 @@ class _GroupScreenState extends State<GroupScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${_members.length} members hopping together',
+                            '${members.length} members hopping together',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: isDark ? Colors.white60 : Colors.black54,
                             ),
@@ -495,7 +376,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       child: Row(
                         children: [
                           Text(
-                            _groupCode ?? '',
+                            squadService.squadCode ?? '',
                             style: TextStyle(
                               color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
                               fontWeight: FontWeight.w900,
@@ -506,7 +387,7 @@ class _GroupScreenState extends State<GroupScreen> {
                           const SizedBox(width: 6),
                           InkWell(
                             onTap: () {
-                              Clipboard.setData(ClipboardData(text: _groupCode ?? ''));
+                              Clipboard.setData(ClipboardData(text: squadService.squadCode ?? ''));
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Code copied to clipboard!')),
                               );
@@ -532,7 +413,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         label: Text('Invite Friends', style: TextStyle(fontSize: context.dynamicFont(13))),
                         onPressed: () {
                           HapticFeedback.lightImpact();
-                          _shareInvite();
+                          _shareInvite(context, squadService);
                         },
                       ),
                       const SizedBox(width: 12),
@@ -541,7 +422,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         label: Text('Separation Alert', style: TextStyle(color: Colors.red, fontSize: context.dynamicFont(13))),
                         onPressed: () {
                           HapticFeedback.heavyImpact();
-                          _triggerSeparationSOS();
+                          _triggerSeparationSOS(context);
                         },
                       ),
                     ],
@@ -586,7 +467,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _meetupPoint,
+                        squadService.meetupPointName,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: context.dynamicFont(14),
@@ -600,7 +481,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   tooltip: 'Change Meetup Point',
                   onPressed: () {
                     HapticFeedback.selectionClick();
-                    _setMeetupPoint();
+                    _setMeetupPoint(context, squadService);
                   },
                 ),
               ],
@@ -622,8 +503,8 @@ class _GroupScreenState extends State<GroupScreen> {
                     Row(
                       children: [
                         Icon(
-                          _isSharingLocation ? Icons.location_on : Icons.location_off,
-                          color: _isSharingLocation ? Colors.green : Colors.grey,
+                          squadService.isSharingLocation ? Icons.location_on : Icons.location_off,
+                          color: squadService.isSharingLocation ? Colors.green : Colors.grey,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -633,17 +514,15 @@ class _GroupScreenState extends State<GroupScreen> {
                       ],
                     ),
                     Switch(
-                      value: _isSharingLocation,
-                      onChanged: (val) {
-                        setState(() => _isSharingLocation = val);
-                      },
+                      value: squadService.isSharingLocation,
+                      onChanged: (val) => squadService.toggleLocationSharing(val),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _isSharingLocation
-                      ? 'Squad members can see your relative distance on their map.'
+                  squadService.isSharingLocation
+                      ? 'Squad members can see your live marker and relative distance on their map.'
                       : 'Live location paused. Others only see your last check-in.',
                   style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                 ),
@@ -659,10 +538,8 @@ class _GroupScreenState extends State<GroupScreen> {
                       ],
                     ),
                     Switch(
-                      value: _batterySaver,
-                      onChanged: (val) {
-                        setState(() => _batterySaver = val);
-                      },
+                      value: squadService.isBatterySaver,
+                      onChanged: (val) => squadService.toggleBatterySaver(val),
                     ),
                   ],
                 ),
@@ -676,40 +553,63 @@ class _GroupScreenState extends State<GroupScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Squad Members Header
+        // Squad Members Header with Quick Map Jump
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Squad Members (${_members.length})',
+              'Squad Members (${members.length})',
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            TextButton.icon(
-              icon: const Icon(Icons.add, size: 16),
-              label: const Text('Add Member'),
-              onPressed: _shareInvite,
+            FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                visualDensity: VisualDensity.compact,
+              ),
+              icon: const Icon(Icons.map_rounded, size: 16),
+              label: const Text('View on Map'),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                MainNavigationScreen.switchTab(context, 0);
+              },
             ),
           ],
         ),
         const SizedBox(height: 8),
 
         // Member Cards
-        ..._members.map((member) => _buildMemberTile(member, theme, isDark)),
+        ...members.map((member) => _buildMemberTile(context, member, userMember, theme, isDark, squadService)),
       ],
     );
   }
 
-  Widget _buildMemberTile(GroupMember member, ThemeData theme, bool isDark) {
+  Widget _buildMemberTile(
+    BuildContext context,
+    SquadMember member,
+    SquadMember? userMember,
+    ThemeData theme,
+    bool isDark,
+    SquadService squadService,
+  ) {
+    final distanceText = member.isUser || userMember == null
+        ? '0 m (Here)'
+        : formatDistance(
+            haversineMeters(
+              userMember.latitude,
+              userMember.longitude,
+              member.latitude,
+              member.longitude,
+            ),
+          );
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: member.isUser
-              ? PujaColors.durgaRed
-              : PujaColors.festivalGold.withValues(alpha: 0.2),
-          foregroundColor: member.isUser ? Colors.white : PujaColors.festivalGold,
+          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
+          foregroundColor: member.avatarColor,
           child: Text(
-            member.name.substring(0, 1).toUpperCase(),
+            member.initials,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
           ),
         ),
@@ -741,19 +641,31 @@ class _GroupScreenState extends State<GroupScreen> {
             ],
           ],
         ),
-        subtitle: Text(
-          '${member.status} • ${member.distance}',
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: context.dynamicFont(12)),
+        subtitle: Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${member.status} • $distanceText',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: context.dynamicFont(12)),
+              ),
+            ),
+            Text(
+              '🔋${member.batteryLevel}%',
+              style: TextStyle(
+                fontSize: context.dynamicFont(11),
+                color: member.batteryLevel < 20 ? Colors.red : (isDark ? Colors.white60 : Colors.black54),
+              ),
+            ),
+          ],
         ),
         trailing: IconButton(
           icon: Icon(Icons.navigation_outlined, color: PujaColors.durgaRed, size: context.dynamicIcon(20)),
           tooltip: 'Locate on Map',
           onPressed: () {
             HapticFeedback.selectionClick();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Focusing map on ${member.name}...')),
-            );
+            squadService.focusMember(member.id);
+            MainNavigationScreen.switchTab(context, 0);
           },
         ),
       ),

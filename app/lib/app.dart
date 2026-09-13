@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'config/theme.dart';
+import 'services/theme_service.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
 import 'screens/main_navigation_screen.dart';
@@ -16,12 +18,13 @@ class KolkataPujaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeService = context.watch<ThemeService?>();
     return MaterialApp(
       title: 'Kolkata Puja',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       darkTheme: appDarkTheme,
-      themeMode: ThemeMode.dark,
+      themeMode: themeService?.themeMode ?? ThemeMode.dark,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics(),

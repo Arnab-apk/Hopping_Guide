@@ -84,12 +84,12 @@ class PandalDetailSheet extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.88,
       ),
       decoration: BoxDecoration(
-        color: isDark ? PujaColors.nightCard : Colors.white,
+        color: isDark ? const Color(0xFF161616) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(
           top: BorderSide(
-            color: isDark ? PujaColors.nightBorder : PujaColors.festivalGold.withValues(alpha: 0.45),
-            width: 1.2,
+            color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.08),
+            width: 1.0,
           ),
         ),
         boxShadow: const [
@@ -195,10 +195,10 @@ class PandalDetailSheet extends StatelessWidget {
                   Text(
                     pandal.name,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 21,
+                      fontSize: 18.5,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.2,
-                      height: 1.25,
+                      height: 1.22,
                     ),
                   ),
 
@@ -248,10 +248,10 @@ class PandalDetailSheet extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isDark ? PujaColors.nightSurface : PujaColors.goldSoft,
-                      borderRadius: BorderRadius.circular(16),
+                      color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF7F7F8),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: PujaColors.festivalGold.withValues(alpha: 0.3),
+                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
                         width: 1,
                       ),
                     ),

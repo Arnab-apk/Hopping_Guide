@@ -1,9 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kolkata_puja/config/theme.dart';
 import 'package:kolkata_puja/models/app_user.dart';
 import 'package:kolkata_puja/services/auth_service.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:kolkata_puja/models/pandal.dart';
+import 'package:kolkata_puja/utils/constants.dart';
+import 'package:kolkata_puja/services/routing_service.dart';
+import 'package:kolkata_puja/services/location_service.dart';
+import 'package:kolkata_puja/services/theme_service.dart';
+import 'package:kolkata_puja/models/squad_member.dart';
+import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:kolkata_puja/widgets/animated_fade_slide.dart';
 
 void main() {
@@ -91,6 +100,219 @@ void main() {
 
       final lightBuilders = appTheme.pageTransitionsTheme.builders;
       expect(lightBuilders[TargetPlatform.android], isA<PredictiveBackPageTransitionsBuilder>());
+    });
+  });
+
+  group('ThemeService Tests', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test('defaults to ThemeMode.dark', () async {
+      final service = ThemeService();
+      await service.init();
+      expect(service.themeMode, ThemeMode.dark);
+      expect(service.isDarkMode, true);
+    });
+
+    test('toggleTheme toggles between dark and light mode and persists', () async {
+      final service = ThemeService();
+      await service.init();
+      expect(service.isDarkMode, true);
+
+      await service.toggleTheme();
+      expect(service.themeMode, ThemeMode.light);
+      expect(service.isDarkMode, false);
+
+      await service.toggleTheme();
+      expect(service.themeMode, ThemeMode.dark);
+      expect(service.isDarkMode, true);
+    });
+
+    test('loads saved light theme mode from SharedPreferences', () async {
+      SharedPreferences.setMockInitialValues({'app_theme_mode': 'light'});
+      final service = ThemeService();
+      await service.init();
+      expect(service.themeMode, ThemeMode.light);
+      expect(service.isDarkMode, false);
+    });
+  });
+
+  group('RoutingService & WalkingRoute Tests', () {
+    final testPandal1 = Pandal(
+      id: 'p1',
+      name: 'Hatibagan Sarbojanin',
+      zone: KolkataZone.northKolkata,
+      lat: 22.5995,
+      lng: 88.3725,
+      theme: 'Traditional Art',
+      description: 'Heritage pandal',
+      imageUrl: '',
+      timings: '24 Hours',
+    );
+
+    final testPandal2 = Pandal(
+      id: 'p2',
+      name: 'Ekdalia Evergreen',
+      zone: KolkataZone.southKolkata,
+      lat: 22.5185,
+      lng: 88.3635,
+      theme: 'Chandelier Palace',
+      description: 'South Kolkata classic',
+      imageUrl: '',
+      timings: '24 Hours',
+    );
+
+    test('findNearestPandal finds the geographically closest pandal', () {
+      // User near Hatibagan in North Kolkata (22.5990, 88.3720)
+      const userPos = LatLng(22.5990, 88.3720);
+      final nearest = RoutingService.instance.findNearestPandal(
+        userPosition: userPos,
+        pandals: [testPandal1, testPandal2],
+      );
+
+      expect(nearest, isNotNull);
+      expect(nearest!.id, 'p1');
+      expect(nearest.name, 'Hatibagan Sarbojanin');
+    });
+
+    test('findNearestPandal returns null for empty list', () {
+      final nearest = RoutingService.instance.findNearestPandal(
+        userPosition: const LatLng(22.5, 88.3),
+        pandals: [],
+      );
+      expect(nearest, isNull);
+    });
+
+    test('WalkingRoute formatting outputs human-readable units', () {
+      final shortRoute = WalkingRoute(
+        targetPandal: testPandal1,
+        points: const [LatLng(22.59, 88.37), LatLng(22.5995, 88.3725)],
+        distanceMeters: 450,
+        durationSeconds: 340,
+      );
+      expect(shortRoute.formattedDistance, '450 m');
+      expect(shortRoute.formattedDuration, '6 mins walk');
+
+      final longRoute = WalkingRoute(
+        targetPandal: testPandal2,
+        points: const [LatLng(22.59, 88.37), LatLng(22.5185, 88.3635)],
+        distanceMeters: 8500,
+        durationSeconds: 6600, // 110 mins = 1h 50m
+      );
+      expect(longRoute.formattedDistance, '8.5 km');
+      expect(longRoute.formattedDuration, '1h 50m walk');
+    });
+
+    test('getWalkingRoute fallback generates valid 2-point corridor when offline', () async {
+      final route = await RoutingService.instance.getWalkingRoute(
+        start: const LatLng(22.5900, 88.3700),
+        destination: testPandal1,
+      );
+
+      expect(route.targetPandal?.id, 'p1');
+      expect(route.destinationTitle, 'Hatibagan Sarbojanin');
+      expect(route.points.length, greaterThanOrEqualTo(2));
+      expect(route.distanceMeters, greaterThan(0));
+      expect(route.durationSeconds, greaterThan(0));
+    });
+
+    test('getWalkingRouteToPoint generates route to squad member coordinates', () async {
+      final route = await RoutingService.instance.getWalkingRouteToPoint(
+        start: const LatLng(22.5900, 88.3700),
+        destination: const LatLng(22.6035, 88.3670),
+        destinationName: 'Priya Sen',
+      );
+
+      expect(route.destinationTitle, 'Priya Sen');
+      expect(route.points.length, greaterThanOrEqualTo(2));
+      expect(route.distanceMeters, greaterThan(0));
+    });
+  });
+
+  group('LocationService Live Tracking State Tests', () {
+    test('stopLiveTracking marks isLiveTracking false', () {
+      LocationService.instance.stopLiveTracking();
+      expect(LocationService.instance.isLiveTracking, false);
+    });
+  });
+
+  group('SquadMember & SquadService Live Tracking Tests', () {
+    test('SquadMember model calculates initials and serializes correctly', () {
+      final member = SquadMember(
+        id: 'test_1',
+        name: 'Priya Sen',
+        latitude: 22.6035,
+        longitude: 88.3670,
+        status: 'Near Bagbazar',
+        lastSeen: DateTime.now(),
+        batteryLevel: 88,
+      );
+
+      expect(member.initials, 'PS');
+      expect(member.batteryLevel, 88);
+      expect(member.avatarColor, isNotNull);
+
+      final json = member.toJson();
+      expect(json['name'], 'Priya Sen');
+      expect(json['lat'], 22.6035);
+
+      final revived = SquadMember.fromJson(json);
+      expect(revived.name, member.name);
+      expect(revived.latitude, member.latitude);
+    });
+
+    test('SquadService createSquad populates members and generates code', () {
+      final squad = SquadService.instance;
+      squad.createSquad('Bagbazar Hoppers', 'North Gate');
+
+      expect(squad.hasActiveSquad, isTrue);
+      expect(squad.squadName, 'Bagbazar Hoppers');
+      expect(squad.meetupPointName, 'North Gate');
+      expect(squad.squadCode, startsWith('PUJA'));
+      expect(squad.members.length, greaterThanOrEqualTo(4));
+      expect(squad.companionMembers.length, greaterThanOrEqualTo(3));
+    });
+
+    test('SquadService updateUserLocation updates user member coordinates', () {
+      final squad = SquadService.instance;
+      squad.updateUserLocation(22.5800, 88.3600);
+
+      final userMember = squad.members.firstWhere((m) => m.isUser);
+      expect(userMember.latitude, 22.5800);
+      expect(userMember.longitude, 88.3600);
+    });
+
+    test('SquadService focusMember and clearFocus manage camera target', () {
+      final squad = SquadService.instance;
+      squad.focusMember('member_priya');
+      expect(squad.focusedMemberId, 'member_priya');
+
+      squad.clearFocus();
+      expect(squad.focusedMemberId, isNull);
+    });
+
+    test('SquadService toggleLocationSharing and toggleSquadOnMap change state', () {
+      final squad = SquadService.instance;
+      squad.toggleLocationSharing(false);
+      expect(squad.isSharingLocation, isFalse);
+      squad.toggleLocationSharing(true);
+      expect(squad.isSharingLocation, isTrue);
+
+      squad.toggleSquadOnMap(false);
+      expect(squad.showSquadOnMap, isFalse);
+      squad.toggleSquadOnMap(true);
+      expect(squad.showSquadOnMap, isTrue);
+    });
+
+    test('SquadService leaveSquad resets all squad metadata', () {
+      final squad = SquadService.instance;
+      squad.leaveSquad();
+
+      expect(squad.hasActiveSquad, isFalse);
+      expect(squad.squadCode, isNull);
+      expect(squad.squadName, isNull);
+      expect(squad.members, isEmpty);
     });
   });
 }
