@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +39,9 @@ void main() async {
   // Proactively fetch device location if permitted
   locationService.updateLiveLocation();
 
+  // Handle deep links for squad invites
+  _initDeepLinks(squadService);
+
   runApp(
     MultiProvider(
       providers: [
@@ -51,6 +55,50 @@ void main() async {
       child: const KolkataPujaApp(),
     ),
   );
+}
+
+/// Initialize deep link handling for squad invite links.
+/// Supports both https://sharodiya.com/join?code=PUJAXXXX and pujoparikrama://join?code=PUJAXXXX
+void _initDeepLinks(SquadService squadService) {
+  final appLinks = AppLinks();
+
+  // Handle initial link if app was opened via deep link (cold start)
+  appLinks.getInitialLink().then((uri) {
+    if (uri != null) {
+      _handleDeepLink(uri, squadService);
+    }
+  }).catchError((e) {
+    debugPrint('Deep link initial error: $e');
+  });
+
+  // Handle incoming links while app is running (hot start)
+  appLinks.uriLinkStream.listen((uri) {
+    _handleDeepLink(uri, squadService);
+  }, onError: (e) {
+    debugPrint('Deep link stream error: $e');
+  });
+}
+
+/// Process incoming deep link URI and auto-join squad if code is present.
+void _handleDeepLink(Uri uri, SquadService squadService) {
+  debugPrint('Deep link received: $uri');
+  
+  // Check for /join path and code parameter
+  if (uri.path == '/join' || uri.path == 'join') {
+    final code = uri.queryParameters['code'];
+    if (code != null && code.isNotEmpty) {
+      final cleanCode = code.toUpperCase().trim();
+      debugPrint('Auto-joining squad with code: $cleanCode');
+      
+      // Only join if not already in a squad
+      if (!squadService.hasActiveSquad) {
+        squadService.joinSquad(cleanCode);
+        debugPrint('Successfully joined squad: $cleanCode');
+      } else {
+        debugPrint('User already in a squad, skipping auto-join');
+      }
+    }
+  }
 }
 
 /// Firebase is now configured via flutterfire configure.

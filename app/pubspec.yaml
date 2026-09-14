@@ -55,6 +55,7 @@ dependencies:
   google_fonts: ^8.2.1
   rxdart: ^0.28.0
   simplify: ^1.1.0
+  app_links: ^7.2.1
 
 dev_dependencies:
   flutter_test:

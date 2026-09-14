@@ -458,77 +458,82 @@ class UserProfileSheet extends StatelessWidget {
                     color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
                   ),
                 ),
-                child: Column(
-                  children: [
-                    if (isGuest)
-                      ListTile(
-                        leading: const GoogleLogo(size: 24),
-                        title: const Text(
-                          'Sign In with Google',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.5,
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      if (isGuest)
+                        ListTile(
+                          leading: const GoogleLogo(size: 24),
+                          title: const Text(
+                            'Sign In with Google',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14.5,
+                            ),
                           ),
-                        ),
-                        subtitle: const Text(
-                          'Sync your Google DP on squad map & backup hopping history',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          final result = await AuthService.instance.signInWithGoogleDetailed();
-                          if (!result.success && !result.isCancelled && context.mounted) {
+                          subtitle: const Text(
+                            'Sync your Google DP on squad map & backup hopping history',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                          onTap: () async {
+                            Navigator.pop(context);
+                            final result = await AuthService.instance.signInWithGoogleDetailed();
+                            if (!result.success && !result.isCancelled && context.mounted) {
+                              await GoogleAccountChooserDialog.show(context);
+                            }
+                          },
+                        )
+                      else
+                        ListTile(
+                          leading: const GoogleLogo(size: 24),
+                          title: const Text(
+                            'Switch Google Account',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14.5,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'Change active profile or switch Google DP',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          trailing: const Icon(Icons.swap_horiz_rounded, size: 20),
+                          onTap: () async {
+                            Navigator.pop(context);
                             await GoogleAccountChooserDialog.show(context);
-                          }
-                        },
-                      )
-                    else
+                          },
+                        ),
+
+                      const Divider(height: 1),
+
+                      // Theme Toggle Tile
                       ListTile(
-                        leading: const GoogleLogo(size: 24),
+                        leading: Icon(
+                          themeService?.isDarkMode == true
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          color: PujaColors.festivalGold,
+                          size: 22,
+                        ),
                         title: const Text(
-                          'Switch Google Account',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14.5,
-                          ),
+                          'Night / OLED Dark Mode',
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                         ),
-                        subtitle: const Text(
-                          'Change active profile or switch Google DP',
-                          style: TextStyle(fontSize: 12),
+                        trailing: Switch.adaptive(
+                          value: themeService?.isDarkMode ?? true,
+                          activeTrackColor: PujaColors.festivalGold,
+                          onChanged: (_) {
+                            HapticFeedback.selectionClick();
+                            themeService?.toggleTheme();
+                          },
                         ),
-                        trailing: const Icon(Icons.swap_horiz_rounded, size: 20),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          await GoogleAccountChooserDialog.show(context);
-                        },
                       ),
-
-                    const Divider(height: 1),
-
-                    // Theme Toggle Tile
-                    ListTile(
-                      leading: Icon(
-                        themeService?.isDarkMode == true
-                            ? Icons.dark_mode_rounded
-                            : Icons.light_mode_rounded,
-                        color: PujaColors.festivalGold,
-                        size: 22,
-                      ),
-                      title: const Text(
-                        'Night / OLED Dark Mode',
-                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                      ),
-                      trailing: Switch.adaptive(
-                        value: themeService?.isDarkMode ?? true,
-                        activeTrackColor: PujaColors.festivalGold,
-                        onChanged: (_) {
-                          HapticFeedback.selectionClick();
-                          themeService?.toggleTheme();
-                        },
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
