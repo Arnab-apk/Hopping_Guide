@@ -9,7 +9,6 @@ import '../services/auth_service.dart';
 import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
 import '../widgets/durga_eyes_formation.dart';
-import '../widgets/durga_face_icon.dart';
 import '../widgets/google_logo.dart';
 
 /// Premium, non-scrollable Welcome & Login screen for Pujo Parikrama.
@@ -231,82 +230,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Prototyped Day Switcher Bar (Interactive preview for all Puja Tithis)
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.7),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: activeDay.primaryAccent.withValues(alpha: 0.35),
-                                width: 0.8,
-                              ),
-                            ),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              physics: const BouncingScrollPhysics(),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 4, right: 6),
-                                    child: Text(
-                                      'PREVIEW:',
-                                      style: GoogleFonts.jetBrainsMono(
-                                        fontSize: context.dynamicFont(8.5),
-                                        fontWeight: FontWeight.w800,
-                                        color: activeDay.primaryAccent,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ),
-                                  ...PujaDay.values.map((day) {
-                                    final isSelected = (day == PujaDayThemeService.instance.currentDay &&
-                                            (day != PujaDay.countdown || !PujaDayThemeService.instance.isSimulated)) ||
-                                        (day == PujaDay.countdown && !PujaDayThemeService.instance.isSimulated);
+                          const SizedBox(height: 8),
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 1.5),
-                                      child: InkWell(
-                                        onTap: () {
-                                          HapticFeedback.selectionClick();
-                                          PujaDayThemeService.instance.setSimulatedDay(
-                                            day == PujaDay.countdown ? null : day,
-                                          );
-                                        },
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: AnimatedContainer(
-                                          duration: const Duration(milliseconds: 180),
-                                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                                          decoration: BoxDecoration(
-                                            color: isSelected
-                                                ? day.primaryAccent.withValues(alpha: 0.24)
-                                                : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(
-                                              color: isSelected ? day.primaryAccent : Colors.white12,
-                                              width: isSelected ? 1.0 : 0.6,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            day.shortLabel,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: context.dynamicFont(9.5),
-                                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                                              color: isSelected ? day.primaryAccent : Colors.white54,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          // Header Group (Title & Dynamic Sacred Day Badge)
+                          // Header Group (Grand Title in Bengali & Pujo Parikrama)
                           RepaintBoundary(
                             child: FadeTransition(
                               opacity: _headerFade,
@@ -314,45 +240,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                 position: _headerSlide,
                                 child: Column(
                                   children: [
-                                    // Dynamic Bengali Sacred Day Pill Badge
-                                    AnimatedContainer(
-                                      duration: const Duration(milliseconds: 300),
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withValues(alpha: 0.75),
-                                        borderRadius: BorderRadius.circular(30),
-                                        border: Border.all(
-                                          color: activeDay.primaryAccent.withValues(alpha: 0.55),
-                                          width: 1.1,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: activeDay.primaryAccent.withValues(alpha: 0.22),
-                                            blurRadius: 12,
-                                            spreadRadius: 1,
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(activeDay.icon, color: activeDay.primaryAccent, size: 14),
-                                          const SizedBox(width: 7),
-                                          Text(
-                                            activeDay.fullGreeting,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              color: activeDay.primaryAccent,
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 12,
-                                              letterSpacing: 0.3,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-
-                                    // Grand Title with Samarkan Font (Indic Shirorekha Latin)
+                                    // Grand Title in Bengali (দুর্গাপূজা)
                                     ShaderMask(
                                       shaderCallback: (bounds) => const LinearGradient(
                                         colors: [
@@ -364,15 +252,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                         end: Alignment.bottomCenter,
                                       ).createShader(bounds),
                                       child: Text(
-                                        'durga puja',
+                                        'Durga Puja',
                                         style: TextStyle(
                                           fontFamily: 'Samarkan',
-                                          fontSize: isCompact ? 38 : 46,
-                                          letterSpacing: 1.0,
+                                          fontSize: isCompact ? 50 : 60,
+                                          letterSpacing: 0.6,
                                           color: Colors.white,
                                           shadows: [
                                             Shadow(
-                                              color: activeDay.primaryAccent.withValues(alpha: 0.7),
+                                              color: PujaColors.festivalGold.withValues(alpha: 0.7),
                                               blurRadius: 16,
                                             ),
                                           ],
@@ -382,25 +270,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                     const SizedBox(height: 2),
                                     Text(
                                       'Pujo Parikrama',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: isCompact ? 13 : 15,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 2.0,
-                                        color: activeDay.primaryAccent,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      activeDay.tagline,
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white.withValues(alpha: 0.85),
-                                        fontSize: context.dynamicFont(11.5),
-                                        letterSpacing: 0.2,
-                                        fontWeight: FontWeight.w500,
-                                        shadows: const [
-                                          Shadow(color: Colors.black87, blurRadius: 6),
-                                        ],
+                                      style: TextStyle(
+                                        fontFamily: 'Samarkan',
+                                        fontSize: isCompact ? 16 : 19,
+                                        letterSpacing: 1.5,
+                                        color: PujaColors.festivalGold,
                                       ),
                                     ),
                                   ],
@@ -664,28 +538,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                             ),
                           ),
 
-                          const SizedBox(height: 12),
-
-                          // Feature Highlights Pill
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 8,
-                            runSpacing: 5,
-                            children: [
-                              _buildFeatureBadge(
-                                null,
-                                '380+ Pandals',
-                                customIcon: DurgaFaceIcon(
-                                  size: context.dynamicIcon(13),
-                                  color: PujaColors.festivalGold,
-                                  bindiColor: const Color(0xFFFF1744),
-                                ),
-                              ),
-                              _buildFeatureBadge(Icons.subway_rounded, 'Metro Routes'),
-                              _buildFeatureBadge(Icons.shield_outlined, 'Crowd SOS'),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -736,34 +589,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
       width: 1,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       color: Colors.white.withValues(alpha: 0.18),
-    );
-  }
-
-  Widget _buildFeatureBadge(IconData? icon, String text, {Widget? customIcon}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          customIcon ??
-              Icon(icon!, size: context.dynamicIcon(11.5), color: PujaColors.festivalGold),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: GoogleFonts.plusJakartaSans(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: context.dynamicFont(11),
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

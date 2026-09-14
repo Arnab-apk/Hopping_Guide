@@ -1,3 +1,4 @@
+import 'package:flutter_local_notifications_platform_interface/flutter_local_notifications_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,11 @@ import 'package:kolkata_puja/services/custom_hopping_trail_service.dart';
 import 'package:kolkata_puja/services/pandal_user_state_service.dart';
 import 'package:kolkata_puja/utils/constants.dart';
 
+/// No-op fake so [NotificationProgressService] can initialize in tests without
+/// a registered native plugin (which would otherwise throw a
+/// [LateInitializationError] on the platform interface singleton).
+class _FakeNotificationsPlatform extends FlutterLocalNotificationsPlatform {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -14,6 +20,11 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+
+    // Ensure the platform-interface singleton is initialized before any trail
+    // operation touches [NotificationProgressService].
+    FlutterLocalNotificationsPlatform.instance =
+        _FakeNotificationsPlatform();
 
     mockPandals = [
       Pandal(

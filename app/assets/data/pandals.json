@@ -213,10 +213,10 @@
     "lat": 22.518148,
     "lng": 88.342644,
     "zone": "southKolkata",
-    "area": "Kalighat / Chetla, South Kolkata",
+    "area": "Kalighat, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.6,
+    "theme": "Concept Theme & Social Message",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -240,40 +240,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "66 Palli is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "66_pally",
-    "source_id": "50",
-    "name": "66 Pally",
-    "lat": 22.5181372,
-    "lng": 88.3427029,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Kalighat (Blue)",
-    "nearest_metro_list": [
-      "Kalighat (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Jn (Sealdah South/Circular)",
-    "nearest_railway_list": [
-      "Ballygunge Jn (Sealdah South/Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "66 Pally pandal in South Kolkata."
+    "description": "66 Palli is famous for pathbreaking theme installations and social messages, situated near Kalighat in South Kolkata.",
+    "bengaliName": "৬৬ পল্লী"
   },
   {
     "id": "68_pally",
@@ -1348,49 +1316,16 @@
     "description": "BA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "babubagan",
-    "source_id": "64",
-    "name": "Babubagan",
-    "lat": 22.5079097,
-    "lng": 88.3690351,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Rabindra Sarobar (Blue)",
-    "nearest_metro_list": [
-      "Rabindra Sarobar (Blue)"
-    ],
-    "nearest_railway": "Dhakuria (Sealdah South)",
-    "nearest_railway_list": [
-      "Dhakuria (Sealdah South)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Babubagan pandal in South Kolkata."
-  },
-  {
     "id": "babubagan_club",
     "source_id": "thepujo_150",
     "name": "Babubagan Club",
-    "lat": 22.507988,
-    "lng": 88.368515,
+    "lat": 22.50799,
+    "lng": 88.36852,
     "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
+    "area": "Dhakuria, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.8,
+    "theme": "Heritage Architecture & Commemorative Art",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -1398,7 +1333,7 @@
       "Bus",
       "Auto-rickshaw"
     ],
-    "nearest_metro": "Rabindra Sarobar (Blue)",
+    "nearest_metro": "Kalighat (Blue)",
     "nearest_metro_list": [
       "Rabindra Sarobar (Blue)"
     ],
@@ -1412,19 +1347,20 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Babubagan Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Babubagan Club in Dhakuria is famed for breathtaking thematic mandaps inspired by historic temple architecture and commemorative art coins.",
+    "bengaliName": "বাবুবাগান ক্লাব"
   },
   {
     "id": "badamtala",
     "source_id": "51",
-    "name": "Badamtala",
-    "lat": 22.5179743,
-    "lng": 88.3437184,
+    "name": "Badamtala Ashar Sangha",
+    "lat": 22.51786,
+    "lng": 88.34399,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Kalighat / Rashbehari, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.7,
+    "theme": "Grand Concept & Master Sculpting",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -1445,43 +1381,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Badamtala pandal in South Kolkata."
-  },
-  {
-    "id": "badamtala_ashar_sangha",
-    "source_id": "thepujo_116",
-    "name": "Badamtala Ashar Sangha",
-    "lat": 22.517864,
-    "lng": 88.343994,
-    "zone": "southKolkata",
-    "area": "Kalighat / Chetla, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Kalighat (Blue)",
-    "nearest_metro_list": [
-      "Kalighat (Blue)",
-      "Jatin Das Park (Blue)",
-      "Rabindra Sarobar (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Badamtala Ashar Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Badamtala Ashar Sangha is an iconic, multi-award-winning South Kolkata powerhouse celebrated for spectacular conceptual themes and serene, lifelike idols.",
+    "bengaliName": "বাদামতলা আষাঢ় সংঘ"
   },
   {
     "id": "badan_chand_roy_bari",
@@ -1516,20 +1417,20 @@
     "id": "bagbazar_sarbajanin",
     "source_id": "19",
     "name": "Bagbazar Sarbajanin",
-    "lat": 22.604576933769234,
-    "lng": 88.36561535584342,
+    "lat": 22.6046649,
+    "lng": 88.3659778,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Bagbazar, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.8,
+    "theme": "Centuries-Old Traditional Ekchala Sabeki",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Shyambazar (Blue), Sovabazar Sutanuti (Blue)",
+    "nearest_metro": "Shyambazar (Blue)",
     "nearest_metro_list": [
       "Shyambazar (Blue)",
       "Sovabazar Sutanuti (Blue)"
@@ -1540,7 +1441,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Bagbazar Sarbajanin pandal in North Kolkata."
+    "description": "Bagbazar Sarbajanin Durgotsav is one of the oldest (over a century) and most prestigious traditional community pujas in Kolkata, famous for classical Ekchala pratima and grand carnival atmosphere on the banks of the Ganges.",
+    "bengaliName": "বাগবাজার সর্বজনীন"
   },
   {
     "id": "baghbazar_7_pally_sarbojanin_durgotsav",
@@ -1682,74 +1584,6 @@
     "description": "Baghbazar Pally is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "baghbazar_sarbojonin_durgotsab_exhibition",
-    "source_id": "thepujo_8",
-    "name": "Baghbazar Sarbojonin Durgotsab & Exhibition",
-    "lat": 22.604582,
-    "lng": 88.366234,
-    "zone": "northKolkata",
-    "area": "Bagbazar, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Shyambazar (Blue)",
-    "nearest_metro_list": [
-      "Shyambazar (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Baghbazar Sarbojonin Durgotsab & Exhibition is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "baghbazar_sarbojonin_durgotsav",
-    "source_id": "thepujo_256",
-    "name": "Baghbazar Sarbojonin Durgotsav",
-    "lat": 22.6046649,
-    "lng": 88.3659778,
-    "zone": "northKolkata",
-    "area": "Bagbazar, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Shyambazar (Blue)",
-    "nearest_metro_list": [
-      "Shyambazar (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Baghbazar Sarbojonin Durgotsav is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "baishnabghata_patuli_upanagari",
     "source_id": "thepujo_156",
     "name": "Baishnabghata Patuli Upanagari",
@@ -1820,13 +1654,13 @@
     "id": "ballygunge_21_pally",
     "source_id": "thepujo_286",
     "name": "Ballygunge 21 Pally",
-    "lat": 22.529175,
-    "lng": 88.3688163,
+    "lat": 22.529325,
+    "lng": 88.369217,
     "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
+    "area": "Ballygunge, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.6,
+    "theme": "Artistic Craft & Community Heritage",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -1848,7 +1682,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ballygunge 21 Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ballygunge 21 Pally (Ekush Pally) creates captivating aesthetic pavilions reflecting Bengal's deep artistic traditions and contemporary expressions.",
+    "bengaliName": "বালিগঞ্জ ২১ পল্লী"
   },
   {
     "id": "ballygunge_cultural",
@@ -2256,35 +2091,6 @@
     ],
     "image_url": "",
     "description": "Barisha Yubak Brinda is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "bayan_samity",
-    "source_id": "8",
-    "name": "Bayan Samity",
-    "lat": 22.585312388674147,
-    "lng": 88.36496140211423,
-    "zone": "northKolkata",
-    "area": "North Kolkata",
-    "region": "North",
-    "rating": 4.1,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Girish Park (Blue)",
-    "nearest_metro_list": [
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Sealdah (Main/North/South)",
-    "nearest_railway_list": [
-      "Sealdah (Main/North/South)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Bayan Samity pandal in North Kolkata."
   },
   {
     "id": "bb_block",
@@ -2695,13 +2501,13 @@
     "id": "behala_sree_sangha",
     "source_id": "thepujo_113",
     "name": "Behala Sree Sangha",
-    "lat": 22.497669,
-    "lng": 88.320183,
+    "lat": 22.49658,
+    "lng": 88.31422,
     "zone": "southKolkata",
-    "area": "Behala / Kudghat, South Kolkata",
+    "area": "Behala, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.6,
+    "theme": "Grand Architecture & Community Festivity",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -2723,7 +2529,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Sree Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Sree Sangha is a major highlight of the South-West Kolkata trail, famed for vast architectural thematic replicas and warm neighborhood community bonding.",
+    "bengaliName": "বেহালা শ্রী সংঘ"
   },
   {
     "id": "behala_youngmen_s_association",
@@ -2766,10 +2573,10 @@
     "lat": 22.56858217447051,
     "lng": 88.39111680212453,
     "zone": "centralKolkata",
-    "area": "Central Kolkata",
+    "area": "Beleghata, Central Kolkata",
     "region": "Central",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.4,
+    "theme": "Social & Cultural Theme",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -2786,37 +2593,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Beleghata 33 Pally pandal in Central Kolkata."
-  },
-  {
-    "id": "beleghata_33_pally_2",
-    "source_id": "41",
-    "name": "Beleghata 33 Pally",
-    "lat": 22.56876672397637,
-    "lng": 88.39109620917345,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4.1,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Phoolbagan (Green), Salt Lake Stadium (Green)",
-    "nearest_metro_list": [
-      "Phoolbagan (Green)",
-      "Salt Lake Stadium (Green)"
-    ],
-    "nearest_railway": "Sealdah (Main/North/South)",
-    "nearest_railway_list": [
-      "Sealdah (Main/North/South)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Beleghata 33 Pally pandal in South Kolkata."
+    "description": "Beleghata 33 Pally is renowned for its elaborate artistic pandals and social themes that reflect Bengali culture and heritage.",
+    "bengaliName": "বেলেঘাটা ৩৩ পল্লী"
   },
   {
     "id": "belgachia_sadharan_durgatsab",
@@ -2961,14 +2739,14 @@
   {
     "id": "beniatola",
     "source_id": "16",
-    "name": "Beniatola",
-    "lat": 22.595926,
-    "lng": 88.3611171,
+    "name": "Beniatola Sarbojanin",
+    "lat": 22.59592,
+    "lng": 88.36091,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Sovabazar / Beniatola, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.6,
+    "theme": "Traditional Folk & Heritage Art",
     "crowd_level": "low",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -2989,41 +2767,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Beniatola pandal in North Kolkata."
-  },
-  {
-    "id": "bg_block",
-    "source_id": "thepujo_322",
-    "name": "BG Block",
-    "lat": 22.5953985,
-    "lng": 88.4225156,
-    "zone": "eastKolkata",
-    "area": "Salt Lake / East Kolkata",
-    "region": "East",
-    "rating": 4.5,
-    "theme": "Modern Artistic Theme",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Central Park Karunamoyee (Green)",
-    "nearest_metro_list": [
-      "Central Park Karunamoyee (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road",
-    "nearest_railway_list": [
-      "Bidhannagar Road"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "BG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Beniatola Sarbojanin is a celebrated heritage community puja in North Kolkata, noted for deep artistic roots, folk aesthetics, and authentic warm hospitality.",
+    "bengaliName": "বেনিয়াটোলা সর্বজনীন"
   },
   {
     "id": "bh_block",
@@ -3293,13 +3038,13 @@
     "id": "bosepukur_sitala_mandir",
     "source_id": "71",
     "name": "Bosepukur Sitala Mandir",
-    "lat": 22.5192181,
-    "lng": 88.3848576,
+    "lat": 22.516581,
+    "lng": 88.388023,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Kasba / Bosepukur, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.6,
+    "theme": "Artistic Craft & Rural Heritage",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -3320,41 +3065,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bosepukur Sitala Mandir pandal in South Kolkata."
-  },
-  {
-    "id": "bosepukur_sitala_mandir",
-    "source_id": "thepujo_120",
-    "name": "Bosepukur Sitala Mandir",
-    "lat": 22.516581,
-    "lng": 88.388023,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Hemanta Mukhopadhyay Ruby (Orange)",
-    "nearest_metro_list": [
-      "Hemanta Mukhopadhyay Ruby (Orange)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Bosepukur Sitala Mandir is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bosepukur Sitala Mandir is one of the celebrated Durga Puja celebrations in South Kolkata, known for pioneering unique rural and craft themes using clay and earthen cups.",
+    "bengaliName": "বোসপুকুর শীতলা মন্দির"
   },
   {
     "id": "bosepukur_talbagan",
@@ -3633,14 +3345,14 @@
   {
     "id": "chaltabagan",
     "source_id": "5",
-    "name": "Chaltabagan",
-    "lat": 22.5847266,
-    "lng": 88.3720013,
+    "name": "Manicktala Chaltabagan Loha Patty",
+    "lat": 22.58489,
+    "lng": 88.37209,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Manicktala, North Kolkata",
     "region": "North",
-    "rating": 4.2,
-    "theme": "Traditional",
+    "rating": 4.8,
+    "theme": "Dhunuchi Heritage & Craft Grandeur",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -3661,7 +3373,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chaltabagan pandal in North Kolkata."
+    "description": "Manicktala Chaltabagan is one of Kolkata's most famous pujas, celebrated for the lively Dhunuchi Naach, glass and brass craftwork, and dazzling illumination.",
+    "bengaliName": "মানিকতলা চালতাবাগান লোহাপট্টি"
   },
   {
     "id": "chandranath_chatterjee_street",
@@ -3736,17 +3449,17 @@
     "lat": 22.5903828059963,
     "lng": 88.36437047116512,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Beadon Street, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Bonedi Bari",
+    "rating": 4.9,
+    "theme": "Centuries-Old Bonedi Bari Heritage (1770)",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Girish Park (Blue Line)",
+    "nearest_metro": "Girish Park (Blue)",
     "nearest_metro_list": [
       "Girish Park (Blue Line)"
     ],
@@ -3756,7 +3469,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Chatu Babu & Latu Babu's Thakur Bari pandal in North Kolkata."
+    "description": "Started in 1770 by merchant prince Ramdulal De (Deb) and carried on by his illustrious sons Chatu Babu and Latu Babu, this bonedi puja features the rare iconographic detail of Jaya and Bijaya flanking the goddess.",
+    "bengaliName": "ছাতু বাবু ও লাটু বাবুর ঠাকুর বাড়ি"
   },
   {
     "id": "chelta_sarbasadharaner_club",
@@ -3797,21 +3511,21 @@
   {
     "id": "chetla_agrani",
     "source_id": "44",
-    "name": "Chetla Agrani",
-    "lat": 22.5164325,
-    "lng": 88.337091,
+    "name": "Chetla Agrani Club",
+    "lat": 22.51645,
+    "lng": 88.33715,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Kalighat / Chetla, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.8,
+    "theme": "Monumental Architectural Theme",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Kalighat (Blue), Jatin Das Park (Blue)",
+    "nearest_metro": "Kalighat (Blue)",
     "nearest_metro_list": [
       "Kalighat (Blue)",
       "Jatin Das Park (Blue)"
@@ -3826,41 +3540,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chetla Agrani pandal in South Kolkata."
-  },
-  {
-    "id": "chetla_agrani_club",
-    "source_id": "thepujo_159",
-    "name": "Chetla Agrani Club",
-    "lat": 22.516447,
-    "lng": 88.337151,
-    "zone": "southKolkata",
-    "area": "Kalighat / Chetla, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Kalighat (Blue)",
-    "nearest_metro_list": [
-      "Kalighat (Blue)"
-    ],
-    "nearest_railway": "Majerhat Railway Station",
-    "nearest_railway_list": [
-      "Majerhat Railway Station"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Chetla Agrani Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Chetla Agrani Club is a legendary mega-puja celebrated for monumental structural installations, visionary thematic architecture, and royal illumination.",
+    "bengaliName": "চেতলা অগ্রণী ক্লাব"
   },
   {
     "id": "chorbagan_mitra_bari",
@@ -4017,21 +3698,21 @@
   {
     "id": "college_square",
     "source_id": "82",
-    "name": "College Square",
+    "name": "College Square Sarbojanin Durgotsab",
     "lat": 22.574865,
     "lng": 88.364578,
     "zone": "centralKolkata",
-    "area": "Central Kolkata",
+    "area": "College Street, Central Kolkata",
     "region": "Central",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.9,
+    "theme": "Illuminated Palace on Water",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Central (Blue Line)",
+    "nearest_metro": "Central (Blue)",
     "nearest_metro_list": [
       "Central (Blue Line)"
     ],
@@ -4045,44 +3726,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "College Square pandal in Central Kolkata."
-  },
-  {
-    "id": "college_square_sarbojanin_durgotsab_committee",
-    "source_id": "thepujo_234",
-    "name": "College Square Sarbojanin Durgotsab Committee",
-    "lat": 22.573941,
-    "lng": 88.362675,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Central (Blue)",
-    "nearest_metro_list": [
-      "Central (Blue)",
-      "MG Road (Blue)",
-      "Chandni Chowk (Blue)",
-      "Sealdah Metro (Green)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "College Square Sarbojanin Durgotsab Committee is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "College Square is an unforgettable Kolkata institution, famous for sprawling temple and palace replicas illuminated with hundreds of thousands of lights reflected in the historic swimming pool tank.",
+    "bengaliName": "কলেজ স্কোয়ার সর্বজনীন দুর্গোৎসব"
   },
   {
     "id": "da_block",
@@ -4217,45 +3862,16 @@
     "description": "Dakshinpara Durgotsab Committee pandal in North Kolkata."
   },
   {
-    "id": "darpanarayan_street",
-    "source_id": "18",
-    "name": "Darpanarayan Street",
-    "lat": 22.587460967780668,
-    "lng": 88.35439696684566,
-    "zone": "northKolkata",
-    "area": "North Kolkata",
-    "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "low",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Girish Park (Blue)",
-    "nearest_metro_list": [
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Howrah Jn (ER/SER)",
-    "nearest_railway_list": [
-      "Howrah Jn (ER/SER)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Darpanarayan Street pandal in North Kolkata."
-  },
-  {
     "id": "darpanarayan_tagore_street_pally_samity",
     "source_id": "thepujo_81",
     "name": "Darpanarayan Tagore Street Pally Samity",
     "lat": 22.587505,
     "lng": 88.354111,
     "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
+    "area": "Pathuriaghata, North Kolkata",
     "region": "North",
     "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "theme": "Vintage Heritage & Traditional Sabeki",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -4279,7 +3895,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Darpanarayan Tagore Street Pally Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "A deeply historic community puja nestled in the historic lanes of Old North Kolkata, retaining vintage aristocratic charm and traditional festivities.",
+    "bengaliName": "দর্পনারায়ণ ঠাকুর স্ট্রিট পল্লী সমিতি"
   },
   {
     "id": "chinsurah_datta_bari_bonedi",
@@ -4864,14 +4481,14 @@
   {
     "id": "ekdalia_evergreen",
     "source_id": "58",
-    "name": "Ekdalia Evergreen",
-    "lat": 22.5212187,
-    "lng": 88.3665629,
+    "name": "Ekdalia Evergreen Club",
+    "lat": 22.52111,
+    "lng": 88.36645,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Gariahat, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.9,
+    "theme": "Temple Replica & Chandannagar Lighting",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -4892,75 +4509,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ekdalia Evergreen pandal in South Kolkata."
-  },
-  {
-    "id": "ekdalia_evergreen_club",
-    "source_id": "thepujo_122",
-    "name": "Ekdalia Evergreen Club",
-    "lat": 22.521111,
-    "lng": 88.366447,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Jatin Das Park (Blue)",
-    "nearest_metro_list": [
-      "Jatin Das Park (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Ekdalia Evergreen Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "ekush_pally_sarbojanin_durgotsab",
-    "source_id": "thepujo_168",
-    "name": "Ekush Pally Sarbojanin Durgotsab",
-    "lat": 22.529325,
-    "lng": 88.369217,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Netaji Bhavan (Blue)",
-    "nearest_metro_list": [
-      "Netaji Bhavan (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Ekush Pally Sarbojanin Durgotsab is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ekdalia Evergreen Club is an enduring hallmark of Kolkata Durga Puja, recreating India's historic temples with dazzling Chandannagar illumination and a majestic Sabeki pratima.",
+    "bengaliName": "একডালিয়া এভারগ্রীন ক্লাব"
   },
   {
     "id": "falguni_sangha",
@@ -6196,42 +5746,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "hindustan_club_299",
-    "source_id": "thepujo_299",
-    "name": "Hindustan Club",
-    "lat": 22.5039723,
-    "lng": 88.3371126,
-    "zone": "southKolkata",
-    "area": "Kalighat / Chetla, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Rabindra Sarobar (Blue)",
-    "nearest_metro_list": [
-      "Rabindra Sarobar (Blue)",
-      "Mahanayak Uttam Kumar (Blue)"
-    ],
-    "nearest_railway": "Majerhat Railway Station",
-    "nearest_railway_list": [
-      "Majerhat Railway Station"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations in Ballygunge, attracting thousands with elegant lighting and traditional idols.",
+    "bengaliName": "হিন্দুস্তান ক্লাব"
   },
   {
     "id": "hindustan_park",
@@ -6431,46 +5947,16 @@
     "description": "IB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "jagat_mukharjee_park",
-    "source_id": "15",
-    "name": "Jagat Mukharjee Park",
-    "lat": 22.599550202591633,
-    "lng": 88.36603241094102,
-    "zone": "northKolkata",
-    "area": "North Kolkata",
-    "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue), Shyambazar (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Shyambazar (Blue)"
-    ],
-    "nearest_railway": "Bagbazar (Circular)",
-    "nearest_railway_list": [
-      "Bagbazar (Circular)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Jagat Mukharjee Park pandal in North Kolkata."
-  },
-  {
     "id": "jagat_mukherjee_park",
     "source_id": "thepujo_77",
     "name": "Jagat Mukherjee Park",
     "lat": 22.599777,
     "lng": 88.36615,
     "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
+    "area": "Shyambazar, North Kolkata",
     "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.6,
+    "theme": "Artistic Miniature & Kinetic Craft",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -6493,7 +5979,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jagat Mukherjee Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jagat Mukherjee Park is a staple of the North Kolkata trail, acclaimed for intricate miniature craft, moving water installations, and serene idol artistry.",
+    "bengaliName": "জগৎ মুখার্জী পার্ক"
   },
   {
     "id": "jatra_suru_sangha",
@@ -6602,47 +6089,13 @@
     "id": "jodhpur_park",
     "source_id": "thepujo_123",
     "name": "Jodhpur Park",
-    "lat": 22.504702,
-    "lng": 88.365028,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Rabindra Sarobar (Blue)",
-    "nearest_metro_list": [
-      "Rabindra Sarobar (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Jodhpur Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "jodhpur_park_292",
-    "source_id": "thepujo_292",
-    "name": "Jodhpur Park",
     "lat": 22.5058175,
     "lng": 88.3639986,
     "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
+    "area": "Jodhpur Park, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.7,
+    "theme": "Contemporary Architecture & Illumination",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -6664,7 +6117,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jodhpur Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jodhpur Park is one of the grandest Durga Puja celebrations in South Kolkata, famous for eco-friendly architectural marvels and cutting-edge light craft.",
+    "bengaliName": "যোধপুর পার্ক"
   },
   {
     "id": "jogajatri_club",
@@ -7089,20 +6543,20 @@
     "id": "kankurgachi_mitali_sangha",
     "source_id": "24",
     "name": "Kankurgachi Mitali Sangha",
-    "lat": 22.580003274666527,
-    "lng": 88.39420577902305,
+    "lat": 22.580042,
+    "lng": 88.393974,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Kankurgachi / Phoolbagan, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.6,
+    "theme": "Artistic & Social Heritage",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Bengal Chemical (Green)",
+    "nearest_metro": "Phoolbagan (Green)",
     "nearest_metro_list": [
       "Bengal Chemical (Green)"
     ],
@@ -7112,37 +6566,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kankurgachi Mitali Sangha pandal in North Kolkata."
-  },
-  {
-    "id": "kankurgachi_mitali_sangha_2",
-    "source_id": "42",
-    "name": "Kankurgachi Mitali Sangha",
-    "lat": 22.5801069823505,
-    "lng": 88.39413241334154,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4.1,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Bengal Chemical (Green), Phoolbagan (Green)",
-    "nearest_metro_list": [
-      "Bengal Chemical (Green)",
-      "Phoolbagan (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road (Sealdah North/Circular)",
-    "nearest_railway_list": [
-      "Bidhannagar Road (Sealdah North/Circular)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Kankurgachi Mitali Sangha pandal in South Kolkata."
+    "description": "Kankurgachi Mitali Sangha is a major crowd-puller in North-East Kolkata, renowned for its deeply thoughtful thematic art and majestic idol sculpts.",
+    "bengaliName": "কাঁকুড়গাছি মিতালী সংঘ"
   },
   {
     "id": "kankurgachi_yubak_brinda",
@@ -7151,10 +6576,10 @@
     "lat": 22.57939898236481,
     "lng": 88.3880997159656,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Kankurgachi, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.4,
+    "theme": "Creative Contemporary",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -7171,36 +6596,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kankurgachi Yubak Brinda pandal in North Kolkata."
-  },
-  {
-    "id": "kankurgachi_yubak_brinda_2",
-    "source_id": "43",
-    "name": "Kankurgachi Yubak Brinda",
-    "lat": 22.579830531534665,
-    "lng": 88.3880205450575,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4.1,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Phoolbagan (Green)",
-    "nearest_metro_list": [
-      "Phoolbagan (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road (Sealdah North/Circular)",
-    "nearest_railway_list": [
-      "Bidhannagar Road (Sealdah North/Circular)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Kankurgachi Yubak Brinda pandal in South Kolkata."
+    "description": "Kankurgachi Yubak Brinda is celebrated for innovative pandal designs that combine traditional devotion with modern creative aesthetics.",
+    "bengaliName": "কাঁকুড়গাছি যুবক বৃন্দ"
   },
   {
     "id": "kar_bagan",
@@ -7308,59 +6705,23 @@
     "description": "Kashi Bose Lane is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "kashi_bose_lane_durga_puja_samity",
-    "source_id": "thepujo_245",
+    "id": "kasi_bose_lane",
+    "source_id": "2",
     "name": "Kashi Bose Lane Durga Puja Samity",
     "lat": 22.5908979,
     "lng": 88.3689174,
     "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
+    "area": "Hatibagan, North Kolkata",
     "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Shyambazar (Blue)",
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Kashi Bose Lane Durga Puja Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "kasi_bose_lane",
-    "source_id": "2",
-    "name": "Kasi Bose Lane",
-    "lat": 22.590944825971604,
-    "lng": 88.36891220386143,
-    "zone": "northKolkata",
-    "area": "North Kolkata",
-    "region": "North",
-    "rating": 4.4,
-    "theme": "Traditional",
+    "rating": 4.8,
+    "theme": "Award-Winning Conceptual Architecture",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Shyambazar (Blue), Girish Park (Blue)",
+    "nearest_metro": "Shyambazar (Blue)",
     "nearest_metro_list": [
       "Shyambazar (Blue)",
       "Girish Park (Blue)"
@@ -7371,7 +6732,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kasi Bose Lane pandal in North Kolkata."
+    "description": "Kashi Bose Lane is a titan of North Kolkata Durga Puja, captivating audiences with emotionally profound architectural concepts and hyper-detailed thematic installations.",
+    "bengaliName": "কাশী বোস লেন দুর্গোৎসব সমিতি"
   },
   {
     "id": "kendua_shanti_sangha",
@@ -7441,20 +6803,20 @@
     "id": "khelat_chandra_ghosh_bari_pujo",
     "source_id": "89",
     "name": "Khelat Chandra Ghosh Bari Pujo",
-    "lat": 22.588929166470635,
-    "lng": 88.356527387135,
+    "lat": 22.5887689,
+    "lng": 88.3565391,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Pathuriaghata, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Bonedi Bari",
+    "rating": 4.8,
+    "theme": "Aristocratic Bonedi Heritage (1846)",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue Line)",
+    "nearest_metro": "Girish Park (Blue)",
     "nearest_metro_list": [
       "Sovabazar Sutanuti (Blue Line)"
     ],
@@ -7464,43 +6826,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Khelat Chandra Ghosh Bari Pujo pandal in North Kolkata."
-  },
-  {
-    "id": "khelat_ghose_er_durga_pujo",
-    "source_id": "thepujo_270",
-    "name": "Khelat Ghose er Durga Pujo",
-    "lat": 22.5887689,
-    "lng": 88.3565391,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.7,
-    "theme": "Centuries-Old Bonedi Bari Heritage",
-    "crowd_level": "medium",
-    "timings": "6:00 AM - 10:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Girish Park (Blue)",
-    "nearest_metro_list": [
-      "Girish Park (Blue)",
-      "Sovabazar Sutanuti (Blue)",
-      "MG Road (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Centuries-Old Heritage Rituals",
-      "Traditional Ekchala Pratima",
-      "Historical Jamindar Family Puja"
-    ],
-    "image_url": "",
-    "description": "This Puja is one among the wonderful Banedi barir Durga Puja in north Kolkata that being started by Sri Khelat Chandra Ghosh who was the Diwan of the court of Warren Hestings (British colonial administrator in India). Khelat Chandra Ghosh was famous for his social reforming activity. He was also concerned in cultural, musical and philanthropic activities in Kolkata that time. The trusty of Khelat Chandra Ghosh happens to celebrate Durga Puja at their thakur dalan that made from marbles and also the corridor is incredibly long and encircled by embellished wall. it’s a dancing hall too. the whole design take placed by Martin & Burn co. The worship of Devi Durga is confine a single decorated wood frame thatreferred to as Ek-chala and decorated by designed materials.<br><br>Courtesy: The Pujo Company"
+    "description": "One of the grandest Bonedi baris of North Kolkata, Khelat Ghosh Bari features a majestic marble courtyard and 85-foot long grand thakur-dalan where Durga Puja has been celebrated since 1846.",
+    "bengaliName": "খেলাত চন্দ্র ঘোষ বাড়ি পুজো"
   },
   {
     "id": "kolkata",
@@ -7540,41 +6867,6 @@
     "description": "Kolkata is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "kumartuli_park",
-    "source_id": "thepujo_13",
-    "name": "Kumartuli Park",
-    "lat": 22.598995,
-    "lng": 88.361366,
-    "zone": "northKolkata",
-    "area": "Kumartuli, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Shyambazar (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Kumartuli Park is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "kumartuli_preparation",
     "source_id": "thepujo_54",
     "name": "Kumartuli Preparation",
@@ -7612,14 +6904,14 @@
   {
     "id": "kumartuli_sarbojanin",
     "source_id": "thepujo_64",
-    "name": "Kumartuli Sarbojanin",
+    "name": "Kumartuli Sarbojanin Durgotsav",
     "lat": 22.600859,
     "lng": 88.363274,
     "zone": "northKolkata",
     "area": "Kumartuli, North Kolkata",
     "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.8,
+    "theme": "Artisanal Heritage Sabeki (1931)",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -7627,7 +6919,7 @@
       "Bus",
       "Auto-rickshaw"
     ],
-    "nearest_metro": "Shyambazar (Blue)",
+    "nearest_metro": "Sovabazar Sutanuti (Blue)",
     "nearest_metro_list": [
       "Shyambazar (Blue)",
       "Sovabazar Sutanuti (Blue)"
@@ -7642,19 +6934,20 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumartuli Sarbojanin is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Founded in 1931 right in the heart of Kolkata's legendary idol-makers' colony, Kumartuli Sarbojanin is steeped in living history with pure traditional sabeki idols created by master sculptors.",
+    "bengaliName": "কুমোরটুলি সর্বজনীন দুর্গোৎসব"
   },
   {
     "id": "kumortuli_park_sarbojanin",
     "source_id": "11",
-    "name": "Kumortuli Park Sarbojanin",
-    "lat": 22.601233,
-    "lng": 88.3626053,
+    "name": "Kumartuli Park Sarbojanin",
+    "lat": 22.598995,
+    "lng": 88.361366,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Sovabazar / Kumartuli, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.8,
+    "theme": "Clay Craftsmanship & Majestic Pavilion",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -7675,75 +6968,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumortuli Park Sarbojanin pandal in North Kolkata."
-  },
-  {
-    "id": "kumortuli_sarbajanin",
-    "source_id": "14",
-    "name": "Kumortuli Sarbajanin",
-    "lat": 22.601233,
-    "lng": 88.3626053,
-    "zone": "northKolkata",
-    "area": "North Kolkata",
-    "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)"
-    ],
-    "nearest_railway": "Bagbazar (Circular)",
-    "nearest_railway_list": [
-      "Bagbazar (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Kumortuli Sarbajanin pandal in North Kolkata."
-  },
-  {
-    "id": "labony_estate",
-    "source_id": "thepujo_331",
-    "name": "LABONY ESTATE",
-    "lat": 22.583099,
-    "lng": 88.4069754,
-    "zone": "eastKolkata",
-    "area": "Salt Lake / East Kolkata",
-    "region": "East",
-    "rating": 4.5,
-    "theme": "Modern Artistic Theme",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "City Centre Salt Lake (Green)",
-    "nearest_metro_list": [
-      "City Centre Salt Lake (Green)",
-      "Bengal Chemical (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road",
-    "nearest_railway_list": [
-      "Bidhannagar Road"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "LABONY ESTATE is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kumartuli Park Sarbojanin is a premier attraction of North Kolkata, fusing classical clay craftsmanship from local potters with cutting-edge conceptual design and grand scale.",
+    "bengaliName": "কুমোরটুলি পার্ক সর্বজনীন"
   },
   {
     "id": "lake_pally_sarbojanin",
@@ -7782,50 +7008,16 @@
     "description": "Lake Pally Sarbojanin is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "lake_town_adhibasi_brindo_durga_puja_pandal",
-    "source_id": "thepujo_265",
-    "name": "Lake Town Adhibasi Brindo Durga Puja Pandal",
-    "lat": 22.6044508,
-    "lng": 88.4039701,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "City Centre Salt Lake (Green)",
-    "nearest_metro_list": [
-      "City Centre Salt Lake (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road",
-    "nearest_railway_list": [
-      "Bidhannagar Road"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Lake Town Adhibasi Brindo Durga Puja Pandal is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "lake_town_adibashi_brinda",
     "source_id": "33",
     "name": "Lake Town Adibashi Brinda",
     "lat": 22.6044899963704,
     "lng": 88.4039660357379,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Lake Town, North Kolkata",
     "region": "North",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.6,
+    "theme": "Artistic Grandeur & Cultural Expression",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -7842,7 +7034,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Lake Town Adibashi Brinda pandal in North Kolkata."
+    "description": "Lake Town Adibashi Brinda is one of the premier community attractions in North Kolkata, renowned for grand visual spectacles, artisanal craftwork, and soulful idol crafting.",
+    "bengaliName": "লেক টাউন আদিবাসী বৃন্দ"
   },
   {
     "id": "lake_town_netaji_sporting",
@@ -7911,40 +7104,6 @@
     ],
     "image_url": "",
     "description": "Lake Youth Corner is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "laketown_adhibasi_brinda",
-    "source_id": "thepujo_14",
-    "name": "Laketown Adhibasi Brinda",
-    "lat": 22.605404,
-    "lng": 88.403793,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "City Centre Salt Lake (Green)",
-    "nearest_metro_list": [
-      "City Centre Salt Lake (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road",
-    "nearest_railway_list": [
-      "Bidhannagar Road"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Laketown Adhibasi Brinda is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
     "id": "laketown_nutan_palli_pradeep_sangha",
@@ -8048,35 +7207,6 @@
     "description": "Lala Bagan pandal in North Kolkata."
   },
   {
-    "id": "loha_patti",
-    "source_id": "6",
-    "name": "Loha Patti",
-    "lat": 22.58463361741451,
-    "lng": 88.3723062241459,
-    "zone": "northKolkata",
-    "area": "North Kolkata",
-    "region": "North",
-    "rating": 4.2,
-    "theme": "Traditional",
-    "crowd_level": "low",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Girish Park (Blue)",
-    "nearest_metro_list": [
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Sealdah (Main/North/South)",
-    "nearest_railway_list": [
-      "Sealdah (Main/North/South)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Loha Patti pandal in North Kolkata."
-  },
-  {
     "id": "madan_mohan_dutta_bari",
     "source_id": "91",
     "name": "Madan Mohan Dutta Bari",
@@ -8140,51 +7270,16 @@
     "description": "Maddox Square pandal in South Kolkata."
   },
   {
-    "id": "manicktala_chaltabagan_loha_patty",
-    "source_id": "thepujo_30",
-    "name": "Manicktala Chaltabagan Loha Patty",
-    "lat": 22.58489,
-    "lng": 88.372093,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Manicktala Chaltabagan Loha Patty is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "manoharpukur_youngs",
     "source_id": "thepujo_221",
     "name": "Manoharpukur Youngs",
-    "lat": 22.52673,
-    "lng": 88.347397,
+    "lat": 22.518682,
+    "lng": 88.356216,
     "zone": "southKolkata",
-    "area": "Bhowanipore / South Kolkata",
+    "area": "Manoharpukur / Sarat Bose Rd, South Kolkata",
     "region": "South",
     "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "theme": "Traditional Bengali & Artistic Lighting",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -8208,78 +7303,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "manoharpukur_youngs_224",
-    "source_id": "thepujo_224",
-    "name": "Manoharpukur Youngs",
-    "lat": 22.518682,
-    "lng": 88.356216,
-    "zone": "southKolkata",
-    "area": "Bhowanipore / South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Jatin Das Park (Blue)",
-    "nearest_metro_list": [
-      "Jatin Das Park (Blue)",
-      "Kalighat (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "md_ali_park",
-    "source_id": "thepujo_16",
-    "name": "Md. Ali Park",
-    "lat": 22.577229,
-    "lng": 88.360878,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "MG Road (Blue)",
-    "nearest_metro_list": [
-      "MG Road (Blue)",
-      "Girish Park (Blue)",
-      "Central (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Md. Ali Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations in South Kolkata, known for soulful traditional pratima and artistic mandap aesthetics.",
+    "bengaliName": "মনোহরপুকুর ইয়ংস"
   },
   {
     "id": "milangarh_sarbojanin",
@@ -8316,57 +7341,23 @@
     "description": "Milangarh Sarbojanin is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "mitali_kankurgachi",
-    "source_id": "thepujo_17",
-    "name": "Mitali - Kankurgachi",
-    "lat": 22.580042,
-    "lng": 88.393974,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Phoolbagan (Green)",
-    "nearest_metro_list": [
-      "Phoolbagan (Green)"
-    ],
-    "nearest_railway": "Bidhannagar Road",
-    "nearest_railway_list": [
-      "Bidhannagar Road"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Mitali - Kankurgachi is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "mohammed_ali_park",
     "source_id": "81",
     "name": "Mohammed Ali Park",
     "lat": 22.57724810401376,
     "lng": 88.36072417400061,
     "zone": "centralKolkata",
-    "area": "Central Kolkata",
+    "area": "College Street / MG Road, Central Kolkata",
     "region": "Central",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.7,
+    "theme": "Palatial Replica & Grand Illumination",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Central (Blue Line)",
+    "nearest_metro": "Mahatma Gandhi Road (Blue)",
     "nearest_metro_list": [
       "Central (Blue Line)"
     ],
@@ -8376,7 +7367,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Mohammed Ali Park pandal in Central Kolkata."
+    "description": "Mohammed Ali Park is a monumental Central Kolkata puja celebrated for grand replicas of world monuments and forts, reflected across its central reservoir.",
+    "bengaliName": "মহম্মদ আলী পার্ক"
   },
   {
     "id": "motijheel_sarbojanin",
@@ -8444,42 +7436,6 @@
     ],
     "image_url": "",
     "description": "Mudiali Club pandal in South Kolkata."
-  },
-  {
-    "id": "muhammad_ali_park",
-    "source_id": "thepujo_235",
-    "name": "Muhammad Ali Park",
-    "lat": 22.5771888,
-    "lng": 88.3607369,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "MG Road (Blue)",
-    "nearest_metro_list": [
-      "MG Road (Blue)",
-      "Girish Park (Blue)",
-      "Central (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Muhammad Ali Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
     "id": "mukul_sangha",
@@ -8680,107 +7636,45 @@
     "lat": 22.474174,
     "lng": 88.36705,
     "zone": "southKolkata",
-    "area": "Behala / Kudghat, South Kolkata",
+    "area": "Naktala / Garia, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.8,
+    "theme": "Pioneering Contemporary Art & Philosophy",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Bus",
       "Auto-rickshaw"
-    ],
-    "nearest_metro": "Gitanjali Naktala (Blue)",
-    "nearest_metro_list": [
-      "Gitanjali Naktala (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Naktala Udayan Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "naktala_udayan_sangha_club",
-    "source_id": "thepujo_303",
-    "name": "Naktala Udayan Sangha club",
-    "lat": 22.4747012,
-    "lng": 88.3667911,
-    "zone": "southKolkata",
-    "area": "Behala / Kudghat, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Gitanjali Naktala (Blue)",
-    "nearest_metro_list": [
-      "Gitanjali Naktala (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Naktala Udayan Sangha club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "naktala_udyan_sangha",
-    "source_id": "39",
-    "name": "Naktala Udyan Sangha",
-    "lat": 22.47436097154578,
-    "lng": 88.3666019186437,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4.2,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
     ],
     "nearest_metro": "Gitanjali (Blue)",
     "nearest_metro_list": [
-      "Gitanjali (Blue)"
+      "Gitanjali Naktala (Blue)"
     ],
-    "nearest_railway": "Baghajatin (Sealdah South)",
+    "nearest_railway": "Ballygunge Junction",
     "nearest_railway_list": [
-      "Baghajatin (Sealdah South)"
+      "Ballygunge Junction"
     ],
-    "special_features": [],
+    "special_features": [
+      "Grand Mandap Illumination",
+      "Cultural Exhibition",
+      "High Footfall Iconic Venue"
+    ],
     "image_url": "",
-    "description": "Naktala Udyan Sangha pandal in South Kolkata."
+    "description": "Naktala Udayan Sangha is universally acclaimed as one of Kolkata's most innovative mega-themes, redefining pandal artistry with futuristic and metaphysical concepts.",
+    "bengaliName": "নাকতলা উদয়ন সংঘ"
   },
   {
     "id": "nalin_sarkar_street",
     "source_id": "3",
     "name": "Nalin Sarkar Street",
-    "lat": 22.594627,
-    "lng": 88.374634,
+    "lat": 22.5953765,
+    "lng": 88.3731609,
     "zone": "northKolkata",
-    "area": "North Kolkata",
+    "area": "Shyambazar / Hatibagan, North Kolkata",
     "region": "North",
-    "rating": 4.3,
-    "theme": "Traditional",
+    "rating": 4.6,
+    "theme": "Sculptural Art & Indigenous Heritage",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -8801,42 +7695,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nalin Sarkar Street pandal in North Kolkata."
-  },
-  {
-    "id": "nalin_sarkar_street",
-    "source_id": "thepujo_241",
-    "name": "Nalin Sarkar Street",
-    "lat": 22.5953765,
-    "lng": 88.3731609,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Shyambazar (Blue)",
-    "nearest_metro_list": [
-      "Shyambazar (Blue)",
-      "Sovabazar Sutanuti (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Nalin Sarkar Street is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Nalin Sarkar Street is one of the celebrated Durga Puja celebrations in Shyambazar, winning multiple accolades for creative sculpture and heritage atmosphere.",
+    "bengaliName": "নলীন সরকার স্ট্রিট"
   },
   {
     "id": "naskarpara_pally_unnayan_samity_haridevpur",
@@ -8910,13 +7770,13 @@
     "id": "nepal_bhattacharjee_street",
     "source_id": "52",
     "name": "Nepal Bhattacharjee Street",
-    "lat": 22.517784,
-    "lng": 88.341049,
+    "lat": 22.5180222,
+    "lng": 88.3426217,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Kalighat / Chetla, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.5,
+    "theme": "Traditional Bengali & Eco-Friendly Art",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -8937,43 +7797,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nepal Bhattacharjee Street pandal in South Kolkata."
-  },
-  {
-    "id": "nepal_bhattacharjee_street_276",
-    "source_id": "thepujo_276",
-    "name": "Nepal Bhattacharjee Street",
-    "lat": 22.5180222,
-    "lng": 88.3426217,
-    "zone": "southKolkata",
-    "area": "Kalighat / Chetla, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Kalighat (Blue)",
-    "nearest_metro_list": [
-      "Kalighat (Blue)",
-      "Jatin Das Park (Blue)",
-      "Rabindra Sarobar (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Nepal Bhattacharjee Street is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Nepal Bhattacharjee Street Club is celebrated for authentic neighborhood Durga Puja spirit, innovative craftwork, and classic clay idols.",
+    "bengaliName": "নেপাল ভট্টাচার্য স্ট্রিট"
   },
   {
     "id": "netaji_jatiya_sebadal",
@@ -9215,13 +8040,13 @@
     "id": "pally_mangal_samity",
     "source_id": "62",
     "name": "Pally Mangal Samity",
-    "lat": 22.5049158,
-    "lng": 88.3744596,
+    "lat": 22.503017,
+    "lng": 88.36396,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Gariahat / Jodhpur Park, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.5,
+    "theme": "Traditional Bengali",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -9242,41 +8067,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pally Mangal Samity pandal in South Kolkata."
-  },
-  {
-    "id": "pally_mangal_samity",
-    "source_id": "thepujo_147",
-    "name": "Pally Mangal Samity",
-    "lat": 22.503017,
-    "lng": 88.36396,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Rabindra Sarobar (Blue)",
-    "nearest_metro_list": [
-      "Rabindra Sarobar (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Pally Mangal Samity is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Pally Mangal Samity is one of the celebrated community Durga Pujas in South Kolkata, creating warm festive memories with classic decor.",
+    "bengaliName": "পল্লী মঙ্গল সমিতি"
   },
   {
     "id": "pally_saradiya_club",
@@ -9816,47 +8608,13 @@
     "id": "rajdanga_naba_uday_sangha",
     "source_id": "thepujo_129",
     "name": "Rajdanga Naba Uday Sangha",
-    "lat": 22.515675,
-    "lng": 88.390442,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Hemanta Mukhopadhyay Ruby (Orange)",
-    "nearest_metro_list": [
-      "Hemanta Mukhopadhyay Ruby (Orange)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Rajdanga Naba Uday Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "rajdanga_naba_uday_sangha_289",
-    "source_id": "thepujo_289",
-    "name": "Rajdanga Naba Uday Sangha",
     "lat": 22.5166272,
     "lng": 88.3902285,
     "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
+    "area": "Kasba / Rajdanga, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.7,
+    "theme": "Artistic Concept & Architectural Splendor",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -9878,7 +8636,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Rajdanga Naba Uday Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Rajdanga Naba Uday Sangha is a premier South Kolkata spectacle known for massive concept pavilions and intricate artistic detailing.",
+    "bengaliName": "রাজডাঙ্গা নব উদয় সংঘ"
   },
   {
     "id": "rajdanga_tribarna_sangha",
@@ -9913,41 +8672,6 @@
     ],
     "image_url": "",
     "description": "Rajdanga Tribarna Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "ramdulal_nibas_er_durga_pujo",
-    "source_id": "thepujo_272",
-    "name": "RAMDULAL NIBAS er Durga Pujo",
-    "lat": 22.5903317,
-    "lng": 88.3644845,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.7,
-    "theme": "Centuries-Old Bonedi Bari Heritage",
-    "crowd_level": "medium",
-    "timings": "6:00 AM - 10:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Centuries-Old Heritage Rituals",
-      "Traditional Ekchala Pratima",
-      "Historical Jamindar Family Puja"
-    ],
-    "image_url": "",
-    "description": "During the late 18th and early 19th centuries, Bengali merchant Ramdulal De(Sarkar) was a well-known figure in the maritime trade between India and America.<br><br>One of the earliest Bengali businessmen, Ramdulal Dey (Sarkar)amassed wealth in the 17th century through trade with the newly independent United States of America (USA). At a period when the US had just attained independence from Great Britain and was actively trying to develop its economy and trade, he was a pioneer in the Indo-American maritime trade. The second-oldest American consulate (and oldest in India) was established in Kolkata on November 19, 1792, by order of George Washington, the first President of the United States, due to the prosperous trading links between Ramdulal and Kolkata.<br><br>Due to their extravagant lifestyle, Asutosh Deb and Pramathanath Deb, his two sons, gained the renown nicknames “Chhatu Babu” and “Latu Babu.” They allegedly used to burn 100 rupee bills to light cigars. Despite their lack of commercial success, they were well-liked in their respective industries. Musician Asutosh alias Chhatu Babu was a prominent classical music lover and expert. His nach ghar (dancing room), where renowned national musicians and dancers like Gauhar Jaan and Pandit Ravi Shankar performed, became famous during his lifetime.<br><br>Ishwar Ram Dulal Deb (Sarkar) first held Durga Pujas at his home on Beadon Street in 1770. Later, this ritual came to be known as Chatu Babu Latu Babur Barir Traditional Durga Puja.<br>Courtesy: The Pujo Company"
   },
   {
     "id": "rammohan_sammilani",
@@ -10393,13 +9117,13 @@
     "id": "salt_lake_bg_block",
     "source_id": "thepujo_97",
     "name": "Salt Lake BG Block",
-    "lat": 22.595449,
-    "lng": 88.423119,
+    "lat": 22.59545,
+    "lng": 88.42312,
     "zone": "eastKolkata",
-    "area": "Salt Lake, Kolkata",
+    "area": "Sector 2, Salt Lake",
     "region": "East",
     "rating": 4.5,
-    "theme": "Modern Artistic Theme",
+    "theme": "Contemporary Cultural Theme",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -10421,7 +9145,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake BG Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake BG Block is celebrated for its spacious thematic grounds, vibrant community cultural programs, and elegant pandal architecture.",
+    "bengaliName": "সল্টলেক বি জি ব্লক"
   },
   {
     "id": "salt_lake_ca_block",
@@ -10672,13 +9397,13 @@
     "id": "salt_lake_laboni",
     "source_id": "thepujo_24",
     "name": "Salt Lake Laboni",
-    "lat": 22.582869,
-    "lng": 88.406723,
+    "lat": 22.59124,
+    "lng": 88.40956,
     "zone": "eastKolkata",
-    "area": "Salt Lake, Kolkata",
+    "area": "Sector 1, Salt Lake",
     "region": "East",
     "rating": 4.5,
-    "theme": "Modern Artistic Theme",
+    "theme": "Contemporary Community Art",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -10701,52 +9426,20 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake Laboni is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "samaj_sebi",
-    "source_id": "69",
-    "name": "Samaj Sebi",
-    "lat": 22.5155625,
-    "lng": 88.3559608,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Kalighat (Blue)",
-    "nearest_metro_list": [
-      "Kalighat (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Jn (Sealdah South/Circular)",
-    "nearest_railway_list": [
-      "Ballygunge Jn (Sealdah South/Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Samaj Sebi pandal in South Kolkata."
+    "description": "Laboni Estate in Salt Lake is renowned for peaceful family atmosphere, vibrant cultural soirees, and creative contemporary community pandals.",
+    "bengaliName": "সল্টলেক লাবণী"
   },
   {
     "id": "samaj_sebi_sangha",
     "source_id": "thepujo_178",
     "name": "Samaj Sebi Sangha",
-    "lat": 22.515591,
-    "lng": 88.357719,
+    "lat": 22.51559,
+    "lng": 88.35772,
     "zone": "southKolkata",
-    "area": "Bhowanipore / South Kolkata",
+    "area": "Lake View Road / Ballygunge, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.8,
+    "theme": "Social Consciousness & Inclusive Art",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -10768,7 +9461,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Samaj Sebi Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Samaj Sebi Sangha is celebrated throughout the city for touching humanitarian themes, inclusive pandal designs (such as tactile paths for visually impaired), and peaceful artistry.",
+    "bengaliName": "সমাজ সেবী সংঘ"
   },
   {
     "id": "sammilita_lalabagan_sarbojanin",
@@ -10911,35 +9605,6 @@
     "description": "Sanghasree is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "santhoshpur_lakepally",
-    "source_id": "60",
-    "name": "Santhoshpur Lakepally",
-    "lat": 22.491533094854923,
-    "lng": 88.38277688646762,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Jyotirindra Nandi (Orange)",
-    "nearest_metro_list": [
-      "Jyotirindra Nandi (Orange)"
-    ],
-    "nearest_railway": "Jadavpur (Sealdah South)",
-    "nearest_railway_list": [
-      "Jadavpur (Sealdah South)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Santhoshpur Lakepally pandal in South Kolkata."
-  },
-  {
     "id": "santosh_mitra_square",
     "source_id": "73",
     "name": "Santosh Mitra Square",
@@ -11047,10 +9712,10 @@
     "lat": 22.491508,
     "lng": 88.382774,
     "zone": "southKolkata",
-    "area": "Behala / Kudghat, South Kolkata",
+    "area": "Santoshpur / Jadavpur, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.7,
+    "theme": "Master Craft & Material Innovation",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -11072,7 +9737,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Lake Pally is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Lake Pally is famous across Bengal for transforming indigenous raw materials into world-class contemporary art installations.",
+    "bengaliName": "সন্তোষপুর লেক পল্লী"
   },
   {
     "id": "santoshpur_sonar_tori_durgatsav",
@@ -11115,10 +9781,10 @@
     "lat": 22.492996,
     "lng": 88.378448,
     "zone": "southKolkata",
-    "area": "Behala / Kudghat, South Kolkata",
+    "area": "Santoshpur, South Kolkata",
     "region": "South",
     "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "theme": "Artistic Traditional",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -11140,7 +9806,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Trikon Park is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Trikon Park is renowned for peaceful artistic ambience, creative traditional pandals, and community festivities.",
+    "bengaliName": "সন্তোষপুর ত্রিকোণ পার্ক"
   },
   {
     "id": "satadal",
@@ -11287,10 +9954,10 @@
     "lat": 22.505087,
     "lng": 88.368149,
     "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
+    "area": "Dhakuria / Selimpur, South Kolkata",
     "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.7,
+    "theme": "Experiential Installation & Art",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -11312,41 +9979,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Selimpur Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "selimpur_pally_durga_puja_pandal",
-    "source_id": "thepujo_291",
-    "name": "Selimpur Pally Durga Puja Pandal",
-    "lat": 22.5048712,
-    "lng": 88.3678466,
-    "zone": "southKolkata",
-    "area": "Gariahat / Ballygunge, South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Rabindra Sarobar (Blue)",
-    "nearest_metro_list": [
-      "Rabindra Sarobar (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Selimpur Pally Durga Puja Pandal is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Selimpur Pally is a powerhouse in the Dhakuria circuit, celebrated for experiential installations, atmospheric lighting, and touching social themes.",
+    "bengaliName": "সেলিমপুর পল্লী"
   },
   {
     "id": "shib_mandir",
@@ -11409,35 +10043,6 @@
     "special_features": [],
     "image_url": "",
     "description": "Shimla Street pandal in North Kolkata."
-  },
-  {
-    "id": "shree_sangha",
-    "source_id": "38",
-    "name": "Shree Sangha",
-    "lat": 22.498013595046597,
-    "lng": 88.32014733723818,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4.3,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Behala Bazar (Purple)",
-    "nearest_metro_list": [
-      "Behala Bazar (Purple)"
-    ],
-    "nearest_railway": "Brace Bridge (Circular/Sealdah South)",
-    "nearest_railway_list": [
-      "Brace Bridge (Circular/Sealdah South)"
-    ],
-    "special_features": [],
-    "image_url": "",
-    "description": "Shree Sangha pandal in South Kolkata."
   },
   {
     "id": "shurir_bagan",
@@ -11573,49 +10178,13 @@
     "id": "simla_byam_samity",
     "source_id": "thepujo_52",
     "name": "Simla Byam Samity",
-    "lat": 22.585285,
-    "lng": 88.365097,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Girish Park (Blue)",
-    "nearest_metro_list": [
-      "Girish Park (Blue)",
-      "Sovabazar Sutanuti (Blue)",
-      "MG Road (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Simla Byam Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "simla_byayam_samity",
-    "source_id": "thepujo_247",
-    "name": "Simla Byayam Samity",
     "lat": 22.5853694,
     "lng": 88.3650092,
     "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
+    "area": "Simla / Vivekananda Road, North Kolkata",
     "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.7,
+    "theme": "Revolutionary Heritage & Veer Sabeki",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -11639,7 +10208,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Simla Byayam Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Founded in 1926 by revolutionaries of India's independence movement, Simla Byam Samity stands as an historic heritage Sabeki puja with a fearless patriotic soul and traditional warrior goddess.",
+    "bengaliName": "শিমলা ব্যায়াম সমিতি"
   },
   {
     "id": "singhi_park",
@@ -11799,52 +10369,16 @@
     "description": "Sodepur Pragati Sangha (Haridevpur) is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "sovabazar_beniatola",
-    "source_id": "thepujo_27",
-    "name": "Sovabazar Beniatola",
-    "lat": 22.595915,
-    "lng": 88.360909,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Shyambazar (Blue)",
-      "Girish Park (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Sovabazar Beniatola is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "sovabazar_rajbari",
     "source_id": "thepujo_41",
     "name": "Sovabazar Rajbari",
     "lat": 22.596798,
     "lng": 88.367233,
     "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
+    "area": "Sovabazar, North Kolkata",
     "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.9,
+    "theme": "Centuries-Old Bonedi Bari Heritage (1757)",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -11867,42 +10401,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sovabazar Rajbari is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "sovabazar_rajbarir_durga_pujo",
-    "source_id": "thepujo_268",
-    "name": "Sovabazar Rajbarir Durga Pujo",
-    "lat": 22.5962505,
-    "lng": 88.3674185,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.7,
-    "theme": "Centuries-Old Bonedi Bari Heritage",
-    "crowd_level": "medium",
-    "timings": "6:00 AM - 10:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Sovabazar Sutanuti (Blue)",
-    "nearest_metro_list": [
-      "Sovabazar Sutanuti (Blue)",
-      "Shyambazar (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Centuries-Old Heritage Rituals",
-      "Traditional Ekchala Pratima",
-      "Historical Jamindar Family Puja"
-    ],
-    "image_url": "",
-    "description": "The beautiful Shobhabazar Rajbari Belongs to the royal family of Raja Naba Krishna Deb, the youngest son of Ram Charan Deb, who was a businessman and a Dewan under the Nawab of Cuttack. The Rajbari had seen glory and success during the British rule in Bengal. Nabakrishna Deb’s acquaintance with Lord Clive changed his fortune he started his career as a munshi and got engaged in the personal service of Lord Clive and gradually rose to power and fame with time. After Clive appointed him to the post of his personal Confidential Secretary, he became an influential negotiator between the British and the Mughals, Nawabs, and Rajas.<br><br>Raja Nabakrishna Deb first celebrated Durga Puja in the year 1757 to rejoice in the victory of the British over Nawab Siraj-ud-Daulah of Murshidabad. It is known from resources that renowned British generals Warren Hastings and Lord Clive were among the VIP invitees for the grand festival. Swami Vivekananda was also invited to a gala reception after his return from the World Parliament of Religions held in Chicago.<br><br>The Durga Puja in Rajbari is celebrated on the Nat Mandap or the Thakurdalan, which is an open courtyard area in the middle of the palatial building. Here the idol of the Devi along with her four children Lord Ganesha, Lord Kartik, Devi Lakshmi, and Devi Sarswati are presented in an “Ek Chala” or single structure platform. Starting from the bathing of Lord Ganesha’s consort “Kala Bou” (Banana Tree), Shosti Puja, Anjali puja of Mahastami, Navami Puja, and the immersion ceremony (Bishorjon) of the Devi idol on Bijaya Dashami – these grand five days are not only celebrated with a religious mind – the impact lies more like the celebration of happiness and joy. This historic and famous festival of the Rajbari is accompanied by some celebrities and all the five days of the celebration are open to the crowd to offer their devotion and pray to “Maa”.<br><br>Courtesy: The Pujo Company"
+    "description": "Founded in 1757 by Raja Nabakrishna Deb, the Shobhabazar Rajbari Bonedi puja is the historical pinnacle of Kolkata Durga Puja, held in the iconic open Natmandir with heritage rituals and classical Ekchala pratima.",
+    "bengaliName": "শোভাবাজার রাজবাড়ি"
   },
   {
     "id": "sovabazar_sarbojanin",
@@ -12340,50 +10840,16 @@
     "description": "Tarun Sporting Club is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
   },
   {
-    "id": "telenga_bagan",
-    "source_id": "thepujo_240",
-    "name": "Telenga Bagan",
-    "lat": 22.5940824,
-    "lng": 88.3835636,
-    "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
-    "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Belgachia (Blue)",
-    "nearest_metro_list": [
-      "Belgachia (Blue)"
-    ],
-    "nearest_railway": "Kolkata Station (Circular)",
-    "nearest_railway_list": [
-      "Kolkata Station (Circular)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Telenga Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
     "id": "telengabagan",
     "source_id": "thepujo_10",
     "name": "Telengabagan",
-    "lat": 22.594915,
-    "lng": 88.385399,
+    "lat": 22.59492,
+    "lng": 88.3854,
     "zone": "northKolkata",
-    "area": "Shyambazar / Maniktala, North Kolkata",
+    "area": "Ultadanga, North Kolkata",
     "region": "North",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
+    "rating": 4.7,
+    "theme": "Social Thought & Conceptual Art",
     "crowd_level": "high",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
@@ -12405,7 +10871,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Telengabagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Telengabagan Sarbojanin in Ultadanga is a trailblazer in thematic pandal art, known for pioneering thought-provoking environmental and cultural installations.",
+    "bengaliName": "তেলেঙ্গাবাগান"
   },
   {
     "id": "the_bengal_boys_training_association",
@@ -12509,21 +10976,21 @@
   {
     "id": "tridhara",
     "source_id": "66",
-    "name": "Tridhara",
-    "lat": 22.5193983,
-    "lng": 88.3554347,
+    "name": "Tridhara Sammilani",
+    "lat": 22.519238,
+    "lng": 88.355377,
     "zone": "southKolkata",
-    "area": "South Kolkata",
+    "area": "Ballygunge / Rashbehari, South Kolkata",
     "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
+    "rating": 4.8,
+    "theme": "Innovative Concept & Artistic Brilliance",
     "crowd_level": "medium",
     "timings": "12:00 AM - 12:00 PM",
     "transport": [
       "Metro",
       "Railway"
     ],
-    "nearest_metro": "Kalighat (Blue)",
+    "nearest_metro": "Jatin Das Park (Blue)",
     "nearest_metro_list": [
       "Kalighat (Blue)"
     ],
@@ -12537,75 +11004,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tridhara pandal in South Kolkata."
-  },
-  {
-    "id": "tridhara_sammilani",
-    "source_id": "thepujo_131",
-    "name": "Tridhara Sammilani",
-    "lat": 22.519238,
-    "lng": 88.355377,
-    "zone": "southKolkata",
-    "area": "Bhowanipore / South Kolkata",
-    "region": "South",
-    "rating": 4.5,
-    "theme": "Traditional Bengali",
-    "crowd_level": "high",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Bus",
-      "Auto-rickshaw"
-    ],
-    "nearest_metro": "Jatin Das Park (Blue)",
-    "nearest_metro_list": [
-      "Jatin Das Park (Blue)",
-      "Kalighat (Blue)"
-    ],
-    "nearest_railway": "Ballygunge Junction",
-    "nearest_railway_list": [
-      "Ballygunge Junction"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Tridhara Sammilani is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
-  },
-  {
-    "id": "trikon_park",
-    "source_id": "61",
-    "name": "Trikon Park",
-    "lat": 22.493162,
-    "lng": 88.3784275,
-    "zone": "southKolkata",
-    "area": "South Kolkata",
-    "region": "South",
-    "rating": 4,
-    "theme": "Traditional",
-    "crowd_level": "medium",
-    "timings": "12:00 AM - 12:00 PM",
-    "transport": [
-      "Metro",
-      "Railway"
-    ],
-    "nearest_metro": "Gitanjali (Blue)",
-    "nearest_metro_list": [
-      "Gitanjali (Blue)"
-    ],
-    "nearest_railway": "Jadavpur (Sealdah South)",
-    "nearest_railway_list": [
-      "Jadavpur (Sealdah South)"
-    ],
-    "special_features": [
-      "Grand Mandap Illumination",
-      "Cultural Exhibition",
-      "High Footfall Iconic Venue"
-    ],
-    "image_url": "",
-    "description": "Trikon Park pandal in South Kolkata."
+    "description": "Tridhara Sammilani is a crown jewel of South Kolkata hopping, renowned for mind-bending creative themes, artistic craftsmanship, and immaculate idol artistry.",
+    "bengaliName": "ত্রিধারা সম্মিলনী"
   },
   {
     "id": "udayan_sangha",

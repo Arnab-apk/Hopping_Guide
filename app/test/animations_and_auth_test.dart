@@ -65,6 +65,10 @@ void main() {
   });
 
   group('AuthService and AuthResult Tests', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
     test('guest sign in sets active user model correctly', () async {
       final user = await AuthService.instance.signInAsGuest();
       expect(user.isGuest, true);

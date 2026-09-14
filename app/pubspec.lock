@@ -383,7 +383,7 @@ packages:
     source: hosted
     version: "5.0.0"
   flutter_local_notifications_platform_interface:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: flutter_local_notifications_platform_interface
       sha256: "6c5b83c86bf819cdb177a9247a3722067dd8cc6313827ce7c77a4b238a26fd52"
@@ -878,7 +878,7 @@ packages:
     source: hosted
     version: "0.6.0"
   rxdart:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: rxdart
       sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
@@ -965,6 +965,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.4"
+  simplify:
+    dependency: "direct main"
+    description:
+      name: simplify
+      sha256: c78631bac594fa2045ac3cc6839f13828d6c179890d43d4e106bbcb74bc29d6e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
   sky_engine:
     dependency: transitive
     description: flutter

@@ -6,9 +6,7 @@ import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../services/custom_hopping_trail_service.dart';
-import '../utils/responsive.dart';
 import '../widgets/pandal_detail_sheet.dart';
-import '../widgets/animated_fade_slide.dart';
 import '../widgets/custom_trail_planner_dialog.dart';
 import 'main_navigation_screen.dart';
 
@@ -50,6 +48,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
   Map<String, Pandal> _pandalMap = {};
   bool _isLoading = true;
   bool _isGuideExpanded = false;
+  String? _expandedRouteId;
 
   final List<HoppingRoute> _curatedRoutes = const [
     HoppingRoute(
@@ -189,492 +188,452 @@ class _RoutesScreenState extends State<RoutesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pandal-Hopping Routes'),
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: PujaColors.durgaRed))
           : ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               children: [
-                // Header Banner (Animated entrance)
-                AnimatedFadeSlide(
-                  duration: const Duration(milliseconds: 380),
-                  offset: const Offset(0, -0.08),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [PujaColors.crimsonVelvet, PujaColors.durgaRedDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.45),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: PujaColors.crimsonVelvet.withValues(alpha: 0.35),
-                        blurRadius: 15,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
+                // Minimalist Headline
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 12, top: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.alt_route, color: PujaColors.goldBright, size: 22),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Smart Pandal Circuits',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
                       Text(
-                        'Carefully organized hopping itineraries designed to minimize crowd waiting times and maximize metro/transit efficiency.',
+                        'Curated Circuits',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.4,
+                          color: isDark ? Colors.white : PujaColors.crimsonVelvet,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Optimized walking routes & transit-friendly trails',
+                        style: TextStyle(
                           fontSize: 13,
-                          height: 1.45,
+                          color: isDark ? Colors.white60 : Colors.black54,
                         ),
                       ),
                     ],
                   ),
                 ),
-                ),
 
-                const SizedBox(height: 14),
-
-                // AI Custom Trail Generator Banner
+                // Sleek AI Custom Trail Action Card
                 InkWell(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   onTap: () => CustomTrailPlannerDialog.show(context),
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isDark
-                            ? [const Color(0xFF2C1B2E), const Color(0xFF1E1F29)]
-                            : [const Color(0xFFFFF3E0), Colors.white],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
+                      color: isDark ? PujaColors.nightCard : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: PujaColors.festivalGold.withValues(alpha: 0.6),
-                        width: 1.5,
+                        color: PujaColors.festivalGold.withValues(alpha: isDark ? 0.35 : 0.4),
+                        width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.15),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          width: 36,
+                          height: 36,
                           decoration: BoxDecoration(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                            color: PujaColors.festivalGold.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.auto_awesome_rounded,
                             color: PujaColors.festivalGold,
-                            size: 26,
+                            size: 20,
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'AI Custom Trail Planner',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 15,
-                                      color: isDark ? Colors.white : Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: PujaColors.durgaRed,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Text(
-                                      'NEW',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 3),
                               Text(
-                                'Set your time in hand & hopping vibe (Heritage, Blockbuster, Low Queue). Includes Auto-Visit & Notification Bar progress.',
+                                'AI Custom Trail Planner',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14.5,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Create your own route by time and vibe',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: isDark ? Colors.white70 : Colors.black54,
-                                  height: 1.35,
+                                  color: isDark ? Colors.white60 : Colors.black54,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_forward_ios_rounded,
-                          color: PujaColors.festivalGold,
-                          size: 16,
+                          color: isDark ? Colors.white38 : Colors.black38,
+                          size: 14,
                         ),
                       ],
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
-                // Beginner's & First-Timer's Planning Guide Card
-                _buildFirstTimersGuideCard(isDark),
-
-                const SizedBox(height: 24),
-
-                const Text(
-                  'Curated Heritage Itineraries',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                // Curated Routes List
+                ..._curatedRoutes.map(
+                  (route) => _buildRouteCard(route, isDark),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
-                ..._curatedRoutes.asMap().entries.map(
-                      (entry) => AnimatedFadeSlide(
-                        key: ValueKey('route_${entry.value.id}'),
-                        delay: Duration(milliseconds: 60 + (entry.key * 45)),
-                        child: _buildRouteCard(entry.value, isDark),
-                      ),
-                    ),
+                // Minimalist Collapsible Transit Tips
+                _buildFirstTimersGuideCard(isDark),
+
+                const SizedBox(height: 20),
               ],
             ),
     );
   }
 
   Widget _buildRouteCard(HoppingRoute route, bool isDark) {
-    // Resolve pandals in route
     final pandalsInRoute = route.pandalIds
         .map((id) => _pandalMap[id])
         .whereType<Pandal>()
         .toList();
+    final isExpanded = _expandedRouteId == route.id;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 20),
-      elevation: isDark ? 1 : 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      child: Padding(
-        padding: const EdgeInsets.all(18.0),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? PujaColors.nightCard : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isExpanded
+              ? route.color.withValues(alpha: 0.5)
+              : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
+          width: isExpanded ? 1.2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: route.color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(route.icon, color: route.color, size: context.dynamicIcon(26)),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        route.bengaliTitle,
-                        style: TextStyle(
-                          color: route.color,
-                          fontSize: context.dynamicFont(13),
-                          fontWeight: FontWeight.w700,
+            InkWell(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _expandedRouteId = isExpanded ? null : route.id;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: route.color.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Icon(route.icon, color: route.color, size: 22),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            route.title,
+                            style: const TextStyle(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            route.bengaliTitle,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.white54 : Colors.black45,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '${route.duration} • ${route.distance} • ${route.pandalIds.length} stops',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: route.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Quick Action Button
+                    InkWell(
+                      borderRadius: BorderRadius.circular(999),
+                      onTap: () => _startCircuit(route, pandalsInRoute),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: PujaColors.durgaRed.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(Icons.play_arrow_rounded, color: PujaColors.durgaRed, size: 16),
+                            SizedBox(width: 2),
+                            Text(
+                              'Map',
+                              style: TextStyle(
+                                color: PujaColors.durgaRed,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        route.title,
-                        style: TextStyle(
-                          fontSize: context.dynamicFont(18),
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      isExpanded
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      color: isDark ? Colors.white38 : Colors.black38,
+                      size: 20,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            Text(
-              route.subtitle,
-              style: TextStyle(
-                color: isDark ? Colors.white70 : Colors.black54,
-                fontSize: context.dynamicFont(13),
-                height: 1.4,
               ),
             ),
-
-            const SizedBox(height: 14),
-
-            // Metrics chips
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _buildMetricChip(context, Icons.schedule, route.duration, isDark),
-                _buildMetricChip(context, Icons.straighten, route.distance, isDark),
-                _buildMetricChip(context, Icons.light_mode, route.bestTime, isDark),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            const Divider(height: 1),
-
-            const SizedBox(height: 14),
-
-            // Stops sequence
-            Text(
-              'Stops in this route (${pandalsInRoute.length} pandals):',
-              style: TextStyle(fontSize: context.dynamicFont(13), fontWeight: FontWeight.w700),
-            ),
-
-            const SizedBox(height: 8),
-
-            ...List.generate(pandalsInRoute.length, (idx) {
-              final p = pandalsInRoute[idx];
-              return InkWell(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  PandalDetailSheet.show(context, p);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          color: route.color.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
+            if (isExpanded) ...[
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      route.subtitle,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.4,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time_rounded, size: 14, color: route.color),
+                        const SizedBox(width: 6),
+                        Expanded(
                           child: Text(
-                            '${idx + 1}',
+                            'Best time: ${route.bestTime}',
                             style: TextStyle(
-                              color: route.color,
-                              fontSize: context.dynamicFont(11),
-                              fontWeight: FontWeight.w800,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white70 : Colors.black87,
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          p.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: context.dynamicFont(14),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      if (p.nearestMetro != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          p.nearestMetro!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: context.dynamicFont(11),
-                            color: PujaColors.metroBlue,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ],
-                    ],
-                  ),
-                ),
-              );
-            }),
-
-            const SizedBox(height: 14),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  if (pandalsInRoute.isNotEmpty) {
-                    final firstPandal = pandalsInRoute.first;
-                    final distNum = double.tryParse(route.distance.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 4.0;
-                    final trail = ActiveCustomTrail(
-                      id: 'circuit_${route.id}',
-                      style: HoppingStyle.express,
-                      timeBudgetMinutes: 180,
-                      transitMode: HoppingTransitMode.walking,
-                      startingLocation: LatLng(firstPandal.lat, firstPandal.lng),
-                      startingAddress: firstPandal.name,
-                      stops: pandalsInRoute,
-                      totalDistanceKm: distNum,
-                      totalEstimatedMinutes: 180,
-                      startedAt: DateTime.now(),
-                    );
-                    CustomHoppingTrailService.instance.startTrail(trail);
-                    MainNavigationScreen.switchTab(context, 0);
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('🗺️ Following "${route.title}"! Stop 1: ${pandalsInRoute.first.name}'),
-                        backgroundColor: PujaColors.crimsonVelvet,
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-                  }
-                },
-                icon: Icon(Icons.map, size: context.dynamicIcon(18)),
-                label: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'Follow this Circuit on Map',
-                    style: TextStyle(fontSize: context.dynamicFont(14), fontWeight: FontWeight.bold),
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: PujaColors.crimsonVelvet,
-                  foregroundColor: PujaColors.goldBright,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: BorderSide(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.4),
-                      width: 1,
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Circuit Stops (${pandalsInRoute.length})',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...List.generate(pandalsInRoute.length, (idx) {
+                      final p = pandalsInRoute[idx];
+                      return InkWell(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          PandalDetailSheet.show(context, p);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: route.color.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${idx + 1}',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: route.color,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  p.name,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (p.nearestMetro != null && p.nearestMetro!.isNotEmpty)
+                                Text(
+                                  p.nearestMetro!,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: PujaColors.metroBlue,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 38,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _startCircuit(route, pandalsInRoute),
+                        icon: const Icon(Icons.map_rounded, size: 16),
+                        label: const Text('Start Circuit on Map'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: PujaColors.crimsonVelvet,
+                          foregroundColor: PujaColors.goldBright,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
 
+  void _startCircuit(HoppingRoute route, List<Pandal> pandalsInRoute) {
+    HapticFeedback.lightImpact();
+    if (pandalsInRoute.isNotEmpty) {
+      final firstPandal = pandalsInRoute.first;
+      final distNum = double.tryParse(route.distance.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 4.0;
+      final trail = ActiveCustomTrail(
+        id: 'circuit_${route.id}',
+        style: HoppingStyle.express,
+        timeBudgetMinutes: 180,
+        transitMode: HoppingTransitMode.walking,
+        startingLocation: LatLng(firstPandal.lat, firstPandal.lng),
+        startingAddress: firstPandal.name,
+        stops: pandalsInRoute,
+        totalDistanceKm: distNum,
+        totalEstimatedMinutes: 180,
+        startedAt: DateTime.now(),
+      );
+      CustomHoppingTrailService.instance.startTrail(trail);
+      MainNavigationScreen.switchTab(context, 0);
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🗺️ Following "${route.title}"! Stop 1: ${pandalsInRoute.first.name}'),
+          backgroundColor: PujaColors.crimsonVelvet,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   Widget _buildFirstTimersGuideCard(bool isDark) {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? PujaColors.nightCard : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: PujaColors.festivalGold.withValues(alpha: 0.35),
-          width: 1.2,
+          color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       child: Column(
         children: [
           InkWell(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             onTap: () {
               HapticFeedback.selectionClick();
               setState(() => _isGuideExpanded = !_isGuideExpanded);
             },
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: PujaColors.durgaRed.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.menu_book_rounded,
-                      color: PujaColors.durgaRed,
-                      size: 22,
-                    ),
+                  const Icon(
+                    Icons.tips_and_updates_outlined,
+                    color: PujaColors.festivalGold,
+                    size: 20,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "First-Timer's Planning Guide",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 15,
-                                color: isDark ? Colors.white : Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text('💡', style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Metro night hours, queue-skipping strategies & street food pairings',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark ? Colors.white70 : Colors.black54,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'Hopping & Metro Tips',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13.5,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
                     ),
                   ),
                   Icon(
                     _isGuideExpanded
                         ? Icons.keyboard_arrow_up_rounded
                         : Icons.keyboard_arrow_down_rounded,
-                    color: PujaColors.festivalGold,
-                    size: 24,
+                    color: isDark ? Colors.white38 : Colors.black38,
+                    size: 20,
                   ),
                 ],
               ),
@@ -683,39 +642,30 @@ class _RoutesScreenState extends State<RoutesScreen> {
           if (_isGuideExpanded) ...[
             const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildGuideBullet(
                     icon: Icons.subway_rounded,
                     color: PujaColors.metroBlue,
-                    title: 'Metro Lifeline (Runs Till 4 AM)',
-                    body: 'The Blue Line (Dakshineswar to Kavi Subhash) runs past midnight up to 4:00 AM on Saptami, Ashtami, & Nabami. Use Green Line for Howrah Maidan & Salt Lake. Avoid private cars in narrow North Kolkata & Gariahat lanes.',
+                    title: 'Metro Runs Till 4 AM',
+                    body: 'Blue Line runs past midnight up to 4:00 AM on Saptami, Ashtami, & Nabami. Use Green Line for Howrah Maidan & Salt Lake.',
                     isDark: isDark,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   _buildGuideBullet(
                     icon: Icons.access_time_filled_rounded,
                     color: const Color(0xFFFF9100),
-                    title: 'Golden Hopping Windows',
-                    body: '• Early Morning (5 AM - 9 AM): 0 queues, golden sunlight, perfect for Bonedi Bari.\n• Afternoon (1 PM - 4 PM): Best for South Kolkata themes with minimal lines.\n• Night (11 PM - 4 AM): The quintessential Kolkata night vibe & electric illuminations.',
+                    title: 'Best Hopping Windows',
+                    body: 'Morning (5-9 AM) has zero queues. Late night (11 PM - 4 AM) has electric lighting and the true Kolkata puja atmosphere.',
                     isDark: isDark,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   _buildGuideBullet(
                     icon: Icons.hiking_rounded,
                     color: const Color(0xFF00C853),
-                    title: 'Footwear & Hydration',
-                    body: 'Expect 12,000 - 20,000 steps per circuit! Wear comfortable slip-on sandals (you will need to remove shoes at household thakur-dalans). Sip Daab (green coconut water) frequently.',
-                    isDark: isDark,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildGuideBullet(
-                    icon: Icons.restaurant_rounded,
-                    color: const Color(0xFFFF1744),
-                    title: 'Iconic Street Food Pairings',
-                    body: '• North: Golbari Kosha Mangsho, Mitra Cafe Fish Fry, Paramount Daab Sherbet, Nakur Sandesh.\n• South: Kusum Double Chicken Egg Roll, Peter Cat Chelo Kebab, Maharaj Club Kachori.\n• Central: Nizam\'s original Kathi Roll, Anadi Cabin Mughlai Paratha.',
+                    title: 'Footwear & Comfort',
+                    body: 'Expect 10,000+ steps. Slip-on sandals are best as you remove shoes at heritage household thakur-dalans.',
                     isDark: isDark,
                   ),
                 ],
@@ -772,35 +722,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildMetricChip(BuildContext context, IconData icon, String text, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: isDark ? PujaColors.nightSurface : PujaColors.goldSoft,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: PujaColors.festivalGold.withValues(alpha: 0.25),
-          width: 0.8,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: context.dynamicIcon(13), color: PujaColors.durgaRed),
-          const SizedBox(width: 5),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: context.dynamicFont(11),
-              fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white70 : PujaColors.crimsonVelvet,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

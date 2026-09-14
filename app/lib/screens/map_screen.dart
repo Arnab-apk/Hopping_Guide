@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../config/app_config.dart';
 import '../config/theme.dart';
@@ -124,6 +125,19 @@ const ColorFilter _kDarkMatrix = ColorFilter.matrix(<double>[
   0.0,
 ]);
 
+/// Throttles tile updates by 50ms with trailing emission and filters out tap & zero-movement events.
+/// Stops rapid panning/swiping from queueing dead tile HTTP requests.
+TileUpdateTransformer _throttleTileUpdates() {
+  return StreamTransformer.fromBind((Stream<TileUpdateEvent> tileUpdateEvents) {
+    return tileUpdateEvents
+        // Only trigger a tile fetch if the user stops/slows down for 50ms
+        // This stops rapid swipes from queueing 100s of dead HTTP requests
+        .throttleTime(const Duration(milliseconds: 50), trailing: true)
+        // Ignore micro-movements and taps
+        .where((event) => !event.wasTriggeredByTap() && event.zoom != 0);
+  });
+}
+
 class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   late final MapController _mapController;
   late final PandalRepository _repo;
@@ -145,6 +159,32 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   FoodSpot? _selectedFoodSpot;
   MetroStation? _selectedMetroStation;
   Position? _userPosition;
+
+  LatLng? get _effectiveUserLocation {
+    // If a walking route is active, ensure the user's DP is anchored to the path's starting point
+    // when GPS coordinates are still resolving or if the user is testing from outside Kolkata (> 70 km).
+    if (_highlightedRoute != null && _highlightedRoute!.points.isNotEmpty) {
+      if (_userPosition == null) {
+        return _highlightedRoute!.points.first;
+      }
+      final distToKolkata = haversineMeters(
+        _userPosition!.latitude,
+        _userPosition!.longitude,
+        AppConfig.defaultLat,
+        AppConfig.defaultLng,
+      );
+      if (distToKolkata > 70000) {
+        return _highlightedRoute!.points.first;
+      }
+      return LatLng(_userPosition!.latitude, _userPosition!.longitude);
+    }
+
+    if (_userPosition != null) {
+      return LatLng(_userPosition!.latitude, _userPosition!.longitude);
+    }
+
+    return null;
+  }
 
   // Live Location & Path Highlight States
   WalkingRoute? _highlightedRoute;
@@ -451,11 +491,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     _animatedMapMove(LatLng(pandal.lat, pandal.lng), 16.5);
+    FocusScope.of(context).unfocus();
     setState(() {
       _selectedPandal = pandal;
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _selectedMetroStation = null;
+      _showMapSearchBar = false;
     });
     _highlightRouteTo(pandal);
     _showStatusPill(
@@ -472,12 +514,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     _animatedMapMove(LatLng(station.latitude, station.longitude), 16.2);
+    FocusScope.of(context).unfocus();
     setState(() {
       _selectedMetroStation = station;
       _selectedPandal = null;
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _highlightedRoute = null;
+      _showMapSearchBar = false;
     });
 
     _showStatusPill(
@@ -494,12 +538,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     _animatedMapMove(LatLng(spot.lat, spot.lng), 16.8);
+    FocusScope.of(context).unfocus();
     setState(() {
       _selectedFoodSpot = spot;
       _showFoodSpots = true;
       _selectedPandal = null;
       _selectedSquadMember = null;
       _selectedMetroStation = null;
+      _showMapSearchBar = false;
     });
 
     _showStatusPill(
@@ -511,6 +557,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   Future<void> _highlightRouteToMetroStation(MetroStation station) async {
     HapticFeedback.mediumImpact();
+    FocusScope.of(context).unfocus();
     var userPos = _userPosition;
     userPos ??= await LocationService.instance.currentPosition();
 
@@ -525,18 +572,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = isFarAway ? AppConfig.defaultLat : userLat;
-    final refLng = isFarAway ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
+    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(station.latitude, station.longitude);
 
     setState(() {
+      if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
       _selectedMetroStation = station;
       _selectedPandal = null;
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _followUser = false;
+      _showMapSearchBar = false;
     });
 
     final route = await RoutingService.instance.getWalkingRouteToPoint(
@@ -550,6 +599,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
+      _showMapSearchBar = false;
     });
 
     if (route.points.isNotEmpty) {
@@ -565,40 +615,57 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   Future<void> _highlightRouteTo(Pandal pandal) async {
     HapticFeedback.mediumImpact();
+    FocusScope.of(context).unfocus();
     var userPos = _userPosition;
     userPos ??= await LocationService.instance.currentPosition();
 
-    if (userPos == null) {
-      if (mounted) {
-        _showStatusPill(
-          '📍 Location permission needed to trace walking path.',
-          icon: Icons.location_disabled_rounded,
-          color: Colors.amber,
-        );
-      }
-      return;
-    }
+    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
+    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
+
+    final distToKolkata = haversineMeters(
+      userLat,
+      userLng,
+      AppConfig.defaultLat,
+      AppConfig.defaultLng,
+    );
+    final bool isFarAway = distToKolkata > 70000;
+
+    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
+    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final start = LatLng(refLat, refLng);
+    final dest = LatLng(pandal.lat, pandal.lng);
 
     setState(() {
+      if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
       _selectedPandal = pandal;
+      _showMapSearchBar = false;
     });
 
-    final start = LatLng(userPos.latitude, userPos.longitude);
-    final route = await RoutingService.instance.getWalkingRoute(
+    if (userPos == null && mounted) {
+      _showStatusPill(
+        '📍 Using central Kolkata as starting point for path.',
+        icon: Icons.near_me_outlined,
+      );
+    }
+
+    final route = await RoutingService.instance.getWalkingRouteToPoint(
       start: start,
-      destination: pandal,
+      destination: dest,
+      destinationName: pandal.name,
+      targetPandal: pandal,
     );
 
     if (!mounted) return;
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
+      _showMapSearchBar = false;
     });
 
     // Fit camera to display both user and pandal walking corridor
-    if (route.points.length >= 2) {
-      final bounds = LatLngBounds.fromPoints(route.points);
+    if (route.points.isNotEmpty) {
+      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
       _mapController.fitCamera(
         CameraFit.bounds(
           bounds: bounds,
@@ -625,8 +692,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = isFarAway ? AppConfig.defaultLat : userLat;
-    final refLng = isFarAway ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
+    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
     final refPoint = LatLng(refLat, refLng);
 
     // Find all pandals within 10 km (10,000 meters)
@@ -649,6 +716,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final nearest = effectivePandals.first;
 
     setState(() {
+      if (userPos != null) _userPosition = userPos;
       _filterNearby10Km = true;
       _selectedZone = null;
       _selectedPandal = nearest;
@@ -682,28 +750,34 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   Future<void> _highlightRouteToMember(SquadMember member) async {
     HapticFeedback.mediumImpact();
+    FocusScope.of(context).unfocus();
     var userPos = _userPosition;
     userPos ??= await LocationService.instance.currentPosition();
 
-    if (userPos == null) {
-      if (mounted) {
-        _showStatusPill(
-          '📍 Location needed to trace route to squad member.',
-          icon: Icons.location_disabled_rounded,
-          color: Colors.amber,
-        );
-      }
-      return;
-    }
+    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
+    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
+
+    final distToKolkata = haversineMeters(
+      userLat,
+      userLng,
+      AppConfig.defaultLat,
+      AppConfig.defaultLng,
+    );
+    final bool isFarAway = distToKolkata > 70000;
+
+    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
+    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final start = LatLng(refLat, refLng);
+    final dest = LatLng(member.latitude, member.longitude);
 
     setState(() {
+      if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
       _selectedSquadMember = member;
       _selectedPandal = null;
+      _showMapSearchBar = false;
     });
 
-    final start = LatLng(userPos.latitude, userPos.longitude);
-    final dest = LatLng(member.latitude, member.longitude);
     final route = await RoutingService.instance.getWalkingRouteToPoint(
       start: start,
       destination: dest,
@@ -715,6 +789,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
+      _showMapSearchBar = false;
     });
 
     if (route.points.isNotEmpty) {
@@ -735,6 +810,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   Future<void> _highlightRouteToFoodSpot(FoodSpot spot) async {
     HapticFeedback.mediumImpact();
+    FocusScope.of(context).unfocus();
     var userPos = _userPosition;
     userPos ??= await LocationService.instance.currentPosition();
 
@@ -750,18 +826,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = isFarAway ? AppConfig.defaultLat : userLat;
-    final refLng = isFarAway ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
+    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(spot.lat, spot.lng);
 
     setState(() {
+      if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
       _selectedFoodSpot = spot;
       _selectedPandal = null;
       _selectedSquadMember = null;
       _followUser = false;
       _showFoodSpots = true;
+      _showMapSearchBar = false;
     });
 
     final route = await RoutingService.instance.getWalkingRouteToPoint(
@@ -775,6 +853,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
+      _showMapSearchBar = false;
     });
 
     if (route.points.isNotEmpty) {
@@ -1032,36 +1111,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               setState(() => _showMapSearchBar = !_showMapSearchBar);
             },
           ),
-          Consumer<ThemeService>(
-            builder: (context, themeService, _) {
-              final isDarkActive = themeService.isDarkMode;
-              return IconButton(
-                icon: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 260),
-                  transitionBuilder: (child, anim) => RotationTransition(
-                    turns: anim,
-                    child: FadeTransition(opacity: anim, child: child),
-                  ),
-                  child: Icon(
-                    isDarkActive
-                        ? Icons.light_mode_rounded
-                        : Icons.dark_mode_rounded,
-                    key: ValueKey<bool>(isDarkActive),
-                    color: isDarkActive
-                        ? PujaColors.goldBright
-                        : const Color(0xFFE2E8F0),
-                    size: 22,
-                  ),
-                ),
-                tooltip: isDarkActive
-                    ? 'Switch to Light Mode'
-                    : 'Switch to Dark Mode',
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  themeService.toggleTheme();
-                },
-              );
-            },
+          // Pinned User Profile Avatar (Accessible where the Theme Toggle was)
+          Padding(
+            padding: const EdgeInsets.only(right: 12, left: 4),
+            child: _buildProfileAvatarButton(context, isDark),
           ),
         ],
       ),
@@ -1102,12 +1155,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 child: TileLayer(
                   urlTemplate: AppConfig.tileUrlTemplate,
                   subdomains: AppConfig.osmSubdomains,
+                  // 1. CRITICAL: Prevents OSM from blocking your app (Missing Blocks fix)
                   userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
-                  panBuffer: 3,
-                  keepBuffer: 6,
-                  tileDisplay: const TileDisplay.fadeIn(
-                    duration: Duration(milliseconds: 140),
-                  ),
+
+                  // 2. TILE CULLING: Cancels tile downloads if the user pans away quickly
+                  tileUpdateTransformer: _throttleTileUpdates(),
+
+                  // 3. IN-MEMORY CACHE: Keeps tiles loaded to prevent re-fetching when panning back
+                  keepBuffer: 5, // Keeps a 5-tile radius in RAM
+                  panBuffer: 2,  // Pre-loads 2 tiles ahead of the pan direction
+
+                  // 4. HARDWARE ACCELERATED DARK MODE: Applies your matrix at the GPU level
                   tileBuilder: (context, tileWidget, tile) {
                     if (isDark) {
                       return ColorFiltered(
@@ -1117,6 +1175,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     }
                     return tileWidget;
                   },
+
+                  // 5. SMOOTH TRANSITIONS: Eliminates the jarring pop-in of tiles
+                  tileDisplay: const TileDisplay.fadeIn(
+                    duration: Duration(milliseconds: 150),
+                  ),
+
+                  // 6. SHARED HTTP CLIENT: Prevents socket exhaustion
+                  tileProvider: NetworkTileProvider(
+                    headers: <String, String>{
+                      'Accept': 'image/png',
+                      'User-Agent': 'flutter_map (com.yourdomain.kolkatapuja2026)',
+                    },
+                  ),
                 ),
               ),
 
@@ -1142,7 +1213,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               // GPS Accuracy Circle Layer
               if (_userPosition != null &&
                   _userPosition!.accuracy > 0 &&
-                  _userPosition!.accuracy < 300)
+                  _userPosition!.accuracy < 300 &&
+                  _effectiveUserLocation != null &&
+                  (_effectiveUserLocation!.latitude == _userPosition!.latitude &&
+                   _effectiveUserLocation!.longitude == _userPosition!.longitude))
                 RepaintBoundary(
                   child: CircleLayer(
                     circles: [
@@ -1229,16 +1303,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 },
               ),
 
-              // Food / Bhog Spot Markers
+              // Food / Bhog Spot Markers (Minimalist & Accessible Touch Target)
               if (_showFoodSpots)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: _visibleFoodSpots.map((f) {
                       return Marker(
                         point: LatLng(f.lat, f.lng),
-                        width: 34,
-                        height: 34,
+                        width: 48,
+                        height: 48,
+                        alignment: Alignment.center,
                         child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () {
                             HapticFeedback.selectionClick();
                             _animatedMapMove(
@@ -1249,27 +1325,29 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             );
                             _showFoodSpotSheet(f, isDark);
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFE65100), Color(0xFFFF9800)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                          child: Center(
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF57C00),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2.0),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black38,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 1.5),
+                                  ),
+                                ],
                               ),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black38,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 2),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.restaurant_rounded,
+                                  color: Colors.white,
+                                  size: 18,
                                 ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.restaurant_rounded,
-                              color: Colors.white,
-                              size: 17,
+                              ),
                             ),
                           ),
                         ),
@@ -1278,146 +1356,99 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Selected Metro Station Beacon Layer with High-Visibility Pulse & Glow
+              // Selected Metro / Railway Station Beacon Layer (Prominent Glow & Accessible Target)
               if (_selectedMetroStation != null)
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: LatLng(
-                        _selectedMetroStation!.latitude,
-                        _selectedMetroStation!.longitude,
-                      ),
-                      width: 90,
-                      height: 90,
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          _showMetroStationSheet(
-                            _selectedMetroStation!,
-                            isDark,
-                          );
-                        },
-                        child: RepaintBoundary(
-                          child: AnimatedBuilder(
-                            animation: _pulseController,
-                            builder: (context, _) {
-                              final pulse = _pulseController.value;
-                              final lineColor =
-                                  _selectedMetroStation!.line.color;
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Pulsing outer aura ring
-                                      Container(
-                                        width: 38 + (16 * pulse),
-                                        height: 38 + (16 * pulse),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: lineColor.withValues(
-                                            alpha: 0.35 * (1.0 - pulse),
-                                          ),
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: LatLng(
+                          _selectedMetroStation!.latitude,
+                          _selectedMetroStation!.longitude,
+                        ),
+                        width: 58,
+                        height: 58,
+                        alignment: Alignment.center,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            _animatedMapMove(
+                              LatLng(
+                                _selectedMetroStation!.latitude,
+                                _selectedMetroStation!.longitude,
+                              ),
+                              (_mapController.camera.zoom < 16.0
+                                  ? 16.0
+                                  : _mapController.camera.zoom),
+                            );
+                          },
+                          child: Center(
+                            child: Builder(
+                              builder: (context) {
+                                final isRailway = _selectedMetroStation!.name.toLowerCase().contains('railway');
+                                final baseColor = isRailway ? PujaColors.railwayPurple : _selectedMetroStation!.line.color;
+                                return Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: baseColor,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: baseColor.withValues(
+                                          alpha: 0.85,
                                         ),
-                                      ),
-                                      // Core subway badge
-                                      Container(
-                                        width: 38,
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              lineColor,
-                                              lineColor.withValues(alpha: 0.85),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2.5,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: lineColor.withValues(
-                                                alpha: 0.6,
-                                              ),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Icon(
-                                          Icons.subway_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
+                                        blurRadius: 12,
+                                        spreadRadius: 3,
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 3),
-                                  // Station name banner
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 7,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          (isDark
-                                                  ? const Color(0xFF1E1E24)
-                                                  : Colors.white)
-                                              .withValues(alpha: 0.95),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: lineColor.withValues(
-                                          alpha: 0.65,
-                                        ),
-                                        width: 1.1,
-                                      ),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 4,
-                                          offset: Offset(0, 1),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Text(
-                                      _selectedMetroStation!.name,
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark
-                                            ? Colors.white
-                                            : Colors.black87,
-                                      ),
-                                    ),
+                                  child: Center(
+                                    child: isRailway
+                                        ? const Icon(
+                                            Icons.train_rounded,
+                                            color: Colors.white,
+                                            size: 22,
+                                          )
+                                        : const Text(
+                                            'M',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 18,
+                                            ),
+                                          ),
                                   ),
-                                ],
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
-              // Full Kolkata Metro Stations Network Layer (When toggled on)
+              // Full Kolkata Metro & Railway Stations Network Layer (Large & Distinct)
               if (_showMetroStations)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: MetroRepository.allStations.map((stn) {
                       final isStationSelected = _selectedMetroStation?.id == stn.id;
+                      final isRailway = stn.name.toLowerCase().contains('railway');
+                      final baseColor = isRailway ? PujaColors.railwayPurple : stn.line.color;
                       return Marker(
                         point: LatLng(stn.latitude, stn.longitude),
-                        width: isStationSelected ? 44 : 34,
-                        height: isStationSelected ? 44 : 34,
+                        width: isStationSelected ? 56 : 48,
+                        height: isStationSelected ? 56 : 48,
+                        alignment: Alignment.center,
                         child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () {
                             HapticFeedback.selectionClick();
                             setState(() {
@@ -1432,35 +1463,49 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                   ? 15.0
                                   : _mapController.camera.zoom,
                             );
-                            _showMetroStationSheet(stn, isDark);
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  stn.line.color,
-                                  stn.line.color.withValues(alpha: 0.85),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isStationSelected ? Colors.amberAccent : Colors.white,
-                                width: isStationSelected ? 2.5 : 1.8,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: stn.line.color.withValues(alpha: 0.5),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
+                          child: Center(
+                            child: Container(
+                              width: isStationSelected ? 40 : 32,
+                              height: isStationSelected ? 40 : 32,
+                              decoration: BoxDecoration(
+                                color: baseColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isStationSelected ? Colors.amberAccent : Colors.white,
+                                  width: isStationSelected ? 2.5 : 1.8,
                                 ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.subway_rounded,
-                              color: Colors.white,
-                              size: 16,
+                                boxShadow: [
+                                  if (isStationSelected)
+                                    BoxShadow(
+                                      color: baseColor.withValues(alpha: 0.8),
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                    )
+                                  else
+                                    const BoxShadow(
+                                      color: Colors.black38,
+                                      blurRadius: 4,
+                                      offset: Offset(0, 1.5),
+                                    ),
+                                ],
+                              ),
+                              child: Center(
+                                child: isRailway
+                                    ? Icon(
+                                        Icons.train_rounded,
+                                        color: Colors.white,
+                                        size: isStationSelected ? 20 : 16,
+                                      )
+                                    : Text(
+                                        'M',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: isStationSelected ? 16 : 13,
+                                        ),
+                                      ),
+                              ),
                             ),
                           ),
                         ),
@@ -1497,275 +1542,218 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
 
-              // Designated Squad Meet-up Landmark Flag Marker
+              // Designated Squad Meet-up Landmark Flag Marker (Enlarged)
               if (squadService.hasActiveSquad && squadService.showSquadOnMap)
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: squadService.meetupPointCoords,
-                      width: 44,
-                      height: 44,
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '🚩 Designated Squad Meet-up: ${squadService.meetupPointName}',
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: squadService.meetupPointCoords,
+                        width: 56,
+                        height: 56,
+                        alignment: Alignment.center,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '🚩 Designated Squad Meet-up: ${squadService.meetupPointName}',
+                                ),
+                                behavior: SnackBarBehavior.floating,
                               ),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        child: RepaintBoundary(
-                          child: AnimatedBuilder(
-                            animation: _pulseController,
-                            builder: (context, _) {
-                              return Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    width: 30 + (8 * _pulseController.value),
-                                    height: 30 + (8 * _pulseController.value),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: PujaColors.festivalGold.withValues(
-                                        alpha:
-                                            0.3 *
-                                            (1.0 - _pulseController.value),
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: PujaColors.festivalGold,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Colors.white,
-                                        width: 2,
-                                      ),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black45,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 2),
+                            );
+                          },
+                          child: RepaintBoundary(
+                            child: AnimatedBuilder(
+                              animation: _pulseController,
+                              builder: (context, _) {
+                                return Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Container(
+                                      width: 36 + (10 * _pulseController.value),
+                                      height: 36 + (10 * _pulseController.value),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: PujaColors.festivalGold.withValues(
+                                          alpha:
+                                              0.3 *
+                                              (1.0 - _pulseController.value),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      Icons.flag_rounded,
-                                      color: Colors.black87,
-                                      size: 17,
+                                    Container(
+                                      width: 38,
+                                      height: 38,
+                                      decoration: BoxDecoration(
+                                        color: PujaColors.festivalGold,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2.2,
+                                        ),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black45,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.flag_rounded,
+                                        color: Colors.black87,
+                                        size: 20,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
+                                  ],
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
-              // Live Squad Members MarkerLayer
+              // Live Squad Members MarkerLayer (Stable Glowing DP - Enlarged)
               if (squadService.hasActiveSquad && squadService.showSquadOnMap)
-                MarkerLayer(
-                  markers: squadService.companionMembers.map((member) {
-                    final isSelected = _selectedSquadMember?.id == member.id;
-                    final avatarColor = member.avatarColor;
-                    return Marker(
-                      point: LatLng(member.latitude, member.longitude),
-                      width: 68,
-                      height: 68,
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          _animatedMapMove(
-                            LatLng(member.latitude, member.longitude),
-                            (_mapController.camera.zoom < 15.5
-                                ? 15.5
-                                : _mapController.camera.zoom),
-                          );
-                          setState(() {
-                            _selectedSquadMember = member;
-                            _selectedPandal = null;
-                          });
-                        },
-                        child: RepaintBoundary(
-                          child: AnimatedBuilder(
-                            animation: _pulseController,
-                            builder: (context, _) {
-                              final pulse = _pulseController.value;
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      // Pulsing radar aura
-                                      Container(
-                                        width: 34 + (10 * pulse),
-                                        height: 34 + (10 * pulse),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: avatarColor.withValues(
-                                            alpha: 0.28 * (1.0 - pulse),
-                                          ),
-                                        ),
-                                      ),
-                                      // Core Avatar with Google DP support
-                                      Container(
-                                        width: isSelected ? 38 : 32,
-                                        height: isSelected ? 38 : 32,
-                                        decoration: BoxDecoration(
-                                          color: avatarColor,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: isSelected
-                                                ? PujaColors.festivalGold
-                                                : Colors.white,
-                                            width: isSelected ? 2.4 : 1.8,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: avatarColor.withValues(
-                                                alpha: isSelected ? 0.7 : 0.4,
-                                              ),
-                                              blurRadius: isSelected ? 9 : 4,
-                                              offset: const Offset(0, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: ClipOval(
-                                          child: (member.photoUrl != null &&
-                                                  member.photoUrl!.isNotEmpty)
-                                              ? Image.network(
-                                                  member.photoUrl!,
-                                                  width: isSelected ? 38 : 32,
-                                                  height: isSelected ? 38 : 32,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (_, _, _) =>
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: squadService.companionMembers.map((member) {
+                      final isSelected = _selectedSquadMember?.id == member.id;
+                      final avatarColor = member.avatarColor;
+                      final size = isSelected ? 46.0 : 40.0;
+                      return Marker(
+                        point: LatLng(member.latitude, member.longitude),
+                        width: size + 20,
+                        height: size + 20,
+                        alignment: Alignment.center,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            _animatedMapMove(
+                              LatLng(member.latitude, member.longitude),
+                              (_mapController.camera.zoom < 15.5
+                                  ? 15.5
+                                  : _mapController.camera.zoom),
+                            );
+                            setState(() {
+                              _selectedSquadMember = member;
+                              _selectedPandal = null;
+                            });
+                          },
+                          child: RepaintBoundary(
+                            child: Center(
+                              child: Container(
+                                width: size,
+                                height: size,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: avatarColor,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(0xFF00E5FF)
+                                        : Colors.white,
+                                    width: isSelected ? 2.8 : 2.2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: isSelected
+                                          ? const Color(0xFF00E5FF).withValues(alpha: 0.6)
+                                          : avatarColor.withValues(alpha: 0.45),
+                                      blurRadius: isSelected ? 12 : 6,
+                                      spreadRadius: isSelected ? 2 : 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    // 1. Google Avatar or Clean Letter Fallback
+                                    ClipOval(
+                                      child: (member.photoUrl != null &&
+                                              member.photoUrl!.isNotEmpty)
+                                          ? Image.network(
+                                              member.photoUrl!,
+                                              width: size,
+                                              height: size,
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) =>
                                                       Center(
-                                                    child: Text(
-                                                      member.initials,
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w900,
-                                                        fontSize: 11,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              : Center(
-                                                  child: Text(
-                                                    member.initials,
-                                                    style: TextStyle(
-                                                      color: Colors.black87,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize: isSelected
-                                                          ? 12.5
-                                                          : 11,
-                                                    ),
+                                                child: Text(
+                                                  member.initials,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 12,
                                                   ),
                                                 ),
-                                        ),
-                                      ),
-                                      // Online dot
-                                      Positioned(
-                                        right: isSelected ? 15 : 18,
-                                        top: isSelected ? 13 : 16,
-                                        child: Container(
-                                          width: 7,
-                                          height: 7,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF00E676),
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 1,
+                                              ),
+                                            )
+                                          : Container(
+                                            color: avatarColor,
+                                            child: Center(
+                                              child: Text(
+                                                member.initials,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w900,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
                                             ),
+                                          ),
+                                    ),
+                                    // Online active dot
+                                    Positioned(
+                                      right: -1,
+                                      bottom: -1,
+                                      child: Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF00E676),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.2,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 1.5),
-                                  // Name tag badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                      vertical: 1,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          (isDark
-                                                  ? const Color(0xFF1E1E1E)
-                                                  : Colors.white)
-                                              .withValues(alpha: 0.94),
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(
-                                        color: avatarColor.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                        width: 0.8,
-                                      ),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 3,
-                                          offset: Offset(0, 1),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Text(
-                                      member.name.split(' ')[0],
-                                      maxLines: 1,
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w700,
-                                        color: isDark
-                                            ? Colors.white
-                                            : Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
 
               // User Location Marker with Animated Radar Pulse & Directional Navigation Arrow
-              if (_userPosition != null)
-                MarkerLayer(
+              if (_effectiveUserLocation != null)
+                RepaintBoundary(
+                  child: MarkerLayer(
                   markers: [
                     Marker(
-                      point: LatLng(
-                        _userPosition!.latitude,
-                        _userPosition!.longitude,
-                      ),
-                      width: 58,
-                      height: 58,
+                      point: _effectiveUserLocation!,
+                      width: 64,
+                      height: 64,
                       child: RepaintBoundary(
                         child: AnimatedBuilder(
                           animation: _pulseController,
                           builder: (context, child) {
                             final pulse = _pulseController.value;
-                            final userLatLng = LatLng(
-                              _userPosition!.latitude,
-                              _userPosition!.longitude,
-                            );
+                            final userLatLng = _effectiveUserLocation!;
 
-                            // Calculate directional bearing towards destination pandal or squad member
+                            // Calculate directional bearing towards destination pandal, squad member, food spot, or metro
                             double? arrowBearing;
                             bool isNavigatingToTarget = false;
 
@@ -1785,7 +1773,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 _selectedSquadMember!.longitude,
                               );
                               isNavigatingToTarget = true;
-                            } else if (_userPosition!.heading > 0 &&
+                            } else if (_selectedFoodSpot != null) {
+                              arrowBearing = calculateBearing(
+                                userLatLng.latitude,
+                                userLatLng.longitude,
+                                _selectedFoodSpot!.lat,
+                                _selectedFoodSpot!.lng,
+                              );
+                              isNavigatingToTarget = true;
+                            } else if (_selectedMetroStation != null) {
+                              arrowBearing = calculateBearing(
+                                userLatLng.latitude,
+                                userLatLng.longitude,
+                                _selectedMetroStation!.latitude,
+                                _selectedMetroStation!.longitude,
+                              );
+                              isNavigatingToTarget = true;
+                            } else if (_userPosition != null &&
+                                _userPosition!.heading > 0 &&
                                 _userPosition!.heading <= 360) {
                               arrowBearing = _userPosition!.heading;
                             }
@@ -1795,8 +1800,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               children: [
                                 // Pulsing radar wave
                                 Container(
-                                  width: 22 + (28 * pulse),
-                                  height: 22 + (28 * pulse),
+                                  width: 30 + (28 * pulse),
+                                  height: 30 + (28 * pulse),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color:
@@ -1808,12 +1813,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                             ),
                                   ),
                                 ),
-                                // Directional Navigation Arrow pointing towards target pandal or forward heading
+                                // Directional Navigation Arrow pointing towards target or forward heading
                                 if (arrowBearing != null)
                                   Transform.rotate(
                                     angle: (arrowBearing * math.pi / 180),
                                     child: Transform.translate(
-                                      offset: const Offset(0, -15),
+                                      offset: const Offset(0, -20),
                                       child: Icon(
                                         Icons.navigation_rounded,
                                         size: 26,
@@ -1830,43 +1835,100 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                // Inner location core with golden outline & optional Google DP
+                                // Inner location core with golden outline & prominent Google DP
                                 Container(
-                                  width: 22,
-                                  height: 22,
+                                  width: 32,
+                                  height: 32,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF2979FF),
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Color(0xFF2979FF),
+                                        Color(0xFF1565C0),
+                                      ],
+                                    ),
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: isNavigatingToTarget
                                           ? PujaColors.goldBright
                                           : Colors.white,
-                                      width: 2.4,
+                                      width: 2.6,
                                     ),
-                                    boxShadow: const [
+                                    boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black38,
-                                        blurRadius: 6,
-                                        offset: Offset(0, 2),
+                                        color: (isNavigatingToTarget
+                                                ? PujaColors.goldBright
+                                                : const Color(0xFF2979FF))
+                                            .withValues(alpha: 0.55),
+                                        blurRadius: 8,
+                                        spreadRadius: 1,
+                                        offset: const Offset(0, 2),
                                       ),
                                     ],
                                   ),
                                   child: ClipOval(
                                     child: Builder(
                                       builder: (context) {
-                                        final userPhoto = context.select<AuthService?, String?>(
-                                          (a) => a?.currentUserModel?.photoUrl,
-                                        );
+                                        final auth = context.watch<AuthService?>();
+                                        final user = auth?.currentUserModel ??
+                                            AuthService.instance.currentUserModel;
+                                        final userPhoto = user?.photoUrl;
+                                        final name = user?.displayName ?? '';
+                                        final initial = name.trim().isNotEmpty
+                                            ? name.trim()[0].toUpperCase()
+                                            : 'U';
+
                                         if (userPhoto != null && userPhoto.isNotEmpty) {
                                           return Image.network(
                                             userPhoto,
-                                            width: 22,
-                                            height: 22,
+                                            width: 32,
+                                            height: 32,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                                            errorBuilder: (context, error, stack) =>
+                                                Center(
+                                              child: Text(
+                                                initial,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                            loadingBuilder:
+                                                (context, child, loadingProgress) {
+                                              if (loadingProgress == null) return child;
+                                              return Center(
+                                                child: Text(
+                                                  initial,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           );
                                         }
-                                        return const SizedBox.shrink();
+
+                                        return Center(
+                                          child: name.trim().isNotEmpty
+                                              ? Text(
+                                                  initial,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 13,
+                                                  ),
+                                                )
+                                              : const Icon(
+                                                  Icons.person_rounded,
+                                                  size: 18,
+                                                  color: Colors.white,
+                                                ),
+                                        );
                                       },
                                     ),
                                   ),
@@ -1879,6 +1941,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
+              ),
             ],
           ),
 
@@ -1903,6 +1966,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     onPandalSelected: _onPandalSelectedFromSearch,
                     onMetroSelected: _onMetroSelectedFromSearch,
                     onFoodSpotSelected: _onFoodSpotSelectedFromSearch,
+                    onSubmitted: (_) {
+                      FocusScope.of(context).unfocus();
+                      setState(() => _showMapSearchBar = false);
+                    },
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -2058,8 +2125,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         color: isDark ? Colors.white24 : Colors.black12,
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                       ),
-                      // Pinned User Profile Avatar (Opens User Profile Sheet)
-                      _buildProfileAvatarButton(context, isDark),
+                      // Pinned Theme Toggle Chip (Light / Dark Mode)
+                      _buildThemeToggleChip(context, isDark),
                     ],
                   ),
                 ),
@@ -3666,36 +3733,42 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           children: [
                             Expanded(
                               flex: 5,
-                              child: FilledButton.icon(
+                              child: OutlinedButton.icon(
                                 onPressed: () {
                                   HapticFeedback.lightImpact();
-                                  _showMetroStationSheet(
-                                    _selectedMetroStation!,
-                                    isDark,
+                                  _animatedMapMove(
+                                    LatLng(
+                                      _selectedMetroStation!.latitude,
+                                      _selectedMetroStation!.longitude,
+                                    ),
+                                    16.5,
                                   );
                                 },
                                 icon: const Icon(
-                                  Icons.info_outline_rounded,
+                                  Icons.my_location_rounded,
                                   size: 15,
                                 ),
                                 label: const Text(
-                                  'Station Info',
+                                  'Center on Map',
                                   style: TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor:
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor:
                                       _selectedMetroStation!.line.color,
-                                  foregroundColor: Colors.white,
+                                  side: BorderSide(
+                                    color: _selectedMetroStation!.line.color
+                                        .withValues(alpha: 0.5),
+                                    width: 1.2,
+                                  ),
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 10,
                                   ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  elevation: 0,
                                 ),
                               ),
                             ),
@@ -3820,6 +3893,75 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // Light / Dark Mode Toggle FAB (Easy thumb navigation on map)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (isDark
+                                      ? PujaColors.festivalGold
+                                      : Colors.black87)
+                                  .withValues(alpha: 0.20),
+                              blurRadius: 10,
+                              spreadRadius: 0.5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Consumer<ThemeService>(
+                          builder: (context, themeService, _) {
+                            final isDarkActive = themeService.isDarkMode;
+                            return FloatingActionButton(
+                              heroTag: 'theme_toggle_map_fab',
+                              elevation: 3,
+                              highlightElevation: 6,
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                themeService.toggleTheme();
+                              },
+                              backgroundColor: isDark
+                                  ? const Color(0xFF22232A)
+                                  : Colors.white,
+                              foregroundColor: isDarkActive
+                                  ? PujaColors.goldBright
+                                  : const Color(0xFF1E293B),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                side: BorderSide(
+                                  color: isDarkActive
+                                      ? PujaColors.goldBright
+                                          .withValues(alpha: 0.7)
+                                      : const Color(0xFFCBD5E1),
+                                  width: 1.8,
+                                ),
+                              ),
+                              tooltip: isDarkActive
+                                  ? 'Switch to Light Mode'
+                                  : 'Switch to Dark Mode',
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 260),
+                                transitionBuilder: (child, anim) =>
+                                    RotationTransition(
+                                  turns: anim,
+                                  child: FadeTransition(
+                                    opacity: anim,
+                                    child: child,
+                                  ),
+                                ),
+                                child: Icon(
+                                  isDarkActive
+                                      ? Icons.light_mode_rounded
+                                      : Icons.dark_mode_rounded,
+                                  key: ValueKey<bool>(isDarkActive),
+                                  size: 24,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       // Quick Nearest Pandal (Red Navigation Arrow Button)
                       Tooltip(
                         message: 'Nearest Pandal (10km) • Red Arrow Radar',
@@ -4182,6 +4324,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       ? 'My Live Location'
                       : null,
                   onTrailStarted: () {
+                    FocusScope.of(context).unfocus();
+                    setState(() => _showMapSearchBar = false);
                     final firstStop =
                         trailService.activeTrail?.currentTargetPandal;
                     if (firstStop != null) {
@@ -4424,6 +4568,61 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildThemeToggleChip(BuildContext context, bool isDark) {
+    return Consumer<ThemeService>(
+      builder: (context, themeService, _) {
+        final isDarkActive = themeService.isDarkMode;
+        return Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              themeService.toggleTheme();
+            },
+            child: Tooltip(
+              message:
+                  isDarkActive ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+              child: Container(
+                padding: const EdgeInsets.all(5.5),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isDarkActive
+                      ? const Color(0xFF24242A)
+                      : const Color(0xFFF1F5F9),
+                  border: Border.all(
+                    color: isDarkActive
+                        ? PujaColors.goldBright.withValues(alpha: 0.5)
+                        : Colors.black12,
+                    width: 1.2,
+                  ),
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 240),
+                  transitionBuilder: (child, anim) => RotationTransition(
+                    turns: anim,
+                    child: FadeTransition(opacity: anim, child: child),
+                  ),
+                  child: Icon(
+                    isDarkActive
+                        ? Icons.light_mode_rounded
+                        : Icons.dark_mode_rounded,
+                    key: ValueKey<bool>(isDarkActive),
+                    size: 17,
+                    color: isDarkActive
+                        ? PujaColors.goldBright
+                        : const Color(0xFF475569),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -4753,20 +4952,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       KolkataZone.southKolkata,
                       'দক্ষিণ কলকাতা',
                       Icons.festival,
-                      isDark,
-                      ctx,
-                    ),
-                    _buildRegionTile(
-                      KolkataZone.saltLake,
-                      'সল্টলেক',
-                      Icons.domain,
-                      isDark,
-                      ctx,
-                    ),
-                    _buildRegionTile(
-                      KolkataZone.newTown,
-                      'নিউ টাউন',
-                      Icons.apartment,
                       isDark,
                       ctx,
                     ),
@@ -5319,310 +5504,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showMetroStationSheet(MetroStation station, bool isDark) {
-    if (_selectedPandal != null ||
-        _selectedSquadMember != null ||
-        _selectedFoodSpot != null) {
-      setState(() {
-        _selectedPandal = null;
-        _selectedSquadMember = null;
-        _selectedFoodSpot = null;
-      });
-    }
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: BoxDecoration(
-            color: isDark ? PujaColors.nightCard : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border(
-              top: BorderSide(
-                color: station.line.color.withValues(alpha: 0.6),
-                width: 1.4,
-              ),
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black45,
-                blurRadius: 20,
-                offset: Offset(0, -4),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            station.line.color,
-                            station.line.color.withValues(alpha: 0.8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: station.line.color.withValues(alpha: 0.35),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.subway_rounded,
-                        color: Colors.white,
-                        size: 26,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            station.name,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: station.line.color.withValues(
-                                    alpha: 0.15,
-                                  ),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: station.line.color.withValues(
-                                      alpha: 0.4,
-                                    ),
-                                  ),
-                                ),
-                                child: Text(
-                                  station.line.label,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: station.line.color,
-                                  ),
-                                ),
-                              ),
-                              if (station.isInterchange)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 2.5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF2E7D32)
-                                        .withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: const Text(
-                                    'Interchange Station',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF2E7D32),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.05)
-                        : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: station.line.color.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.alt_route_rounded,
-                        size: 16,
-                        color: station.line.color,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Corridor: ${station.line.corridor}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white70 : Colors.black87,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (station.popularPandalsNearby.isNotEmpty) ...[
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.temple_hindu_rounded,
-                        size: 16,
-                        color: PujaColors.festivalGold,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Famous Pandals in Walking Distance:',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 6,
-                    children: station.popularPandalsNearby.map((pandalName) {
-                      return ActionChip(
-                        backgroundColor: isDark
-                            ? PujaColors.nightSurface
-                            : const Color(0xFFFFF8E1),
-                        side: BorderSide(
-                          color: PujaColors.festivalGold.withValues(
-                            alpha: 0.35,
-                          ),
-                        ),
-                        avatar: const DurgaFaceIcon(
-                          size: 14,
-                          color: PujaColors.durgaRed,
-                        ),
-                        label: Text(
-                          pandalName,
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                          final match = _pandals.firstWhere(
-                            (p) => p.name.toLowerCase().contains(
-                              pandalName.toLowerCase(),
-                            ),
-                            orElse: () => _pandals.first,
-                          );
-                          _onPandalSelectedFromSearch(match);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          side: BorderSide(
-                            color: isDark
-                                ? Colors.white24
-                                : Colors.grey.shade300,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                          _selectMetroStation(station);
-                        },
-                        icon: const Icon(Icons.my_location, size: 18),
-                        label: const Text('Center on Map'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: station.line.color,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        onPressed: () {
-                          HapticFeedback.selectionClick();
-                          Navigator.of(ctx).pop();
-                          _highlightRouteToMetroStation(station);
-                        },
-                        icon: const Icon(
-                          Icons.directions_walk_rounded,
-                          size: 18,
-                        ),
-                        label: const Text('Trace Path'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildInfoBadge({
     required IconData icon,
@@ -5709,71 +5590,63 @@ class _ClusteredPandalLayer extends StatelessWidget {
       priorityPandalIds: activeTrailIds,
     );
 
-    return MarkerLayer(
-      markers: clusterItems.map((item) {
+    return RepaintBoundary(
+      child: MarkerLayer(
+        markers: clusterItems.map((item) {
         if (item.isCluster) {
           final count = item.count;
           final isLarge = count > 99;
-          final size = isLarge ? 48.0 : 42.0;
+          final visualSize = isLarge ? 44.0 : 38.0;
 
           return Marker(
             point: item.point,
-            width: size,
-            height: size,
+            width: 52,
+            height: 52,
+            alignment: Alignment.center,
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () {
                 HapticFeedback.selectionClick();
                 final nextZoom = (camera.zoom + 1.8).clamp(11.0, 16.5);
                 onZoomToCluster(item.point, nextZoom);
               },
               child: RepaintBoundary(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [PujaColors.crimsonVelvet, Color(0xFF4A000D)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: PujaColors.festivalGold,
-                      width: 2.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: PujaColors.festivalGold.withValues(alpha: 0.45),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                child: Center(
+                  child: Container(
+                    width: visualSize,
+                    height: visualSize,
+                    decoration: BoxDecoration(
+                      color: PujaColors.crimsonVelvet,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: PujaColors.festivalGold,
+                        width: 2.2,
                       ),
-                      const BoxShadow(
-                        color: Colors.black45,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const DurgaFaceIcon(
-                          size: 14,
-                          color: PujaColors.goldBright,
-                          bindiColor: Color(0xFFFF1744),
+                      boxShadow: [
+                        BoxShadow(
+                          color: PujaColors.festivalGold.withValues(alpha: 0.45),
+                          blurRadius: 6,
+                          offset: const Offset(0, 1),
                         ),
-                        const SizedBox(height: 1),
-                        Text(
-                          count > 999
-                              ? '${(count / 1000).toStringAsFixed(1)}k'
-                              : '$count',
-                          style: const TextStyle(
-                            color: PujaColors.goldBright,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 10,
-                            letterSpacing: -0.2,
-                          ),
+                        const BoxShadow(
+                          color: Colors.black38,
+                          blurRadius: 4,
+                          offset: Offset(0, 1.5),
                         ),
                       ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        count > 999
+                            ? '${(count / 1000).toStringAsFixed(1)}k'
+                            : '$count',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: isLarge ? 12.5 : 12.0,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -5787,63 +5660,47 @@ class _ClusteredPandalLayer extends StatelessWidget {
 
         return Marker(
           point: LatLng(p.lat, p.lng),
-          width: isSelected ? 52 : 38,
-          height: isSelected ? 52 : 38,
+          width: isSelected ? 58 : 48,
+          height: isSelected ? 58 : 48,
+          alignment: Alignment.center,
           child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               HapticFeedback.selectionClick();
               onSelectPandal(p);
             },
             child: isSelected
                 ? RepaintBoundary(
-                    child: AnimatedBuilder(
-                      animation: pulseController,
-                      builder: (context, child) {
-                        final pulse = pulseController.value;
-                        return Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 42 + (10 * pulse),
-                              height: 42 + (10 * pulse),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: PujaColors.festivalGold.withValues(
-                                  alpha: 0.35 * (1.0 - pulse),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: PujaColors.goldBright,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 3,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: PujaColors.festivalGold.withValues(
-                                      alpha: 0.7,
-                                    ),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: const Center(
-                                child: DurgaFaceIcon(
-                                  size: 24,
-                                  color: PujaColors.crimsonVelvet,
-                                  bindiColor: Color(0xFFB71C1C),
-                                ),
-                              ),
+                    child: Center(
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: PujaColors.crimsonVelvet,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: PujaColors.goldBright,
+                            width: 2.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: PujaColors.festivalGold.withValues(alpha: 0.85),
+                              blurRadius: 12,
+                              spreadRadius: 3,
                             ),
                           ],
-                        );
-                      },
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: const BoxDecoration(
+                              color: PujaColors.goldBright,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   )
                 : RepaintBoundary(
@@ -5862,76 +5719,79 @@ class _ClusteredPandalLayer extends StatelessWidget {
                           final isCurrent =
                               trailIndex == activeTrail.currentStopIndex;
 
-                          return Container(
-                            width: isCurrent ? 42 : 36,
-                            height: isCurrent ? 42 : 36,
-                            decoration: BoxDecoration(
-                              color: isVisited
-                                  ? const Color(0xFF00C853)
-                                  : (isCurrent
-                                        ? const Color(0xFFFF1744)
-                                        : PujaColors.festivalGold),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2.2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      (isCurrent
-                                              ? const Color(0xFFFF1744)
-                                              : Colors.black)
-                                          .withValues(alpha: 0.4),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
+                          return Center(
+                            child: Container(
+                              width: isCurrent ? 36 : 30,
+                              height: isCurrent ? 36 : 30,
+                              decoration: BoxDecoration(
+                                color: isVisited
+                                    ? const Color(0xFF00C853)
+                                    : (isCurrent
+                                           ? const Color(0xFFFF1744)
+                                           : PujaColors.festivalGold),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2.0,
                                 ),
-                              ],
-                            ),
-                            child: Center(
-                              child: isVisited
-                                  ? const Icon(
-                                      Icons.check_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    )
-                                  : Text(
-                                      '${trailIndex + 1}',
-                                      style: TextStyle(
-                                        color: isCurrent
-                                            ? Colors.white
-                                            : Colors.black87,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: isCurrent ? 15 : 13,
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 4,
+                                    offset: Offset(0, 1.5),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: isVisited
+                                    ? const Icon(
+                                        Icons.check_rounded,
+                                        color: Colors.white,
+                                        size: 18,
+                                      )
+                                    : Text(
+                                        '${trailIndex + 1}',
+                                        style: TextStyle(
+                                          color: isCurrent
+                                              ? Colors.white
+                                              : Colors.black87,
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 12.5,
+                                        ),
                                       ),
-                                    ),
+                              ),
                             ),
                           );
                         }
 
-                        return Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: PujaColors.crimsonVelvet,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: PujaColors.festivalGold,
-                              width: 1.8,
-                            ),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black45,
-                                blurRadius: 5,
-                                offset: Offset(0, 2),
+                        return Center(
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: PujaColors.crimsonVelvet,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: PujaColors.festivalGold,
+                                width: 2.0,
                               ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: DurgaFaceIcon(
-                              size: 20,
-                              color: PujaColors.goldBright,
-                              bindiColor: Color(0xFFFF1744),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black38,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 1.5),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                             ),
                           ),
                         );
@@ -5941,6 +5801,7 @@ class _ClusteredPandalLayer extends StatelessWidget {
           ),
         );
       }).toList(),
+      ),
     );
   }
 }

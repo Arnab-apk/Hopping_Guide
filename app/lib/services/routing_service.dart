@@ -1,9 +1,28 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:simplify/simplify.dart';
 
 import '../models/pandal.dart';
 import '../utils/haversine.dart';
+
+/// Douglas-Peucker polyline simplification (tolerance of ~5 meters / 0.00005 deg).
+/// Reduces dense multi-thousand point route coordinates to a lightweight, visually
+/// identical polyline that renders with high GPU performance.
+List<LatLng> optimizeRoute(List<LatLng> rawOrsCoordinates, {double tolerance = 0.00005}) {
+  if (rawOrsCoordinates.length <= 2) return rawOrsCoordinates;
+
+  // Convert LatLng to Point for the simplifier (x = lng, y = lat)
+  final points = rawOrsCoordinates
+      .map((latLng) => Point<double>(latLng.longitude, latLng.latitude))
+      .toList();
+
+  // Douglas-Peucker simplification
+  final simplified = simplify(points, tolerance: tolerance, highestQuality: true);
+
+  return simplified.map((p) => LatLng(p.y, p.x)).toList();
+}
 
 /// Representation of an active walking path to a Pandal or Squad Member
 class WalkingRoute {
@@ -191,13 +210,15 @@ class RoutingService {
               );
             }).toList();
 
+            final optimizedPoints = optimizeRoute(points);
+
             // Calibrated human pedestrian walking speed: 4.5 km/h = 1.25 m/s
             final walkingDurationSeconds = distance > 0 ? (distance / 1.25) : 0.0;
 
             final route = WalkingRoute(
               targetPandal: targetPandal,
               customTitle: destinationName,
-              points: points,
+              points: optimizedPoints,
               distanceMeters: distance,
               durationSeconds: walkingDurationSeconds,
               drivingDurationSeconds: rawDuration > 0 ? rawDuration : null,

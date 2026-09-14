@@ -19,11 +19,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Feature 1: Interactive Spatial Map & Pandal Dataset Integrity', () {
-    test('Master dataset loads 387 verified authentic pandals with valid coordinates', () async {
+    test('Master dataset loads 338 verified authentic deduplicated pandals with valid coordinates', () async {
       final repo = LocalAssetPandalRepository();
       final pandals = await repo.all();
 
-      expect(pandals.length, equals(387));
+      expect(pandals.length, equals(338));
 
       for (final p in pandals) {
         // Must have non-empty ID and name

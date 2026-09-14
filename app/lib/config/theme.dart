@@ -18,12 +18,12 @@ class PujaColors {
   static const Color goldBright = Color(0xFFF3C759);
   static const Color goldSoft = Color(0xFFF6EEDC);
 
-  // Surfaces & Backgrounds (Pure Minimalist OLED Dark & Clean Ivory)
+  // Surfaces & Backgrounds (Warm Festive-Night Dark & Clean Ivory)
   static const Color ivoryBg = Color(0xFFFFF8F0);
-  static const Color nightBg = Color(0xFF0A0A0A);
-  static const Color nightCard = Color(0xFF141414);
-  static const Color nightSurface = Color(0xFF1E1E1E);
-  static const Color nightBorder = Color(0xFF282828);
+  static const Color nightBg = Color(0xFF0E0809);
+  static const Color nightCard = Color(0xFF1B0E13);
+  static const Color nightSurface = Color(0xFF271519);
+  static const Color nightBorder = Color(0xFF3D2630);
 
   // Status & Badges
   static const Color crowdLow = Color(0xFF3FA34D);
@@ -56,11 +56,12 @@ ThemeData get appTheme => ThemeData(
         shadowColor: Colors.black26,
         iconTheme: const IconThemeData(color: PujaColors.goldBright),
         actionsIconTheme: const IconThemeData(color: PujaColors.goldBright),
-        titleTextStyle: GoogleFonts.plusJakartaSans(
+        titleTextStyle: const TextStyle(
+          fontFamily: 'Samarkan',
           color: PujaColors.goldBright,
-          fontSize: 18.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.2,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
         ),
       ),
       cardTheme: CardThemeData(
@@ -170,17 +171,18 @@ ThemeData get appDarkTheme => ThemeData(
         shadowColor: Colors.transparent,
         iconTheme: const IconThemeData(color: PujaColors.goldBright),
         actionsIconTheme: const IconThemeData(color: PujaColors.goldBright),
-        titleTextStyle: GoogleFonts.plusJakartaSans(
+        titleTextStyle: const TextStyle(
+          fontFamily: 'Samarkan',
           color: PujaColors.goldBright,
-          fontSize: 18.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.1,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
         ),
       ),
       cardTheme: CardThemeData(
         color: PujaColors.nightCard,
-        elevation: 0,
-        shadowColor: Colors.transparent,
+        elevation: 1.5,
+        shadowColor: PujaColors.durgaRedLight.withValues(alpha: 0.12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(

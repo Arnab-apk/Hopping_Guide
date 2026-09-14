@@ -740,8 +740,8 @@ class GroupScreen extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -759,7 +759,7 @@ class GroupScreen extends StatelessWidget {
                           foregroundColor: member.avatarColor,
                           child: Text(
                             member.initials,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(17)),
                           ),
                         ),
                         errorWidget: (ctx, url, err) => CircleAvatar(
@@ -767,7 +767,7 @@ class GroupScreen extends StatelessWidget {
                           foregroundColor: member.avatarColor,
                           child: Text(
                             member.initials,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(17)),
                           ),
                         ),
                       )
@@ -888,8 +888,8 @@ class GroupScreen extends StatelessWidget {
             children: [
               // Google DP
               Container(
-                width: 50,
-                height: 50,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
@@ -1186,8 +1186,8 @@ class GroupScreen extends StatelessWidget {
                           clipBehavior: Clip.none,
                           children: [
                             Container(
-                              width: 44,
-                              height: 44,
+                              width: 56,
+                              height: 56,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(color: PujaColors.festivalGold, width: 2),
@@ -1206,16 +1206,16 @@ class GroupScreen extends StatelessWidget {
                                         fit: BoxFit.cover,
                                         placeholder: (c, u) => CircleAvatar(
                                           backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
-                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                         ),
                                         errorWidget: (c, u, e) => CircleAvatar(
                                           backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
-                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                         ),
                                       )
                                     : CircleAvatar(
                                         backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
-                                        child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                        child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                       ),
                               ),
                             ),

@@ -53,10 +53,16 @@ dependencies:
   flutter_svg: ^2.3.0
   shared_preferences: ^2.5.5
   google_fonts: ^8.2.1
+  rxdart: ^0.28.0
+  simplify: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Required so tests can mock the notifications platform-interface singleton
+  # to silence LateInitializationError from NotificationProgressService.
+  flutter_local_notifications_platform_interface: ^8.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

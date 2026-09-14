@@ -28,7 +28,7 @@ void main() {
 
       expect(results.length, equals(1000));
       for (final list in results) {
-        expect(list.length, equals(387));
+        expect(list.length, equals(338));
       }
 
       // Memoized local repository should serve 1,000 queries in under 500ms
