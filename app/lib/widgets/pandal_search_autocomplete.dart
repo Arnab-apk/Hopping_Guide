@@ -322,7 +322,11 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                           onPressed: () {
                             HapticFeedback.lightImpact();
                             _controller.clear();
-                            _updateSuggestions('');
+                            _focusNode.unfocus();
+                            setState(() {
+                              _showDropdown = false;
+                              _suggestions = [];
+                            });
                           },
                         )
                       else

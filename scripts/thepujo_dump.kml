@@ -1,0 +1,3422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Kolkata Durga Pujo Guide by The Pujo Company</name>
+    <description><![CDATA[A Map to the Popular Durga Pujo Mandaps in Kolkata.<br> These Durga Puja celebrations have been conducted in the ancestral homes of Kolkata for generations. They have a distinct and traditional flavor of celebrations of Durga Puja in public pandals.<br>Filter Options:<br>1. Iconic Pujos of Kolkata<br>2. Bonedi Barir Pujo<br>3. North Kolkata r Pujo<br>4. South Kolkata r Pujo<br>5. Salt Lake er Pujo<br><br> Brought to you by the Pujo Company]]></description>
+    <Style id="icon-1899-0288D1-labelson">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+    </Style>
+    <Style id="icon-1899-0288D1-labelson-nodesc">
+      <IconStyle>
+        <color>ffd18802</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+        <hotSpot x="32" xunits="pixels" y="64" yunits="insetPixels"/>
+      </IconStyle>
+      <BalloonStyle>
+        <text><![CDATA[<h3>$[name]</h3>]]></text>
+      </BalloonStyle>
+    </Style>
+    <Style id="icon-22-labelson">
+      <IconStyle>
+        <scale>1.1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/22-blue-dot.png</href>
+        </Icon>
+        <hotSpot x="16" xunits="pixels" y="32" yunits="insetPixels"/>
+      </IconStyle>
+    </Style>
+    <Folder>
+      <name>Iconic Pujos</name>
+      <Placemark>
+        <name>Ahiritola</name>
+        <description>Durga puja of Ahiritola</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.357521,22.595062,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>College Square</name>
+        <description>Durga puja of College Square</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.364578,22.574865,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Anupama Housing Complex</name>
+        <description>Durga puja of Anupama Housing Complex</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.431786,22.629421,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Park Tarun Sangha</name>
+        <description>Durga puja of Dum Dum Park Tarun Sangha</description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.413628,22.610723,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Park Bharat Chakra</name>
+        <description>Durga puja of Dum Dum Park Bharat Chakra</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.41433,22.610662,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Tarun Dal</name>
+        <description>Durga puja of Dum Dum Tarun Dal</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.418739,22.611732,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Park Yubak Brinda</name>
+        <description>Durga puja of Dum Dum Park Yubak Brinda</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.417732,22.605478,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[Baghbazar Sarbojonin Durgotsab & Exhibition]]></name>
+        <description><![CDATA[Durga puja of Baghbazar Sarbojonin Durgotsab & Exhibition]]></description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.366234,22.604582,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Joramandir</name>
+        <description>Durga puja of Joramandir</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.429512,22.613289,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Telengabagan</name>
+        <description>Durga puja of Telengabagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.385399,22.594915,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Karbagan Sarbojanin</name>
+        <description>Durga puja of Karbagan Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.383873,22.595152,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Gouriberia</name>
+        <description>Durga puja of Gouriberia</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.379227,22.594547,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kumartuli Park</name>
+        <description>Durga puja of Kumartuli Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.361366,22.598995,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Laketown Adhibasi Brinda</name>
+        <description>Durga puja of Laketown Adhibasi Brinda</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.403793,22.605404,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Laketown Netaji Sporting Club</name>
+        <description>Durga puja of Laketown Netaji Sporting Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.39962,22.608088,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Md. Ali Park</name>
+        <description>Durga puja of Md. Ali Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.360878,22.577229,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Mitali - Kankurgachi</name>
+        <description>Durga puja of Mitali - Kankurgachi</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.393974,22.580042,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake CJ Block</name>
+        <description>Durga puja of Salt Lake CJ Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.423599,22.58927,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake BJ Block</name>
+        <description>Durga puja of Salt Lake BJ Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.42672,22.590794,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake FD Block</name>
+        <description>Durga puja of Salt Lake FD Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.412216,22.583464,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake GD Block</name>
+        <description>Durga puja of Salt Lake GD Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.414162,22.576777,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake HA Block</name>
+        <description>Durga puja of Salt Lake HA Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.412971,22.57641,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake IA Block</name>
+        <description>Durga puja of Salt Lake IA Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.409523,22.574305,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake Laboni</name>
+        <description>Durga puja of Salt Lake Laboni</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.406723,22.582869,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santosh Mitra Square</name>
+        <description>Durga puja of Santosh Mitra Square</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.365593,22.566067,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sealdah Railway Athletic Club</name>
+        <description>Durga puja of Sealdah Railway Athletic Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.371902,22.570951,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sovabazar Beniatola</name>
+        <description>Durga puja of Sovabazar Beniatola</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.360909,22.595915,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sreebhumi Sporting Club</name>
+        <description>Durga puja of Sreebhumi Sporting Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.402931,22.598993,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tala Barowari</name>
+        <description>Durga puja of Tala Barowari</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.376022,22.607212,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Manicktala Chaltabagan Loha Patty</name>
+        <description>Durga puja of Manicktala Chaltabagan Loha Patty</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.372093,22.58489,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pathuriaghata Pancher Pally</name>
+        <description>Durga puja of Pathuriaghata Pancher Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.358368,22.588566,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tala Palli</name>
+        <description>Durga puja of Tala Palli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.374886,22.608385,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ghas Bagan</name>
+        <description>Durga puja of Ghas Bagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.343468,22.591923,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hatibagan Nabin Pally</name>
+        <description>Durga puja of Hatibagan Nabin Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.373421,22.595707,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Nalin Sarkar Street Sarbojanin Durgotsab</name>
+        <description>Durga puja of Nalin Sarkar Street Sarbojanin Durgotsab</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.374634,22.594627,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hatibagan Sarbojonin</name>
+        <description>Durga puja of Hatibagan Sarbojonin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.371872,22.594128,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Olabibitala Sarbojanin</name>
+        <description>Durga puja of Olabibitala Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.315788,22.575529,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Yuva Brinda</name>
+        <description>Durga puja of Yuva Brinda</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.381683,22.595825,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kashi Bose Lane</name>
+        <description>Durga puja of Kashi Bose Lane</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.369476,22.59222,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Purbachal Sarbojanin</name>
+        <description>Durga puja of Purbachal Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.407463,22.573011,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sovabazar Rajbari</name>
+        <description>Durga puja of Sovabazar Rajbari</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.367233,22.596798,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>37 Pally</name>
+        <description>Durga puja of 37 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.368446,22.574528,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake AJ Block</name>
+        <description>Durga puja of Salt Lake AJ Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.428291,22.592161,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Laketown Nutan Palli Pradeep Sangha</name>
+        <description>Durga puja of Laketown Nutan Palli Pradeep Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.397507,22.60372,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rammohan Sammilani</name>
+        <description>Durga puja of Rammohan Sammilani</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.375031,22.581205,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Durga Puja of 4 Ghosh Lane</name>
+        <description>Durga puja of Durga Puja of 4 Ghosh Lane</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.370789,22.585108,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dakshineswar Dolpere Adi Sabojonin Durgapuja</name>
+        <description>Durga puja of Dakshineswar Dolpere Adi Sabojonin Durgapuja</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.364433,22.659449,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Milangarh Sarbojanin</name>
+        <description>Durga puja of Milangarh Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.374054,22.651651,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Motijheel Sarbojanin</name>
+        <description>Durga puja of Motijheel Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.410759,22.62336,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Beliaghata Nabamilan</name>
+        <description>Durga puja of Beliaghata Nabamilan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.396255,22.565413,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sandhani</name>
+        <description>Durga puja of Sandhani</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.396149,22.564798,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Simla Byam Samity</name>
+        <description>Durga puja of Simla Byam Samity</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.365097,22.585285,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>United Club</name>
+        <description>Durga puja of United Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.391182,22.591042,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kumartuli Preparation</name>
+        <description>Durga puja of Kumartuli Preparation</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.362396,22.599609,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Swapnar Bagan</name>
+        <description>Durga puja of Swapnar Bagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.395462,22.579193,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Lalabagan Yubak Brinda - Nabankur Sangha</name>
+        <description>Durga puja of Lalabagan Yubak Brinda - Nabankur Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.377106,22.588247,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sammilita Lalabagan Sarbojanin</name>
+        <description>Durga puja of Sammilita Lalabagan Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.376923,22.587385,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake AE Block - Part 1</name>
+        <description>Durga puja of Salt Lake AE Block - Part 1</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.409409,22.59856,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kolkata</name>
+        <description>Durga puja of Kolkata</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.350845,22.56472,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CIT Sarbojanin</name>
+        <description>Durga puja of CIT Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.377861,22.625994,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Baghbazar Jagodharti</name>
+        <description>Durga puja of Baghbazar Jagodharti</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.371101,22.603493,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Beliaghata 33 No Palli</name>
+        <description>Durga puja of Beliaghata 33 No Palli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.393852,22.566563,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Belgachia Sadharan Durgatsab</name>
+        <description>Durga puja of Belgachia Sadharan Durgatsab</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.383423,22.609217,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kumartuli Sarbojanin</name>
+        <description>Durga puja of Kumartuli Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.363274,22.600859,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Satadal</name>
+        <description>Durga puja of Satadal</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.367691,22.595173,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake AE Block - Part 2</name>
+        <description>Durga puja of Salt Lake AE Block - Part 2</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.413353,22.600937,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake BE Block - Part 2</name>
+        <description>Durga puja of Salt Lake BE Block - Part 2</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.412193,22.596836,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake CK-CL Block</name>
+        <description>Durga puja of Salt Lake CK-CL Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.427864,22.584633,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake DL block</name>
+        <description>Durga puja of Salt Lake DL block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.425819,22.582136,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Karunamayee G Block</name>
+        <description>Durga puja of Karunamayee G Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.423172,22.583117,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kamardanga Sitalatala - Howrah</name>
+        <description>Durga puja of Kamardanga Sitalatala - Howrah</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.302353,22.596292,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Arupara Milan Sangha - Howrah</name>
+        <description>Durga puja of Arupara Milan Sangha - Howrah</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.300949,22.597847,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Naba Baghbazar</name>
+        <description>Durga puja of Naba Baghbazar</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.370171,22.605097,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bangur Avenue Protirodh Bahini</name>
+        <description>Durga puja of Bangur Avenue Protirodh Bahini</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.409248,22.606899,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Goabagan Sarbojanin</name>
+        <description>Durga puja of Goabagan Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.372864,22.59124,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hari Ghosh Street Sarbojonin</name>
+        <description>Durga puja of Hari Ghosh Street Sarbojonin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.368286,22.590546,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jagat Mukherjee Park</name>
+        <description>Durga puja of Jagat Mukherjee Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.36615,22.599777,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Baghbazar Pally</name>
+        <description>Durga puja of Baghbazar Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.367363,22.60281,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Beadon Street Sarbojanin</name>
+        <description>Durga puja of Beadon Street Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.368347,22.589317,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sammilita Malapara</name>
+        <description>Durga puja of Sammilita Malapara</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.354752,22.587664,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Darpanarayan Tagore Street Pally Samity</name>
+        <description>Durga puja of Darpanarayan Tagore Street Pally Samity</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.354111,22.587505,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Haritaki Bagan</name>
+        <description>Durga puja of Haritaki Bagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.373466,22.584158,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sovabazar Sarbojanin</name>
+        <description>Durga puja of Sovabazar Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.361763,22.597075,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hatkhola Gosain Para</name>
+        <description>Durga puja of Hatkhola Gosain Para</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.360771,22.597885,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Laketown Vivekananda Park</name>
+        <description>Durga puja of Laketown Vivekananda Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.402565,22.610039,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jawpur Bayam Samiti</name>
+        <description>Durga puja of Jawpur Bayam Samiti</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.401138,22.610584,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pragati Pally Adhibasi Brindra</name>
+        <description>Durga puja of Pragati Pally Adhibasi Brindra</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.400665,22.609594,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kabiraj Bagan</name>
+        <description>Durga puja of Kabiraj Bagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.382729,22.593855,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Murari Pukur Bidhan Sangha</name>
+        <description>Durga puja of Murari Pukur Bidhan Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.383232,22.592875,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake AD Block</name>
+        <description>Durga puja of Salt Lake AD Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.406448,22.596855,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake AG Block</name>
+        <description>Durga puja of Salt Lake AG Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.423286,22.598421,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sangrami</name>
+        <description>Durga puja of Sangrami</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.395699,22.590536,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tarun Sporting Club</name>
+        <description>Durga puja of Tarun Sporting Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.365311,22.586376,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Shimla Vivekananda Sporting Club</name>
+        <description>Durga puja of Shimla Vivekananda Sporting Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.371811,22.585722,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Shurir Bagan</name>
+        <description>Durga puja of Shurir Bagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.387566,22.594559,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake CA Block</name>
+        <description>Durga puja of Salt Lake CA Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.399689,22.587496,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake BG Block</name>
+        <description>Durga puja of Salt Lake BG Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.423119,22.595449,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Salt Lake AH Block</name>
+        <description>Durga puja of Salt Lake AH Block</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.427269,22.594231,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Park Circus</name>
+        <description>Durga puja of Park Circus</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.36776,22.543079,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Maddox Square</name>
+        <description>Durga puja of Maddox Square</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.35463,22.526407,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Deshapriya Park</name>
+        <description>Durga puja of Deshapriya Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.353249,22.518661,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>41 Pally</name>
+        <description>Durga puja of 41 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.338509,22.48303,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ajeya Sanghati</name>
+        <description>Durga puja of Ajeya Sanghati</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.337418,22.480553,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Vivekananda Sporting Club</name>
+        <description>Durga puja of Vivekananda Sporting Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.338493,22.476332,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Vivekananda Park Athletic Club</name>
+        <description>Durga puja of Vivekananda Park Athletic Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.336967,22.481016,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pally Unnayan Samity Paschim Putiary</name>
+        <description>Durga puja of Pally Unnayan Samity Paschim Putiary</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.342247,22.478121,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Naskarpara Pally Unnayan Samity - Haridevpur</name>
+        <description>Durga puja of Naskarpara Pally Unnayan Samity - Haridevpur</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.339539,22.480223,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Club, Srishti Sahajatri</name>
+        <description>Durga puja of Barisha Club, Srishti Sahajatri</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.312866,22.48151,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Janakalyan Sangha</name>
+        <description>Durga puja of Barisha Janakalyan Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.312744,22.485041,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sabeda Bagan</name>
+        <description>Durga puja of Sabeda Bagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.316666,22.488293,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Club</name>
+        <description>Durga puja of Behala Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.314308,22.505381,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Debdaru Fatak</name>
+        <description>Durga puja of Debdaru Fatak</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.317474,22.502714,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Sree Sangha</name>
+        <description>Durga puja of Behala Sree Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.320183,22.497669,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[Behala Youngmen's Association]]></name>
+        <description><![CDATA[Durga puja of Behala Youngmen's Association]]></description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.325104,22.507067,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Adarsha Pally</name>
+        <description>Durga puja of Behala Adarsha Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.327629,22.499989,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Badamtala Ashar Sangha</name>
+        <description>Durga puja of Badamtala Ashar Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.343994,22.517864,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Nutan Dal</name>
+        <description>Durga puja of Behala Nutan Dal</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.319565,22.501228,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bosepukur Talbagan</name>
+        <description>Durga puja of Bosepukur Talbagan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.38533,22.517492,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rajdanga Tribarna Sangha</name>
+        <description>Durga puja of Rajdanga Tribarna Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.389534,22.515083,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bosepukur Sitala Mandir</name>
+        <description>Durga puja of Bosepukur Sitala Mandir</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.388023,22.516581,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Singhi Park</name>
+        <description>Durga puja of Singhi Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.362991,22.521238,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ekdalia Evergreen Club</name>
+        <description>Durga puja of Ekdalia Evergreen Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.366447,22.521111,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jodhpur Park</name>
+        <description>Durga puja of Jodhpur Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.365028,22.504702,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Selimpur Pally</name>
+        <description>Durga puja of Selimpur Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.368149,22.505087,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santoshpur Lake Pally</name>
+        <description>Durga puja of Santoshpur Lake Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.382774,22.491508,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Mudiali Club</name>
+        <description>Durga puja of Mudiali Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.346725,22.510118,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Shibmandir Sarbojanin Durgotsab</name>
+        <description>Durga puja of Shibmandir Sarbojanin Durgotsab</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.349388,22.510822,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Naktala Udayan Sangha</name>
+        <description>Durga puja of Naktala Udayan Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.36705,22.474174,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rajdanga Naba Uday Sangha</name>
+        <description>Durga puja of Rajdanga Naba Uday Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.390442,22.515675,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Suruchi Sangha</name>
+        <description>Durga puja of Suruchi Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.333664,22.509346,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tridhara Sammilani</name>
+        <description>Durga puja of Tridhara Sammilani</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.355377,22.519238,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pratapaditya Road Tricone Park</name>
+        <description>Durga puja of Pratapaditya Road Tricone Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.344658,22.513498,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sanghasree</name>
+        <description>Durga puja of Sanghasree</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.345795,22.521303,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>25 Pally</name>
+        <description>Durga puja of 25 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.326538,22.539078,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Mukul Sangha</name>
+        <description>Durga puja of Mukul Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.313705,22.503359,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>66 Palli</name>
+        <description>Durga puja of 66 Palli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.342644,22.518148,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hindustan Park</name>
+        <description>Durga puja of Hindustan Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.362648,22.517731,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Adi Lake Palli</name>
+        <description>Durga puja of Adi Lake Palli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.34938,22.514532,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Azadgarh</name>
+        <description>Durga puja of Azadgarh</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.356171,22.484604,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bharat Mata</name>
+        <description>Durga puja of Bharat Mata</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.36248,22.488014,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Golfgreen Phase 2</name>
+        <description>Durga puja of Golfgreen Phase 2</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.360809,22.492256,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santoshpur Trikon Park</name>
+        <description>Durga puja of Santoshpur Trikon Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.378448,22.492996,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Yuba Sangha Club</name>
+        <description>Durga puja of Yuba Sangha Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.36499,22.485378,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Netaji Nagar Sarbojanin</name>
+        <description>Durga puja of Netaji Nagar Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.357719,22.480721,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Netaji Jatiya Sebadal</name>
+        <description>Durga puja of Netaji Jatiya Sebadal</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.358231,22.484991,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[New Alipore Children's Park]]></name>
+        <description><![CDATA[Durga puja of New Alipore Children's Park]]></description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.337021,22.507145,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pally Mangal Samity</name>
+        <description>Durga puja of Pally Mangal Samity</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.36396,22.503017,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Poddar Nagar Park</name>
+        <description>Durga puja of Poddar Nagar Park</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.364433,22.500887,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Chakraberia Sarbojanin</name>
+        <description>Durga puja of Chakraberia Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.351891,22.533646,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Babubagan Club</name>
+        <description>Durga puja of Babubagan Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.368515,22.507988,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Tarun Tirtha</name>
+        <description>Durga puja of Barisha Tarun Tirtha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.31823,22.476515,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>74 Pally</name>
+        <description>Durga puja of 74 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.325729,22.539438,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kabitirtha</name>
+        <description>Durga puja of Kabitirtha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.323288,22.541048,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pally Saradiya Club</name>
+        <description>Durga puja of Pally Saradiya Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.321709,22.543179,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala 29 Palli</name>
+        <description>Durga puja of Behala 29 Palli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.322426,22.507343,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Baishnabghata Patuli Upanagari</name>
+        <description>Durga puja of Baishnabghata Patuli Upanagari</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.380142,22.471201,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kendua Shanti Sangha - Patuli</name>
+        <description>Durga puja of Kendua Shanti Sangha - Patuli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.380997,22.47193,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Falguni Sangha</name>
+        <description>Durga puja of Falguni Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.365829,22.521793,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Chetla Agrani Club</name>
+        <description>Durga puja of Chetla Agrani Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.337151,22.516447,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Chelta Sarbasadharaner Club</name>
+        <description>Durga puja of Chelta Sarbasadharaner Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.339928,22.517433,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Selimpur Naskarpara</name>
+        <description>Durga puja of Selimpur Naskarpara</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.37606,22.504808,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bengal United Club</name>
+        <description>Durga puja of Bengal United Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.348518,22.512428,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Chandranath Chatterjee Street</name>
+        <description>Durga puja of Chandranath Chatterjee Street</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.345848,22.52669,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Greenwood Nook</name>
+        <description>Durga puja of Greenwood Nook</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.399902,22.50556,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sebak Sangha</name>
+        <description>Durga puja of Sebak Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.347542,22.511377,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dilip Smriti Sangha</name>
+        <description>Durga puja of Dilip Smriti Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.34494,22.517796,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Lake Youth Corner</name>
+        <description>Durga puja of Lake Youth Corner</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.347328,22.510754,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ekush Pally Sarbojanin Durgotsab</name>
+        <description>Durga puja of Ekush Pally Sarbojanin Durgotsab</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.369217,22.529325,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Acharya Prafulla Sangha - Behala</name>
+        <description>Durga puja of Acharya Prafulla Sangha - Behala</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.313461,22.49065,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Adi Ballygunge</name>
+        <description>Durga puja of Adi Ballygunge</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.37265,22.529564,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ballygunge Cultural Association</name>
+        <description>Durga puja of Ballygunge Cultural Association</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.355705,22.516363,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name><![CDATA[Barisha Player's Corner]]></name>
+        <description><![CDATA[Durga puja of Barisha Player's Corner]]></description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.312614,22.486588,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Sabuj Sathi Club</name>
+        <description>Durga puja of Barisha Sabuj Sathi Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.310753,22.47821,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Tapoban</name>
+        <description>Durga puja of Barisha Tapoban</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.310432,22.475655,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Arcadia Sarbojanin</name>
+        <description>Durga puja of Behala Arcadia Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.315163,22.4942,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Durgabari</name>
+        <description>Durga puja of Durgabari</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.315765,22.499889,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ganbani Sangha</name>
+        <description>Durga puja of Ganbani Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.327805,22.488768,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Samaj Sebi Sangha</name>
+        <description>Durga puja of Samaj Sebi Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.357719,22.515591,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sodepur Pragati Sangha (Haridevpur)</name>
+        <description>Durga puja of Sodepur Pragati Sangha (Haridevpur)</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.331619,22.481165,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santoshpur Sonar Tori Durgatsav</name>
+        <description>Durga puja of Santoshpur Sonar Tori Durgatsav</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.378548,22.49184,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Abasar Sarbojonin</name>
+        <description>Durga puja of Abasar Sarbojonin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3489,22.527561,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Goal Math</name>
+        <description>Durga puja of Goal Math</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.349045,22.526709,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Netaji Sangha</name>
+        <description>Durga puja of Barisha Netaji Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.314629,22.48385,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Buroshibtala Janakalyan Sangha</name>
+        <description>Durga puja of Behala Buroshibtala Janakalyan Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.329735,22.502289,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jogajatri Club</name>
+        <description>Durga puja of Jogajatri Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.331284,22.501614,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Surya Nagar Sarbojanin</name>
+        <description>Durga puja of Surya Nagar Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.359344,22.47489,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Udayan Sangha</name>
+        <description>Durga puja of Udayan Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.387711,22.501814,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Uttar Panchanan Gram Milan</name>
+        <description>Durga puja of Uttar Panchanan Gram Milan</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.396339,22.532141,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Golden Arrow Club</name>
+        <description>Durga puja of Golden Arrow Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.34758,22.516293,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Purbachal Shakti Sangha</name>
+        <description>Durga puja of Purbachal Shakti Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.389214,22.505142,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Naskarpur Sarbojanin</name>
+        <description>Durga puja of Naskarpur Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.312065,22.506571,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kolkata</name>
+        <description>Durga puja of Kolkata</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.350845,22.56472,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>64 Pally</name>
+        <description>Durga puja of 64 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.346512,22.526789,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>95 Pally</name>
+        <description>Durga puja of 95 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.362953,22.507622,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bandhab Sammilani</name>
+        <description>Durga puja of Bandhab Sammilani</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.367661,22.507818,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>The Bengal Boys Training Association</name>
+        <description>Durga puja of The Bengal Boys Training Association</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.341179,22.517557,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Nepal Bhattacharjee Street</name>
+        <description>Durga puja of Nepal Bhattacharjee Street</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.341049,22.517784,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Roynagar Unnayan Samity</name>
+        <description>Durga puja of Roynagar Unnayan Samity</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.360176,22.47242,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Shyamapally Shyama Sangha</name>
+        <description>Durga puja of Shyamapally Shyama Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.37159,22.49152,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Garia Sreerampur Kalyan Samity</name>
+        <description>Durga puja of Garia Sreerampur Kalyan Samity</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.38044,22.466888,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bhowanipur Swadhin Sangha</name>
+        <description>Durga puja of Bhowanipur Swadhin Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.346237,22.531992,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dakshin Phalguni Club</name>
+        <description>Durga puja of Dakshin Phalguni Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.379921,22.470131,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Garia Pancha Durga</name>
+        <description>Durga puja of Garia Pancha Durga</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.378166,22.461643,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Garia Sabuj Dal</name>
+        <description>Durga puja of Garia Sabuj Dal</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.381599,22.469654,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Harish Park Puja</name>
+        <description>Durga puja of Harish Park Puja</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.343681,22.530655,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jatra Suru Sangha</name>
+        <description>Durga puja of Jatra Suru Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.37793,22.470646,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Judge Bagan Recreation Club</name>
+        <description>Durga puja of Judge Bagan Recreation Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.338959,22.477327,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Green Avenue Sarbojanin</name>
+        <description>Durga puja of Green Avenue Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.380264,22.494051,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rupchand Mukherjee Lane Sarbojanin</name>
+        <description>Durga puja of Rupchand Mukherjee Lane Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.344948,22.527273,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santoshpur Agragami</name>
+        <description>Durga puja of Santoshpur Agragami</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.377991,22.494265,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santoshpur Bibekananda Sangha</name>
+        <description>Durga puja of Santoshpur Bibekananda Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.383392,22.493908,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Lake Pally Sarbojanin</name>
+        <description>Durga puja of Lake Pally Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.346237,22.507259,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Golfgreen Phase 1</name>
+        <description>Durga puja of Golfgreen Phase 1</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.362274,22.493393,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>19 Pally</name>
+        <description>Durga puja of 19 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3675,22.512735,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>68 Pally</name>
+        <description>Durga puja of 68 Pally</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.346184,22.527443,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>77 Palli</name>
+        <description>Durga puja of 77 Palli</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.367607,22.504271,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Abasarika Club</name>
+        <description>Durga puja of Abasarika Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.369278,22.508394,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bakul Bagan Sarbojanin</name>
+        <description>Durga puja of Bakul Bagan Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.347397,22.52673,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Haridevpur Adarsha Samiti</name>
+        <description>Durga puja of Haridevpur Adarsha Samiti</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.336937,22.475842,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hindustan Club</name>
+        <description>Durga puja of Hindustan Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.361259,22.520149,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Manoharpukur Youngs</name>
+        <description>Durga puja of Bakul Bagan Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.347397,22.52673,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Haridevpur Adarsha Samiti</name>
+        <description>Durga puja of Haridevpur Adarsha Samiti</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.336937,22.475842,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hindustan Club</name>
+        <description>Durga puja of Hindustan Club</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.361259,22.520149,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Manoharpukur Youngs</name>
+        <description>Durga puja of Manoharpukur Youngs</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.356216,22.518682,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Padmapukur Youth Association</name>
+        <description>Durga puja of Padmapukur Youth Association</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.352341,22.531614,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Padmapukur Baroyari</name>
+        <description>Durga puja of Padmapukur Baroyari</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.354294,22.531862,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Park Circus - Uddipani</name>
+        <description>Durga puja of Park Circus - Uddipani</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.370056,22.544149,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Triangular Park Sarbojanin</name>
+        <description>Durga puja of Triangular Park Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.357964,22.517979,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sitalatala Kishore Sangha</name>
+        <description>Durga puja of Sitalatala Kishore Sangha</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.322479,22.481987,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Prasanta Disha Sarbojanin</name>
+        <description>Durga puja of Prasanta Disha Sarbojanin</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.327644,22.499216,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Barisha Yubak Brinda</name>
+        <description>Durga puja of Barisha Yubak Brinda</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.306541,22.484386,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Aikya Sammilani</name>
+        <description>Durga puja of Aikya Sammilani</description>
+        <styleUrl>#icon-22-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.318611,22.504429,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Central ar North Kolkata r Pujo</name>
+      <Placemark>
+        <name>Sealdah Railway Athletic Club</name>
+        <description>Sealdah Railway Athletic Club is one of the famous Sarbajanin Durga Puja in central Kolkata. It is one of the oldest Durga puja, established in 1947.</description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.37194,22.5705774,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>College Square Sarbojanin Durgotsab Committee</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.362675,22.573941,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Muhammad Ali Park</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3607369,22.5771888,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Santosh Mitra Square</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3656532,22.5660201,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Manicktala Chaltabagan Lohapatty Durga Puja</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3720013,22.5847266,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Brindaban Matri Mandir Durga Puja Committee in Kolkata</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3732045,22.5825241,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Karbagan Sarbojanin Durgotsab Committee</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3838115,22.5953601,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Telenga Bagan</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3835636,22.5940824,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Nalin Sarkar Street</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3731609,22.5953765,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hatibagan Sarbojanin Durgotsav</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3720004,22.5943863,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hatibagan Nabinpally Sarbojanin Durgotsav</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3743691,22.5966688,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sikdar Bagan Sadharan Durgotsov</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3723112,22.5966234,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kashi Bose Lane Durga Puja Samity</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3689174,22.5908979,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hedua Park Durga Puja</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.369288,22.5887151,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Simla Byayam Samity</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3650092,22.5853694,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jagat Mukherjee Park</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3660388,22.5994903,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Yubak Brinda DurgaPuja Mandop</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3823154,22.595916,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ahiritola Sarbojanin Durgotsab</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3571768,22.594859,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AHIRITOLA JUBAK BRINDA SARBOJONIN SARODOTSAB</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.356777,22.594889,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Beniatola Sarbojonin Durgostsav</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3611171,22.595926,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kumartuli Park</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3614663,22.5989827,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hatkhola Gosaipara Sarbojonin Durgotsab</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3591403,22.5991411,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Kumortuli Sarbojonin Durgotsab</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3626053,22.601233,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Baghbazar Sarbojonin Durgotsav</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3659778,22.6046649,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Baghbazar 7 Pally Sarbojanin Durgotsav</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3713085,22.6046937,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Deshbandhu Park</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3771053,22.60001,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tala Barowari Durgotsab</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3760867,22.6071191,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tala Prattoy Durga Puja Art</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.382574,22.6089319,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sree Bhumi Sporting Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4029328,22.5988987,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Park Tarun Sangha</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4137848,22.6109224,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Park Sarbojanin Durga Puja Samity</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4164052,22.6094363,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Dum Dum Park Bharat Chakra</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4143505,22.61026,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Lake Town Adhibasi Brindo Durga Puja Pandal</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4039701,22.6044508,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Kolkata Bonedi Bari Map</name>
+      <Placemark>
+        <name>Srimani Barir Durga Pujo</name>
+        <description><![CDATA[This is a traditional "barir pujo" or puja organised by an individual household as against standard pujas conducted by local communities. This puja is conducted in North Calcutta by onbe of the biggest traditional families of the city - the Srimanis. A wonderful homely atmposphere prevails here where th main door of the house is open round the clock during the festival<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3738888,22.5818002,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hathkhola Dutta Barir Durga Pujo</name>
+        <description><![CDATA[Baboo Ramtanu Dutta , also popularly known as Tanu Baboo was amongst the foremost Baboos of colonial Calcutta . But the real story of this illustrious family begins a long long time back in the reign of Rajah Adisur of Bengal .<br>Adisur invited five learned Brahmins from Kanyakubja or Kanauj to come and settle in Bengal . Each of these Brahmins brought a non-Brahmin servitor along with them . Purushottam Dutta was one of the five servitors who came to Bengal with the legendary five Brahmins . And it was he who is credited to have founded Dutta family . He settled in the village of Bally on the banks of river Ganges . Later his descendents shifted to Andul . They were bestowed with the title ‘Chaudhury’ by the nawabs of Bengal . Finally the family split into three branches . While one branch ( of Ramsharan Dutta ) remained in Andul the other two ( Gobindasharan Dutta and Harisharan Dutta branches ) resettled themselves at GadhGobindaPur and Muragachha . Gobindasharan’s grandson Ramchandra Dutta came to settle at Chitpur in the new city of Calcutta . He was the ‘mutshuddi’ of the import export office of East India Company and also a native zamindar .<br>The family Durga puja is more than two centuries old and still continues without interruption . Presently there are three pujas held in homes of different shoriks or clans . Haatkhola Dutta once boasted of the most phenomenal and luxurious Durgotsavs in the city of Calcutta . No one but the Brahmin priests are entitled to touch the idol once she is seated on the platform for worship .The pratima is unique ‘Muttchowree’ styled . This means that the backdrop of the idol is in the shape of three temple spires , instead of the usual hemispherical type . The family still tries to maintain similarity in the pratimas of all three households . They are one of the few houses of the city which still preserve the original ‘khaas bangla’ mould of the face . Realeasing of neelkantha bird during Vijaya Dashami was an old tradition which had to stopped a couple of years back due to new rules .<br>The family also celebrates Kali puja . Tradition has it that the married ladies of the house do the farewell ‘boron’ during Durga puja and unmarried girls do it on Kali puja .Rathayatra festival of this family was also a spectacle to behold . Presently , trying conditions have forced them to retract the ritual to a modest scale . <br>Duttas were one of the very few families of old Calcutta which did not resort to appeasing British officials to create wealth and fame for themselves . There are no dancing halls in this house . There were no balls or parties and no nautches held during Durga puja to appease white shahibs . But even then , members from this family held extremely important positions of office in Colonial times and were widely respected throughout India . The family also produced countless advocates , doctors and men of repute . Netaji Subhas Chandra Bose was born to the girl ( His mother Prabhavati ) belonging to this family . Kedarnath Dutta , later known as Bhaktivindo thakur later became the founder of the new age gaudiya vaishnava movement . Rishi Aurobindo was also related with bloodlines of this family .<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3549315,22.5928457,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Sovabazar Rajbarir Durga Pujo</name>
+        <description><![CDATA[The beautiful Shobhabazar Rajbari Belongs to the royal family of Raja Naba Krishna Deb, the youngest son of Ram Charan Deb, who was a businessman and a Dewan under the Nawab of Cuttack. The Rajbari had seen glory and success during the British rule in Bengal. Nabakrishna Deb’s acquaintance with Lord Clive changed his fortune he started his career as a munshi and got engaged in the personal service of Lord Clive and gradually rose to power and fame with time. After Clive appointed him to the post of his personal Confidential Secretary, he became an influential negotiator between the British and the Mughals, Nawabs, and Rajas.<br><br>Raja Nabakrishna Deb first celebrated Durga Puja in the year 1757 to rejoice in the victory of the British over Nawab Siraj-ud-Daulah of Murshidabad. It is known from resources that renowned British generals Warren Hastings and Lord Clive were among the VIP invitees for the grand festival. Swami Vivekananda was also invited to a gala reception after his return from the World Parliament of Religions held in Chicago.<br><br>The Durga Puja in Rajbari is celebrated on the Nat Mandap or the Thakurdalan, which is an open courtyard area in the middle of the palatial building. Here the idol of the Devi along with her four children Lord Ganesha, Lord Kartik, Devi Lakshmi, and Devi Sarswati are presented in an “Ek Chala” or single structure platform. Starting from the bathing of Lord Ganesha’s consort “Kala Bou” (Banana Tree), Shosti Puja, Anjali puja of Mahastami, Navami Puja, and the immersion ceremony (Bishorjon) of the Devi idol on Bijaya Dashami – these grand five days are not only celebrated with a religious mind – the impact lies more like the celebration of happiness and joy. This historic and famous festival of the Rajbari is accompanied by some celebrities and all the five days of the celebration are open to the crowd to offer their devotion and pray to “Maa”.<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3674185,22.5962505,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Roychoudhury Barir Durga Pujo</name>
+        <description><![CDATA[It is known as first Durga Puja in Kolkata. The worship of goddess Durga keep under the yard with eight pillars and a roof top and with no walls. It is called Attchala Mondop. This Durga Puja is extremely popular for its rituals and tradition. Wood framed”Chalchitra” use to keep each year for same usage. This family having total eight Durga Puja in their families.<br><br>Lakshmikanta Ray Mazumdar was the famous zamindar in Bengal. He was associated with the powerful Mughal general Mansinha. They got Chowdhury title and their ‘gotro’ was Saborno. This Puja Known as Saborno Ray Choudhury Durgotsav. The family of Saborno Chowdhury hailed from Halisahar and later settled in Birati and eventually migrated to Barisha. Sabarna Roy Choudhury family was the landlord of the Kolkata village.On 10th Nov 1698 they transferred by lease, their rights over the 3 villages Sutanuti, Kalikata and Gobindapur to the East India Company with Rs.1300 only. Deal was conducted by Ram Chand Mazumdar, Manohar Majumdar with Charles Layer ,Son of law of Job Charnock.<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3065756,22.4800988,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Khelat Ghose er Durga Pujo</name>
+        <description><![CDATA[This Puja is one among the wonderful Banedi barir Durga Puja in north Kolkata that being started by Sri Khelat Chandra Ghosh who was the Diwan of the court of Warren Hestings (British colonial administrator in India). Khelat Chandra Ghosh was famous for his social reforming activity. He was also concerned in cultural, musical and philanthropic activities in Kolkata that time. The trusty of Khelat Chandra Ghosh happens to celebrate Durga Puja at their thakur dalan that made from marbles and also the corridor is incredibly long and encircled by embellished wall. it’s a dancing hall too. the whole design take placed by Martin & Burn co. The worship of Devi Durga is confine a single decorated wood frame thatreferred to as Ek-chala and decorated by designed materials.<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3565391,22.5887689,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rani Rashmoni er Durga Pujo</name>
+        <description><![CDATA[The Great Bengali lady Rani Rashmoni is famous for her social reforming activities. Rani Rashmoni is very famous to found and establishing the Dakshineswar Kali temple with the worship of Goddess Kali. There are two different Durga Puja‘s celebrated by two different families. The first one was started by Rani Rashmoni in her S.N Banerjee roadhouse. After her death, her son-in-law continued this Durga Puja in their S.N Banerjee road premises. Another Durga Puja known as ‘Kachari barrier Pujo’ is conducted today at Janbazar side premises. Great personalities of the Bengal use to visit Rani Rashmonir Puja at that time. The worship of goddess Durga is in traditional look here and it is decorated by ‘Solar Saaj’ in a Ek chala.<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3553522,22.5624669,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>RAMDULAL NIBAS er Durga Pujo</name>
+        <description><![CDATA[During the late 18th and early 19th centuries, Bengali merchant Ramdulal De(Sarkar) was a well-known figure in the maritime trade between India and America.<br><br>One of the earliest Bengali businessmen, Ramdulal Dey (Sarkar)amassed wealth in the 17th century through trade with the newly independent United States of America (USA). At a period when the US had just attained independence from Great Britain and was actively trying to develop its economy and trade, he was a pioneer in the Indo-American maritime trade. The second-oldest American consulate (and oldest in India) was established in Kolkata on November 19, 1792, by order of George Washington, the first President of the United States, due to the prosperous trading links between Ramdulal and Kolkata.<br><br>Due to their extravagant lifestyle, Asutosh Deb and Pramathanath Deb, his two sons, gained the renown nicknames “Chhatu Babu” and “Latu Babu.” They allegedly used to burn 100 rupee bills to light cigars. Despite their lack of commercial success, they were well-liked in their respective industries. Musician Asutosh alias Chhatu Babu was a prominent classical music lover and expert. His nach ghar (dancing room), where renowned national musicians and dancers like Gauhar Jaan and Pandit Ravi Shankar performed, became famous during his lifetime.<br><br>Ishwar Ram Dulal Deb (Sarkar) first held Durga Pujas at his home on Beadon Street in 1770. Later, this ritual came to be known as Chatu Babu Latu Babur Barir Traditional Durga Puja.<br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3644845,22.5903317,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Baghbazar Haldar Bari er Pujo</name>
+        <description><![CDATA[The Durga Puja celebration of Baghbazar Haldar house is one of oldest and historically significant household Durga Puja of Kolkata. The idol is worshipped daily for the last 453 years. The Durga idol at Haldarbari is made of Kasthipathar (Touchstone) instead of clay. It is evident from the structure and style of the deity that it has been sculpted during the Pala era of Bengal. From this fact one can estimate that the age of the idol is around 600 to 700 years.<br><br>Courtesy: The Pujo Company]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3670376,22.6034575,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>South Kolkata r Pujo</name>
+      <Placemark>
+        <name>Badamtala Ashar Sangha</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3437184,22.5179743,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>66 Pally Durga Puja Pandal</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3427029,22.5181372,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Nepal Bhattacharjee Street</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3426217,22.5180222,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Chetla Agrani Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.337091,22.5164325,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Deshapriya Park</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3534607,22.5185819,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Samaj Sebi Sangha</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3559608,22.5155625,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ballygunge Cultural Association</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3557435,22.5159227,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Tridhara Sammilani</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3554347,22.5193983,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hindustan Park Sarbojanin Durga Puja</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3614231,22.5179755,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Singhi Park Sarbojanin Durga Puja Committee</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3631452,22.5208433,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ekdalia Evergreen Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3665629,22.5212187,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Falguni Sangha</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3656673,22.5220333,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Ballygunge 21 Pally</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3688163,22.529175,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bosepukur Sitala Mandir</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3848576,22.5192181,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Bosepukur Talbagan Sarbojanin Durga Puja Pandal</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3826451,22.5187427,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Rajdanga Naba Uday Sangha</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3902285,22.5166272,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Babubagan Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3690351,22.5079097,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Selimpur Pally Durga Puja Pandal</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3678466,22.5048712,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Jodhpur Park</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3639986,22.5058175,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>95 Pally Association</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3629194,22.5083339,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Trikon Park Durgotsab ত্রিকোণ পার্ক দূর্গোৎসব</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3784275,22.493162,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Pally Mangal Samity</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3744596,22.5049158,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>SANTOSHPUR LAKE PALLY</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3826648,22.4914216,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Mudiali Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.346783,22.509985,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Suruchi Sangha</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.333942,22.5090531,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Hindustan Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3371126,22.5039723,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Behala Club Sarbojanin Durgotsav Committee</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3141052,22.505119,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BARISHA SARBOJANIN DURGOTSAB</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3078724,22.4798221,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Raipur Club : Durga Puja Organisers in Kolkata</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3780502,22.4745148,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Naktala Udayan Sangha club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3667911,22.4747012,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>Maddox Square Durga Puja</name>
+        <description><![CDATA[Nestled in the heart of Kolkata lies Maddox Square, a haven of traditions, camaraderie, and artistic excellence. For many, it's a place of festivity and divine blessings; for us at The Pujo Company, it's where our dream was born and our vision germinated.<br><br>Maddox Square Durga Pujo isn't just an event - it's an emotion, a tapestry of age-old traditions interwoven with contemporary touches. The square comes alive with the rhythmic beats of dhak, the scent of incense, and the sight of Maa Durga in all her radiant glory. Families, friends, and even strangers gather, not just to offer their prayers, but to be a part of a celebration that transcends religious boundaries.<br><br>It was in this vibrant atmosphere, amidst the blend of devotion and artistry, that the seeds of The Pujo Company were sown. As we marveled at the temporary Mandaps, rich in detail and craftsmanship, a thought struck us: What if we could preserve these masterpieces? What if we could ensure that they were created sustainably, without compromising the environment? And thus, with a mission to blend art with architecture, and a commitment to eco-friendliness, The Pujo Company was ideated.<br><br>Maddox Square holds a special place in our hearts. It's our home ground, the canvas where we first painted our dreams. It is where the fusion of heritage and innovation inspired us to look beyond the transient nature of the Mandaps and think of ways to make them everlasting.<br><br>Today, as we embark on our journey with The Pujo Company, Maddox Square remains our guiding star. It's a reminder of our roots, our inspiration, and our unwavering commitment to preserving the cultural legacy of Bengal. Every project we undertake, every Mandap we create, is imbued with the spirit and essence of Maddox Square Durga Pujo.<br><br>Join us in celebrating the place where it all began. Let's pay homage to Maddox Square, the birthplace of our dreams, our vision, and our passion.]]></description>
+        <styleUrl>#icon-1899-0288D1-labelson</styleUrl>
+        <Point>
+          <coordinates>
+            88.3546477,22.5265634,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>11 Pally Club</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3214501,22.4985408,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Salt Lake</name>
+      <Placemark>
+        <name>FD Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4131218,22.5830181,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AK Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4313014,22.5891537,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AE Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4119096,22.6008801,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AJ Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4288779,22.5921092,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AA Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.39736,22.5917995,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AB Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3997852,22.593313,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AC Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4034229,22.5948385,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AD Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4058478,22.5978414,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AG Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4240305,22.5995094,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AH Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4264543,22.5965541,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>AL Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4337248,22.5861982,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BA Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.3985726,22.5888325,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BB Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4022104,22.5918475,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BC Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4043323,22.5929856,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BD Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4082726,22.5948864,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BE Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4131218,22.5979131,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BG Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4225156,22.5953985,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BH Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4243335,22.5939268,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BJ Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4264406,22.5912327,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BK Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4288779,22.5876407,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>BL Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4313014,22.5846852,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CA Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4006947,22.5869917,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CB Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4034229,22.5888806,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CD Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.409485,22.5919194,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CE Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4131218,22.5949341,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>LABONY ESTATE</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4069754,22.583099,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>JC Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4131218,22.5696125,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>IB Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4146371,22.572234,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>IA Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4106973,22.5725677,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>HB Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4155462,22.5741049,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>HA Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4119096,22.5755587,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>GD Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4167583,22.5770958,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>GC Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4119096,22.5785377,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>FE Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4179705,22.5815762,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>FC Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.409485,22.5800034,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>EE Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4240305,22.5801459,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>EC Market</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4092955,22.5852613,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DL Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4261513,22.5812837,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DB Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4049385,22.5862889,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>DA Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4019072,22.5847695,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CJ Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4243333,22.5895296,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>CG Block</name>
+        <styleUrl>#icon-1899-0288D1-labelson-nodesc</styleUrl>
+        <Point>
+          <coordinates>
+            88.4216066,22.5920383,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Untitled layer</name>
+    </Folder>
+  </Document>
+</kml>

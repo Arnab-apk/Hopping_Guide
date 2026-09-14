@@ -12,12 +12,14 @@ import 'package:provider/provider.dart';
 
 import '../config/app_config.dart';
 import '../config/theme.dart';
+import '../models/app_user.dart';
 import '../models/pandal.dart';
+import '../models/squad_member.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/metro_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../repositories/supplementary_repository.dart';
-import '../models/squad_member.dart';
+import '../services/auth_service.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
 import '../services/routing_service.dart';
@@ -34,6 +36,7 @@ import '../widgets/pandal_search_autocomplete.dart';
 import '../widgets/app_tutorial_dialog.dart';
 import '../widgets/animated_fade_slide.dart';
 import '../widgets/durga_face_icon.dart';
+import '../widgets/user_profile_sheet.dart';
 import 'main_navigation_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -131,6 +134,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   List<Pandal> _pandals = [];
   List<FoodSpot> _foodSpots = [];
   bool _showFoodSpots = false;
+  bool _showMetroStations = false;
   bool _filterNearby10Km = false;
   bool _showMapSearchBar = true;
   bool _isLoading = true;
@@ -1028,44 +1032,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               setState(() => _showMapSearchBar = !_showMapSearchBar);
             },
           ),
-          IconButton(
-            icon: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: _showFoodSpots
-                    ? PujaColors.festivalGold.withValues(alpha: 0.28)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-                border: _showFoodSpots
-                    ? Border.all(color: PujaColors.goldBright, width: 1.2)
-                    : null,
-              ),
-              child: Icon(
-                _showFoodSpots
-                    ? Icons.restaurant_rounded
-                    : Icons.restaurant_outlined,
-                color: _showFoodSpots
-                    ? PujaColors.goldBright
-                    : Colors.white.withValues(alpha: 0.75),
-                size: 20,
-              ),
-            ),
-            tooltip: _showFoodSpots
-                ? 'Hide Food & Bhog Spots'
-                : 'Show Food & Bhog Spots',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              setState(() => _showFoodSpots = !_showFoodSpots);
-              final count = _visibleFoodSpots.length;
-              final msg = _showFoodSpots
-                  ? (_filterNearby10Km
-                        ? '🍲 Showing $count Food & Bhog stalls within 10 km'
-                        : '🍲 Showing $count Food & Bhog stalls')
-                  : 'Food stalls hidden';
-              _showStatusPill(msg, icon: Icons.restaurant_rounded);
-            },
-          ),
           Consumer<ThemeService>(
             builder: (context, themeService, _) {
               final isDarkActive = themeService.isDarkMode;
@@ -1440,6 +1406,66 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ],
                 ),
 
+              // Full Kolkata Metro Stations Network Layer (When toggled on)
+              if (_showMetroStations)
+                MarkerLayer(
+                  markers: MetroRepository.allStations.map((stn) {
+                    final isStationSelected = _selectedMetroStation?.id == stn.id;
+                    return Marker(
+                      point: LatLng(stn.latitude, stn.longitude),
+                      width: isStationSelected ? 44 : 34,
+                      height: isStationSelected ? 44 : 34,
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() {
+                            _selectedMetroStation = stn;
+                            _selectedPandal = null;
+                            _selectedFoodSpot = null;
+                            _highlightedRoute = null;
+                          });
+                          _animatedMapMove(
+                            LatLng(stn.latitude, stn.longitude),
+                            _mapController.camera.zoom < 15.0
+                                ? 15.0
+                                : _mapController.camera.zoom,
+                          );
+                          _showMetroStationSheet(stn, isDark);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                stn.line.color,
+                                stn.line.color.withValues(alpha: 0.85),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isStationSelected ? Colors.amberAccent : Colors.white,
+                              width: isStationSelected ? 2.5 : 1.8,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: stn.line.color.withValues(alpha: 0.5),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.subway_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+
               // Clustered Pandal Markers Layer (Smooth Spatial LOD)
               _ClusteredPandalLayer(
                 visiblePandals: visible,
@@ -1585,7 +1611,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
-                                      // Core Avatar
+                                      // Core Avatar with Google DP support
                                       Container(
                                         width: isSelected ? 38 : 32,
                                         height: isSelected ? 38 : 32,
@@ -1593,7 +1619,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                           color: avatarColor,
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: Colors.white,
+                                            color: isSelected
+                                                ? PujaColors.festivalGold
+                                                : Colors.white,
                                             width: isSelected ? 2.4 : 1.8,
                                           ),
                                           boxShadow: [
@@ -1606,15 +1634,40 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                             ),
                                           ],
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                            member.initials,
-                                            style: TextStyle(
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w900,
-                                              fontSize: isSelected ? 12.5 : 11,
-                                            ),
-                                          ),
+                                        child: ClipOval(
+                                          child: (member.photoUrl != null &&
+                                                  member.photoUrl!.isNotEmpty)
+                                              ? Image.network(
+                                                  member.photoUrl!,
+                                                  width: isSelected ? 38 : 32,
+                                                  height: isSelected ? 38 : 32,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (_, _, _) =>
+                                                      Center(
+                                                    child: Text(
+                                                      member.initials,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        fontSize: 11,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                              : Center(
+                                                  child: Text(
+                                                    member.initials,
+                                                    style: TextStyle(
+                                                      color: Colors.black87,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      fontSize: isSelected
+                                                          ? 12.5
+                                                          : 11,
+                                                    ),
+                                                  ),
+                                                ),
                                         ),
                                       ),
                                       // Online dot
@@ -1772,10 +1825,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
-                                // Inner location core with golden outline when navigating
+                                // Inner location core with golden outline & optional Google DP
                                 Container(
-                                  width: 18,
-                                  height: 18,
+                                  width: 22,
+                                  height: 22,
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF2979FF),
                                     shape: BoxShape.circle,
@@ -1783,7 +1836,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                       color: isNavigatingToTarget
                                           ? PujaColors.goldBright
                                           : Colors.white,
-                                      width: 2.8,
+                                      width: 2.4,
                                     ),
                                     boxShadow: const [
                                       BoxShadow(
@@ -1792,6 +1845,25 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                         offset: Offset(0, 2),
                                       ),
                                     ],
+                                  ),
+                                  child: ClipOval(
+                                    child: Builder(
+                                      builder: (context) {
+                                        final userPhoto = context.select<AuthService?, String?>(
+                                          (a) => a?.currentUserModel?.photoUrl,
+                                        );
+                                        if (userPhoto != null && userPhoto.isNotEmpty) {
+                                          return Image.network(
+                                            userPhoto,
+                                            width: 22,
+                                            height: 22,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                                          );
+                                        }
+                                        return const SizedBox.shrink();
+                                      },
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1969,13 +2041,28 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               ),
                               _buildNearbyChip(isDark),
                               _buildCustomTrailChip(isDark),
+                              _buildMetroToggleChip(isDark),
+                              _buildFoodToggleChip(isDark),
                             ],
                           ),
                         ),
                       ),
+                      Container(
+                        height: 22,
+                        width: 1,
+                        color: isDark ? Colors.white24 : Colors.black12,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                      ),
+                      // Pinned User Profile Avatar (Opens User Profile Sheet)
+                      _buildProfileAvatarButton(context, isDark),
                     ],
                   ),
                 ),
+                // Squad Friends At-A-Glance Floating Bar
+                if (squadService.hasActiveSquad) ...[
+                  const SizedBox(height: 6),
+                  _buildSquadFriendsAtAGlance(isDark, squadService),
+                ],
               ],
             ),
           ),
@@ -2830,18 +2917,47 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: _selectedSquadMember!.avatarColor
-                                  .withValues(alpha: 0.2),
-                              foregroundColor:
-                                  _selectedSquadMember!.avatarColor,
-                              child: Text(
-                                _selectedSquadMember!.initials,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: PujaColors.festivalGold,
+                                  width: 1.5,
                                 ),
+                              ),
+                              child: ClipOval(
+                                child: _selectedSquadMember!.photoUrl != null &&
+                                        _selectedSquadMember!.photoUrl!.isNotEmpty
+                                    ? Image.network(
+                                        _selectedSquadMember!.photoUrl!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (ctx, err, stack) => CircleAvatar(
+                                          backgroundColor: _selectedSquadMember!.avatarColor
+                                              .withValues(alpha: 0.2),
+                                          foregroundColor: _selectedSquadMember!.avatarColor,
+                                          child: Text(
+                                            _selectedSquadMember!.initials,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        backgroundColor: _selectedSquadMember!.avatarColor
+                                            .withValues(alpha: 0.2),
+                                        foregroundColor: _selectedSquadMember!.avatarColor,
+                                        child: Text(
+                                          _selectedSquadMember!.initials,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -3697,20 +3813,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   curve: Curves.easeOutCubic,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Quick Nearest Pandal (Red Navigation Arrow Button)
                       Tooltip(
                         message: 'Nearest Pandal (10km) • Red Arrow Radar',
                         child: Container(
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(18),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFFFF1744)
-                                    .withValues(alpha: 0.38),
+                                    .withValues(alpha: 0.35),
                                 blurRadius: 10,
-                                spreadRadius: 1,
+                                spreadRadius: 0.5,
                                 offset: const Offset(0, 2),
                               ),
                             ],
@@ -3745,45 +3861,103 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 : const Icon(
                                     Icons.navigation_rounded,
                                     color: Color(0xFFFF1744),
-                                    size: 28,
+                                    size: 26,
                                   ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 10),
-                      FloatingActionButton.small(
-                        heroTag: null,
-                        elevation: 2,
-                        highlightElevation: 4,
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          AppTutorialDialog.show(context);
-                        },
-                        backgroundColor: PujaColors.festivalGold,
-                        foregroundColor: Colors.black87,
-                        tooltip: 'App Walkthrough & Guide',
-                        child: const Icon(Icons.help_outline_rounded),
+                      // App Walkthrough & Guide (Festival Gold Button)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: PujaColors.festivalGold
+                                  .withValues(alpha: 0.30),
+                              blurRadius: 10,
+                              spreadRadius: 0.5,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: FloatingActionButton(
+                          heroTag: 'app_tutorial_fab',
+                          elevation: 3,
+                          highlightElevation: 6,
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            AppTutorialDialog.show(context);
+                          },
+                          backgroundColor: isDark
+                              ? const Color(0xFF22232A)
+                              : Colors.white,
+                          foregroundColor: PujaColors.festivalGold,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            side: const BorderSide(
+                              color: PujaColors.festivalGold,
+                              width: 2.2,
+                            ),
+                          ),
+                          tooltip: 'App Walkthrough & Guide',
+                          child: const Icon(
+                            Icons.help_outline_rounded,
+                            color: PujaColors.festivalGold,
+                            size: 26,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 10),
-                      FloatingActionButton(
-                        heroTag: null,
-                        elevation: 2,
-                        highlightElevation: 4,
-                        onPressed: _toggleFollowUser,
-                        backgroundColor: _followUser
-                            ? const Color(0xFF2979FF)
-                            : (isDark ? PujaColors.nightCard : Colors.white),
-                        foregroundColor: _followUser
-                            ? Colors.white
-                            : (isDark ? Colors.white : Colors.black87),
-                        tooltip: _followUser
-                            ? 'Live Tracking Active (Tap for free-roam)'
-                            : 'Center & Follow My GPS',
-                        child: Icon(
-                          _followUser
-                              ? Icons.navigation_rounded
-                              : Icons.my_location,
-                          size: context.dynamicIcon(24),
+                      // Center & Follow My GPS Button
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: _followUser
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(0xFF2979FF)
+                                        .withValues(alpha: 0.38),
+                                    blurRadius: 10,
+                                    spreadRadius: 0.5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: FloatingActionButton(
+                          heroTag: 'follow_user_gps_fab',
+                          elevation: 3,
+                          highlightElevation: 6,
+                          onPressed: _toggleFollowUser,
+                          backgroundColor: _followUser
+                              ? const Color(0xFF2979FF)
+                              : (isDark
+                                  ? const Color(0xFF22232A)
+                                  : Colors.white),
+                          foregroundColor: _followUser
+                              ? Colors.white
+                              : (isDark ? Colors.white : Colors.black87),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            side: BorderSide(
+                              color: _followUser
+                                  ? const Color(0xFF2979FF)
+                                  : (isDark
+                                      ? const Color(0xFF4A4B56)
+                                      : const Color(0xFFCFD1DC)),
+                              width: 2.2,
+                            ),
+                          ),
+                          tooltip: _followUser
+                              ? 'Live Tracking Active (Tap for free-roam)'
+                              : 'Center & Follow My GPS',
+                          child: Icon(
+                            _followUser
+                                ? Icons.navigation_rounded
+                                : Icons.my_location,
+                            size: 26,
+                          ),
                         ),
                       ),
                     ],
@@ -4182,6 +4356,281 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileAvatarButton(BuildContext context, bool isDark) {
+    final user = context.select<AuthService?, AppUser?>((a) => a?.currentUserModel);
+    final photoUrl = user?.photoUrl;
+    final isGoogle = user != null && !user.isGuest;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            UserProfileSheet.show(context);
+          },
+          child: Tooltip(
+            message: isGoogle ? 'Profile: ${user.displayName}' : 'Guest Profile',
+            child: Container(
+              padding: const EdgeInsets.all(1.5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isGoogle
+                      ? PujaColors.festivalGold
+                      : (isDark ? Colors.white30 : Colors.black26),
+                  width: 1.6,
+                ),
+                boxShadow: isGoogle
+                    ? [
+                        BoxShadow(
+                          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                          blurRadius: 6,
+                          offset: const Offset(0, 1),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: CircleAvatar(
+                radius: 13,
+                backgroundColor: isDark
+                    ? const Color(0xFF2C2C2E)
+                    : const Color(0xFFE0E0E0),
+                backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                    ? NetworkImage(photoUrl)
+                    : null,
+                child: (photoUrl == null || photoUrl.isEmpty)
+                    ? Icon(
+                        Icons.person_rounded,
+                        size: 15,
+                        color: isDark ? Colors.white70 : Colors.black87,
+                      )
+                    : null,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSquadFriendsAtAGlance(bool isDark, SquadService squadService) {
+    final companions = squadService.companionMembers;
+    final userPos = _userPosition;
+
+    return AnimatedFadeSlide(
+      duration: const Duration(milliseconds: 240),
+      offset: const Offset(0, -0.1),
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: (isDark ? const Color(0xFF161618) : Colors.white).withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: PujaColors.festivalGold.withValues(alpha: 0.4),
+            width: 1.1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.22),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Squad Code Badge
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                MainNavigationScreen.switchTab(context, 3);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                decoration: BoxDecoration(
+                  color: PujaColors.durgaRed.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: PujaColors.durgaRed.withValues(alpha: 0.4),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.groups_rounded, size: 14, color: PujaColors.durgaRed),
+                    const SizedBox(width: 4),
+                    Text(
+                      squadService.squadCode ?? 'SQUAD',
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: PujaColors.durgaRed,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 6),
+
+            // Divider
+            Container(
+              width: 1,
+              height: 22,
+              color: isDark ? Colors.white12 : Colors.black12,
+            ),
+
+            const SizedBox(width: 6),
+
+            // Companions list or Waiting for friends state
+            if (companions.isEmpty)
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Squad active • Waiting for friends...',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? Colors.white60 : Colors.black54,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      icon: const Icon(Icons.person_add_rounded, size: 14, color: PujaColors.festivalGold),
+                      label: const Text(
+                        'Demo Hopper',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: PujaColors.festivalGold),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.mediumImpact();
+                        squadService.addDemoCompanions();
+                      },
+                    ),
+                  ],
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: companions.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  itemBuilder: (context, idx) {
+                    final member = companions[idx];
+                    final isFocused = _selectedSquadMember?.id == member.id;
+                    final distStr = userPos != null
+                        ? '${(haversineMeters(userPos.latitude, userPos.longitude, member.latitude, member.longitude)).round()}m'
+                        : 'Live';
+
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        _animatedMapMove(
+                          LatLng(member.latitude, member.longitude),
+                          (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom),
+                        );
+                        _highlightRouteToMember(member);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isFocused
+                              ? PujaColors.festivalGold.withValues(alpha: 0.2)
+                              : (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04)),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isFocused ? PujaColors.festivalGold : Colors.transparent,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Friend Google DP with online dot
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                CircleAvatar(
+                                  radius: 13,
+                                  backgroundColor: member.avatarColor,
+                                  backgroundImage: (member.photoUrl != null && member.photoUrl!.isNotEmpty)
+                                      ? NetworkImage(member.photoUrl!)
+                                      : null,
+                                  child: (member.photoUrl == null || member.photoUrl!.isEmpty)
+                                      ? Text(
+                                          member.initials,
+                                          style: const TextStyle(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF00E676),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 1),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 5),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  member.name.split(' ')[0],
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  distStr,
+                                  style: const TextStyle(
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF00E676),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
         ),
       ),
     );

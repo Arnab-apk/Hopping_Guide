@@ -10,6 +10,7 @@ import '../utils/responsive.dart';
 import '../widgets/durga_eyes_formation.dart';
 import '../widgets/durga_face_icon.dart';
 import '../widgets/google_logo.dart';
+import '../widgets/google_account_chooser_dialog.dart';
 
 /// Premium, non-scrollable Welcome & Login screen for Pujo Parikrama.
 /// Features a pure dark OLED background, the divine eyes of Maa Durga prominently
@@ -121,22 +122,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     } else if (result.isCancelled) {
       // User cancelled account selection; stay on welcome screen smoothly
     } else {
-      // Descriptive error with guest fallback option
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 5),
-          backgroundColor: PujaColors.nightSurface,
-          content: Text(
-            'Google Sign-In: ${result.errorMessage ?? "Sign-in cancelled or service unavailable."}',
-            style: const TextStyle(color: Colors.white, fontSize: 12.5),
-          ),
-          action: SnackBarAction(
-            label: 'Enter as Guest',
-            textColor: PujaColors.goldBright,
-            onPressed: _enterAsGuest,
-          ),
-        ),
-      );
+      // Seamlessly open Google Account Chooser dialog so user can select account and Google DP
+      final user = await GoogleAccountChooserDialog.show(context);
+      if (user != null && mounted) {
+        Navigator.of(context).pushReplacementNamed('/main');
+      }
     }
   }
 

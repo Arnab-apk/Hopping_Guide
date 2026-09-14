@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'services/auth_service.dart';
 import 'services/custom_hopping_trail_service.dart';
 import 'services/location_service.dart';
 import 'services/notification_progress_service.dart';
 import 'services/pandal_user_state_service.dart';
-
 import 'services/squad_service.dart';
 import 'services/theme_service.dart';
 
@@ -24,7 +24,8 @@ void main() async {
     debugPrint('Firebase initialization note: $e');
   }
 
-  // Initialize persistent user preferences, theme, squad, notifications, and device location service
+  // Initialize persistent user preferences, auth, theme, squad, notifications, and device location service
+  final authService = await AuthService.create();
   final userStateService = await PandalUserStateService.create();
   final themeService = await ThemeService.create();
   final squadService = await SquadService.create();
@@ -40,6 +41,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider<AuthService>.value(value: authService),
         ChangeNotifierProvider<PandalUserStateService>.value(value: userStateService),
         ChangeNotifierProvider<ThemeService>.value(value: themeService),
         ChangeNotifierProvider<LocationService>.value(value: locationService),

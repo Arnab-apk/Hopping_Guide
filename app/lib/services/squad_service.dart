@@ -133,12 +133,52 @@ class SquadService extends ChangeNotifier {
         longitude: lng,
         status: isHost ? 'Squad Host • GPS Live' : 'Joined • GPS Live',
         lastSeen: DateTime.now(),
+        photoUrl: user?.photoUrl,
         isHost: isHost,
         isUser: true,
         batteryLevel: 95,
         avatarColorHex: 0xFFD32F2F, // Durga crimson
       ),
     );
+  }
+
+  /// Adds companion members with Google DPs near the user for demonstration / testing
+  void addDemoCompanions() {
+    if (!hasActiveSquad) return;
+    final currentPos = LocationService.instance.currentPositionSync;
+    final baseLat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
+    final baseLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+
+    final priya = SquadMember(
+      id: 'companion_priya',
+      name: 'Priya Mukherjee',
+      latitude: baseLat + 0.0021,
+      longitude: baseLng + 0.0018,
+      status: 'At Food Stall • Active',
+      lastSeen: DateTime.now(),
+      photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
+      isHost: false,
+      isUser: false,
+      batteryLevel: 88,
+      avatarColorHex: 0xFFE91E63,
+    );
+
+    final rohan = SquadMember(
+      id: 'companion_rohan',
+      name: 'Rohan Sen',
+      latitude: baseLat - 0.0032,
+      longitude: baseLng + 0.0025,
+      status: 'Near Metro Gate • Walking',
+      lastSeen: DateTime.now(),
+      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
+      isHost: false,
+      isUser: false,
+      batteryLevel: 74,
+      avatarColorHex: 0xFF2196F3,
+    );
+
+    addMember(priya);
+    addMember(rohan);
   }
 
   /// Create a brand new hopping squad with real device GPS coordinates.

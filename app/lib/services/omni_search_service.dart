@@ -141,6 +141,7 @@ class OmniSearchService {
     final normName = PandalSearchService.normalize(station.name);
     final normLine = PandalSearchService.normalize(station.line.label);
     final normCorridor = PandalSearchService.normalize(station.line.corridor);
+    final normAliases = station.aliases.map(PandalSearchService.normalize).toList();
     final normNearby = station.popularPandalsNearby
         .map(PandalSearchService.normalize)
         .join(' ');
@@ -148,12 +149,12 @@ class OmniSearchService {
     double score = 0.0;
     String matchedField = 'Name';
 
-    // 1. Exact or prefix match on station name
-    if (normName == normQuery) {
+    // 1. Exact or prefix match on station name or aliases
+    if (normName == normQuery || normAliases.contains(normQuery)) {
       score += 1300;
-    } else if (normName.startsWith(normQuery)) {
+    } else if (normName.startsWith(normQuery) || normAliases.any((a) => a.startsWith(normQuery))) {
       score += 850;
-    } else if (normName.contains(normQuery)) {
+    } else if (normName.contains(normQuery) || normAliases.any((a) => a.contains(normQuery))) {
       score += 480;
     }
 

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -5,9 +6,12 @@ import 'package:share_plus/share_plus.dart';
 
 import '../config/theme.dart';
 import '../models/squad_member.dart';
+import '../services/auth_service.dart';
 import '../services/squad_service.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
+import '../widgets/google_logo.dart';
+import '../widgets/user_profile_sheet.dart';
 import 'main_navigation_screen.dart';
 
 /// Screen for creating/joining hopping squads, viewing live member locations,
@@ -238,6 +242,33 @@ class GroupScreen extends StatelessWidget {
         title: const Text('Hopping Squad (Groups)'),
         actions: [
           IconButton(
+            tooltip: 'My Profile',
+            icon: Consumer<AuthService>(
+              builder: (ctx, auth, _) {
+                final photo = auth.currentUserModel?.photoUrl;
+                if (photo != null && photo.isNotEmpty) {
+                  return Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: PujaColors.festivalGold, width: 1.5),
+                    ),
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: photo,
+                        fit: BoxFit.cover,
+                        errorWidget: (c, u, e) => const Icon(Icons.account_circle, color: PujaColors.festivalGold),
+                      ),
+                    ),
+                  );
+                }
+                return const Icon(Icons.account_circle_outlined);
+              },
+            ),
+            onPressed: () => UserProfileSheet.show(context),
+          ),
+          IconButton(
             tooltip: 'Invite Squad',
             icon: const Icon(Icons.share_rounded),
             onPressed: squadService.hasActiveSquad ? () => _shareInvite(context, squadService) : null,
@@ -267,53 +298,61 @@ class GroupScreen extends StatelessWidget {
   }
 
   Widget _buildNoGroupView(BuildContext context, ThemeData theme, SquadService squadService) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: PujaColors.durgaRed.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.group_add_rounded, size: 64, color: PujaColors.durgaRed),
+    final isDark = theme.brightness == Brightness.dark;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildProfileHeaderCard(context, theme, isDark),
+        const SizedBox(height: 12),
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: PujaColors.durgaRed.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.group_add_rounded, size: 64, color: PujaColors.durgaRed),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Hop Together, Never Get Lost',
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Form a hopping group with friends and family. See live member pins on the map, set meetup spots, and trigger separation alerts in dense crowds.',
+                  style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Create New Squad'),
+                    onPressed: () => _createGroup(context, squadService),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.login),
+                    label: const Text('Join with Squad Code'),
+                    onPressed: () => _joinGroup(context, squadService),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Hop Together, Never Get Lost',
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Form a hopping group with friends and family. See live member pins on the map, set meetup spots, and trigger separation alerts in dense crowds.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Create New Squad'),
-                onPressed: () => _createGroup(context, squadService),
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.login),
-                label: const Text('Join with Squad Code'),
-                onPressed: () => _joinGroup(context, squadService),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -324,6 +363,9 @@ class GroupScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // User Profile Header Card
+        _buildProfileHeaderCard(context, theme, isDark),
+
         // Squad Code Banner
         Card(
           color: isDark ? PujaColors.nightCard : Colors.white,
@@ -551,7 +593,11 @@ class GroupScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
+
+        // Squad Friends At-A-Glance
+        _buildSquadFriendsAtAGlance(context, theme, isDark, squadService, userMember),
+        const SizedBox(height: 18),
 
         // Squad Members Header with Quick Map Jump
         Row(
@@ -627,14 +673,35 @@ class GroupScreen extends StatelessWidget {
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  FilledButton.icon(
-                    icon: const Icon(Icons.share, size: 16),
-                    label: const Text('Invite Companions'),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      _shareInvite(context, squadService);
-                    },
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      FilledButton.icon(
+                        icon: const Icon(Icons.share, size: 16),
+                        label: const Text('Invite Companions'),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          _shareInvite(context, squadService);
+                        },
+                      ),
+                      FilledButton.tonalIcon(
+                        icon: const Icon(Icons.group_add, size: 16),
+                        label: const Text('Add Demo Companions'),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          squadService.addDemoCompanions();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Added Priya & Rohan with Google DPs to your squad!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -669,13 +736,68 @@ class GroupScreen extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
-          foregroundColor: member.avatarColor,
-          child: Text(
-            member.initials,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
-          ),
+        leading: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: member.isUser ? PujaColors.festivalGold : member.avatarColor,
+                  width: member.isUser ? 2.0 : 1.5,
+                ),
+              ),
+              child: ClipOval(
+                child: member.photoUrl != null && member.photoUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: member.photoUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (ctx, url) => CircleAvatar(
+                          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
+                          foregroundColor: member.avatarColor,
+                          child: Text(
+                            member.initials,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
+                          ),
+                        ),
+                        errorWidget: (ctx, url, err) => CircleAvatar(
+                          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
+                          foregroundColor: member.avatarColor,
+                          child: Text(
+                            member.initials,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
+                          ),
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundColor: member.avatarColor.withValues(alpha: 0.2),
+                        foregroundColor: member.avatarColor,
+                        child: Text(
+                          member.initials,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
+                        ),
+                      ),
+              ),
+            ),
+            Positioned(
+              right: -1,
+              bottom: -1,
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00E676),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         title: Row(
           children: [
@@ -733,6 +855,415 @@ class GroupScreen extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildProfileHeaderCard(BuildContext context, ThemeData theme, bool isDark) {
+    final authService = Provider.of<AuthService>(context);
+    final user = authService.currentUserModel;
+    final photoUrl = user?.photoUrl;
+    final displayName = user?.displayName ?? 'Hopper Guest';
+    final email = user?.email ?? 'Parikrama Traveler';
+    final isGoogle = authService.isGoogleUser;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(
+          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+          width: 1.2,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          UserProfileSheet.show(context);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              // Google DP
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: PujaColors.festivalGold,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: PujaColors.festivalGold.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: photoUrl != null && photoUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: photoUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (c, u) => Container(
+                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                            child: const Icon(Icons.person, color: PujaColors.festivalGold),
+                          ),
+                          errorWidget: (c, u, e) => Container(
+                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                            child: Center(
+                              child: Text(
+                                user?.initials ?? 'HP',
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(
+                          color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                          child: Center(
+                            child: Text(
+                              user?.initials ?? 'HP',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              // User details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            displayName,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isGoogle) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4285F4).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const GoogleLogo(size: 11),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Google',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? const Color(0xFF8AB4F8) : const Color(0xFF1A73E8),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      email,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              // Profile button
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  visualDensity: VisualDensity.compact,
+                  side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.5)),
+                ),
+                icon: const Icon(Icons.person_outline_rounded, size: 16),
+                label: const Text('Profile', style: TextStyle(fontSize: 12)),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  UserProfileSheet.show(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSquadFriendsAtAGlance(
+    BuildContext context,
+    ThemeData theme,
+    bool isDark,
+    SquadService squadService,
+    SquadMember? userMember,
+  ) {
+    final companions = squadService.companionMembers;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.flash_on_rounded, color: PujaColors.festivalGold, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  'Squad Friends At-A-Glance',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+            if (companions.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF00E676),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${companions.length} Online',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        if (companions.isEmpty)
+          Card(
+            color: isDark ? PujaColors.nightCard.withValues(alpha: 0.7) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(
+                color: PujaColors.festivalGold.withValues(alpha: 0.25),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: PujaColors.festivalGold.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.person_add_alt_1_rounded, color: PujaColors.festivalGold, size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'No Companions Active',
+                          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Add companions to see their Google DPs and live GPS pins on the map.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: isDark ? Colors.white60 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.tonal(
+                    style: FilledButton.styleFrom(
+                      visualDensity: VisualDensity.compact,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      squadService.addDemoCompanions();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Added Priya and Rohan to your squad with Google DPs!'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: const Text('Add Demo', style: TextStyle(fontSize: 12)),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          SizedBox(
+            height: 124,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: companions.length,
+              separatorBuilder: (ctx, i) => const SizedBox(width: 10),
+              itemBuilder: (ctx, index) {
+                final friend = companions[index];
+                final dist = userMember != null
+                    ? formatDistance(
+                        haversineMeters(
+                          userMember.latitude,
+                          userMember.longitude,
+                          friend.latitude,
+                          friend.longitude,
+                        ),
+                      )
+                    : 'Nearby';
+
+                return InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    squadService.focusMember(friend.id);
+                    MainNavigationScreen.switchTab(context, 0);
+                  },
+                  child: Container(
+                    width: 108,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? PujaColors.nightCard : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: PujaColors.festivalGold, width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: PujaColors.festivalGold.withValues(alpha: 0.3),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ClipOval(
+                                child: friend.photoUrl != null && friend.photoUrl!.isNotEmpty
+                                    ? CachedNetworkImage(
+                                        imageUrl: friend.photoUrl!,
+                                        fit: BoxFit.cover,
+                                        placeholder: (c, u) => CircleAvatar(
+                                          backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
+                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                        ),
+                                        errorWidget: (c, u, e) => CircleAvatar(
+                                          backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
+                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
+                                        child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                      ),
+                              ),
+                            ),
+                            Positioned(
+                              right: -1,
+                              bottom: -1,
+                              child: Container(
+                                width: 11,
+                                height: 11,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00E676),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                    width: 1.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          friend.name.split(' ')[0],
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: PujaColors.festivalGold.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            dist,
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: PujaColors.festivalGold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 }

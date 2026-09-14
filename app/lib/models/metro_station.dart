@@ -51,6 +51,7 @@ class MetroStation {
     this.isInterchange = false,
     this.connectingLines = const [],
     this.popularPandalsNearby = const [],
+    this.aliases = const [],
   });
 
   final String id;
@@ -61,6 +62,7 @@ class MetroStation {
   final bool isInterchange;
   final List<KolkataMetroLine> connectingLines;
   final List<String> popularPandalsNearby;
+  final List<String> aliases;
 
   String get displayName => name;
   String get subtitle => isInterchange

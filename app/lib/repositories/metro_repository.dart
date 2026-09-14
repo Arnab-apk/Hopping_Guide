@@ -65,6 +65,7 @@ class MetroRepository {
       line: KolkataMetroLine.blue,
       latitude: 22.5925,
       longitude: 88.3653,
+      aliases: ['Sovabazar Sutanuti', 'Sovabazar', 'Shovabazar', 'Sobhabazar'],
       popularPandalsNearby: [
         'Kumartuli Park',
         'Sovabazar Rajbari',

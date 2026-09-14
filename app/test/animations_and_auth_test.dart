@@ -90,6 +90,23 @@ void main() {
       expect(failure.isCancelled, false);
       expect(failure.errorMessage, 'Network timeout');
     });
+
+    test('Google sign in sets Google user model, avatar, and email correctly', () async {
+      final user = await AuthService.instance.signInWithGoogleProfile(
+        displayName: 'Arnab Mukherjee',
+        email: 'arnab.puja@gmail.com',
+        photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200',
+      );
+      expect(user.isGuest, false);
+      expect(user.displayName, 'Arnab Mukherjee');
+      expect(user.email, 'arnab.puja@gmail.com');
+      expect(AuthService.instance.isGoogleUser, true);
+      expect(user.initials, 'AM');
+
+      // Test update profile
+      await AuthService.instance.updateProfile(displayName: 'Arnab M.');
+      expect(AuthService.instance.currentUserModel?.displayName, 'Arnab M.');
+    });
   });
 
   group('Theme Page Transitions Tests', () {
@@ -270,6 +287,38 @@ void main() {
       final revived = SquadMember.fromJson(json);
       expect(revived.name, member.name);
       expect(revived.latitude, member.latitude);
+    });
+
+    test('SquadMember serializes and deserializes Google photoUrl correctly', () {
+      final member = SquadMember(
+        id: 'member_google',
+        name: 'Arnab Mukherjee',
+        latitude: 22.58,
+        longitude: 88.36,
+        status: 'Online • Hopping',
+        lastSeen: DateTime(2026, 10, 20, 20, 0),
+        photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
+      );
+
+      expect(member.photoUrl, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb');
+      final json = member.toJson();
+      expect(json['photo_url'], 'https://images.unsplash.com/photo-1534528741775-53994a69daeb');
+
+      final revived = SquadMember.fromJson(json);
+      expect(revived.photoUrl, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb');
+    });
+
+    test('SquadService addDemoCompanions populates companions with Google DPs', () {
+      final squad = SquadService.instance;
+      squad.createSquad('Bagbazar Hoppers', 'North Gate');
+      expect(squad.companionMembers, isEmpty);
+
+      squad.addDemoCompanions();
+      expect(squad.companionMembers.length, 2);
+      for (final companion in squad.companionMembers) {
+        expect(companion.photoUrl, isNotNull);
+        expect(companion.photoUrl, startsWith('http'));
+      }
     });
 
     test('SquadService createSquad starts with only host and 0 companions', () {
