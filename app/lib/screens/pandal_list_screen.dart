@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../config/app_config.dart';
@@ -12,6 +13,7 @@ import '../repositories/supplementary_repository.dart';
 import '../services/location_service.dart';
 import '../services/pandal_search_service.dart';
 import '../services/pandal_user_state_service.dart';
+import '../services/puja_day_theme_service.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
@@ -322,6 +324,55 @@ class _PandalListScreenState extends State<PandalListScreen> {
       ),
       body: Column(
         children: [
+          // 0. Dynamic Puja Day Greetings Banner
+          ListenableBuilder(
+            listenable: PujaDayThemeService.instance,
+            builder: (context, _) {
+              final day = PujaDayThemeService.instance.currentDay;
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(day.icon, size: 13, color: day.primaryAccent),
+                        const SizedBox(width: 5),
+                        Text(
+                          day.bengaliGreeting,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                            color: day.primaryAccent,
+                          ),
+                        ),
+                        Text(
+                          ' • ${day.englishGreeting}',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white60 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      day == PujaDay.countdown ? 'COUNTDOWN' : 'FESTIVAL LIVE',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: day.primaryAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
           // 1. Search Bar with Instant Keyword Matching & Autocomplete
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),

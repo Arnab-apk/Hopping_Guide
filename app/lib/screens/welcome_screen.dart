@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../config/theme.dart';
 import '../services/auth_service.dart';
+import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
 import '../widgets/durga_eyes_formation.dart';
 import '../widgets/durga_face_icon.dart';
@@ -42,7 +43,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   void initState() {
     super.initState();
     _calculateTime();
-    _timer = Timer.periodic(const Duration(minutes: 1), (_) => _calculateTime());
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _calculateTime());
+    PujaDayThemeService.instance.addListener(_onThemeChanged);
 
     _entranceController = AnimationController(
       vsync: this,
@@ -86,6 +88,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     _entranceController.forward();
   }
 
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
   void _calculateTime() {
     final now = DateTime.now();
     setState(() {
@@ -98,6 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   @override
   void dispose() {
     _timer.cancel();
+    PujaDayThemeService.instance.removeListener(_onThemeChanged);
     _entranceController.dispose();
     super.dispose();
   }
@@ -141,10 +148,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isCompact = size.height < 740;
+    final activeDay = PujaDayThemeService.instance.currentDay;
 
     final days = _timeUntilPuja.inDays;
     final hours = _timeUntilPuja.inHours % 24;
     final minutes = _timeUntilPuja.inMinutes % 60;
+    final seconds = _timeUntilPuja.inSeconds % 60;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -186,22 +195,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
               ),
             ),
 
-            // 3. Subtle Ambient Golden/Crimson Aura in Background
+            // 3. Dynamic Day-Specific Ambient Aura in Background
             Positioned(
               top: size.height * 0.16,
               left: size.width * 0.10,
               right: size.width * 0.10,
               height: 240,
               child: IgnorePointer(
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [
-                        PujaColors.festivalGold.withValues(alpha: 0.16),
-                        const Color(0xFF800020).withValues(alpha: 0.08),
-                        Colors.transparent,
-                      ],
+                      colors: activeDay.auraGradient,
                       stops: const [0.0, 0.5, 1.0],
                     ),
                   ),
@@ -225,9 +231,82 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 4),
+                          // Prototyped Day Switcher Bar (Interactive preview for all Puja Tithis)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: activeDay.primaryAccent.withValues(alpha: 0.35),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 4, right: 6),
+                                    child: Text(
+                                      'PREVIEW:',
+                                      style: GoogleFonts.jetBrainsMono(
+                                        fontSize: context.dynamicFont(8.5),
+                                        fontWeight: FontWeight.w800,
+                                        color: activeDay.primaryAccent,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                  ...PujaDay.values.map((day) {
+                                    final isSelected = (day == PujaDayThemeService.instance.currentDay &&
+                                            (day != PujaDay.countdown || !PujaDayThemeService.instance.isSimulated)) ||
+                                        (day == PujaDay.countdown && !PujaDayThemeService.instance.isSimulated);
 
-                          // Header Group (Title & Sacred Badge)
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 1.5),
+                                      child: InkWell(
+                                        onTap: () {
+                                          HapticFeedback.selectionClick();
+                                          PujaDayThemeService.instance.setSimulatedDay(
+                                            day == PujaDay.countdown ? null : day,
+                                          );
+                                        },
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 180),
+                                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? day.primaryAccent.withValues(alpha: 0.24)
+                                                : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: isSelected ? day.primaryAccent : Colors.white12,
+                                              width: isSelected ? 1.0 : 0.6,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            day.shortLabel,
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: context.dynamicFont(9.5),
+                                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                                              color: isSelected ? day.primaryAccent : Colors.white54,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Header Group (Title & Dynamic Sacred Day Badge)
                           RepaintBoundary(
                             child: FadeTransition(
                               opacity: _headerFade,
@@ -235,20 +314,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                 position: _headerSlide,
                                 child: Column(
                                   children: [
-                                    // Bengali Sacred Pill Badge
-                                    Container(
+                                    // Dynamic Bengali Sacred Day Pill Badge
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),
                                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withValues(alpha: 0.7),
+                                        color: Colors.black.withValues(alpha: 0.75),
                                         borderRadius: BorderRadius.circular(30),
                                         border: Border.all(
-                                          color: PujaColors.festivalGold.withValues(alpha: 0.5),
+                                          color: activeDay.primaryAccent.withValues(alpha: 0.55),
                                           width: 1.1,
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: PujaColors.festivalGold.withValues(alpha: 0.18),
-                                            blurRadius: 10,
+                                            color: activeDay.primaryAccent.withValues(alpha: 0.22),
+                                            blurRadius: 12,
                                             spreadRadius: 1,
                                           ),
                                         ],
@@ -256,15 +336,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.auto_awesome, color: PujaColors.festivalGold, size: 14),
+                                          Icon(activeDay.icon, color: activeDay.primaryAccent, size: 14),
                                           const SizedBox(width: 7),
                                           Text(
-                                            'শারদীয়া দুর্গোৎসব ২০২৬',
+                                            activeDay.fullGreeting,
                                             style: GoogleFonts.plusJakartaSans(
-                                              color: PujaColors.festivalGold,
+                                              color: activeDay.primaryAccent,
                                               fontWeight: FontWeight.w700,
                                               fontSize: 12,
-                                              letterSpacing: 0.4,
+                                              letterSpacing: 0.3,
                                             ),
                                           ),
                                         ],
@@ -272,7 +352,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                     ),
                                     const SizedBox(height: 8),
 
-                                    // Grand Title with Golden Shimmer
+                                    // Grand Title with Samarkan Font (Indic Shirorekha Latin)
                                     ShaderMask(
                                       shaderCallback: (bounds) => const LinearGradient(
                                         colors: [
@@ -284,15 +364,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                         end: Alignment.bottomCenter,
                                       ).createShader(bounds),
                                       child: Text(
-                                        'Pujo Parikrama',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: isCompact ? 28 : 34,
-                                          fontWeight: FontWeight.w800,
-                                          letterSpacing: 0.6,
+                                        'durga puja',
+                                        style: TextStyle(
+                                          fontFamily: 'Samarkan',
+                                          fontSize: isCompact ? 38 : 46,
+                                          letterSpacing: 1.0,
                                           color: Colors.white,
                                           shadows: [
                                             Shadow(
-                                              color: PujaColors.festivalGold.withValues(alpha: 0.7),
+                                              color: activeDay.primaryAccent.withValues(alpha: 0.7),
                                               blurRadius: 16,
                                             ),
                                           ],
@@ -301,11 +381,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'Where Tradition Meets Divine Shakti',
+                                      'Pujo Parikrama',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: isCompact ? 13 : 15,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 2.0,
+                                        color: activeDay.primaryAccent,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      activeDay.tagline,
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.plusJakartaSans(
                                         color: Colors.white.withValues(alpha: 0.85),
-                                        fontSize: context.dynamicFont(12),
+                                        fontSize: context.dynamicFont(11.5),
                                         letterSpacing: 0.2,
                                         fontWeight: FontWeight.w500,
                                         shadows: const [
@@ -330,7 +420,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                             },
                             child: DurgaEyesFormation(
                               formationProgress: _eyesFormation,
-                              height: isCompact ? 180 : 225,
+                              height: isCompact ? 175 : 215,
                               width: double.infinity,
                               showImage: true,
                             ),
@@ -338,29 +428,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
 
                           const SizedBox(height: 6),
 
-                          // 6. Live Countdown Capsule (Sleek, low-profile glassmorphic bar)
+                          // 6. Live Countdown Capsule with Seconds (Sleek glassmorphic bar)
                           FadeTransition(
                             opacity: _countdownFade,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF141414).withValues(alpha: 0.65),
+                                  color: const Color(0xFF141414).withValues(alpha: 0.70),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: PujaColors.festivalGold.withValues(alpha: 0.28),
+                                    color: activeDay.primaryAccent.withValues(alpha: 0.35),
                                     width: 0.9,
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    _buildCountdownItem(days.toString(), 'DAYS'),
+                                    _buildCountdownItem(days.toString(), 'DAYS', activeDay.primaryAccent),
                                     _buildDivider(),
-                                    _buildCountdownItem(hours.toString().padLeft(2, '0'), 'HOURS'),
+                                    _buildCountdownItem(hours.toString().padLeft(2, '0'), 'HOURS', activeDay.primaryAccent),
                                     _buildDivider(),
-                                    _buildCountdownItem(minutes.toString().padLeft(2, '0'), 'MINS'),
+                                    _buildCountdownItem(minutes.toString().padLeft(2, '0'), 'MINS', activeDay.primaryAccent),
+                                    _buildDivider(),
+                                    _buildCountdownItem(seconds.toString().padLeft(2, '0'), 'SECS', activeDay.primaryAccent),
                                   ],
                                 ),
                               ),
@@ -607,17 +699,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildCountdownItem(String value, String label) {
+  Widget _buildCountdownItem(String value, String label, [Color? accentColor]) {
+    final color = accentColor ?? PujaColors.festivalGold;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             value,
             style: GoogleFonts.plusJakartaSans(
-              color: PujaColors.festivalGold,
-              fontSize: context.dynamicFont(17),
+              color: color,
+              fontSize: context.dynamicFont(15.5),
               fontWeight: FontWeight.w800,
               letterSpacing: 0.4,
             ),
@@ -627,9 +720,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
             label,
             style: GoogleFonts.plusJakartaSans(
               color: Colors.white.withValues(alpha: 0.7),
-              fontSize: context.dynamicFont(9),
+              fontSize: context.dynamicFont(8),
               fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
+              letterSpacing: 0.5,
             ),
           ),
         ],
