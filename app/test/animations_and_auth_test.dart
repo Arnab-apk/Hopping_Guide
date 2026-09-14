@@ -202,6 +202,16 @@ void main() {
       );
       expect(longRoute.formattedDistance, '8.5 km');
       expect(longRoute.formattedDuration, '1h 50m walk');
+
+      final fiftyKmRoute = WalkingRoute(
+        targetPandal: testPandal2,
+        points: const [LatLng(22.88, 88.37), LatLng(22.52, 88.36)],
+        distanceMeters: 50000,
+        durationSeconds: 50000 / 1.25, // 40000s = 667 mins = 11h 7m
+        drivingDurationSeconds: 3000, // 50 mins driving
+      );
+      expect(fiftyKmRoute.formattedDistance, '50.0 km');
+      expect(fiftyKmRoute.formattedDuration, '50 mins drive/transit · 11h 7m walk');
     });
 
     test('getWalkingRoute fallback generates valid 2-point corridor when offline', () async {

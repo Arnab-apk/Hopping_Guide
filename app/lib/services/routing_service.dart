@@ -13,6 +13,7 @@ class WalkingRoute {
     required this.points,
     required this.distanceMeters,
     required this.durationSeconds,
+    this.drivingDurationSeconds,
     this.isFallback = false,
   });
 
@@ -21,6 +22,7 @@ class WalkingRoute {
   final List<LatLng> points;
   final double distanceMeters;
   final double durationSeconds;
+  final double? drivingDurationSeconds;
   final bool isFallback;
 
   String get destinationTitle => targetPandal?.name ?? customTitle ?? 'Destination';
@@ -33,16 +35,34 @@ class WalkingRoute {
     }
   }
 
+  /// Formatted duration with realistic walking pace (4.5 km/h).
+  /// For long distances (> 3.5 km), displays both driving/transit and walk times.
   String get formattedDuration {
-    final mins = (durationSeconds / 60).round();
-    if (mins < 1) {
-      return '< 1 min walk';
-    } else if (mins < 60) {
-      return '$mins mins walk';
+    final walkMins = (durationSeconds / 60).round();
+    final walkStr = _formatTimeString(walkMins, 'walk');
+
+    // If long distance (> 3.5 km) and driving/transit time is known, show both
+    if (distanceMeters > 3500 && drivingDurationSeconds != null && drivingDurationSeconds! > 0) {
+      final driveMins = (drivingDurationSeconds! / 60).round();
+      final driveStr = _formatTimeString(driveMins, 'drive/transit');
+      return '$driveStr · $walkStr';
+    }
+
+    return walkStr;
+  }
+
+  static String _formatTimeString(int totalMinutes, String mode) {
+    if (totalMinutes < 1) {
+      return '< 1 min $mode';
+    } else if (totalMinutes < 60) {
+      return '$totalMinutes mins $mode';
     } else {
-      final hours = mins ~/ 60;
-      final remMins = mins % 60;
-      return '${hours}h ${remMins}m walk';
+      final hours = totalMinutes ~/ 60;
+      final remMins = totalMinutes % 60;
+      if (remMins == 0) {
+        return '${hours}h $mode';
+      }
+      return '${hours}h ${remMins}m $mode';
     }
   }
 }
@@ -85,7 +105,14 @@ class RoutingService {
     );
 
     try {
-      final response = await _client.get(url).timeout(const Duration(seconds: 4));
+      final response = await _client.get(
+        url,
+        headers: {
+          'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 4));
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         final routes = data['routes'] as List?;
@@ -94,7 +121,7 @@ class RoutingService {
           final geometry = route0['geometry'] as Map<String, dynamic>?;
           final coordinates = geometry?['coordinates'] as List?;
           final distance = (route0['distance'] as num?)?.toDouble() ?? 0.0;
-          final duration = (route0['duration'] as num?)?.toDouble() ?? 0.0;
+          final rawDuration = (route0['duration'] as num?)?.toDouble() ?? 0.0;
 
           if (coordinates != null && coordinates.isNotEmpty) {
             final points = coordinates.map((coord) {
@@ -105,12 +132,19 @@ class RoutingService {
               );
             }).toList();
 
+            // Calibrated human pedestrian walking speed: 4.5 km/h = 1.25 m/s
+            // (1 km = 13.3 mins, 5 km = 1h 7m, 50 km = 11h 7m).
+            // OSRM demo server returns vehicular routing speed, which we preserve
+            // as drivingDurationSeconds for multi-modal context on long distances.
+            final walkingDurationSeconds = distance > 0 ? (distance / 1.25) : 0.0;
+
             return WalkingRoute(
               targetPandal: targetPandal,
               customTitle: destinationName,
               points: points,
               distanceMeters: distance,
-              durationSeconds: duration,
+              durationSeconds: walkingDurationSeconds,
+              drivingDurationSeconds: rawDuration > 0 ? rawDuration : null,
               isFallback: false,
             );
           }
@@ -120,16 +154,20 @@ class RoutingService {
       // Graceful fallback below
     }
 
-    // Geodesic fallback (average pedestrian speed = 4.8 km/h or 1.33 m/s)
+    // Geodesic fallback (average pedestrian speed = 4.5 km/h or 1.25 m/s)
+    // Urban streets have an average sinuosity/circuity factor of ~1.25x vs straight-line
     final directMeters = haversineMeters(startLat, startLng, destLat, destLng);
-    final walkingDurationSeconds = directMeters / 1.33;
+    final estimatedStreetMeters = directMeters * 1.25;
+    final walkingDurationSeconds = estimatedStreetMeters / 1.25;
+    final estimatedDrivingSeconds = estimatedStreetMeters / 11.1; // ~40 km/h driving
 
     return WalkingRoute(
       targetPandal: targetPandal,
       customTitle: destinationName,
       points: [start, LatLng(destLat, destLng)],
-      distanceMeters: directMeters,
+      distanceMeters: estimatedStreetMeters,
       durationSeconds: walkingDurationSeconds,
+      drivingDurationSeconds: estimatedDrivingSeconds,
       isFallback: true,
     );
   }
