@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'durga_face_icon.dart';
+
 import '../config/theme.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
@@ -11,7 +13,6 @@ import '../repositories/supplementary_repository.dart';
 import '../services/omni_search_service.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
-import 'durga_face_icon.dart';
 
 /// Translucent, frosted-glass Universal Omni-Search Bar and auto-complete overlay.
 /// Inspired by Arch Linux / Rofi / Spotlight omni-search.
@@ -132,17 +133,14 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final normalStyle = TextStyle(
-      fontSize: 14.0,
-      fontWeight: FontWeight.w600,
-      color: isDark ? Colors.white : Colors.black87,
+      fontSize: 13.5,
+      fontWeight: FontWeight.w500,
+      color: isDark ? Colors.white70 : Colors.black87,
     );
     final highlightStyle = const TextStyle(
-      fontSize: 14.0,
-      fontWeight: FontWeight.w900,
-      color: PujaColors.festivalGold,
-      decoration: TextDecoration.underline,
-      decorationColor: PujaColors.festivalGold,
-      decorationThickness: 1.6,
+      fontSize: 13.5,
+      fontWeight: FontWeight.w800,
+      color: Color(0xFF1793D1), // Crisp Arch Linux Cyan
     );
 
     final results = OmniSearchService.instance.search(

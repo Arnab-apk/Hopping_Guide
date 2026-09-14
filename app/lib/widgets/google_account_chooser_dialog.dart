@@ -68,22 +68,15 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E20) : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 30,
-            offset: const Offset(0, -6),
-          ),
-        ],
-      ),
-      child: SafeArea(
+    return Material(
+      color: isDark ? const Color(0xFF1E1E20) : Colors.white,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: SafeArea(
         top: false,
         child: SingleChildScrollView(
           child: Column(
@@ -352,8 +345,9 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildAccountTile({
     required bool isDark,

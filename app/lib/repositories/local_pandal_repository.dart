@@ -23,18 +23,27 @@ class LocalAssetPandalRepository implements PandalRepository {
 
   final String assetPath;
   static List<Pandal>? _globalCache;
+  static Future<List<Pandal>>? _inFlightFuture;
 
   Future<List<Pandal>> _load() async {
     if (_globalCache != null) return _globalCache!;
-    try {
-      final jsonStr = await rootBundle.loadString(assetPath);
-      final parsed = await compute(_parsePandalsIsolate, jsonStr);
-      _globalCache = parsed;
-      return _globalCache!;
-    } catch (e) {
-      // Fallback empty list if asset missing
-      return [];
-    }
+    if (_inFlightFuture != null) return _inFlightFuture!;
+
+    _inFlightFuture = () async {
+      try {
+        final jsonStr = await rootBundle.loadString(assetPath);
+        final parsed = await compute(_parsePandalsIsolate, jsonStr);
+        _globalCache = parsed;
+        return _globalCache!;
+      } catch (e) {
+        // Fallback empty list if asset missing
+        return <Pandal>[];
+      } finally {
+        _inFlightFuture = null;
+      }
+    }();
+
+    return _inFlightFuture!;
   }
 
   @override

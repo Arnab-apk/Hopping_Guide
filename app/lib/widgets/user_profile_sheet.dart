@@ -400,7 +400,7 @@ class UserProfileSheet extends StatelessWidget {
                             iconColor: PujaColors.durgaRed,
                             title: '${userState?.visitedCount ?? 0}',
                             label: 'Pandals Hopped',
-                            sublabel: 'Out of 4,328',
+                            sublabel: 'Out of 387',
                           ),
                         ),
                         Container(
@@ -477,7 +477,10 @@ class UserProfileSheet extends StatelessWidget {
                         trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
                         onTap: () async {
                           Navigator.pop(context);
-                          await GoogleAccountChooserDialog.show(context);
+                          final result = await AuthService.instance.signInWithGoogleDetailed();
+                          if (!result.success && !result.isCancelled && context.mounted) {
+                            await GoogleAccountChooserDialog.show(context);
+                          }
                         },
                       )
                     else

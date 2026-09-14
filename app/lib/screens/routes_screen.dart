@@ -122,7 +122,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
       icon: Icons.history_edu_rounded,
       pandalIds: [
         'chatu_babu_latu_babus_thakur_bari',
-        'sovabazar_rajbari_286',
+        'sovabazar_rajbari',
         'shimla_street',
         'college_square',
         'santosh_mitra_square',

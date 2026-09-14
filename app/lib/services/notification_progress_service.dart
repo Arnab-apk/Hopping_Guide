@@ -54,6 +54,7 @@ class NotificationProgressService {
     int? remainingMinutes,
   }) async {
     if (!_isInitialized) await initialize();
+    if (!_isInitialized) return;
 
     final percent = totalSteps > 0 ? ((currentStep / totalSteps) * 100).round() : 0;
     final distStr = distanceToNextMeters != null
@@ -107,6 +108,7 @@ class NotificationProgressService {
 
   /// Cancels the ongoing trail progress notification
   Future<void> cancelTrailProgress() async {
+    if (!_isInitialized) return;
     try {
       await _notificationsPlugin.cancel(_trailNotificationId);
     } catch (e) {
@@ -119,6 +121,7 @@ class NotificationProgressService {
     required int totalVisited,
   }) async {
     if (!_isInitialized) await initialize();
+    if (!_isInitialized) return;
 
     final androidDetails = AndroidNotificationDetails(
       _trailChannelId,

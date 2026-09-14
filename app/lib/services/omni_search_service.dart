@@ -122,6 +122,12 @@ class OmniSearchService {
     _recentSearches.clear();
   }
 
+  final Map<String, List<OmniSearchResult>> _searchCache = {};
+
+  void clearSearchCache() {
+    _searchCache.clear();
+  }
+
   /// Evaluates and scores a Metro Station against a search query
   OmniSearchResult? scoreMetroStation(
     MetroStation station,
@@ -433,6 +439,13 @@ class OmniSearchService {
     if (trimmed.isEmpty) return const [];
 
     final stations = metroStations ?? MetroRepository.allStations;
+
+    // Check query cache (for instant sub-millisecond responses on repeated searches)
+    final cacheKey =
+        '${category.name}|${trimmed.toLowerCase()}|$limit|${pandals.length}|${stations.length}|${foodSpots?.length ?? 0}|${userLat != null ? userLat.toStringAsFixed(2) : ""}|${userLng != null ? userLng.toStringAsFixed(2) : ""}';
+    final cached = _searchCache[cacheKey];
+    if (cached != null) return cached;
+
     final results = <OmniSearchResult>[];
 
     // 1. Search Pandals
@@ -489,9 +502,9 @@ class OmniSearchService {
     // Sort by relevance score descending
     results.sort((a, b) => b.score.compareTo(a.score));
 
-    if (results.length > limit) {
-      return results.sublist(0, limit);
-    }
-    return results;
+    final finalResults = results.length > limit ? results.sublist(0, limit) : results;
+    if (_searchCache.length >= 80) _searchCache.clear();
+    _searchCache[cacheKey] = finalResults;
+    return finalResults;
   }
 }

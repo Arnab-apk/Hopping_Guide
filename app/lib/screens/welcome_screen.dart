@@ -10,7 +10,6 @@ import '../utils/responsive.dart';
 import '../widgets/durga_eyes_formation.dart';
 import '../widgets/durga_face_icon.dart';
 import '../widgets/google_logo.dart';
-import '../widgets/google_account_chooser_dialog.dart';
 
 /// Premium, non-scrollable Welcome & Login screen for Pujo Parikrama.
 /// Features a pure dark OLED background, the divine eyes of Maa Durga prominently
@@ -120,13 +119,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     if (result.success) {
       Navigator.of(context).pushReplacementNamed('/main');
     } else if (result.isCancelled) {
-      // User cancelled account selection; stay on welcome screen smoothly
+      // User dismissed the Google account prompt
     } else {
-      // Seamlessly open Google Account Chooser dialog so user can select account and Google DP
-      final user = await GoogleAccountChooserDialog.show(context);
-      if (user != null && mounted) {
-        Navigator.of(context).pushReplacementNamed('/main');
-      }
+      // Real Google Sign-In failed; notify user of the exact error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: PujaColors.durgaRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          content: Text(
+            result.errorMessage ?? 'Google Sign-In failed. Please verify your Firebase SHA-1 setup.',
+            style: const TextStyle(color: Colors.white, fontSize: 13),
+          ),
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 
@@ -404,7 +411,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Discover 4,300+ Pandals, real-time crowd status, walking paths & live metro routes.',
+                                            'Discover 380+ Verified Pandals, real-time crowd status, walking paths & live metro routes.',
                                             textAlign: TextAlign.center,
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: context.dynamicFont(11.8),
@@ -575,7 +582,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                             children: [
                               _buildFeatureBadge(
                                 null,
-                                '4,300+ Pandals',
+                                '380+ Pandals',
                                 customIcon: DurgaFaceIcon(
                                   size: context.dynamicIcon(13),
                                   color: PujaColors.festivalGold,

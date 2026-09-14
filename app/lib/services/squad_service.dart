@@ -182,9 +182,12 @@ class SquadService extends ChangeNotifier {
   }
 
   /// Create a brand new hopping squad with real device GPS coordinates.
+  static const _codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
   /// Starts with 0 companions (empty companion list).
   Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
-    final code = 'PUJA${100 + _random.nextInt(900)}';
+    final suffix = List.generate(4, (_) => _codeAlphabet[_random.nextInt(_codeAlphabet.length)]).join();
+    final code = 'PUJA$suffix';
     _squadCode = code;
     _squadName = name.trim().isEmpty ? 'My Puja Squad' : name.trim();
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Gate' : meetup.trim();

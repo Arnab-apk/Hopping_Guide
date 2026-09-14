@@ -1078,6 +1078,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               initialRotation: 0.0,
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                enableMultiFingerGestureRace: true,
               ),
               onTap: (_, _) {
                 if (_selectedPandal != null ||
@@ -1102,10 +1103,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   urlTemplate: AppConfig.tileUrlTemplate,
                   subdomains: AppConfig.osmSubdomains,
                   userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
-                  panBuffer: 1,
-                  keepBuffer: 3,
+                  panBuffer: 3,
+                  keepBuffer: 6,
                   tileDisplay: const TileDisplay.fadeIn(
-                    duration: Duration(milliseconds: 200),
+                    duration: Duration(milliseconds: 140),
                   ),
                   tileBuilder: (context, tileWidget, tile) {
                     if (isDark) {
@@ -1408,88 +1409,92 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
               // Full Kolkata Metro Stations Network Layer (When toggled on)
               if (_showMetroStations)
-                MarkerLayer(
-                  markers: MetroRepository.allStations.map((stn) {
-                    final isStationSelected = _selectedMetroStation?.id == stn.id;
-                    return Marker(
-                      point: LatLng(stn.latitude, stn.longitude),
-                      width: isStationSelected ? 44 : 34,
-                      height: isStationSelected ? 44 : 34,
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() {
-                            _selectedMetroStation = stn;
-                            _selectedPandal = null;
-                            _selectedFoodSpot = null;
-                            _highlightedRoute = null;
-                          });
-                          _animatedMapMove(
-                            LatLng(stn.latitude, stn.longitude),
-                            _mapController.camera.zoom < 15.0
-                                ? 15.0
-                                : _mapController.camera.zoom,
-                          );
-                          _showMetroStationSheet(stn, isDark);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                stn.line.color,
-                                stn.line.color.withValues(alpha: 0.85),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isStationSelected ? Colors.amberAccent : Colors.white,
-                              width: isStationSelected ? 2.5 : 1.8,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: stn.line.color.withValues(alpha: 0.5),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: MetroRepository.allStations.map((stn) {
+                      final isStationSelected = _selectedMetroStation?.id == stn.id;
+                      return Marker(
+                        point: LatLng(stn.latitude, stn.longitude),
+                        width: isStationSelected ? 44 : 34,
+                        height: isStationSelected ? 44 : 34,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              _selectedMetroStation = stn;
+                              _selectedPandal = null;
+                              _selectedFoodSpot = null;
+                              _highlightedRoute = null;
+                            });
+                            _animatedMapMove(
+                              LatLng(stn.latitude, stn.longitude),
+                              _mapController.camera.zoom < 15.0
+                                  ? 15.0
+                                  : _mapController.camera.zoom,
+                            );
+                            _showMetroStationSheet(stn, isDark);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  stn.line.color,
+                                  stn.line.color.withValues(alpha: 0.85),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.subway_rounded,
-                            color: Colors.white,
-                            size: 16,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isStationSelected ? Colors.amberAccent : Colors.white,
+                                width: isStationSelected ? 2.5 : 1.8,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: stn.line.color.withValues(alpha: 0.5),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.subway_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
 
               // Clustered Pandal Markers Layer (Smooth Spatial LOD)
-              _ClusteredPandalLayer(
-                visiblePandals: visible,
-                selectedPandal: _selectedPandal,
-                pulseController: _pulseController,
-                onSelectPandal: (p) {
-                  if (_followUser) {
-                    setState(() => _followUser = false);
-                  }
-                  setState(() {
-                    _selectedPandal = p;
-                    _selectedSquadMember = null;
-                    _highlightedRoute = null;
-                  });
-                  _animatedMapMove(
-                    LatLng(p.lat, p.lng),
-                    (_mapController.camera.zoom < 15.0
-                        ? 15.0
-                        : _mapController.camera.zoom),
-                  );
-                },
-                onZoomToCluster: (point, targetZoom) {
-                  _animatedMapMove(point, targetZoom);
-                },
+              RepaintBoundary(
+                child: _ClusteredPandalLayer(
+                  visiblePandals: visible,
+                  selectedPandal: _selectedPandal,
+                  pulseController: _pulseController,
+                  onSelectPandal: (p) {
+                    if (_followUser) {
+                      setState(() => _followUser = false);
+                    }
+                    setState(() {
+                      _selectedPandal = p;
+                      _selectedSquadMember = null;
+                      _highlightedRoute = null;
+                    });
+                    _animatedMapMove(
+                      LatLng(p.lat, p.lng),
+                      (_mapController.camera.zoom < 15.0
+                          ? 15.0
+                          : _mapController.camera.zoom),
+                    );
+                  },
+                  onZoomToCluster: (point, targetZoom) {
+                    _animatedMapMove(point, targetZoom);
+                  },
+                ),
               ),
 
               // Designated Squad Meet-up Landmark Flag Marker

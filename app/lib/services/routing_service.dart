@@ -35,6 +35,14 @@ class WalkingRoute {
     }
   }
 
+  bool get isTransitRecommended =>
+      distanceMeters > 3500 && drivingDurationSeconds != null && drivingDurationSeconds! > 0;
+
+  String? get formattedTransitDuration {
+    if (drivingDurationSeconds == null || drivingDurationSeconds! <= 0) return null;
+    return _formatTimeString((drivingDurationSeconds! / 60).round(), 'drive/transit');
+  }
+
   /// Formatted duration with realistic walking pace (4.5 km/h).
   /// For long distances (> 3.5 km), displays both driving/transit and walk times.
   String get formattedDuration {
@@ -42,10 +50,8 @@ class WalkingRoute {
     final walkStr = _formatTimeString(walkMins, 'walk');
 
     // If long distance (> 3.5 km) and driving/transit time is known, show both
-    if (distanceMeters > 3500 && drivingDurationSeconds != null && drivingDurationSeconds! > 0) {
-      final driveMins = (drivingDurationSeconds! / 60).round();
-      final driveStr = _formatTimeString(driveMins, 'drive/transit');
-      return '$driveStr · $walkStr';
+    if (isTransitRecommended) {
+      return '$formattedTransitDuration · $walkStr';
     }
 
     return walkStr;
@@ -75,6 +81,27 @@ class RoutingService {
   static final RoutingService instance = RoutingService();
   final http.Client _client;
 
+  /// High-concurrency route cache to eliminate redundant public API requests
+  final Map<String, ({WalkingRoute route, DateTime timestamp})> _routeCache = {};
+  int _consecutiveFailures = 0;
+  DateTime? _circuitBreakerUntil;
+
+  /// Invalidate cached routes
+  void clearRouteCache() => _routeCache.clear();
+
+  /// Reset circuit breaker state for tests or manual retries
+  void resetCircuitBreaker() {
+    _consecutiveFailures = 0;
+    _circuitBreakerUntil = null;
+  }
+
+  void _recordFailure() {
+    _consecutiveFailures++;
+    if (_consecutiveFailures >= 3) {
+      _circuitBreakerUntil = DateTime.now().add(const Duration(seconds: 45));
+    }
+  }
+
   /// Fetches a real street walking route or computes direct walking corridor to a Pandal
   Future<WalkingRoute> getWalkingRoute({
     required LatLng start,
@@ -99,6 +126,38 @@ class RoutingService {
     final startLat = start.latitude;
     final destLng = destination.longitude;
     final destLat = destination.latitude;
+
+    // 1. High-concurrency spatial quantization cache check (~100m grid)
+    final cacheKey =
+        '${startLat.toStringAsFixed(3)},${startLng.toStringAsFixed(3)}->${destLat.toStringAsFixed(3)},${destLng.toStringAsFixed(3)}';
+
+    final cached = _routeCache[cacheKey];
+    if (cached != null &&
+        DateTime.now().difference(cached.timestamp) < const Duration(minutes: 15)) {
+      return WalkingRoute(
+        targetPandal: targetPandal ?? cached.route.targetPandal,
+        customTitle: destinationName,
+        points: cached.route.points,
+        distanceMeters: cached.route.distanceMeters,
+        durationSeconds: cached.route.durationSeconds,
+        drivingDurationSeconds: cached.route.drivingDurationSeconds,
+        isFallback: cached.route.isFallback,
+      );
+    }
+
+    // 2. Circuit Breaker check: If public OSRM is rate-limiting or down, skip network
+    final now = DateTime.now();
+    if (_circuitBreakerUntil != null && now.isBefore(_circuitBreakerUntil!)) {
+      return _buildGeodesicFallback(
+        start: start,
+        startLat: startLat,
+        startLng: startLng,
+        destLat: destLat,
+        destLng: destLng,
+        destinationName: destinationName,
+        targetPandal: targetPandal,
+      );
+    }
 
     final url = Uri.parse(
       'https://router.project-osrm.org/route/v1/foot/$startLng,$startLat;$destLng,$destLat?overview=full&geometries=geojson',
@@ -133,12 +192,9 @@ class RoutingService {
             }).toList();
 
             // Calibrated human pedestrian walking speed: 4.5 km/h = 1.25 m/s
-            // (1 km = 13.3 mins, 5 km = 1h 7m, 50 km = 11h 7m).
-            // OSRM demo server returns vehicular routing speed, which we preserve
-            // as drivingDurationSeconds for multi-modal context on long distances.
             final walkingDurationSeconds = distance > 0 ? (distance / 1.25) : 0.0;
 
-            return WalkingRoute(
+            final route = WalkingRoute(
               targetPandal: targetPandal,
               customTitle: destinationName,
               points: points,
@@ -147,15 +203,45 @@ class RoutingService {
               drivingDurationSeconds: rawDuration > 0 ? rawDuration : null,
               isFallback: false,
             );
+
+            // Save to LRU cache and reset circuit breaker
+            _consecutiveFailures = 0;
+            _circuitBreakerUntil = null;
+            if (_routeCache.length >= 100) _routeCache.clear();
+            _routeCache[cacheKey] = (route: route, timestamp: now);
+
+            return route;
           }
         }
+      } else {
+        _recordFailure();
       }
     } catch (_) {
-      // Graceful fallback below
+      // Server error, network timeout, or socket exception
+      _recordFailure();
     }
 
-    // Geodesic fallback (average pedestrian speed = 4.5 km/h or 1.25 m/s)
-    // Urban streets have an average sinuosity/circuity factor of ~1.25x vs straight-line
+    // Geodesic fallback
+    return _buildGeodesicFallback(
+      start: start,
+      startLat: startLat,
+      startLng: startLng,
+      destLat: destLat,
+      destLng: destLng,
+      destinationName: destinationName,
+      targetPandal: targetPandal,
+    );
+  }
+
+  WalkingRoute _buildGeodesicFallback({
+    required LatLng start,
+    required double startLat,
+    required double startLng,
+    required double destLat,
+    required double destLng,
+    required String destinationName,
+    Pandal? targetPandal,
+  }) {
     final directMeters = haversineMeters(startLat, startLng, destLat, destLng);
     final estimatedStreetMeters = directMeters * 1.25;
     final walkingDurationSeconds = estimatedStreetMeters / 1.25;

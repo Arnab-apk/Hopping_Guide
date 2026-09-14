@@ -67,9 +67,9 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
   final List<TutorialStep> _steps = const [
     TutorialStep(
       title: 'Interactive Puja Map',
-      subtitle: '4,300+ Pandals • Red Arrow Quick Radar',
+      subtitle: '380+ Pandals • Red Arrow Quick Radar',
       description:
-          'Pan and pinch to navigate 4,300+ Durga Puja pandals. Tap the floating Red Navigation Arrow on the map to instantly scan all pandals within a 10 km radius and trace your fastest walking route.',
+          'Pan and pinch to navigate 380+ verified Durga Puja pandals. Tap the floating Red Navigation Arrow on the map to instantly scan all pandals within a 10 km radius and trace your fastest walking route.',
       icon: Icons.map_rounded,
       iconColor: PujaColors.festivalGold,
       highlights: [

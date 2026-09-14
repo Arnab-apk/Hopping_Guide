@@ -99,8 +99,8 @@ class GroupScreen extends StatelessWidget {
           autofocus: true,
           textCapitalization: TextCapitalization.characters,
           decoration: const InputDecoration(
-            labelText: 'Enter 6-character Code',
-            hintText: 'e.g. PUJA512',
+            labelText: 'Enter Squad Code',
+            hintText: 'e.g. PUJAX4K9',
           ),
         ),
         actions: [
