@@ -1,0 +1,16 @@
+﻿{
+  "rules": {
+    "squads": {
+      "$squadCode": {
+        "members": {
+          "$uid": {
+            ".read": "auth != null || data.parent.parent.child('members').exists()",
+            ".write": "auth != null || data.parent.parent.child('members').exists()"
+          }
+        },
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}
