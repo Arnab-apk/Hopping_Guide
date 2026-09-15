@@ -21,6 +21,13 @@ service-account*.json
 app/lib/firebase_options.dart
 **/firebase_options.dart
 
+# --- Magic Lane / GemKit (never commit API tokens) ---
+**/local.properties
+**/magic_lane_config.dart
+gemkit_token.txt
+MAGIC_LANE_API_KEY
+.magic_lane
+
 # --- IDE / OS ---
 .idea/
 .vscode/

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'config/gemkit_config.dart';
 import 'firebase_options.dart';
+import 'screens/main_navigation_screen.dart';
 import 'services/auth_service.dart';
 import 'services/custom_hopping_trail_service.dart';
 import 'services/location_service.dart';
@@ -13,8 +15,20 @@ import 'services/pandal_user_state_service.dart';
 import 'services/squad_service.dart';
 import 'services/theme_service.dart';
 
+// TODO: Uncomment after obtaining GemKit package from Magic Lane
+// import 'package:gem_kit/gem_kit.dart';
+
+/// Global navigator key allowing deep links to navigate without context dependency
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
+/// Pending deep link received prior to navigator readiness (cold-starts)
+Uri? _pendingDeepLink;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Magic Lane GemKit SDK (if available and configured)
+  await _initializeGemKit();
 
   // Initialize Firebase with generated options
   try {
@@ -39,7 +53,7 @@ void main() async {
   // Proactively fetch device location if permitted
   locationService.updateLiveLocation();
 
-  // Handle deep links for squad invites
+  // Handle deep links for squad invites and pandal sharing
   _initDeepLinks(squadService);
 
   runApp(
@@ -52,54 +66,211 @@ void main() async {
         ChangeNotifierProvider<SquadService>.value(value: squadService),
         ChangeNotifierProvider<CustomHoppingTrailService>.value(value: trailService),
       ],
-      child: const KolkataPujaApp(),
+      child: KolkataPujaApp(navigatorKey: rootNavigatorKey),
     ),
   );
+
+  // Flush any pending cold-start deep link once initial frame is rendered
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _processPendingDeepLink(squadService);
+  });
 }
 
-/// Initialize deep link handling for squad invite links.
-/// Supports both https://sharodiya.com/join?code=PUJAXXXX and pujoparikrama://join?code=PUJAXXXX
+/// Initialize deep link handling for squad invite links and pandal details.
+/// Supports:
+/// - pujoparikrama://join?code=PUJAXXXX
+/// - pujoparikrama://join/PUJAXXXX
+/// - https://sharodiya.com/join?code=PUJAXXXX
+/// - https://sharodiya.com/join/PUJAXXXX
+/// - pujoparikrama://pandal?id=X
+/// - https://sharodiya.com/pandal/X
 void _initDeepLinks(SquadService squadService) {
   final appLinks = AppLinks();
 
   // Handle initial link if app was opened via deep link (cold start)
   appLinks.getInitialLink().then((uri) {
     if (uri != null) {
+      debugPrint('[DeepLink] Initial cold-start URI: $uri');
       _handleDeepLink(uri, squadService);
     }
   }).catchError((e) {
-    debugPrint('Deep link initial error: $e');
+    debugPrint('[DeepLink] Initial link error: $e');
   });
 
-  // Handle incoming links while app is running (hot start)
+  // Handle incoming links while app is running (hot start / foreground stream)
   appLinks.uriLinkStream.listen((uri) {
+    debugPrint('[DeepLink] Foreground stream URI: $uri');
     _handleDeepLink(uri, squadService);
   }, onError: (e) {
-    debugPrint('Deep link stream error: $e');
+    debugPrint('[DeepLink] Stream error: $e');
   });
 }
 
-/// Process incoming deep link URI and auto-join squad if code is present.
-void _handleDeepLink(Uri uri, SquadService squadService) {
-  debugPrint('Deep link received: $uri');
-  
-  // Check for /join path and code parameter
-  if (uri.path == '/join' || uri.path == 'join') {
-    final code = uri.queryParameters['code'];
-    if (code != null && code.isNotEmpty) {
-      final cleanCode = code.toUpperCase().trim();
-      debugPrint('Auto-joining squad with code: $cleanCode');
-      
-      // Only join if not already in a squad
-      if (!squadService.hasActiveSquad) {
-        squadService.joinSquad(cleanCode);
-        debugPrint('Successfully joined squad: $cleanCode');
+/// Process incoming deep link URI and execute appropriate flow
+Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
+  debugPrint('[DeepLink] Processing URI: $uri (host: "${uri.host}", path: "${uri.path}")');
+
+  // Check 1: Squad Invite Deep Link
+  final squadCode = _extractSquadCode(uri);
+  if (squadCode != null) {
+    debugPrint('[DeepLink] Extracted squad code: $squadCode');
+
+    // Ensure user session exists before joining
+    if (AuthService.instance.currentUserModel == null) {
+      await AuthService.instance.signInAsGuest();
+    }
+
+    final success = await squadService.joinSquadFromDeepLink(squadCode);
+
+    void navigateToSquadTab() {
+      final nav = rootNavigatorKey.currentState;
+      if (nav != null) {
+        // Switch tab smoothly on MainNavigationScreen
+        MainNavigationScreen.switchToTab(3);
+
+        // Ensure user lands on MainNavigationScreen even if opened from WelcomeScreen
+        nav.pushNamedAndRemoveUntil(
+          '/main',
+          (route) => false,
+          arguments: {'tab': 3},
+        );
+
+        final ctx = nav.context;
+        ScaffoldMessenger.of(ctx).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFFD32F2F),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: Row(
+              children: [
+                const Icon(Icons.group, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    success ? 'Joined Squad $squadCode!' : 'Squad $squadCode ready!',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
       } else {
-        debugPrint('User already in a squad, skipping auto-join');
+        _pendingDeepLink = uri;
       }
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navigateToSquadTab();
+    });
+    return;
   }
+
+  // Check 2: Pandal Sharing Deep Link
+  final pandalId = _extractPandalId(uri);
+  if (pandalId != null) {
+    debugPrint('[DeepLink] Extracted pandal ID: $pandalId');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final nav = rootNavigatorKey.currentState;
+      if (nav != null) {
+        nav.pushNamed('/detail', arguments: pandalId);
+      } else {
+        _pendingDeepLink = uri;
+      }
+    });
+    return;
+  }
+}
+
+void _processPendingDeepLink(SquadService squadService) {
+  if (_pendingDeepLink != null && rootNavigatorKey.currentState != null) {
+    final link = _pendingDeepLink!;
+    _pendingDeepLink = null;
+    _handleDeepLink(link, squadService);
+  }
+}
+
+/// Extract squad invite code from varied deep link formats:
+/// - pujoparikrama://join?code=PUJAXXXX
+/// - pujoparikrama://join/PUJAXXXX
+/// - https://sharodiya.com/join?code=PUJAXXXX
+/// - https://sharodiya.com/join/PUJAXXXX
+String? _extractSquadCode(Uri uri) {
+  // Query parameter: ?code=PUJAXXXX
+  final codeParam = uri.queryParameters['code'];
+  if (codeParam != null && codeParam.trim().isNotEmpty) {
+    return codeParam.trim().toUpperCase();
+  }
+
+  final segments = uri.pathSegments;
+  if (segments.isNotEmpty) {
+    if (segments.first.toLowerCase() == 'join' && segments.length > 1) {
+      return segments[1].trim().toUpperCase();
+    }
+    if (uri.host.toLowerCase() == 'join' && segments.length == 1) {
+      return segments.first.trim().toUpperCase();
+    }
+  }
+
+  return null;
+}
+
+/// Extract pandal ID from deep links:
+/// - pujoparikrama://pandal?id=X
+/// - pujoparikrama://pandal/X
+/// - https://sharodiya.com/pandal?id=X
+/// - https://sharodiya.com/pandal/X
+String? _extractPandalId(Uri uri) {
+  final idParam = uri.queryParameters['id'] ?? uri.queryParameters['pandalId'];
+  if (idParam != null && idParam.trim().isNotEmpty) {
+    return idParam.trim();
+  }
+
+  final segments = uri.pathSegments;
+  if (segments.isNotEmpty) {
+    if (segments.first.toLowerCase() == 'pandal' && segments.length > 1) {
+      return segments[1].trim();
+    }
+    if (uri.host.toLowerCase() == 'pandal' && segments.length == 1) {
+      return segments.first.trim();
+    }
+  }
+
+  return null;
 }
 
 /// Firebase is now configured via flutterfire configure.
 const bool kFirebaseConfigured = true;
+
+/// Initialize Magic Lane GemKit SDK if available
+/// 
+/// This function safely initializes GemKit without breaking the app
+/// if the SDK is not yet installed or configured.
+Future<void> _initializeGemKit() async {
+  try {
+    // Check if API token is configured
+    if (!GemKitConfig.isConfigured) {
+      debugPrint('⚠ GemKit not configured: API token not found');
+      debugPrint('   Set MAGIC_LANE_API_KEY environment variable to enable GemKit features');
+      debugPrint('   Example: flutter run --dart-define=MAGIC_LANE_API_KEY=your_token');
+      return;
+    }
+
+    // TODO: Uncomment after obtaining GemKit package
+    /*
+    await GemKit.initialize(appAuthorization: GemKitConfig.apiToken);
+    debugPrint('✓ GemKit initialized successfully');
+    debugPrint('  Map engine: Magic Lane GemKit');
+    debugPrint('  Offline maps: ${GemKitConfig.enableOfflineMaps ? 'Enabled' : 'Disabled'}');
+    debugPrint('  3D buildings: ${GemKitConfig.enable3DBuildings ? 'Enabled' : 'Disabled'}');
+    */
+
+    debugPrint('⚠ GemKit SDK not yet integrated');
+    debugPrint('   Using flutter_map as fallback');
+    debugPrint('   See MAGIC_LANE_INTEGRATION.md for integration steps');
+  } catch (e) {
+    debugPrint('⚠ GemKit initialization failed: $e');
+    debugPrint('   Falling back to flutter_map');
+  }
+}

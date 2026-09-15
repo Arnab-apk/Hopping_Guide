@@ -48,6 +48,20 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="pujoparikrama" android:host="join"/>
             </intent-filter>
+            <!-- Deep link for pandal sharing: https://sharodiya.com/pandal -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="sharodiya.com" android:pathPrefix="/pandal"/>
+            </intent-filter>
+            <!-- Also support custom scheme for pandal links -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="pujoparikrama" android:host="pandal"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

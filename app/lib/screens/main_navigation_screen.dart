@@ -20,10 +20,18 @@ class MainNavigationScreen extends StatefulWidget {
 
   final int initialIndex;
 
+  /// Global notifier allowing external callers (deep links, notifications) to switch tabs
+  static final ValueNotifier<int?> tabSwitchNotifier = ValueNotifier<int?>(null);
+
   /// Programmatically switch tab from any descendant screen
   static void switchTab(BuildContext context, int index) {
     final state = context.findAncestorStateOfType<_MainNavigationScreenState>();
     state?._onTabSelected(index);
+  }
+
+  /// Programmatically switch to any tab index from anywhere in the app
+  static void switchToTab(int index) {
+    tabSwitchNotifier.value = index;
   }
 
   @override
@@ -45,9 +53,38 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    MainNavigationScreen.tabSwitchNotifier.addListener(_handleExternalTabSwitch);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AppTutorialDialog.checkAndShow(context);
     });
+  }
+
+  void _handleExternalTabSwitch() {
+    final target = MainNavigationScreen.tabSwitchNotifier.value;
+    if (target != null && target >= 0 && target < _screens.length) {
+      if (mounted) {
+        _onTabSelected(target);
+      }
+      MainNavigationScreen.tabSwitchNotifier.value = null;
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map && args.containsKey('tab')) {
+      final tab = args['tab'];
+      if (tab is int && tab >= 0 && tab < _screens.length) {
+        _currentIndex = tab;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    MainNavigationScreen.tabSwitchNotifier.removeListener(_handleExternalTabSwitch);
+    super.dispose();
   }
 
   void _onTabSelected(int idx) {

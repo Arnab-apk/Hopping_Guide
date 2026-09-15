@@ -209,6 +209,7 @@
 |---|---|---|
 | **Client Framework** | **Flutter 3 (Dart 3)** | Cross-platform native ARM performance, locked 60/120 FPS animations |
 | **Map Rendering** | **flutter_map + OpenStreetMap** | Free raster tiles, 100% keyless, zero billing risks, zero vendor lock-in |
+| **Map SDK (Optional)** | **Magic Lane GemKit** | *Optional premium SDK integration for offline maps, turn-by-turn navigation, 3D rendering. See `MAGIC_LANE_INTEGRATION.md` for details.* |
 | **Geospatial Engine** | **PandalSpatialClusterer (L1 Cache)** | Sub-millisecond memoized clustering, 35% margin culling, GPU `RepaintBoundary` |
 | **Tile Pre-fetching** | **flutter_map TileBuffers** | `panBuffer: 3`, `keepBuffer: 6` with multi-finger gesture race resolution |
 | **Universal Search** | **OmniSearchService** | Unified tokenization & multi-entity substring search with Bengali aliases |
@@ -218,6 +219,9 @@
 | **Authentication** | **Firebase Auth + Guest Mode** | Google Sign-In with instant 1-tap anonymous guest entry |
 | **Live Squad Sync** | **Firebase Realtime Database** | Ephemeral GPS coordinates sync under `/groups/{groupId}/locations` |
 | **Data Ingestion** | **ThePujo + PujoPlanner Scraper** | Scrapes, parses, and normalizes authentic verified pandals and transit links |
+
+> **📍 Magic Lane GemKit Integration (Optional Premium Feature)**  
+> The app is architected to optionally support [Magic Lane's GemKit SDK](https://www.linkedin.com/company/magiclane) for enhanced mapping capabilities including offline maps, professional turn-by-turn navigation, and 3D rendering. This is a **commercial SDK** requiring licensing from Magic Lane International B.V. The app works perfectly with the free flutter_map implementation by default. For GemKit integration details, see `MAGIC_LANE_INTEGRATION.md` and `QUICK_START_GEMKIT.md`.
 
 ---
 

@@ -21,11 +21,14 @@ class GroupScreen extends StatelessWidget {
 
   void _shareInvite(BuildContext context, SquadService squadService) {
     if (!squadService.hasActiveSquad) return;
+    final code = squadService.squadCode;
     SharePlus.instance.share(
       ShareParams(
-        text: 'Join my Durga Puja Hopping Squad "${squadService.squadName}" on Pujo Parikrama App! '
-            'Group Code: ${squadService.squadCode}\nMeet-up Point: ${squadService.meetupPointName}\n'
-            'Live GPS & Pandal Guide: https://sharodiya.com/join?code=${squadService.squadCode}',
+        text: 'Join my Durga Puja Hopping Squad "${squadService.squadName}" on Pujo Parikrama App!\n\n'
+            '🔑 Squad Code: $code\n'
+            '📍 Meet-up Point: ${squadService.meetupPointName}\n\n'
+            '🔗 Tap to auto-join: https://sharodiya.com/join?code=$code\n'
+            '📱 App Link: pujoparikrama://join?code=$code',
       ),
     );
   }
@@ -64,22 +67,24 @@ class GroupScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               final squadName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
               final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Gate' : meetupController.text.trim();
               Navigator.pop(ctx);
 
-              squadService.createSquad(squadName, meetup);
+              await squadService.createSquad(squadName, meetup);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Created "$squadName"! Invite Code: ${squadService.squadCode}'),
-                  action: SnackBarAction(
-                    label: 'Share',
-                    onPressed: () => _shareInvite(context, squadService),
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Created "$squadName"! Invite Code: ${squadService.squadCode}'),
+                    action: SnackBarAction(
+                      label: 'Share',
+                      onPressed: () => _shareInvite(context, squadService),
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             },
             child: const Text('Create'),
           ),
@@ -109,14 +114,23 @@ class GroupScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               final code = controller.text.trim().toUpperCase();
               if (code.isNotEmpty) {
                 Navigator.pop(ctx);
-                squadService.joinSquad(code);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Joined squad $code!')),
-                );
+                final success = await squadService.joinSquad(code);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: success ? const Color(0xFFD32F2F) : Colors.orange.shade800,
+                      content: Text(
+                        success
+                            ? 'Joined squad $code!'
+                            : (squadService.lastError ?? 'Failed to join squad $code'),
+                      ),
+                    ),
+                  );
+                }
               }
             },
             child: const Text('Join'),
@@ -146,7 +160,7 @@ class GroupScreen extends StatelessWidget {
       ),
     );
     if (confirm == true) {
-      squadService.leaveSquad();
+      await squadService.leaveSquad();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('You left the squad.')),

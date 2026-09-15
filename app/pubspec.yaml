@@ -34,7 +34,10 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_map: ^8.3.2
+  # Note: gem_kit package must be obtained from Magic Lane International B.V.
+  # Contact Magic Lane to receive the SDK package and add it here
+  # gem_kit: ^[version from Magic Lane]
+  flutter_map: ^8.3.2  # Keeping as fallback during transition
   latlong2: ^0.10.1
   firebase_core: ^4.14.0
   firebase_auth: ^6.6.1

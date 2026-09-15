@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/app_user.dart';
 import '../models/squad_member.dart';
 import 'auth_service.dart';
 import 'location_service.dart';
@@ -13,14 +14,18 @@ import 'location_service.dart';
 /// Centralized state manager for Durga Puja hopping squads.
 /// Grounded in real device GPS coordinates from [LocationService].
 /// When a squad is created, it begins with ONLY the host (0 companion members).
-/// Real companions join dynamically via invite code and sync live positions.
+/// Real companions join dynamically via invite code and sync live positions
+/// and metadata via Firebase Realtime Database.
 class SquadService extends ChangeNotifier {
   SquadService._({this._prefs}) {
     _listenToLocationService();
+    _listenToAuthService();
   }
 
   final SharedPreferences? _prefs;
   static SquadService? _instance;
+
+  static const String rtdbUrl = 'https://kolkata-puja-2026-default-rtdb.firebaseio.com';
 
   static SquadService get instance {
     _instance ??= SquadService._();
@@ -44,9 +49,11 @@ class SquadService extends ChangeNotifier {
   bool _batterySaver = false;
   bool _showSquadOnMap = true;
   String? _focusedMemberId;
+  String? _lastError;
 
   final List<SquadMember> _members = [];
   StreamSubscription? _rtdbSub;
+  StreamSubscription? _metaSub;
   final Random _random = Random();
 
   // Getters
@@ -59,6 +66,7 @@ class SquadService extends ChangeNotifier {
   bool get isBatterySaver => _batterySaver;
   bool get showSquadOnMap => _showSquadOnMap;
   String? get focusedMemberId => _focusedMemberId;
+  String? get lastError => _lastError;
   List<SquadMember> get members => List.unmodifiable(_members);
 
   /// Companion members that are not the local user.
@@ -74,6 +82,24 @@ class SquadService extends ChangeNotifier {
     }
   }
 
+  /// Safe accessor to FirebaseDatabase with automatic URL fallback
+  FirebaseDatabase? get _database {
+    if (!_isFirebaseAvailable) return null;
+    try {
+      return FirebaseDatabase.instance;
+    } catch (e) {
+      try {
+        return FirebaseDatabase.instanceFor(
+          app: Firebase.app(),
+          databaseURL: rtdbUrl,
+        );
+      } catch (err) {
+        debugPrint('[SquadService] FirebaseDatabase init error: $err');
+        return null;
+      }
+    }
+  }
+
   void _listenToLocationService() {
     LocationService.instance.addListener(() {
       final pos = LocationService.instance.currentPositionSync;
@@ -83,32 +109,72 @@ class SquadService extends ChangeNotifier {
     });
   }
 
-  Future<void> _loadSavedState() async {
-    if (_prefs == null) return;
-    final code = _prefs.getString('saved_group_code');
-    final name = _prefs.getString('saved_group_name');
-    final meetup = _prefs.getString('saved_meetup_point');
+  void _listenToAuthService() {
+    AuthService.instance.addListener(() {
+      final user = AuthService.instance.currentUserModel;
+      if (user != null && hasActiveSquad) {
+        final idx = _members.indexWhere((m) => m.isUser);
+        if (idx != -1) {
+          final old = _members[idx];
+          final displayName = user.displayName ?? 'You';
+          if (old.id != user.uid || !old.name.startsWith(displayName)) {
+            final updated = old.copyWith(
+              id: user.uid,
+              name: '$displayName (You)',
+              photoUrl: user.photoUrl,
+            );
+            _members[idx] = updated;
+            _pushUserToCloud();
+            notifyListeners();
+          }
+        }
+      }
+    });
+  }
 
-    if (code != null && name != null) {
-      _squadCode = code;
-      _squadName = name;
-      if (meetup != null) _meetupPointName = meetup;
-      _initMembers(isHost: true);
-      _listenToCloud();
-      _pushUserToCloud();
+  Future<AppUser> _ensureUser() async {
+    var user = AuthService.instance.currentUserModel;
+    if (user == null) {
+      debugPrint('[SquadService] No active user session, initializing guest profile...');
+      user = await AuthService.instance.signInAsGuest();
+    }
+    return user;
+  }
+
+  Future<void> _loadSavedState() async {
+    try {
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      final code = prefs.getString('saved_group_code');
+      final name = prefs.getString('saved_group_name');
+      final meetup = prefs.getString('saved_meetup_point');
+
+      if (code != null && name != null) {
+        _squadCode = code;
+        _squadName = name;
+        if (meetup != null) _meetupPointName = meetup;
+        _initMembers(isHost: true);
+        _listenToCloud();
+        _pushUserToCloud();
+      }
+    } catch (e) {
+      debugPrint('[SquadService] _loadSavedState error: $e');
     }
   }
 
   Future<void> _persistState() async {
-    if (_prefs == null) return;
-    if (_squadCode != null) {
-      await _prefs.setString('saved_group_code', _squadCode!);
-      await _prefs.setString('saved_group_name', _squadName ?? 'My Squad');
-      await _prefs.setString('saved_meetup_point', _meetupPointName);
-    } else {
-      await _prefs.remove('saved_group_code');
-      await _prefs.remove('saved_group_name');
-      await _prefs.remove('saved_meetup_point');
+    try {
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      if (_squadCode != null) {
+        await prefs.setString('saved_group_code', _squadCode!);
+        await prefs.setString('saved_group_name', _squadName ?? 'My Squad');
+        await prefs.setString('saved_meetup_point', _meetupPointName);
+      } else {
+        await prefs.remove('saved_group_code');
+        await prefs.remove('saved_group_name');
+        await prefs.remove('saved_meetup_point');
+      }
+    } catch (e) {
+      debugPrint('[SquadService] _persistState error: $e');
     }
   }
 
@@ -142,50 +208,15 @@ class SquadService extends ChangeNotifier {
     );
   }
 
-  /// Adds companion members with Google DPs near the user for demonstration / testing
-  void addDemoCompanions() {
-    if (!hasActiveSquad) return;
-    final currentPos = LocationService.instance.currentPositionSync;
-    final baseLat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
-    final baseLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
-
-    final priya = SquadMember(
-      id: 'companion_priya',
-      name: 'Priya Mukherjee',
-      latitude: baseLat + 0.0021,
-      longitude: baseLng + 0.0018,
-      status: 'At Food Stall • Active',
-      lastSeen: DateTime.now(),
-      photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80',
-      isHost: false,
-      isUser: false,
-      batteryLevel: 88,
-      avatarColorHex: 0xFFE91E63,
-    );
-
-    final rohan = SquadMember(
-      id: 'companion_rohan',
-      name: 'Rohan Sen',
-      latitude: baseLat - 0.0032,
-      longitude: baseLng + 0.0025,
-      status: 'Near Metro Gate • Walking',
-      lastSeen: DateTime.now(),
-      photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',
-      isHost: false,
-      isUser: false,
-      batteryLevel: 74,
-      avatarColorHex: 0xFF2196F3,
-    );
-
-    addMember(priya);
-    addMember(rohan);
-  }
 
   /// Create a brand new hopping squad with real device GPS coordinates.
   static const _codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
   /// Starts with 0 companions (empty companion list).
   Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
+    _lastError = null;
+    await _ensureUser();
+
     final suffix = List.generate(4, (_) => _codeAlphabet[_random.nextInt(_codeAlphabet.length)]).join();
     final code = 'PUJA$suffix';
     _squadCode = code;
@@ -199,8 +230,9 @@ class SquadService extends ChangeNotifier {
     _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
 
     _initMembers(isHost: true, userLat: realLat, userLng: realLng);
-    _persistState();
-    _pushUserToCloud();
+    await _persistState();
+    await _pushMetaToCloud();
+    await _pushUserToCloud();
     _listenToCloud();
     notifyListeners();
 
@@ -211,6 +243,7 @@ class SquadService extends ChangeNotifier {
           updateUserLocation(pos.latitude, pos.longitude);
           if (meetupCoords == null) {
             _meetupPointCoords = LatLng(pos.latitude, pos.longitude);
+            _pushMetaToCloud();
             notifyListeners();
           }
         }
@@ -219,8 +252,12 @@ class SquadService extends ChangeNotifier {
   }
 
   /// Join an existing squad by invite code
-  Future<void> joinSquad(String code, [LatLng? initialCoords]) async {
+  Future<bool> joinSquad(String code, [LatLng? initialCoords]) async {
+    _lastError = null;
     final cleanCode = code.trim().toUpperCase();
+    if (cleanCode.isEmpty) return false;
+
+    await _ensureUser();
     _squadCode = cleanCode;
     _squadName = 'Squad $cleanCode';
     _meetupPointName = 'Designated Meet-up Landmark';
@@ -231,8 +268,34 @@ class SquadService extends ChangeNotifier {
     _meetupPointCoords = LatLng(lat, lng);
 
     _initMembers(isHost: false, userLat: lat, userLng: lng);
-    _persistState();
-    _pushUserToCloud();
+    await _persistState();
+
+    // Fetch initial meta from cloud if available
+    final db = _database;
+    if (db != null) {
+      try {
+        final snap = await db.ref('squads/$cleanCode/meta').get();
+        if (snap.exists && snap.value is Map) {
+          final data = Map<String, dynamic>.from(snap.value as Map);
+          if (data['name'] is String && (data['name'] as String).isNotEmpty) {
+            _squadName = data['name'] as String;
+          }
+          if (data['meetup_name'] is String && (data['meetup_name'] as String).isNotEmpty) {
+            _meetupPointName = data['meetup_name'] as String;
+          }
+          final mLat = (data['meetup_lat'] as num?)?.toDouble();
+          final mLng = (data['meetup_lng'] as num?)?.toDouble();
+          if (mLat != null && mLng != null) {
+            _meetupPointCoords = LatLng(mLat, mLng);
+          }
+          await _persistState();
+        }
+      } catch (e) {
+        debugPrint('[SquadService] Fetch meta on join error: $e');
+      }
+    }
+
+    await _pushUserToCloud();
     _listenToCloud();
     notifyListeners();
 
@@ -243,6 +306,17 @@ class SquadService extends ChangeNotifier {
         }
       }).catchError((_) {});
     }
+    return true;
+  }
+
+  /// Specialized handler for deep link entrypoints
+  Future<bool> joinSquadFromDeepLink(String code) async {
+    debugPrint('[SquadService] joinSquadFromDeepLink called with code: $code');
+    if (_squadCode == code.trim().toUpperCase()) {
+      debugPrint('[SquadService] Already in squad $code, skipping join re-execution');
+      return true;
+    }
+    return joinSquad(code);
   }
 
   /// Add or update a squad member (e.g. from peer invite or external sync)
@@ -263,21 +337,30 @@ class SquadService extends ChangeNotifier {
   }
 
   /// Leave the current squad and clear members
-  void leaveSquad() {
-    if (_squadCode != null && _isFirebaseAvailable) {
+  Future<void> leaveSquad() async {
+    final oldCode = _squadCode;
+    if (oldCode != null && _isFirebaseAvailable) {
       try {
         final user = AuthService.instance.currentUserModel;
         final uid = user?.uid ?? 'user_self';
-        FirebaseDatabase.instance.ref('squads/$_squadCode/members/$uid').remove();
-      } catch (_) {}
+        final db = _database;
+        if (db != null) {
+          await db.ref('squads/$oldCode/members/$uid').remove();
+          debugPrint('[SquadService] Removed member $uid from squad $oldCode in RTDB');
+        }
+      } catch (e) {
+        debugPrint('[SquadService] leaveSquad RTDB removal note: $e');
+      }
     }
     _rtdbSub?.cancel();
     _rtdbSub = null;
+    _metaSub?.cancel();
+    _metaSub = null;
     _squadCode = null;
     _squadName = null;
     _focusedMemberId = null;
     _members.clear();
-    _persistState();
+    await _persistState();
     notifyListeners();
   }
 
@@ -303,6 +386,7 @@ class SquadService extends ChangeNotifier {
       _meetupPointCoords = coords;
     }
     _persistState();
+    _pushMetaToCloud();
     notifyListeners();
   }
 
@@ -313,8 +397,11 @@ class SquadService extends ChangeNotifier {
       try {
         final user = AuthService.instance.currentUserModel;
         final uid = user?.uid ?? 'user_self';
-        FirebaseDatabase.instance.ref('squads/$_squadCode/members/$uid').remove();
-      } catch (_) {}
+        final db = _database;
+        db?.ref('squads/$_squadCode/members/$uid').remove();
+      } catch (e) {
+        debugPrint('[SquadService] Location sharing disable remove note: $e');
+      }
     } else if (val) {
       _pushUserToCloud();
     }
@@ -353,20 +440,47 @@ class SquadService extends ChangeNotifier {
 
   // --- Real-Time Cloud Sync (Firebase Realtime Database) ---
 
-  void _pushUserToCloud() {
-    if (_squadCode == null || !_isSharingLocation || !_isFirebaseAvailable) return;
+  Future<void> _pushUserToCloud() async {
+    final db = _database;
+    if (_squadCode == null || !_isSharingLocation || db == null) return;
     try {
       final userMember = _members.firstWhere((m) => m.isUser);
-      final ref = FirebaseDatabase.instance.ref('squads/$_squadCode/members/${userMember.id}');
-      ref.set(userMember.toJson());
-    } catch (_) {}
+      final ref = db.ref('squads/$_squadCode/members/${userMember.id}');
+      await ref.set(userMember.toJson());
+      debugPrint('[SquadService] Pushed user ${userMember.id} location to RTDB (${userMember.latitude}, ${userMember.longitude})');
+    } catch (e) {
+      _lastError = 'Cloud sync: $e';
+      debugPrint('[SquadService] _pushUserToCloud error: $e');
+    }
+  }
+
+  Future<void> _pushMetaToCloud() async {
+    final db = _database;
+    if (_squadCode == null || db == null) return;
+    try {
+      final ref = db.ref('squads/$_squadCode/meta');
+      await ref.update({
+        'name': _squadName ?? 'My Squad',
+        'meetup_name': _meetupPointName,
+        'meetup_lat': _meetupPointCoords.latitude,
+        'meetup_lng': _meetupPointCoords.longitude,
+        'updated_at': ServerValue.timestamp,
+      });
+      debugPrint('[SquadService] Pushed squad metadata to RTDB');
+    } catch (e) {
+      debugPrint('[SquadService] _pushMetaToCloud error: $e');
+    }
   }
 
   void _listenToCloud() {
     _rtdbSub?.cancel();
-    if (_squadCode == null || !_isFirebaseAvailable) return;
+    _metaSub?.cancel();
+    final db = _database;
+    if (_squadCode == null || db == null) return;
+
+    // 1. Listen to companion members
     try {
-      final ref = FirebaseDatabase.instance.ref('squads/$_squadCode/members');
+      final ref = db.ref('squads/$_squadCode/members');
       _rtdbSub = ref.onValue.listen((event) {
         final snap = event.snapshot;
         if (snap.value == null) return;
@@ -375,10 +489,11 @@ class SquadService extends ChangeNotifier {
 
         bool changed = false;
         raw.forEach((key, val) {
-          if (key == currentUserId) return; // Don't overwrite local host user
+          if (key == currentUserId) return; // Don't overwrite local user
           try {
             final memberData = Map<String, dynamic>.from(val as Map);
-            final member = SquadMember.fromJson(memberData);
+            // Incoming members from cloud are companions, so isUser is forced to false
+            final member = SquadMember.fromJson(memberData).copyWith(isUser: false);
             final idx = _members.indexWhere((m) => m.id == member.id);
             if (idx != -1) {
               _members[idx] = member;
@@ -386,22 +501,72 @@ class SquadService extends ChangeNotifier {
               _members.add(member);
             }
             changed = true;
-          } catch (_) {}
+          } catch (e) {
+            debugPrint('[SquadService] Error parsing cloud member: $e');
+          }
         });
 
         // Remove members that left
+        final before = _members.length;
         _members.removeWhere((m) => !m.isUser && !raw.containsKey(m.id));
+        if (_members.length != before) changed = true;
 
         if (changed) {
           notifyListeners();
         }
-      }, onError: (_) {});
-    } catch (_) {}
+      }, onError: (e) {
+        debugPrint('[SquadService] RTDB members stream error: $e');
+      });
+    } catch (e) {
+      debugPrint('[SquadService] Listen to members error: $e');
+    }
+
+    // 2. Listen to squad metadata (Name, Meetup Landmark, Coordinates)
+    try {
+      final metaRef = db.ref('squads/$_squadCode/meta');
+      _metaSub = metaRef.onValue.listen((event) {
+        final snap = event.snapshot;
+        if (snap.value == null) return;
+        try {
+          final data = Map<String, dynamic>.from(snap.value as Map);
+          bool changed = false;
+          if (data['name'] is String && (data['name'] as String).isNotEmpty && data['name'] != _squadName) {
+            _squadName = data['name'] as String;
+            changed = true;
+          }
+          if (data['meetup_name'] is String && (data['meetup_name'] as String).isNotEmpty && data['meetup_name'] != _meetupPointName) {
+            _meetupPointName = data['meetup_name'] as String;
+            changed = true;
+          }
+          final mLat = (data['meetup_lat'] as num?)?.toDouble();
+          final mLng = (data['meetup_lng'] as num?)?.toDouble();
+          if (mLat != null && mLng != null) {
+            final newCoords = LatLng(mLat, mLng);
+            if ((newCoords.latitude - _meetupPointCoords.latitude).abs() > 0.00001 ||
+                (newCoords.longitude - _meetupPointCoords.longitude).abs() > 0.00001) {
+              _meetupPointCoords = newCoords;
+              changed = true;
+            }
+          }
+          if (changed) {
+            _persistState();
+            notifyListeners();
+          }
+        } catch (e) {
+          debugPrint('[SquadService] Error parsing cloud meta: $e');
+        }
+      }, onError: (e) {
+        debugPrint('[SquadService] RTDB meta stream error: $e');
+      });
+    } catch (e) {
+      debugPrint('[SquadService] Listen to meta error: $e');
+    }
   }
 
   @override
   void dispose() {
     _rtdbSub?.cancel();
+    _metaSub?.cancel();
     super.dispose();
   }
 }

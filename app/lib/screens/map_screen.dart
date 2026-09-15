@@ -191,6 +191,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   bool _isCalculatingRoute = false;
   bool _followUser = false;
   bool _isTrailHudExpanded = false;
+  double _mapRotation = 0.0;
 
   // Floating Status Pill State (Minimal Negative Feedback)
   String? _statusPillMessage;
@@ -367,7 +368,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         LatLng(latTween.transform(t), lngTween.transform(t)),
         zoomTween.transform(t),
       );
-      _mapController.rotate(0.0);
     });
 
     controller.addStatusListener((status) {
@@ -739,7 +739,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           maxZoom: 15.0,
         ),
       );
-      _mapController.rotate(0.0);
 
       final msg = isFarAway
           ? '📍 ${effectivePandals.length} pandals within 10 km • Nearest: ${nearest.name}'
@@ -864,7 +863,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
         ),
       );
-      _mapController.rotate(0.0);
     }
 
     _showStatusPill(
@@ -1130,8 +1128,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               initialZoom: AppConfig.defaultZoom,
               initialRotation: 0.0,
               interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                flags: InteractiveFlag.all,
                 enableMultiFingerGestureRace: true,
+                rotationThreshold: 15.0,
               ),
               onTap: (_, _) {
                 if (_selectedPandal != null ||
@@ -1147,6 +1146,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               onPositionChanged: (camera, hasGesture) {
                 if (hasGesture && _followUser) {
                   setState(() => _followUser = false);
+                }
+                if (camera.rotation != _mapRotation) {
+                  setState(() => _mapRotation = camera.rotation);
                 }
               },
             ),
@@ -4107,6 +4109,60 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
+                      // Compass Reset-North Button (only shown when map is rotated)
+                      if (_mapRotation.abs() > 2.0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.18),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: FloatingActionButton(
+                              heroTag: 'compass_reset_north_fab',
+                              elevation: 3,
+                              highlightElevation: 6,
+                              mini: true,
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                _mapController.rotate(0.0);
+                                _showStatusPill(
+                                  'Map re-oriented to North',
+                                  icon: Icons.explore_rounded,
+                                );
+                              },
+                              backgroundColor: isDark
+                                  ? const Color(0xFF22232A)
+                                  : Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                                side: BorderSide(
+                                  color: isDark
+                                      ? const Color(0xFF4A4B56)
+                                      : const Color(0xFFCFD1DC),
+                                  width: 1.8,
+                                ),
+                              ),
+                              tooltip: 'Reset to North',
+                              child: Transform.rotate(
+                                angle: -_mapRotation * math.pi / 180,
+                                child: Icon(
+                                  Icons.explore_rounded,
+                                  color: isDark
+                                      ? const Color(0xFF00E5FF)
+                                      : PujaColors.durgaRed,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
