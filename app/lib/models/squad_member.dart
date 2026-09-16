@@ -95,7 +95,7 @@ class SquadMember {
       batteryLevel: (json['battery'] as num?)?.toInt() ?? 85,
       avatarColorHex: (json['color'] as num?)?.toInt() ?? 0xFFFFB300,
       lastSeen: json['last_seen'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(json['last_seen'] as int)
+          ? DateTime.fromMillisecondsSinceEpoch((json['last_seen'] as num).toInt())
           : DateTime.now(),
     );
   }

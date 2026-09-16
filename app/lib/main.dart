@@ -9,14 +9,16 @@ import 'firebase_options.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/auth_service.dart';
 import 'services/custom_hopping_trail_service.dart';
+import 'services/enhanced_navigation_service.dart';
 import 'services/location_service.dart';
 import 'services/notification_progress_service.dart';
+import 'services/offline_map_service.dart';
 import 'services/pandal_user_state_service.dart';
 import 'services/squad_service.dart';
 import 'services/theme_service.dart';
+import 'services/voice_navigation_service.dart';
 
-// TODO: Uncomment after obtaining GemKit package from Magic Lane
-// import 'package:gem_kit/gem_kit.dart';
+import 'package:magiclane_maps_flutter/magiclane_maps_flutter.dart';
 
 /// Global navigator key allowing deep links to navigate without context dependency
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -29,6 +31,9 @@ void main() async {
 
   // Initialize Magic Lane GemKit SDK (if available and configured)
   await _initializeGemKit();
+
+  // Initialize enhanced navigation services
+  await _initializeEnhancedServices();
 
   // Initialize Firebase with generated options
   try {
@@ -65,6 +70,12 @@ void main() async {
         ChangeNotifierProvider<LocationService>.value(value: locationService),
         ChangeNotifierProvider<SquadService>.value(value: squadService),
         ChangeNotifierProvider<CustomHoppingTrailService>.value(value: trailService),
+        ChangeNotifierProvider<EnhancedNavigationService>.value(
+          value: EnhancedNavigationService.instance,
+        ),
+        ChangeNotifierProvider<OfflineMapService>.value(
+          value: OfflineMapService.instance,
+        ),
       ],
       child: KolkataPujaApp(navigatorKey: rootNavigatorKey),
     ),
@@ -257,20 +268,35 @@ Future<void> _initializeGemKit() async {
       return;
     }
 
-    // TODO: Uncomment after obtaining GemKit package
-    /*
     await GemKit.initialize(appAuthorization: GemKitConfig.apiToken);
-    debugPrint('✓ GemKit initialized successfully');
-    debugPrint('  Map engine: Magic Lane GemKit');
+    debugPrint('✓ Magic Lane GemKit initialized successfully');
+    debugPrint('  Map engine: Magic Lane Maps SDK');
     debugPrint('  Offline maps: ${GemKitConfig.enableOfflineMaps ? 'Enabled' : 'Disabled'}');
     debugPrint('  3D buildings: ${GemKitConfig.enable3DBuildings ? 'Enabled' : 'Disabled'}');
-    */
-
-    debugPrint('⚠ GemKit SDK not yet integrated');
-    debugPrint('   Using flutter_map as fallback');
-    debugPrint('   See MAGIC_LANE_INTEGRATION.md for integration steps');
   } catch (e) {
-    debugPrint('⚠ GemKit initialization failed: $e');
-    debugPrint('   Falling back to flutter_map');
+    debugPrint('⚠ GemKit initialization note: $e');
+  }
+}
+
+/// Initialize enhanced navigation services
+/// 
+/// Provides Magic Lane-like features using open-source alternatives:
+/// - Turn-by-turn navigation
+/// - Voice guidance
+/// - Offline map caching
+Future<void> _initializeEnhancedServices() async {
+  try {
+    // Initialize offline map service
+    await OfflineMapService.instance.initialize();
+    debugPrint('✓ Offline map service initialized');
+
+    // Initialize voice navigation
+    await VoiceNavigationService.instance.initialize();
+    debugPrint('✓ Voice navigation initialized');
+
+    debugPrint('✓ Enhanced navigation services ready');
+    debugPrint('  Features: Turn-by-turn, Voice guidance, Offline maps');
+  } catch (e) {
+    debugPrint('⚠ Enhanced services initialization failed: $e');
   }
 }

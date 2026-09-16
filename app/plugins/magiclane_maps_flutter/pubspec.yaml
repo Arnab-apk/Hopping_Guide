@@ -1,0 +1,58 @@
+name: magiclane_maps_flutter
+description: Magic Lane Maps SDK offers mapping, flexible routing, realtime traffic, voice navigation, POI search, custom styles, trip recording, map styles, alarms and more
+version: 3.1.11
+homepage: https://www.magiclane.com/web
+documentation: https://developer.magiclane.com/docs/flutter/guides/introduction
+
+topics:
+ - map
+ - magic-lane
+ - navigation
+ - routing
+ - location
+
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+  flutter: ">=3.35.0"
+
+platforms:
+  android:
+  ios:
+
+dependencies:
+  ffi: ^2.0.1
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  logging: ^1.0.0
+  meta: ^1.15.0
+  plugin_platform_interface: ^2.1.8
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.magiclane.magiclane_maps_flutter
+        pluginClass: MagiclaneMapsFlutterPlugin
+      ios:
+        pluginClass: SwiftMagiclaneMapsFlutterPlugin
+      web:
+        pluginClass: GemKitWeb
+        fileName: gem_kit_web.dart
+
+  assets:
+    # navarrow.glb is loaded via the Flutter asset bundle (rootBundle), so it
+    # must be bundled with the app. gemkitloader.js / FlutterPluginWASM.js /
+    # FlutterPluginWASM.wasm are fetched from the developer website at runtime
+    # (see sdkWebBase in gem_kit_web.dart), so they are NOT bundled here.
+    - assets/navarrow.glb

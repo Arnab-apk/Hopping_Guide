@@ -34,11 +34,14 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  # Note: gem_kit package must be obtained from Magic Lane International B.V.
-  # Contact Magic Lane to receive the SDK package and add it here
-  # gem_kit: ^[version from Magic Lane]
-  flutter_map: ^8.3.2  # Keeping as fallback during transition
-  latlong2: ^0.10.1
+  
+  # Magic Lane Maps Flutter SDK (local with Gradle 9 compatibility)
+  magiclane_maps_flutter:
+    path: plugins/magiclane_maps_flutter
+  
+  flutter_map: ^8.3.2
+  flutter_map_tile_caching: ^10.0.3  # Offline map tile caching
+  latlong2: ^0.9.1
   firebase_core: ^4.14.0
   firebase_auth: ^6.6.1
   cloud_firestore: ^6.9.0
@@ -48,6 +51,7 @@ dependencies:
   geolocator: ^14.0.3
   flutter_background_service: ^5.1.0
   flutter_local_notifications: ^18.0.1
+  flutter_tts: ^4.2.0  # Text-to-speech for voice navigation
   http: ^1.6.0
   share_plus: ^13.3.0
   url_launcher: ^6.3.2
@@ -59,6 +63,7 @@ dependencies:
   rxdart: ^0.28.0
   simplify: ^1.1.0
   app_links: ^7.2.1
+  web_socket_channel: ^3.0.0
 
 dev_dependencies:
   flutter_test:

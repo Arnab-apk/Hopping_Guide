@@ -122,6 +122,29 @@ class AuthService extends ChangeNotifier {
   /// Sign in as anonymous Guest Pujo Hopper
   Future<AppUser> signInAsGuest() async {
     _lastAuthError = null;
+
+    // Attempt Firebase Anonymous Auth to acquire an authenticated session for RTDB
+    try {
+      if (_auth != null && _auth!.currentUser == null) {
+        final cred = await _auth!.signInAnonymously();
+        if (cred.user != null) {
+          final anonUser = AppUser(
+            uid: cred.user!.uid,
+            displayName: _currentUserModel?.displayName ?? 'Guest Pujo Hopper',
+            email: null,
+            photoUrl: _currentUserModel?.photoUrl,
+            isGuest: true,
+          );
+          _currentUserModel = anonUser;
+          await _saveUser(anonUser);
+          notifyListeners();
+          return anonUser;
+        }
+      }
+    } catch (e) {
+      debugPrint('AuthService.signInAsGuest anonymous Auth fallback: $e');
+    }
+
     final guestUser = AppUser.guest();
     _currentUserModel = guestUser;
     await _saveUser(guestUser);

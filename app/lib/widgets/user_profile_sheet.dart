@@ -42,7 +42,7 @@ class UserProfileSheet extends StatelessWidget {
           autofocus: true,
           decoration: const InputDecoration(
             labelText: 'Your Name',
-            hintText: 'e.g. Arnab',
+            hintText: 'Enter your display name',
           ),
         ),
         actions: [

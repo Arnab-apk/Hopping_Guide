@@ -1,0 +1,12 @@
+# This file contains local configuration for the Android build
+# Copy this to local.properties and update with your actual paths and keys
+# NEVER commit local.properties to git!
+
+sdk.dir=D:\\src\\android-sdk
+flutter.sdk=D:\\src\\flutter
+flutter.buildMode=debug
+flutter.versionName=1.0.0
+flutter.versionCode=1
+
+# Magic Lane GemKit API Key
+MAGIC_LANE_API_KEY=mldl_pkRREpVdKjS0XOurTgzjY1G72PaNg37V0By0H2NCop1

@@ -54,6 +54,8 @@ class Pandal {
   String? get circularRailway => nearestRailway;
   String? get entryFee => 'Free entry';
   String get zoneLabel => zone.label;
+  String? get themeType => theme.isNotEmpty ? theme : null;
+  String? get bengaliName => null;
 
   factory Pandal.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     return Pandal.fromMap(doc.id, doc.data() ?? {});

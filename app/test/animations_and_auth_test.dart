@@ -312,22 +312,9 @@ void main() {
       expect(revived.photoUrl, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb');
     });
 
-    test('SquadService addDemoCompanions populates companions with Google DPs', () {
+    test('SquadService createSquad starts with only host and 0 companions', () async {
       final squad = SquadService.instance;
-      squad.createSquad('Bagbazar Hoppers', 'North Gate');
-      expect(squad.companionMembers, isEmpty);
-
-      squad.addDemoCompanions();
-      expect(squad.companionMembers.length, 2);
-      for (final companion in squad.companionMembers) {
-        expect(companion.photoUrl, isNotNull);
-        expect(companion.photoUrl, startsWith('http'));
-      }
-    });
-
-    test('SquadService createSquad starts with only host and 0 companions', () {
-      final squad = SquadService.instance;
-      squad.createSquad('Bagbazar Hoppers', 'North Gate');
+      await squad.createSquad('Bagbazar Hoppers', 'North Gate');
 
       expect(squad.hasActiveSquad, isTrue);
       expect(squad.squadName, 'Bagbazar Hoppers');

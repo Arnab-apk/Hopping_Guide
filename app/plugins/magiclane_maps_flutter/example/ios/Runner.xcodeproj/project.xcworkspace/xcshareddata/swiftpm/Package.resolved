@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "magiclane-maps-sdk-flutter-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/magiclane/magiclane-maps-sdk-flutter-ios.git",
+      "state" : {
+        "revision" : "979dcc5e86970e8dbae7538ccd41dd40fbf16dfa",
+        "version" : "3.1.9"
+      }
+    }
+  ],
+  "version" : 2
+}

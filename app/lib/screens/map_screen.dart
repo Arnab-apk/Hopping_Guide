@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../config/app_config.dart';
+import '../config/gemkit_config.dart';
 import '../config/theme.dart';
 import '../models/app_user.dart';
 import '../models/pandal.dart';
@@ -1080,6 +1081,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       appBar: AppBar(
         title: const Text('Pujo Parikrama Map'),
         actions: [
+          // Engine Switcher: Switch to Magic Lane 3D Map
+          IconButton(
+            icon: const Icon(Icons.view_in_ar_rounded, color: PujaColors.goldBright),
+            tooltip: 'Switch to Magic Lane 3D Map',
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              GemKitConfig.isMagicLaneActive.value = true;
+            },
+          ),
           IconButton(
             icon: AnimatedContainer(
               duration: const Duration(milliseconds: 220),
@@ -4771,22 +4781,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    TextButton.icon(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      icon: const Icon(Icons.person_add_rounded, size: 14, color: PujaColors.festivalGold),
-                      label: const Text(
-                        'Demo Hopper',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: PujaColors.festivalGold),
-                      ),
-                      onPressed: () {
-                        HapticFeedback.mediumImpact();
-                        squadService.addDemoCompanions();
-                      },
-                    ),
+
                   ],
                 ),
               )

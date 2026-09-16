@@ -1,0 +1,8 @@
+Copyright (C) 2023-2026 Magic Lane International B.V. <info@magiclane.com>
+
+The software and its associated files (collectively, the "Software") are licensed under the Magic Lane Terms of Service (TOS)
+for use exclusively by developers with a current active Magic Lane account. Any violation of the TOS or account termination
+immediately revokes this license.
+
+For the latest licensing terms and conditions, see https://www.magiclane.com/web/terms-and-conditions#terms-of-service.
+For further information use the contact form at https://www.magiclane.com/web/contact.

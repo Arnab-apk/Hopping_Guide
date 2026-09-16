@@ -8,7 +8,9 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_auth
   firebase_core
   firebase_database
+  flutter_tts
   geolocator_windows
+  objectbox_flutter_libs
   share_plus
   url_launcher_windows
 )

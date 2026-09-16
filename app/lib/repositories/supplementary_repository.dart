@@ -37,6 +37,9 @@ class FoodSpot {
   final String? priceRange;
   final String? source;
 
+  double get latitude => lat;
+  double get longitude => lng;
+
   factory FoodSpot.fromJson(Map<String, dynamic> json) {
     final coords = json['coordinates'] as Map<String, dynamic>? ?? {};
     return FoodSpot(

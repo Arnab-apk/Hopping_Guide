@@ -1,17 +1,28 @@
 /// GemKit (Magic Lane SDK) Configuration
-/// 
+///
 /// This file contains configuration constants and helpers for Magic Lane's GemKit SDK.
-/// 
+///
 /// SECURITY WARNING:
 /// - Never hardcode your API token in this file
 /// - Always use environment variables or secure storage
 /// - Add this file pattern to .gitignore if you add sensitive data
+library;
+
+import 'package:flutter/foundation.dart';
 
 class GemKitConfig {
   GemKitConfig._(); // Private constructor to prevent instantiation
 
+  /// Active map engine notifier: true = Magic Lane 3D map, false = 2D OSM FlutterMap
+  static final ValueNotifier<bool> isMagicLaneActive = ValueNotifier<bool>(true);
+
+  /// Toggle active map engine
+  static void toggleMapEngine() {
+    isMagicLaneActive.value = !isMagicLaneActive.value;
+  }
+
   /// Get the Magic Lane API token from environment variables
-  /// 
+  ///
   /// Usage:
   /// ```bash
   /// flutter run --dart-define=MAGIC_LANE_API_KEY=your_token_here
@@ -51,16 +62,17 @@ class GemKitConfig {
   static const double routeLineOpacity = 0.8;
 
   /// Error messages
-  static const String errorNoApiToken = 
+  static const String errorNoApiToken =
       'Magic Lane API token not found. Please set MAGIC_LANE_API_KEY environment variable.';
-  static const String errorSdkNotAvailable = 
+  static const String errorSdkNotAvailable =
       'GemKit SDK not available. Please obtain the SDK from Magic Lane International B.V.';
-  static const String errorInitializationFailed = 
+  static const String errorInitializationFailed =
       'Failed to initialize GemKit. Please check your API token and network connection.';
 
   /// Feature flags
   static const bool useGemKitMap = true; // Set to true after SDK integration
-  static const bool useFallbackFlutterMap = true; // Fallback to flutter_map if GemKit unavailable
+  static const bool useFallbackFlutterMap =
+      true; // Fallback to flutter_map if GemKit unavailable
 
   /// Validation helper
   static String? validate() {
@@ -77,8 +89,8 @@ class GemKitConfig {
       'isConfigured': isConfigured,
       'hasApiToken': apiToken.isNotEmpty,
       'tokenLength': apiToken.length,
-      'tokenPreview': apiToken.isEmpty 
-          ? 'Not set' 
+      'tokenPreview': apiToken.isEmpty
+          ? 'Not set'
           : '${apiToken.substring(0, 4)}...${apiToken.substring(apiToken.length - 4)}',
       'defaultLocation': {
         'lat': defaultLatitude,

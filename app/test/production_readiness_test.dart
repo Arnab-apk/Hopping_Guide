@@ -281,18 +281,18 @@ void main() {
   });
 
   group('Feature 7: Live Squad Tracking & Invite Code Generation', () {
-    test('SquadService creates squad with PUJA### invite code and manages state', () {
+    test('SquadService creates squad with PUJA### invite code and manages state', () async {
       final squadService = SquadService.instance;
-      squadService.leaveSquad();
+      await squadService.leaveSquad();
       expect(squadService.hasActiveSquad, isFalse);
 
-      squadService.createSquad('Bagbazar Squad', 'Bagbazar Ghat Crossing');
+      await squadService.createSquad('Bagbazar Squad', 'Bagbazar Ghat Crossing');
       expect(squadService.hasActiveSquad, isTrue);
       expect(squadService.squadCode?.length, equals(8));
       expect(squadService.squadCode, startsWith('PUJA'));
       expect(squadService.meetupPointName, equals('Bagbazar Ghat Crossing'));
 
-      squadService.leaveSquad();
+      await squadService.leaveSquad();
       expect(squadService.hasActiveSquad, isFalse);
     });
   });

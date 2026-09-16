@@ -205,18 +205,18 @@ void main() {
   });
 
   group('Scalability Test 5: Squad Invite Codes & High-Concurrency State Isolation', () {
-    test('1,000 generated squad codes are well-formatted and collision resistant', () {
+    test('1,000 generated squad codes are well-formatted and collision resistant', () async {
       final squadService = SquadService.instance;
       final generatedCodes = <String>{};
 
       for (int i = 0; i < 1000; i++) {
-        squadService.createSquad('Squad $i', 'Landmark $i');
+        await squadService.createSquad('Squad $i', 'Landmark $i');
         final code = squadService.squadCode;
         expect(code, isNotNull);
         expect(code!, startsWith('PUJA'));
         expect(code.length, equals(8));
         generatedCodes.add(code);
-        squadService.leaveSquad();
+        await squadService.leaveSquad();
       }
 
       // With 1,048,576 permutations, 1,000 squads have near-zero collisions (>98% unique)

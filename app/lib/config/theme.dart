@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'pandal_theme_tokens.dart';
+
 /// Design tokens matching Theme 1: Crimson Gold Line Art
 /// Palette: Deep Velvet Crimson, Royal Warm Gold, Ivory, and Dark Burgundy Night
 class PujaColors {
@@ -148,6 +150,9 @@ ThemeData get appTheme => ThemeData(
         type: BottomNavigationBarType.fixed,
         elevation: 12,
       ),
+      extensions: const [
+        PandalOfflineThemeTokens(),
+      ],
     );
 
 /// Dark theme: Pure Minimalist OLED Dark (#0A0A0A) & Sacred Gold Accents
@@ -262,4 +267,7 @@ ThemeData get appDarkTheme => ThemeData(
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
+      extensions: const [
+        PandalOfflineThemeTokens(),
+      ],
     );

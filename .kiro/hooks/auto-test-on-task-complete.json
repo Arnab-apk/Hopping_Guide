@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Auto-Test on Task Complete",
+      "trigger": "PostTaskExec",
+      "description": "Automatically tests features after any task is completed by running Flutter analyze and tests",
+      "action": {
+        "type": "command",
+        "command": "cd app && flutter analyze && flutter test",
+        "timeout": 300
+      }
+    }
+  ]
+}

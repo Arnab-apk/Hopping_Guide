@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../config/gemkit_config.dart';
 import '../config/theme.dart';
 import '../utils/responsive.dart';
 import '../widgets/app_tutorial_dialog.dart';
 import '../widgets/durga_face_icon.dart';
 import 'map_screen.dart';
+import 'map_screen_gemkit.dart';
 import 'pandal_list_screen.dart';
 import 'routes_screen.dart';
 import 'group_screen.dart';
@@ -41,12 +43,20 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   late int _currentIndex;
 
-  final List<Widget> _screens = const [
-    MapScreen(),
-    PandalListScreen(),
-    RoutesScreen(),
-    GroupScreen(),
-    HelplinesScreen(),
+  late final List<Widget> _screens = [
+    ValueListenableBuilder<bool>(
+      valueListenable: GemKitConfig.isMagicLaneActive,
+      builder: (context, useMagicLane, _) {
+        if (useMagicLane && GemKitConfig.isConfigured) {
+          return const MapScreenGemKit();
+        }
+        return const MapScreen();
+      },
+    ),
+    const PandalListScreen(),
+    const RoutesScreen(),
+    const GroupScreen(),
+    const HelplinesScreen(),
   ];
 
   @override

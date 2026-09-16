@@ -35,7 +35,7 @@ class GroupScreen extends StatelessWidget {
 
   void _createGroup(BuildContext context, SquadService squadService) {
     final nameController = TextEditingController();
-    final meetupController = TextEditingController(text: 'Main Pandal Entrance');
+    final meetupController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -69,7 +69,7 @@ class GroupScreen extends StatelessWidget {
           FilledButton(
             onPressed: () async {
               final squadName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
-              final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Gate' : meetupController.text.trim();
+              final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Landmark' : meetupController.text.trim();
               Navigator.pop(ctx);
 
               await squadService.createSquad(squadName, meetup);
@@ -701,20 +701,6 @@ class GroupScreen extends StatelessWidget {
                           _shareInvite(context, squadService);
                         },
                       ),
-                      FilledButton.tonalIcon(
-                        icon: const Icon(Icons.group_add, size: 16),
-                        label: const Text('Add Demo Companions'),
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          squadService.addDemoCompanions();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Added Priya & Rohan with Google DPs to your squad!'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ],
@@ -1118,31 +1104,13 @@ class GroupScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Add companions to see their Google DPs and live GPS pins on the map.',
+                          'Share your squad code to invite friends and see their live GPS locations on the map.',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: isDark ? Colors.white60 : Colors.black54,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.tonal(
-                    style: FilledButton.styleFrom(
-                      visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    ),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      squadService.addDemoCompanions();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Added Priya and Rohan to your squad with Google DPs!'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    child: const Text('Add Demo', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),

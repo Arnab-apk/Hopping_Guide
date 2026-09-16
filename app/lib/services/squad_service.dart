@@ -82,17 +82,19 @@ class SquadService extends ChangeNotifier {
     }
   }
 
+  String _sanitizeKey(String raw) => raw.replaceAll(RegExp(r'[.#$\[\]/]'), '_');
+
   /// Safe accessor to FirebaseDatabase with automatic URL fallback
   FirebaseDatabase? get _database {
     if (!_isFirebaseAvailable) return null;
     try {
-      return FirebaseDatabase.instance;
-    } catch (e) {
+      return FirebaseDatabase.instanceFor(
+        app: Firebase.app(),
+        databaseURL: rtdbUrl,
+      );
+    } catch (_) {
       try {
-        return FirebaseDatabase.instanceFor(
-          app: Firebase.app(),
-          databaseURL: rtdbUrl,
-        );
+        return FirebaseDatabase.instance;
       } catch (err) {
         debugPrint('[SquadService] FirebaseDatabase init error: $err');
         return null;
@@ -221,7 +223,7 @@ class SquadService extends ChangeNotifier {
     final code = 'PUJA$suffix';
     _squadCode = code;
     _squadName = name.trim().isEmpty ? 'My Puja Squad' : name.trim();
-    _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Gate' : meetup.trim();
+    _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Landmark' : meetup.trim();
 
     // Use current real GPS position immediately
     final currentPos = LocationService.instance.currentPositionSync;
@@ -255,46 +257,86 @@ class SquadService extends ChangeNotifier {
   Future<bool> joinSquad(String code, [LatLng? initialCoords]) async {
     _lastError = null;
     final cleanCode = code.trim().toUpperCase();
-    if (cleanCode.isEmpty) return false;
+    if (cleanCode.isEmpty) {
+      _lastError = 'Please enter a valid squad code.';
+      return false;
+    }
 
     await _ensureUser();
-    _squadCode = cleanCode;
-    _squadName = 'Squad $cleanCode';
-    _meetupPointName = 'Designated Meet-up Landmark';
-
-    final currentPos = LocationService.instance.currentPositionSync;
-    final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
-    final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
-    _meetupPointCoords = LatLng(lat, lng);
-
-    _initMembers(isHost: false, userLat: lat, userLng: lng);
-    await _persistState();
-
-    // Fetch initial meta from cloud if available
     final db = _database;
+
+    String squadName = 'Squad $cleanCode';
+    String meetupName = 'Designated Meet-up Landmark';
+    LatLng meetupCoords = LocationService.defaultKolkataCenter;
+    final Map<String, dynamic> existingCloudMembers = {};
+
     if (db != null) {
       try {
-        final snap = await db.ref('squads/$cleanCode/meta').get();
-        if (snap.exists && snap.value is Map) {
-          final data = Map<String, dynamic>.from(snap.value as Map);
+        final metaSnap = await db.ref('squads/$cleanCode/meta').get().timeout(const Duration(seconds: 4));
+        final membersSnap = await db.ref('squads/$cleanCode/members').get().timeout(const Duration(seconds: 4));
+
+        if (!metaSnap.exists && !membersSnap.exists) {
+          _lastError = 'Squad "$cleanCode" not found. Please verify the invite code.';
+          debugPrint('[SquadService] Squad $cleanCode not found in RTDB');
+          return false;
+        }
+
+        if (metaSnap.exists && metaSnap.value is Map) {
+          final data = Map<String, dynamic>.from(metaSnap.value as Map);
           if (data['name'] is String && (data['name'] as String).isNotEmpty) {
-            _squadName = data['name'] as String;
+            squadName = data['name'] as String;
           }
           if (data['meetup_name'] is String && (data['meetup_name'] as String).isNotEmpty) {
-            _meetupPointName = data['meetup_name'] as String;
+            meetupName = data['meetup_name'] as String;
           }
           final mLat = (data['meetup_lat'] as num?)?.toDouble();
           final mLng = (data['meetup_lng'] as num?)?.toDouble();
           if (mLat != null && mLng != null) {
-            _meetupPointCoords = LatLng(mLat, mLng);
+            meetupCoords = LatLng(mLat, mLng);
           }
-          await _persistState();
+        }
+
+        if (membersSnap.exists && membersSnap.value is Map) {
+          final raw = Map<String, dynamic>.from(membersSnap.value as Map);
+          existingCloudMembers.addAll(raw);
         }
       } catch (e) {
-        debugPrint('[SquadService] Fetch meta on join error: $e');
+        debugPrint('[SquadService] Verify squad on join note: $e');
       }
     }
 
+    _squadCode = cleanCode;
+    _squadName = squadName;
+    _meetupPointName = meetupName;
+    _meetupPointCoords = meetupCoords;
+
+    final currentPos = LocationService.instance.currentPositionSync;
+    final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
+    final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+
+    _initMembers(isHost: false, userLat: lat, userLng: lng);
+
+    // Populate existing members immediately from cloud snapshot
+    final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
+    final safeUserId = _sanitizeKey(currentUserId);
+    existingCloudMembers.forEach((key, val) {
+      if (key == currentUserId || key == safeUserId) return;
+      if (val is Map) {
+        try {
+          final member = SquadMember.fromJson(Map<String, dynamic>.from(val)).copyWith(isUser: false);
+          final idx = _members.indexWhere((m) => m.id == member.id);
+          if (idx != -1) {
+            _members[idx] = member;
+          } else {
+            _members.add(member);
+          }
+        } catch (e) {
+          debugPrint('[SquadService] Parse initial member error: $e');
+        }
+      }
+    });
+
+    await _persistState();
     await _pushUserToCloud();
     _listenToCloud();
     notifyListeners();
@@ -343,10 +385,11 @@ class SquadService extends ChangeNotifier {
       try {
         final user = AuthService.instance.currentUserModel;
         final uid = user?.uid ?? 'user_self';
+        final safeId = _sanitizeKey(uid);
         final db = _database;
         if (db != null) {
-          await db.ref('squads/$oldCode/members/$uid').remove();
-          debugPrint('[SquadService] Removed member $uid from squad $oldCode in RTDB');
+          await db.ref('squads/$oldCode/members/$safeId').remove();
+          debugPrint('[SquadService] Removed member $safeId from squad $oldCode in RTDB');
         }
       } catch (e) {
         debugPrint('[SquadService] leaveSquad RTDB removal note: $e');
@@ -445,9 +488,10 @@ class SquadService extends ChangeNotifier {
     if (_squadCode == null || !_isSharingLocation || db == null) return;
     try {
       final userMember = _members.firstWhere((m) => m.isUser);
-      final ref = db.ref('squads/$_squadCode/members/${userMember.id}');
+      final safeId = _sanitizeKey(userMember.id);
+      final ref = db.ref('squads/$_squadCode/members/$safeId');
       await ref.set(userMember.toJson());
-      debugPrint('[SquadService] Pushed user ${userMember.id} location to RTDB (${userMember.latitude}, ${userMember.longitude})');
+      debugPrint('[SquadService] Pushed user $safeId location to RTDB (${userMember.latitude}, ${userMember.longitude})');
     } catch (e) {
       _lastError = 'Cloud sync: $e';
       debugPrint('[SquadService] _pushUserToCloud error: $e');
@@ -483,24 +527,40 @@ class SquadService extends ChangeNotifier {
       final ref = db.ref('squads/$_squadCode/members');
       _rtdbSub = ref.onValue.listen((event) {
         final snap = event.snapshot;
-        if (snap.value == null) return;
+        if (snap.value == null) {
+          final before = _members.length;
+          _members.removeWhere((m) => !m.isUser);
+          if (_members.length != before) {
+            notifyListeners();
+          }
+          return;
+        }
+        if (snap.value is! Map) return;
         final raw = Map<String, dynamic>.from(snap.value as Map);
         final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
+        final safeUserId = _sanitizeKey(currentUserId);
 
         bool changed = false;
         raw.forEach((key, val) {
-          if (key == currentUserId) return; // Don't overwrite local user
+          if (key == currentUserId || key == safeUserId) return; // Don't overwrite local user
+          if (val is! Map) return;
           try {
-            final memberData = Map<String, dynamic>.from(val as Map);
+            final memberData = Map<String, dynamic>.from(val);
             // Incoming members from cloud are companions, so isUser is forced to false
             final member = SquadMember.fromJson(memberData).copyWith(isUser: false);
             final idx = _members.indexWhere((m) => m.id == member.id);
             if (idx != -1) {
-              _members[idx] = member;
+              if (_members[idx].latitude != member.latitude ||
+                  _members[idx].longitude != member.longitude ||
+                  _members[idx].status != member.status ||
+                  _members[idx].photoUrl != member.photoUrl) {
+                _members[idx] = member;
+                changed = true;
+              }
             } else {
               _members.add(member);
+              changed = true;
             }
-            changed = true;
           } catch (e) {
             debugPrint('[SquadService] Error parsing cloud member: $e');
           }
@@ -508,7 +568,10 @@ class SquadService extends ChangeNotifier {
 
         // Remove members that left
         final before = _members.length;
-        _members.removeWhere((m) => !m.isUser && !raw.containsKey(m.id));
+        _members.removeWhere((m) =>
+            !m.isUser &&
+            !raw.containsKey(m.id) &&
+            !raw.containsKey(_sanitizeKey(m.id)));
         if (_members.length != before) changed = true;
 
         if (changed) {
