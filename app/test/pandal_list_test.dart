@@ -171,4 +171,85 @@ void main() {
     expect(find.text('Golbari (New Punjabi Hotel)'), findsNothing);
     expect(find.text('Search by pandal, area, metro, theme...'), findsOneWidget);
   });
+
+  testWidgets('Control Audit: Hopped pill & progress bar are omitted on Food Spots, favorites are isolated', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'user_favorite_pandals': ['hatibagan_sarbojanin'], // 1 pandal favorited
+      'user_visited_pandals': ['hatibagan_sarbojanin'],  // 1 pandal visited
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final userState = PandalUserStateService(prefs);
+    final mockRepo = MockPandalRepository();
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<PandalUserStateService?>.value(
+        value: userState,
+        child: MaterialApp(
+          home: PandalListScreen(repository: mockRepo),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // 1. On Pandals segment:
+    // "All (2)", "Favorites (1)", "Hopped (1)", "Nearby (10km)", "Regions"
+    expect(find.text('All (2)'), findsOneWidget);
+    expect(find.text('Favorites (1)'), findsOneWidget);
+    expect(find.text('Hopped (1)'), findsOneWidget);
+    expect(find.text('Nearby (10km)'), findsOneWidget);
+    expect(find.text('Regions'), findsOneWidget);
+    // Hopping progress bar is displayed on Pandals screen
+    expect(find.textContaining('Hopping Progress: 1 of 2 Pandals Visited'), findsOneWidget);
+
+    // 2. Switch to Food Spots segment:
+    await tester.tap(find.text('Food Spots'));
+    await tester.pumpAndSettle();
+
+    // In Food Spots:
+    // - "All (1)"
+    // - "Favorites (0)" -> strictly 0 because the favorited item was a pandal!
+    // - "Hopped" pill must NOT be rendered at all
+    // - Hopping progress bar must NOT be rendered at all
+    // - "Nearby (10km)" is shared and present
+    // - "Regions" is present
+    expect(find.text('All (1)'), findsOneWidget);
+    expect(find.text('Favorites (0)'), findsOneWidget);
+    expect(find.textContaining('Hopped'), findsNothing);
+    expect(find.textContaining('Hopping Progress'), findsNothing);
+    expect(find.text('Nearby (10km)'), findsOneWidget);
+    expect(find.text('Regions'), findsOneWidget);
+
+    // 3. Favorite a food spot
+    await userState.toggleFavorite('f_golbari');
+    await tester.pumpAndSettle();
+
+    // Food Spots favorites count updates to 1
+    expect(find.text('Favorites (1)'), findsOneWidget);
+
+    // 4. Switch back to Pandals segment
+    await tester.tap(find.text('Pandals'));
+    await tester.pumpAndSettle();
+
+    // Pandals favorites count must remain 1 (only hatibagan_sarbojanin, NOT bumped by f_golbari!)
+    expect(find.text('Favorites (1)'), findsOneWidget);
+    // Hopped pill & progress bar reappear cleanly
+    expect(find.text('Hopped (1)'), findsOneWidget);
+    expect(find.textContaining('Hopping Progress: 1 of 2 Pandals Visited'), findsOneWidget);
+
+    // 5. Unfavorite pandal
+    await userState.toggleFavorite('hatibagan_sarbojanin');
+    await tester.pumpAndSettle();
+
+    // Pandals favorites count becomes 0
+    expect(find.text('Favorites (0)'), findsOneWidget);
+
+    // Switch back to Food Spots to verify food spot favorites count is STILL 1
+    await tester.tap(find.text('Food Spots'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Favorites (1)'), findsOneWidget);
+    expect(find.textContaining('Hopped'), findsNothing);
+    expect(find.textContaining('Hopping Progress'), findsNothing);
+  });
 }
+
