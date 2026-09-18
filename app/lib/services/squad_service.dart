@@ -10,6 +10,7 @@ import '../models/app_user.dart';
 import '../models/squad_member.dart';
 import 'auth_service.dart';
 import 'location_service.dart';
+import 'websocket_client.dart';
 
 /// Centralized state manager for Durga Puja hopping squads.
 /// Grounded in real device GPS coordinates from [LocationService].
@@ -52,11 +53,15 @@ class SquadService extends ChangeNotifier {
   String? _lastError;
 
   final List<SquadMember> _members = [];
+  final WebSocketClient _wsClient = WebSocketClient();
+  StreamSubscription? _wsSub;
   StreamSubscription? _rtdbSub;
   StreamSubscription? _metaSub;
   final Random _random = Random();
 
   // Getters
+  WebSocketConnectionState get wsConnectionState => _wsClient.currentState;
+  bool get isWsConnected => _wsClient.isConnected;
   String? get squadCode => _squadCode;
   String? get squadName => _squadName;
   String get meetupPointName => _meetupPointName;
@@ -157,6 +162,10 @@ class SquadService extends ChangeNotifier {
         _initMembers(isHost: true);
         _listenToCloud();
         _pushUserToCloud();
+        final currentPos = LocationService.instance.currentPositionSync;
+        final lat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
+        final lng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+        _initWebSocket(isHost: true, lat: lat, lng: lng);
       }
     } catch (e) {
       debugPrint('[SquadService] _loadSavedState error: $e');
@@ -211,16 +220,22 @@ class SquadService extends ChangeNotifier {
   }
 
 
+  static const String _codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
   /// Create a brand new hopping squad with real device GPS coordinates.
-  static const _codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  /// Generates a valid, randomized 8-char squad invite code (e.g. PUJA7K9X).
+  static String generateSquadCode([Random? random]) {
+    final r = random ?? Random();
+    final suffix = List.generate(4, (_) => _codeAlphabet[r.nextInt(_codeAlphabet.length)]).join();
+    return 'PUJA$suffix';
+  }
 
   /// Starts with 0 companions (empty companion list).
   Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
     _lastError = null;
     await _ensureUser();
 
-    final suffix = List.generate(4, (_) => _codeAlphabet[_random.nextInt(_codeAlphabet.length)]).join();
-    final code = 'PUJA$suffix';
+    final code = generateSquadCode(_random);
     _squadCode = code;
     _squadName = name.trim().isEmpty ? 'My Puja Squad' : name.trim();
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Landmark' : meetup.trim();
@@ -232,6 +247,7 @@ class SquadService extends ChangeNotifier {
     _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
 
     _initMembers(isHost: true, userLat: realLat, userLng: realLng);
+    _initWebSocket(isHost: true, lat: realLat, lng: realLng);
     await _persistState();
     await _pushMetaToCloud();
     await _pushUserToCloud();
@@ -315,6 +331,7 @@ class SquadService extends ChangeNotifier {
     final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
 
     _initMembers(isHost: false, userLat: lat, userLng: lng);
+    _initWebSocket(isHost: false, lat: lat, lng: lng);
 
     // Populate existing members immediately from cloud snapshot
     final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
@@ -381,6 +398,15 @@ class SquadService extends ChangeNotifier {
   /// Leave the current squad and clear members
   Future<void> leaveSquad() async {
     final oldCode = _squadCode;
+    if (oldCode != null) {
+      _wsClient.sendMessage({
+        'type': 'leave_squad',
+        'squad_code': oldCode,
+      });
+      _wsClient.close();
+      _wsSub?.cancel();
+      _wsSub = null;
+    }
     if (oldCode != null && _isFirebaseAvailable) {
       try {
         final user = AuthService.instance.currentUserModel;
@@ -417,6 +443,17 @@ class SquadService extends ChangeNotifier {
         longitude: lng,
         lastSeen: DateTime.now(),
       );
+      if (_squadCode != null) {
+        _wsClient.sendMessage({
+          'type': 'location_update',
+          'squad_code': _squadCode,
+          'latitude': lat,
+          'longitude': lng,
+          'status': _members[idx].status,
+          'battery_level': _members[idx].batteryLevel,
+          'photo_url': _members[idx].photoUrl,
+        });
+      }
       _pushUserToCloud();
       notifyListeners();
     }
@@ -429,6 +466,16 @@ class SquadService extends ChangeNotifier {
       _meetupPointCoords = coords;
     }
     _persistState();
+    if (_squadCode != null) {
+      _wsClient.sendMessage({
+        'type': 'squad_meta_update',
+        'squad_code': _squadCode,
+        'name': _squadName,
+        'meetup_name': _meetupPointName,
+        'meetup_lat': _meetupPointCoords.latitude,
+        'meetup_lng': _meetupPointCoords.longitude,
+      });
+    }
     _pushMetaToCloud();
     notifyListeners();
   }
@@ -478,6 +525,165 @@ class SquadService extends ChangeNotifier {
       return _members.firstWhere((m) => m.id == id);
     } catch (_) {
       return null;
+    }
+  }
+
+  // --- High-Speed In-Memory WebSocket Live Sync ---
+
+  void _initWebSocket({required bool isHost, required double lat, required double lng}) {
+    _wsSub?.cancel();
+    final user = AuthService.instance.currentUserModel;
+    final uid = user?.uid ?? 'user_self';
+    final name = user?.displayName ?? (isHost ? 'Host' : 'Member');
+
+    _wsSub = _wsClient.messages.listen((msg) {
+      _handleWebSocketMessage(msg);
+    }, onError: (err) {
+      debugPrint('[SquadService] WebSocket message stream error: $err');
+    });
+
+    _wsClient.connect(uid).then((_) {
+      if (_squadCode != null) {
+        _wsClient.sendMessage({
+          'type': 'join_squad',
+          'squad_code': _squadCode,
+          'member_name': name,
+          'is_host': isHost,
+          'initial_latitude': lat,
+          'initial_longitude': lng,
+          'photo_url': user?.photoUrl,
+        });
+      }
+    }).catchError((err) {
+      debugPrint('[SquadService] WebSocket connect error: $err');
+    });
+  }
+
+  void _handleWebSocketMessage(Map<String, dynamic> msg) {
+    final type = msg['type'];
+    final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
+    final safeUserId = _sanitizeKey(currentUserId);
+
+    if (type == 'squad_joined') {
+      final meta = msg['metadata'];
+      if (meta is Map) {
+        if (meta['name'] is String && (meta['name'] as String).isNotEmpty) {
+          _squadName = meta['name'];
+        }
+        if (meta['meetupPointName'] is String && (meta['meetupPointName'] as String).isNotEmpty) {
+          _meetupPointName = meta['meetupPointName'];
+        }
+        final mLat = (meta['meetupLat'] as num?)?.toDouble();
+        final mLng = (meta['meetupLng'] as num?)?.toDouble();
+        if (mLat != null && mLng != null) {
+          _meetupPointCoords = LatLng(mLat, mLng);
+        }
+      }
+      notifyListeners();
+    } else if (type == 'member_list') {
+      final membersList = msg['members'];
+      if (membersList is List) {
+        bool changed = false;
+        for (final item in membersList) {
+          if (item is Map) {
+            final mId = item['member_id'] as String?;
+            if (mId == null || mId == currentUserId || mId == safeUserId) continue;
+            final mLat = (item['latitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.latitude;
+            final mLng = (item['longitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.longitude;
+            final member = SquadMember(
+              id: mId,
+              name: item['member_name'] as String? ?? 'Companion',
+              latitude: mLat,
+              longitude: mLng,
+              status: item['status'] as String? ?? 'Active',
+              lastSeen: DateTime.fromMillisecondsSinceEpoch(
+                (item['last_seen'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
+              ),
+              photoUrl: item['photo_url'] as String?,
+              isHost: item['is_host'] == true,
+              isUser: false,
+              batteryLevel: (item['battery_level'] as num?)?.toInt() ?? 100,
+            );
+            final idx = _members.indexWhere((m) => m.id == member.id);
+            if (idx != -1) {
+              _members[idx] = member;
+            } else {
+              _members.add(member);
+            }
+            changed = true;
+          }
+        }
+        if (changed) notifyListeners();
+      }
+    } else if (type == 'member_joined') {
+      final mId = msg['member_id'] as String?;
+      if (mId == null || mId == currentUserId || mId == safeUserId) return;
+      final mLat = (msg['latitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.latitude;
+      final mLng = (msg['longitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.longitude;
+      final member = SquadMember(
+        id: mId,
+        name: msg['member_name'] as String? ?? 'Companion',
+        latitude: mLat,
+        longitude: mLng,
+        status: msg['status'] as String? ?? 'Active',
+        lastSeen: DateTime.now(),
+        photoUrl: msg['photo_url'] as String?,
+        isHost: msg['is_host'] == true,
+        isUser: false,
+        batteryLevel: (msg['battery_level'] as num?)?.toInt() ?? 100,
+      );
+      final idx = _members.indexWhere((m) => m.id == member.id);
+      if (idx != -1) {
+        _members[idx] = member;
+      } else {
+        _members.add(member);
+      }
+      notifyListeners();
+    } else if (type == 'location_update') {
+      final mId = msg['member_id'] as String?;
+      if (mId == null || mId == currentUserId || mId == safeUserId) return;
+      final mLat = (msg['latitude'] as num?)?.toDouble();
+      final mLng = (msg['longitude'] as num?)?.toDouble();
+      if (mLat == null || mLng == null) return;
+      final idx = _members.indexWhere((m) => m.id == mId);
+      if (idx != -1) {
+        _members[idx] = _members[idx].copyWith(
+          latitude: mLat,
+          longitude: mLng,
+          status: msg['status'] as String? ?? _members[idx].status,
+          batteryLevel: (msg['battery_level'] as num?)?.toInt() ?? _members[idx].batteryLevel,
+          lastSeen: DateTime.now(),
+        );
+        notifyListeners();
+      }
+    } else if (type == 'squad_meta_updated') {
+      final meta = msg['metadata'];
+      if (meta is Map) {
+        if (meta['name'] is String && (meta['name'] as String).isNotEmpty) {
+          _squadName = meta['name'];
+        }
+        if (meta['meetupPointName'] is String && (meta['meetupPointName'] as String).isNotEmpty) {
+          _meetupPointName = meta['meetupPointName'];
+        }
+        final mLat = (meta['meetupLat'] as num?)?.toDouble();
+        final mLng = (meta['meetupLng'] as num?)?.toDouble();
+        if (mLat != null && mLng != null) {
+          _meetupPointCoords = LatLng(mLat, mLng);
+        }
+        notifyListeners();
+      }
+    } else if (type == 'member_left') {
+      final mId = msg['member_id'] as String?;
+      if (mId != null) {
+        final before = _members.length;
+        _members.removeWhere((m) => m.id == mId && !m.isUser);
+        if (_members.length != before) {
+          notifyListeners();
+        }
+      }
+    } else if (type == 'error') {
+      _lastError = msg['message'] as String? ?? 'WebSocket error';
+      notifyListeners();
     }
   }
 
@@ -628,6 +834,8 @@ class SquadService extends ChangeNotifier {
 
   @override
   void dispose() {
+    _wsSub?.cancel();
+    _wsClient.dispose();
     _rtdbSub?.cancel();
     _metaSub?.cancel();
     super.dispose();

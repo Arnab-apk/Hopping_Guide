@@ -10,6 +10,7 @@ import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
 import '../widgets/durga_eyes_formation.dart';
 import '../widgets/google_logo.dart';
+import '../widgets/puja_icons.dart';
 
 /// Premium, non-scrollable Welcome & Login screen for Pujo Parikrama.
 /// Features a pure dark OLED background, the divine eyes of Maa Durga prominently
@@ -418,7 +419,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                                   : Row(
                                                       mainAxisAlignment: MainAxisAlignment.center,
                                                       children: [
-                                                        const Icon(Icons.explore_rounded, size: 19, color: PujaColors.festivalGold),
+                                                         PujaIcon.shankha(size: 24, color: PujaColors.festivalGold),
                                                         const SizedBox(width: 9),
                                                         Text(
                                                           'Enter as Guest',

@@ -11,6 +11,7 @@ import '../services/squad_service.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 import '../widgets/google_logo.dart';
+import '../widgets/puja_icons.dart';
 import '../widgets/user_profile_sheet.dart';
 import 'main_navigation_screen.dart';
 
@@ -209,11 +210,11 @@ class GroupScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.red.shade900,
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.white, size: 28),
-            SizedBox(width: 8),
-            Text('Separation Alert (SOS)', style: TextStyle(color: Colors.white)),
+            PujaIcon.trishulEyes(color: Colors.white, size: 28),
+            const SizedBox(width: 8),
+            const Text('Separation Alert (SOS)', style: TextStyle(color: Colors.white)),
           ],
         ),
         content: const Text(
@@ -282,11 +283,6 @@ class GroupScreen extends StatelessWidget {
             ),
             onPressed: () => UserProfileSheet.show(context),
           ),
-          IconButton(
-            tooltip: 'Invite Squad',
-            icon: const Icon(Icons.share_rounded),
-            onPressed: squadService.hasActiveSquad ? () => _shareInvite(context, squadService) : null,
-          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'create') _createGroup(context, squadService);
@@ -330,7 +326,7 @@ class GroupScreen extends StatelessWidget {
                     color: PujaColors.durgaRed.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.group_add_rounded, size: 64, color: PujaColors.durgaRed),
+                  child: PujaIcon.dhaki(size: 64, color: PujaColors.durgaRed),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -384,7 +380,7 @@ class GroupScreen extends StatelessWidget {
         Card(
           color: isDark ? PujaColors.nightCard : Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(12),
             side: BorderSide(
               color: PujaColors.festivalGold.withValues(alpha: 0.35),
               width: 1.2,
@@ -411,7 +407,9 @@ class GroupScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${members.length} members hopping together',
+                            members.length == 1
+                                ? '1 member hopping together'
+                                : '${members.length} members hopping together',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: isDark ? Colors.white60 : Colors.black54,
                             ),
@@ -423,7 +421,7 @@ class GroupScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: PujaColors.crimsonVelvet.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: PujaColors.festivalGold.withValues(alpha: 0.45),
                           width: 1.2,
@@ -464,9 +462,9 @@ class GroupScreen extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Row(
                     children: [
-                      OutlinedButton.icon(
-                        icon: Icon(Icons.share, size: context.dynamicIcon(18)),
-                        label: Text('Invite Friends', style: TextStyle(fontSize: context.dynamicFont(13))),
+                      FilledButton.icon(
+                        icon: PujaIcon.shankha(size: context.dynamicIcon(24), color: Colors.white),
+                        label: Text('Invite Companions', style: TextStyle(fontSize: context.dynamicFont(13))),
                         onPressed: () {
                           HapticFeedback.lightImpact();
                           _shareInvite(context, squadService);
@@ -474,8 +472,8 @@ class GroupScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       FilledButton.tonalIcon(
-                        icon: Icon(Icons.sos, color: Colors.red, size: context.dynamicIcon(18)),
-                        label: Text('Separation Alert', style: TextStyle(color: Colors.red, fontSize: context.dynamicFont(13))),
+                        icon: PujaIcon.trishulEyes(color: Colors.red, size: context.dynamicIcon(24)),
+                        label: Text('Separation Alert (500 m)', style: TextStyle(color: Colors.red, fontSize: context.dynamicFont(13))),
                         onPressed: () {
                           HapticFeedback.heavyImpact();
                           _triggerSeparationSOS(context);
@@ -494,7 +492,7 @@ class GroupScreen extends StatelessWidget {
         Card(
           color: isDark ? PujaColors.nightSurface : PujaColors.goldSoft,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(12),
             side: BorderSide(
               color: PujaColors.festivalGold.withValues(alpha: 0.4),
               width: 1.2,
@@ -510,7 +508,7 @@ class GroupScreen extends StatelessWidget {
                     color: PujaColors.festivalGold.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.meeting_room_rounded, color: PujaColors.festivalGold, size: context.dynamicIcon(22)),
+                  child: PujaIcon.kalash(color: PujaColors.festivalGold, size: context.dynamicIcon(32)),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -546,8 +544,11 @@ class GroupScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // Live Location Sharing & Battery Optimization
+        // Live Location Sharing Card
         Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -560,7 +561,7 @@ class GroupScreen extends StatelessWidget {
                       children: [
                         Icon(
                           squadService.isSharingLocation ? Icons.location_on : Icons.location_off,
-                          color: squadService.isSharingLocation ? Colors.green : Colors.grey,
+                          color: squadService.isSharingLocation ? const Color(0xFF00E676) : Colors.grey,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -569,39 +570,25 @@ class GroupScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Switch(
+                    Switch.adaptive(
                       value: squadService.isSharingLocation,
-                      onChanged: (val) => squadService.toggleLocationSharing(val),
+                      activeThumbColor: const Color(0xFF00E676),
+                      activeTrackColor: const Color(0xFF00E676).withValues(alpha: 0.3),
+                      onChanged: (val) {
+                        HapticFeedback.selectionClick();
+                        squadService.toggleLocationSharing(val);
+                      },
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   squadService.isSharingLocation
                       ? 'Squad members can see your live marker and relative distance on their map.'
-                      : 'Live location paused. Others only see your last check-in.',
-                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
-                ),
-                const Divider(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.battery_saver, color: Colors.teal),
-                        SizedBox(width: 8),
-                        Text('Crowd Battery Saver Mode'),
-                      ],
-                    ),
-                    Switch(
-                      value: squadService.isBatterySaver,
-                      onChanged: (val) => squadService.toggleBatterySaver(val),
-                    ),
-                  ],
-                ),
-                Text(
-                  'Reduces GPS polling rate to conserve battery over long hopping nights.',
-                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                      : 'Live location paused. Turn on so friends can locate you in crowded areas.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
                 ),
               ],
             ),
@@ -609,20 +596,27 @@ class GroupScreen extends StatelessWidget {
         ),
         const SizedBox(height: 18),
 
-        // Squad Friends At-A-Glance
-        _buildSquadFriendsAtAGlance(context, theme, isDark, squadService, userMember),
-        const SizedBox(height: 18),
+        // Squad Friends At-A-Glance (Only shown when companions are active, eliminating duplicate empty state)
+        if (squadService.companionMembers.isNotEmpty) ...[
+          _buildSquadFriendsAtAGlance(context, theme, isDark, squadService, userMember),
+          const SizedBox(height: 18),
+        ],
 
         // Squad Members Header with Quick Map Jump
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              squadService.companionMembers.isEmpty
-                  ? 'Squad Members (1 Host, 0 Companions)'
-                  : 'Squad Members (${members.length})',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            Expanded(
+              child: Text(
+                squadService.companionMembers.isEmpty
+                    ? 'Squad Members (1 Host, 0 Companions)'
+                    : 'Squad Members (${members.length})',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
+            const SizedBox(width: 8),
             FilledButton.tonalIcon(
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -647,7 +641,7 @@ class GroupScreen extends StatelessWidget {
         if (squadService.companionMembers.isEmpty)
           Card(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: isDark ? Colors.white12 : Colors.black12,
                 width: 1,
@@ -665,9 +659,8 @@ class GroupScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: PujaColors.festivalGold.withValues(alpha: 0.15),
                     ),
-                    child: const Icon(
-                      Icons.group_add_outlined,
-                      size: 36,
+                    child: PujaIcon.dhaki(
+                      size: 48,
                       color: PujaColors.festivalGold,
                     ),
                   ),
@@ -680,28 +673,12 @@ class GroupScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Your squad starts with only you as host. Share squad code "${squadService.squadCode}" with your friends and family so they can join and share their real device GPS coordinates.',
+                    'Your squad starts with only you as host. Share your squad code with friends to see their live GPS markers on the map.',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: isDark ? Colors.white60 : Colors.black54,
                       height: 1.4,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      FilledButton.icon(
-                        icon: const Icon(Icons.share, size: 16),
-                        label: const Text('Invite Companions'),
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          _shareInvite(context, squadService);
-                        },
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -735,6 +712,7 @@ class GroupScreen extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: Stack(
           clipBehavior: Clip.none,
@@ -800,10 +778,13 @@ class GroupScreen extends StatelessWidget {
           ],
         ),
         title: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Text(
                 member.name,
+                maxLines: 2,
+                softWrap: true,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: member.isUser ? FontWeight.bold : FontWeight.w600,
@@ -827,23 +808,30 @@ class GroupScreen extends StatelessWidget {
             ],
           ],
         ),
-        subtitle: Row(
-          children: [
-            Expanded(
-              child: Text(
-                '${member.status} • $distanceText',
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: context.dynamicFont(12)),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  '${member.status} • $distanceText',
+                  maxLines: 2,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: context.dynamicFont(12)),
+                ),
               ),
-            ),
-            Text(
-              '🔋${member.batteryLevel}%',
-              style: TextStyle(
-                fontSize: context.dynamicFont(11),
-                color: member.batteryLevel < 20 ? Colors.red : (isDark ? Colors.white60 : Colors.black54),
+              const SizedBox(width: 8),
+              Text(
+                '🔋${member.batteryLevel}%',
+                style: TextStyle(
+                  fontSize: context.dynamicFont(11),
+                  color: member.batteryLevel < 20 ? Colors.red : (isDark ? Colors.white60 : Colors.black54),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         trailing: IconButton(
           icon: Icon(Icons.navigation_outlined, color: PujaColors.durgaRed, size: context.dynamicIcon(20)),
@@ -870,14 +858,14 @@ class GroupScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: PujaColors.festivalGold.withValues(alpha: 0.35),
           width: 1.2,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(12),
         onTap: () {
           HapticFeedback.selectionClick();
           UserProfileSheet.show(context);
@@ -1076,7 +1064,7 @@ class GroupScreen extends StatelessWidget {
           Card(
             color: isDark ? PujaColors.nightCard.withValues(alpha: 0.7) : Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               side: BorderSide(
                 color: PujaColors.festivalGold.withValues(alpha: 0.25),
               ),
@@ -1137,7 +1125,7 @@ class GroupScreen extends StatelessWidget {
                     : 'Nearby';
 
                 return InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   onTap: () {
                     HapticFeedback.selectionClick();
                     squadService.focusMember(friend.id);
@@ -1148,7 +1136,7 @@ class GroupScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                     decoration: BoxDecoration(
                       color: isDark ? PujaColors.nightCard : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: PujaColors.festivalGold.withValues(alpha: 0.35),
                         width: 1.2,

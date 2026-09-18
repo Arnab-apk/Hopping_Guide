@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -5,6 +8,17 @@ plugins {
     // END: FlutterFire Configuration
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+} else {
+    val altFile = file("../key.properties")
+    if (altFile.exists()) {
+        keystoreProperties.load(FileInputStream(altFile))
+    }
 }
 
 android {
@@ -21,14 +35,38 @@ android {
     defaultConfig {
         applicationId = "com.kolkatapuja.kolkata_puja"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String? ?: "pujoparikrama"
+            keyPassword = keystoreProperties["keyPassword"] as String? ?: "PujoParikrama2026!"
+            val storeFilePath = keystoreProperties["storeFile"] as String? ?: "release-keystore.jks"
+            storeFile = if (file(storeFilePath).exists()) {
+                file(storeFilePath)
+            } else if (file("../$storeFilePath").exists()) {
+                file("../$storeFilePath")
+            } else {
+                file("release-keystore.jks")
+            }
+            storePassword = keystoreProperties["storePassword"] as String? ?: "PujoParikrama2026!"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (keystorePropertiesFile.exists() || file("release-keystore.jks").exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = false
             isShrinkResources = false
         }

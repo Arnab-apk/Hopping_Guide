@@ -57,3 +57,4 @@ key.properties
 .env*
 .kotlin/
 android/.kotlin/
+**/.gradle/

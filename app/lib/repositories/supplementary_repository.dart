@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import '../models/place_category.dart';
 
 class Helpline {
   const Helpline({required this.label, required this.number});
@@ -39,6 +40,7 @@ class FoodSpot {
 
   double get latitude => lat;
   double get longitude => lng;
+  PlaceCategory get category => PlaceCategory.foodSpot;
 
   factory FoodSpot.fromJson(Map<String, dynamic> json) {
     final coords = json['coordinates'] as Map<String, dynamic>? ?? {};

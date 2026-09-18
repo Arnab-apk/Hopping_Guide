@@ -14,7 +14,7 @@ class GemKitConfig {
   GemKitConfig._(); // Private constructor to prevent instantiation
 
   /// Active map engine notifier: true = Magic Lane 3D map, false = 2D OSM FlutterMap
-  static final ValueNotifier<bool> isMagicLaneActive = ValueNotifier<bool>(true);
+  static final ValueNotifier<bool> isMagicLaneActive = ValueNotifier<bool>(false);
 
   /// Toggle active map engine
   static void toggleMapEngine() {
@@ -29,7 +29,7 @@ class GemKitConfig {
   /// ```
   static const String apiToken = String.fromEnvironment(
     'MAGIC_LANE_API_KEY',
-    defaultValue: 'mldl_pkRREpVdKjS0XOurTgzjY1G72PaNg37V0By0H2NCop1',
+    defaultValue: 'mldl_4PBYz9yRTYCmavG5LIuKgAEeK3AIZPBWZqouGgrK0Cr',
   );
 
   /// Check if API token is configured
@@ -70,7 +70,7 @@ class GemKitConfig {
       'Failed to initialize GemKit. Please check your API token and network connection.';
 
   /// Feature flags
-  static const bool useGemKitMap = true; // Set to true after SDK integration
+  static const bool useGemKitMap = false; // Default to reliable 2D map
   static const bool useFallbackFlutterMap =
       true; // Fallback to flutter_map if GemKit unavailable
 

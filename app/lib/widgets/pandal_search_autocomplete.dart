@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../config/theme.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
 import '../repositories/metro_repository.dart';
@@ -11,9 +11,11 @@ import '../repositories/supplementary_repository.dart';
 import '../services/omni_search_service.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
+import 'puja_icons.dart';
 
-/// Minimalist, seamless Omni-Search Bar.
-/// Zero clutter, no icons, pure clean typography with example suggestions.
+/// Google Maps-styled Omni-Search Bar.
+/// Features a floating stadium shape, search magnifying glass, clean Google typography,
+/// clear icon button, and tonal suggestions dropdown.
 class PandalSearchAutocomplete extends StatefulWidget {
   const PandalSearchAutocomplete({
     super.key,
@@ -59,19 +61,36 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
   late final FocusNode _focusNode;
   bool _ownsController = false;
   bool _ownsFocusNode = false;
+  Timer? _focusDebounceTimer;
 
   List<OmniSearchResult> _suggestions = [];
   bool _showDropdown = false;
 
-  // Clean text-only examples
-  static const List<String> _exampleQueries = [
+  static const List<String> _pandalExampleQueries = [
     'Sreebhumi Sporting Club',
-    'Kalighat Metro Station',
-    'Golbari Kosha Mangsho',
     'Ekdalia Evergreen Club',
-    'Esplanade Metro Station',
     'College Square',
+    'Baghbazar Sarbojanin',
+    'Suruchi Sangha',
+    'Maddox Square',
   ];
+
+  static const List<String> _foodExampleQueries = [
+    'Golbari Kosha Mangsho',
+    'Mitra Cafe Brain Chop',
+    'Allen Kitchen Prawn Cutlet',
+    'Chittaranjan Mistanna Bhandar',
+    'Arsalan Biryani',
+    'Paramount Sharbat',
+  ];
+
+  List<String> get _exampleQueries {
+    if (widget.pandals.isEmpty && widget.foodSpots?.isNotEmpty == true) {
+      return _foodExampleQueries;
+    }
+    return _pandalExampleQueries;
+  }
+
 
   @override
   void initState() {
@@ -96,20 +115,12 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
 
   @override
   void dispose() {
+    _focusDebounceTimer?.cancel();
     _controller.removeListener(_handleTextChange);
     _focusNode.removeListener(_handleFocusChange);
     if (_ownsController) _controller.dispose();
     if (_ownsFocusNode) _focusNode.dispose();
     super.dispose();
-  }
-
-  void _handleFocusChange() {
-    setState(() {
-      _showDropdown = _focusNode.hasFocus;
-      if (_focusNode.hasFocus) {
-        _updateSuggestions(_controller.text);
-      }
-    });
   }
 
   void _handleTextChange() {
@@ -118,24 +129,42 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
     _updateSuggestions(query);
   }
 
+  void _handleFocusChange() {
+    _focusDebounceTimer?.cancel();
+    if (_focusNode.hasFocus) {
+      _updateSuggestions(_controller.text);
+      setState(() => _showDropdown = true);
+    } else {
+      // Delay closing dropdown slightly so tap on suggestion registers
+      _focusDebounceTimer = Timer(const Duration(milliseconds: 250), () {
+        if (mounted && !_focusNode.hasFocus) {
+          setState(() => _showDropdown = false);
+        }
+      });
+    }
+  }
+
   void _updateSuggestions(String query) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (query.trim().isEmpty) {
       setState(() {
         _suggestions = [];
+        _showDropdown = _focusNode.hasFocus;
       });
       return;
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final normalStyle = GoogleFonts.jetBrainsMono(
+    final normalStyle = GoogleFonts.plusJakartaSans(
       fontSize: 13.0,
       fontWeight: FontWeight.w500,
-      color: isDark ? Colors.white : Colors.black87,
+      color: colorScheme.onSurface,
     );
-    final highlightStyle = GoogleFonts.jetBrainsMono(
+    final highlightStyle = GoogleFonts.plusJakartaSans(
       fontSize: 13.0,
-      fontWeight: FontWeight.w800,
-      color: PujaColors.festivalGold,
+      fontWeight: FontWeight.w700,
+      color: colorScheme.primary,
     );
 
     final results = OmniSearchService.instance.search(
@@ -214,6 +243,7 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final hasText = _controller.text.trim().isNotEmpty;
     final recentList = OmniSearchService.instance.recentSearches;
@@ -222,51 +252,59 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. Clean, Seamless Minimalist Search Input Bar (No icons, pure typography)
+        // 1. Google Maps Style Floating Search Bar
         Container(
           decoration: BoxDecoration(
             color: isDark
-                ? (widget.isFloatingOnMap ? const Color(0xF212141A) : const Color(0xFF14161E))
-                : Colors.white,
-            borderRadius: BorderRadius.circular(12),
+                ? (widget.isFloatingOnMap ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainer)
+                : colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: _focusNode.hasFocus
-                  ? (isDark ? Colors.white38 : Colors.black45)
-                  : (isDark ? Colors.white12 : Colors.black12),
-              width: 1.0,
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.6),
+              width: _focusNode.hasFocus ? 1.5 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: widget.isFloatingOnMap ? 0.25 : 0.06),
-                blurRadius: widget.isFloatingOnMap ? 14 : 6,
+                color: Colors.black.withValues(alpha: widget.isFloatingOnMap ? 0.18 : 0.04),
+                blurRadius: widget.isFloatingOnMap ? 12 : 4,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Row(
             children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 14.0, right: 6.0),
+                child: Icon(
+                  Icons.search_rounded,
+                  size: 22,
+                  color: _focusNode.hasFocus ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                ),
+              ),
               Expanded(
                 child: TextField(
                   controller: _controller,
                   focusNode: _focusNode,
                   autofocus: widget.autoFocus,
-                  cursorColor: isDark ? Colors.white : Colors.black,
-                  cursorWidth: 1.8,
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: context.dynamicFont(13.2),
-                    color: isDark ? Colors.white : Colors.black87,
+                  cursorColor: colorScheme.primary,
+                  cursorWidth: 2.0,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: context.dynamicFont(13.8),
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
                     hintText: widget.hintText,
-                    hintStyle: GoogleFonts.jetBrainsMono(
-                      fontSize: context.dynamicFont(12.2),
-                      color: isDark ? Colors.white38 : Colors.black38,
+                    hintStyle: GoogleFonts.plusJakartaSans(
+                      fontSize: context.dynamicFont(13.0),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                       fontWeight: FontWeight.w400,
                     ),
                     border: InputBorder.none,
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   onSubmitted: (val) {
                     if (_suggestions.isNotEmpty) {
@@ -280,8 +318,12 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                 ),
               ),
               if (hasText)
-                GestureDetector(
-                  onTap: () {
+                IconButton(
+                  iconSize: 20,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  icon: Icon(Icons.close_rounded, color: colorScheme.onSurfaceVariant),
+                  onPressed: () {
                     HapticFeedback.lightImpact();
                     _controller.clear();
                     _focusNode.unfocus();
@@ -290,35 +332,25 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                       _suggestions = [];
                     });
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                    child: Text(
-                      'clear',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: context.dynamicFont(11),
-                        color: isDark ? Colors.white38 : Colors.black38,
-                      ),
-                    ),
-                  ),
                 ),
             ],
           ),
         ),
 
-        // 2. Seamless Suggestions & Examples Dropdown
+        // 2. Google M3 Suggestions & Examples Dropdown
         if (_showDropdown) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Container(
             constraints: BoxConstraints(
-              maxHeight: math.min(290.0, MediaQuery.sizeOf(context).height * 0.42),
+              maxHeight: math.min(300.0, MediaQuery.sizeOf(context).height * 0.42),
             ),
             decoration: BoxDecoration(
               color: isDark
-                  ? (widget.isFloatingOnMap ? const Color(0xF212141A) : const Color(0xFF14161E))
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(12),
+                  ? (widget.isFloatingOnMap ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainerLow)
+                  : colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark ? Colors.white12 : Colors.black12,
+                color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.5),
                 width: 1.0,
               ),
               boxShadow: [
@@ -340,12 +372,12 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                       child: Text(
-                        'EXAMPLES',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: context.dynamicFont(9.5),
+                        'TRY SEARCHING',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: context.dynamicFont(10.5),
                           fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2,
-                          color: isDark ? Colors.white38 : Colors.black38,
+                          letterSpacing: 0.8,
+                          color: colorScheme.primary,
                         ),
                       ),
                     ),
@@ -354,12 +386,18 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                         onTap: () => _selectQueryPrompt(example),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Text(
-                            example,
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: context.dynamicFont(12.2),
-                              color: isDark ? Colors.white70 : Colors.black87,
-                            ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.history_rounded, size: 16, color: colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 10),
+                              Text(
+                                example,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: context.dynamicFont(12.5),
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -371,7 +409,7 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Divider(
                           height: 14,
-                          color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                         ),
                       ),
                       Padding(
@@ -380,12 +418,12 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'RECENT',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: context.dynamicFont(9.5),
+                              'RECENT SEARCHES',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: context.dynamicFont(10.5),
                                 fontWeight: FontWeight.w700,
-                                letterSpacing: 1.2,
-                                color: isDark ? Colors.white38 : Colors.black38,
+                                letterSpacing: 0.8,
+                                color: colorScheme.primary,
                               ),
                             ),
                             GestureDetector(
@@ -396,10 +434,11 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                                 });
                               },
                               child: Text(
-                                'clear',
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: context.dynamicFont(9.5),
-                                  color: isDark ? Colors.white38 : Colors.black38,
+                                'Clear all',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: context.dynamicFont(11),
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -411,12 +450,18 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                           onTap: () => _selectQueryPrompt(recent),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                            child: Text(
-                              recent,
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: context.dynamicFont(11.8),
-                                color: isDark ? Colors.white54 : Colors.black54,
-                              ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.manage_search_rounded, size: 16, color: colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 10),
+                                Text(
+                                  recent,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: context.dynamicFont(12.2),
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -433,7 +478,7 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                       itemCount: _suggestions.length,
                       separatorBuilder: (context, index) => Divider(
                         height: 1,
-                        color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                       ),
                       itemBuilder: (context, index) {
                         final res = _suggestions[index];
@@ -447,6 +492,23 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             child: Row(
                               children: [
+                                if (res.type == OmniResultType.pandal)
+                                  PujaIcon.durgaFace(
+                                    size: 24,
+                                    color: colorScheme.primary,
+                                  )
+                                else if (res.type == OmniResultType.food)
+                                  PujaIcon.bhogSweets(
+                                    size: 24,
+                                    color: const Color(0xFFFF9100),
+                                  )
+                                else
+                                  Icon(
+                                    Icons.directions_subway_rounded,
+                                    size: 24,
+                                    color: colorScheme.primary,
+                                  ),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,9 +523,9 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                                         res.subtitle,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: GoogleFonts.jetBrainsMono(
-                                          fontSize: context.dynamicFont(10.5),
-                                          color: isDark ? Colors.white38 : Colors.black45,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: context.dynamicFont(11.0),
+                                          color: colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     ],
@@ -473,10 +535,10 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                                   const SizedBox(width: 8),
                                   Text(
                                     distStr,
-                                    style: GoogleFonts.jetBrainsMono(
-                                      fontSize: context.dynamicFont(10.5),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: context.dynamicFont(11.0),
                                       fontWeight: FontWeight.w600,
-                                      color: isDark ? Colors.white54 : Colors.black54,
+                                      color: colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -497,18 +559,18 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                         children: [
                           Text(
                             'No results for "${_controller.text}"',
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: context.dynamicFont(12),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.dynamicFont(13),
                               fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white70 : Colors.black87,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 3),
                           Text(
                             'Try searching for Sreebhumi, Kalighat, or Golbari',
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: context.dynamicFont(10.5),
-                              color: isDark ? Colors.white38 : Colors.black38,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.dynamicFont(11.5),
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],

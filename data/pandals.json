@@ -31,7 +31,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "11 Pally Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "11 Pally Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "19_pally",
@@ -65,7 +66,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "19 Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "19 Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "25_pally",
@@ -99,7 +101,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "25 Pally is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "25 Pally is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "37_pally",
@@ -135,7 +138,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "37 Pally is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
+    "description": "37 Pally is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "41_pally",
@@ -168,7 +172,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "41 Pally pandal in South Kolkata."
+    "description": "41 Pally pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "64_pally",
@@ -204,7 +209,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "64 Pally is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "64 Pally is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "66_palli",
@@ -240,7 +246,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "66 Palli is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "66 Palli is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "66_pally",
@@ -273,7 +280,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "66 Pally pandal in South Kolkata."
+    "description": "66 Pally pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "68_pally",
@@ -309,7 +317,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "68 Pally is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "68 Pally is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "74_pally",
@@ -343,7 +352,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "74 Pally is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "74 Pally is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "75_pally",
@@ -372,7 +382,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "75 Pally pandal in South Kolkata."
+    "description": "75 Pally pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "77_palli",
@@ -406,7 +417,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "77 Palli is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "77 Palli is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "95_pally",
@@ -439,7 +451,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "95 Pally pandal in South Kolkata."
+    "description": "95 Pally pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "aa_block",
@@ -473,7 +486,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ab_block",
@@ -507,7 +521,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "abasar_sarbajanin",
@@ -541,7 +556,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Abasar Sarbajanin pandal in South Kolkata."
+    "description": "Abasar Sarbajanin pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "abasarika_club",
@@ -575,7 +591,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Abasarika Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Abasarika Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ac_block",
@@ -609,7 +626,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "acharya_prafulla_sangha_behala",
@@ -643,7 +661,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Acharya Prafulla Sangha - Behala is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Acharya Prafulla Sangha - Behala is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ad_block",
@@ -677,7 +696,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "adi_ballygunge",
@@ -711,7 +731,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Adi Ballygunge is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Adi Ballygunge is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "adi_lake_palli",
@@ -747,7 +768,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Adi Lake Palli is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Adi Lake Palli is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ae_block",
@@ -781,7 +803,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ag_block",
@@ -815,7 +838,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ah_block",
@@ -849,7 +873,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AH Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AH Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ahiritola",
@@ -882,7 +907,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ahiritola pandal in North Kolkata."
+    "description": "Ahiritola pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ahiritola_jubak_brinda_sarbojonin_sarodotsab",
@@ -917,7 +943,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AHIRITOLA JUBAK BRINDA SARBOJONIN SARODOTSAB is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AHIRITOLA JUBAK BRINDA SARBOJONIN SARODOTSAB is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "aikya_sammilani",
@@ -951,7 +978,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Aikya Sammilani is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Aikya Sammilani is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "aj_block_durga_puja",
@@ -984,7 +1012,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AJ Block Durga Puja pandal in North Kolkata."
+    "description": "AJ Block Durga Puja pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ajeya_sanghati",
@@ -1018,7 +1047,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ajeya Sanghati is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ajeya Sanghati is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ajeyo_sanghati",
@@ -1048,7 +1078,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Ajeyo Sanghati pandal in South Kolkata."
+    "description": "Ajeyo Sanghati pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ak_block",
@@ -1083,7 +1114,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AK Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AK Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "akal_bodhan",
@@ -1113,7 +1145,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Akal Bodhan pandal in South Kolkata."
+    "description": "Akal Bodhan pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "al_block",
@@ -1148,7 +1181,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "AL Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "AL Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "alipore_sarbojanin",
@@ -1178,7 +1212,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Alipore Sarbojanin pandal in South Kolkata."
+    "description": "Alipore Sarbojanin pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "anupama_housing_complex",
@@ -1212,7 +1247,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Anupama Housing Complex is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Anupama Housing Complex is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "arjunpur_amra_sabai_club",
@@ -1242,7 +1278,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Arjunpur Amra Sabai Club pandal in North Kolkata."
+    "description": "Arjunpur Amra Sabai Club pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "arupara_milan_sangha_howrah",
@@ -1276,7 +1313,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Arupara Milan Sangha - Howrah is one of the celebrated Durga Puja celebrations located in Howrah. Known for its cultural devotion and festive atmosphere."
+    "description": "Arupara Milan Sangha - Howrah is one of the celebrated Durga Puja celebrations located in Howrah. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "azadgarh",
@@ -1311,7 +1349,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Azadgarh is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Azadgarh is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ba_block",
@@ -1345,7 +1384,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "babubagan",
@@ -1378,7 +1418,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Babubagan pandal in South Kolkata."
+    "description": "Babubagan pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "babubagan_club",
@@ -1412,7 +1453,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Babubagan Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Babubagan Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "badamtala",
@@ -1445,7 +1487,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Badamtala pandal in South Kolkata."
+    "description": "Badamtala pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "badamtala_ashar_sangha",
@@ -1481,7 +1524,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Badamtala Ashar Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Badamtala Ashar Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "badan_chand_roy_bari",
@@ -1510,7 +1554,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Badan Chand Roy Bari pandal in North Kolkata."
+    "description": "Badan Chand Roy Bari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bagbazar_sarbajanin",
@@ -1540,7 +1585,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Bagbazar Sarbajanin pandal in North Kolkata."
+    "description": "Bagbazar Sarbajanin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "baghbazar_7_pally_sarbojanin_durgotsav",
@@ -1575,7 +1621,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Baghbazar 7 Pally Sarbojanin Durgotsav is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Baghbazar 7 Pally Sarbojanin Durgotsav is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "baghbazar_haldar_bari_er_pujo",
@@ -1609,7 +1656,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "The Durga Puja celebration of Baghbazar Haldar house is one of oldest and historically significant household Durga Puja of Kolkata. The idol is worshipped daily for the last 453 years. The Durga idol at Haldarbari is made of Kasthipathar (Touchstone) instead of clay. It is evident from the structure and style of the deity that it has been sculpted during the Pala era of Bengal. From this fact one can estimate that the age of the idol is around 600 to 700 years.<br><br>Courtesy: The Pujo Company"
+    "description": "The Durga Puja celebration of Baghbazar Haldar house is one of oldest and historically significant household Durga Puja of Kolkata. The idol is worshipped daily for the last 453 years. The Durga idol at Haldarbari is made of Kasthipathar (Touchstone) instead of clay. It is evident from the structure and style of the deity that it has been sculpted during the Pala era of Bengal. From this fact one can estimate that the age of the idol is around 600 to 700 years.<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "baghbazar_jagodharti",
@@ -1644,7 +1692,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Baghbazar Jagodharti is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Baghbazar Jagodharti is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "baghbazar_pally",
@@ -1679,7 +1728,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Baghbazar Pally is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Baghbazar Pally is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "baghbazar_sarbojonin_durgotsab_exhibition",
@@ -1713,7 +1763,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Baghbazar Sarbojonin Durgotsab & Exhibition is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Baghbazar Sarbojonin Durgotsab & Exhibition is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "baghbazar_sarbojonin_durgotsav",
@@ -1747,7 +1798,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Baghbazar Sarbojonin Durgotsav is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Baghbazar Sarbojonin Durgotsav is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "baishnabghata_patuli_upanagari",
@@ -1781,7 +1833,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Baishnabghata Patuli Upanagari is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Baishnabghata Patuli Upanagari is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bakul_bagan",
@@ -1814,7 +1867,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bakul Bagan pandal in South Kolkata."
+    "description": "Bakul Bagan pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ballygunge_21_pally",
@@ -1848,7 +1902,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ballygunge 21 Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ballygunge 21 Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ballygunge_cultural",
@@ -1881,7 +1936,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ballygunge Cultural pandal in South Kolkata."
+    "description": "Ballygunge Cultural pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bandhab_sammilani",
@@ -1915,7 +1971,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bandhab Sammilani is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bandhab Sammilani is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bangur_avenue_protirodh_bahini",
@@ -1949,7 +2006,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bangur Avenue Protirodh Bahini is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bangur Avenue Protirodh Bahini is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_club_srishti_sahajatri",
@@ -1983,7 +2041,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Club, Srishti Sahajatri is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Club, Srishti Sahajatri is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_janakalyan_sangha",
@@ -2017,7 +2076,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Janakalyan Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Janakalyan Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_netaji_sangha",
@@ -2051,7 +2111,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Netaji Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Netaji Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_player_s_corner",
@@ -2085,7 +2146,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Player's Corner is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Player's Corner is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_sabuj_sathi_club",
@@ -2119,7 +2181,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Sabuj Sathi Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Sabuj Sathi Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_sarbojanin_durgotsab",
@@ -2153,7 +2216,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BARISHA SARBOJANIN DURGOTSAB is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BARISHA SARBOJANIN DURGOTSAB is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_tapoban",
@@ -2187,7 +2251,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Tapoban is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Tapoban is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_tarun_tirtha",
@@ -2221,7 +2286,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Tarun Tirtha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Tarun Tirtha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "barisha_yubak_brinda",
@@ -2255,7 +2321,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Barisha Yubak Brinda is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Barisha Yubak Brinda is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bayan_samity",
@@ -2284,7 +2351,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Bayan Samity pandal in North Kolkata."
+    "description": "Bayan Samity pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bb_block",
@@ -2318,7 +2386,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bc_block",
@@ -2352,7 +2421,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bd_block_durga_puja",
@@ -2385,7 +2455,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BD Block Durga Puja pandal in North Kolkata."
+    "description": "BD Block Durga Puja pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "be_block",
@@ -2419,7 +2490,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "beadon_street_sarbojanin",
@@ -2455,7 +2527,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Beadon Street Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Beadon Street Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_29_palli",
@@ -2489,7 +2562,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala 29 Palli is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala 29 Palli is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_adarsha_pally",
@@ -2523,7 +2597,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Adarsha Pally is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Adarsha Pally is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_arcadia_sarbojanin",
@@ -2557,7 +2632,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Arcadia Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Arcadia Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_buroshibtala_janakalyan_sangha",
@@ -2591,7 +2667,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Buroshibtala Janakalyan Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Buroshibtala Janakalyan Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_club",
@@ -2625,7 +2702,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_natun_dal",
@@ -2655,7 +2733,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Behala Natun Dal pandal in South Kolkata."
+    "description": "Behala Natun Dal pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "behala_nutan_dal",
@@ -2689,7 +2768,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Nutan Dal is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Nutan Dal is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_sree_sangha",
@@ -2723,7 +2803,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Sree Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Sree Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "behala_youngmen_s_association",
@@ -2757,7 +2838,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Behala Youngmen's Association is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Behala Youngmen's Association is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "beleghata_33_pally",
@@ -2786,7 +2868,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Beleghata 33 Pally pandal in Central Kolkata."
+    "description": "Beleghata 33 Pally pandal in Central Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "beleghata_33_pally_2",
@@ -2816,7 +2899,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Beleghata 33 Pally pandal in South Kolkata."
+    "description": "Beleghata 33 Pally pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "belgachia_sadharan_durgatsab",
@@ -2850,7 +2934,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Belgachia Sadharan Durgatsab is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Belgachia Sadharan Durgatsab is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "beliaghata_33_no_palli",
@@ -2885,7 +2970,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Beliaghata 33 No Palli is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
+    "description": "Beliaghata 33 No Palli is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "beliaghata_nabamilan",
@@ -2920,7 +3006,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Beliaghata Nabamilan is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
+    "description": "Beliaghata Nabamilan is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bengal_united_club",
@@ -2956,7 +3043,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bengal United Club is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bengal United Club is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "beniatola",
@@ -2989,7 +3077,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Beniatola pandal in North Kolkata."
+    "description": "Beniatola pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bg_block",
@@ -3023,7 +3112,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bh_block",
@@ -3058,7 +3148,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BH Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BH Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bharat_mata",
@@ -3092,7 +3183,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bharat Mata is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bharat Mata is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bhawanipuri_rupchand",
@@ -3121,7 +3213,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Bhawanipuri Rupchand pandal in South Kolkata."
+    "description": "Bhawanipuri Rupchand pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bhowanipur_swadhin_sangha",
@@ -3157,7 +3250,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bhowanipur Swadhin Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bhowanipur Swadhin Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bijoypur_sarbojanin_durga_puja",
@@ -3183,7 +3277,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Bijoypur Sarbojanin Durga Puja pandal in North Kolkata."
+    "description": "Bijoypur Sarbojanin Durga Puja pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bj_block_durga_puja",
@@ -3216,7 +3311,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BJ Block Durga Puja pandal in North Kolkata."
+    "description": "BJ Block Durga Puja pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bk_block",
@@ -3252,7 +3348,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BK Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BK Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bl_block",
@@ -3287,7 +3384,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "BL Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "BL Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bosepukur_sitala_mandir",
@@ -3320,7 +3418,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bosepukur Sitala Mandir pandal in South Kolkata."
+    "description": "Bosepukur Sitala Mandir pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bosepukur_sitala_mandir",
@@ -3354,7 +3453,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bosepukur Sitala Mandir is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bosepukur Sitala Mandir is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "bosepukur_talbagan",
@@ -3388,7 +3488,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Bosepukur Talbagan is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Bosepukur Talbagan is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "brindaban_matri_mandir_durga_puja_committee_in_kolkata",
@@ -3422,7 +3523,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Brindaban Matri Mandir Durga Puja Committee in Kolkata is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Brindaban Matri Mandir Durga Puja Committee in Kolkata is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ca_block",
@@ -3456,7 +3558,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "CA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "cb_block",
@@ -3490,7 +3593,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "CB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "cd_block",
@@ -3525,7 +3629,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "CD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ce_block",
@@ -3560,7 +3665,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "CE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "cg_block",
@@ -3595,7 +3701,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "CG Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "chakraberia_sarbojanin",
@@ -3628,7 +3735,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chakraberia Sarbojanin pandal in South Kolkata."
+    "description": "Chakraberia Sarbojanin pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chaltabagan",
@@ -3661,7 +3769,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chaltabagan pandal in North Kolkata."
+    "description": "Chaltabagan pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chandranath_chatterjee_street",
@@ -3697,7 +3806,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chandranath Chatterjee Street is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Chandranath Chatterjee Street is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "chinsurah_chapatala_sarbojanin",
@@ -3727,7 +3837,8 @@
       "Heritage Motif"
     ],
     "image_url": "",
-    "description": "Chapatala Durga Puja Samity highlights rural handicraft and Bengal's rich cultural heritage."
+    "description": "Chapatala Durga Puja Samity highlights rural handicraft and Bengal's rich cultural heritage.",
+    "category": "pandal"
   },
   {
     "id": "chatu_babu_latu_babus_thakur_bari",
@@ -3756,7 +3867,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Chatu Babu & Latu Babu's Thakur Bari pandal in North Kolkata."
+    "description": "Chatu Babu & Latu Babu's Thakur Bari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chelta_sarbasadharaner_club",
@@ -3792,7 +3904,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chelta Sarbasadharaner Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Chelta Sarbasadharaner Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "chetla_agrani",
@@ -3826,7 +3939,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chetla Agrani pandal in South Kolkata."
+    "description": "Chetla Agrani pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chetla_agrani_club",
@@ -3860,7 +3974,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Chetla Agrani Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Chetla Agrani Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "chorbagan_mitra_bari",
@@ -3889,7 +4004,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Chorbagan Mitra Bari pandal in North Kolkata."
+    "description": "Chorbagan Mitra Bari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chorbagan_sarbojanin",
@@ -3916,7 +4032,8 @@
     "nearest_railway_list": [],
     "special_features": [],
     "image_url": "",
-    "description": "Chorbagan Sarbojanin pandal in North Kolkata."
+    "description": "Chorbagan Sarbojanin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chorbagan_sil_thakurbari",
@@ -3945,7 +4062,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Chorbagan Sils Thakurbari pandal in North Kolkata."
+    "description": "Chorbagan Sils Thakurbari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "cit_sarbojanin",
@@ -3979,7 +4097,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CIT Sarbojanin is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "CIT Sarbojanin is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "cj_block_durga_puja",
@@ -4012,7 +4131,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "CJ Block Durga Puja pandal in North Kolkata."
+    "description": "CJ Block Durga Puja pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "college_square",
@@ -4045,7 +4165,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "College Square pandal in Central Kolkata."
+    "description": "College Square pandal in Central Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "college_square_sarbojanin_durgotsab_committee",
@@ -4082,7 +4203,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "College Square Sarbojanin Durgotsab Committee is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "College Square Sarbojanin Durgotsab Committee is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "da_block",
@@ -4117,7 +4239,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "DA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "DA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dakshin_phalguni_club",
@@ -4151,7 +4274,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dakshin Phalguni Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Dakshin Phalguni Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dakshineswar_dolpere_adi_sabojonin_durgapuja",
@@ -4185,7 +4309,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dakshineswar Dolpere Adi Sabojonin Durgapuja is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Dakshineswar Dolpere Adi Sabojonin Durgapuja is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dakshinpara_durgotsab_committee",
@@ -4214,7 +4339,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Dakshinpara Durgotsab Committee pandal in North Kolkata."
+    "description": "Dakshinpara Durgotsab Committee pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "darpanarayan_street",
@@ -4243,7 +4369,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Darpanarayan Street pandal in North Kolkata."
+    "description": "Darpanarayan Street pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "darpanarayan_tagore_street_pally_samity",
@@ -4279,7 +4406,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Darpanarayan Tagore Street Pally Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Darpanarayan Tagore Street Pally Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "chinsurah_datta_bari_bonedi",
@@ -4309,7 +4437,8 @@
       "Traditional Sabeki Ekchala"
     ],
     "image_url": "",
-    "description": "Datta Bari Durga Puja in Chinsurah is an aristocratic household celebration established in 1862 with traditional Sabeki rituals."
+    "description": "Datta Bari Durga Puja in Chinsurah is an aristocratic household celebration established in 1862 with traditional Sabeki rituals.",
+    "category": "pandal"
   },
   {
     "id": "db_block",
@@ -4344,7 +4473,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "DB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "DB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "debdaru_fatak",
@@ -4377,7 +4507,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Debdaru Fatak pandal in South Kolkata."
+    "description": "Debdaru Fatak pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "deshapriya_park",
@@ -4411,7 +4542,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Deshapriya Park pandal in South Kolkata."
+    "description": "Deshapriya Park pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "deshbandhu_park",
@@ -4446,7 +4578,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Deshbandhu Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Deshbandhu Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dilip_smriti_sangha",
@@ -4482,7 +4615,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dilip Smriti Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Dilip Smriti Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dl_block",
@@ -4518,7 +4652,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "DL Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "DL Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dorji_para_mitra_barir_pujo",
@@ -4547,7 +4682,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Dorji Para Mitra Bari'r Pujo pandal in North Kolkata."
+    "description": "Dorji Para Mitra Bari'r Pujo pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "dum_dum_park_bharat_chakra",
@@ -4581,7 +4717,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dum Dum Park Bharat Chakra pandal in North Kolkata."
+    "description": "Dum Dum Park Bharat Chakra pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "dum_dum_park_sarbojanin_durga_puja_samity",
@@ -4615,7 +4752,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dum Dum Park Sarbojanin Durga Puja Samity is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Dum Dum Park Sarbojanin Durga Puja Samity is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dum_dum_park_tarun_sangha",
@@ -4649,7 +4787,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dum Dum Park Tarun Sangha pandal in North Kolkata."
+    "description": "Dum Dum Park Tarun Sangha pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "dum_dum_park_yubak_brinda",
@@ -4683,7 +4822,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dum Dum Park Yubak Brinda is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Dum Dum Park Yubak Brinda is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "dum_dum_tarun_dal",
@@ -4717,7 +4857,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Dum Dum Tarun Dal is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Dum Dum Tarun Dal is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "durga_puja_of_4_ghosh_lane",
@@ -4752,7 +4893,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Durga Puja of 4 Ghosh Lane is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Durga Puja of 4 Ghosh Lane is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "durgabari",
@@ -4787,7 +4929,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Durgabari is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Durgabari is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ec_market",
@@ -4823,7 +4966,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "EC Market is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "EC Market is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ee_block",
@@ -4859,7 +5003,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "EE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "EE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ekdalia_evergreen",
@@ -4892,7 +5037,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ekdalia Evergreen pandal in South Kolkata."
+    "description": "Ekdalia Evergreen pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ekdalia_evergreen_club",
@@ -4926,7 +5072,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ekdalia Evergreen Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ekdalia Evergreen Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ekush_pally_sarbojanin_durgotsab",
@@ -4960,7 +5107,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ekush Pally Sarbojanin Durgotsab is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ekush Pally Sarbojanin Durgotsab is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "falguni_sangha",
@@ -4994,7 +5142,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Falguni Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Falguni Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "fc_block",
@@ -5030,7 +5179,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "FC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "FC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "fd_block",
@@ -5067,7 +5217,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "FD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "FD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "fd_block_durga_puja",
@@ -5100,7 +5251,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "FD Block Durga Puja pandal in North Kolkata."
+    "description": "FD Block Durga Puja pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "fe_block",
@@ -5136,7 +5288,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "FE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "FE Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "friends_club",
@@ -5166,7 +5319,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Friends Club pandal in South Kolkata."
+    "description": "Friends Club pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ganbani_sangha",
@@ -5200,7 +5354,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ganbani Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ganbani Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "garia_pancha_durga",
@@ -5235,7 +5390,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Garia Pancha Durga is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Garia Pancha Durga is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "garia_sabuj_dal",
@@ -5269,7 +5425,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Garia Sabuj Dal is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Garia Sabuj Dal is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "garia_sreerampur_kalyan_samity",
@@ -5303,7 +5460,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Garia Sreerampur Kalyan Samity is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Garia Sreerampur Kalyan Samity is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "gc_block",
@@ -5339,7 +5497,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "GC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "GC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "gd_block",
@@ -5375,7 +5534,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "GD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "GD Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ghas_bagan",
@@ -5409,7 +5569,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ghas Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Ghas Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "goabagan_sarbojanin",
@@ -5444,7 +5605,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Goabagan Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Goabagan Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "goal_math",
@@ -5480,7 +5642,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Goal Math is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Goal Math is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "golaghata_sarbojanin",
@@ -5509,7 +5672,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Golaghata Sarbojanin pandal in North Kolkata."
+    "description": "Golaghata Sarbojanin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "golden_arrow_club",
@@ -5545,7 +5709,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Golden Arrow Club is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Golden Arrow Club is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "golfgreen_phase_1",
@@ -5579,7 +5744,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Golfgreen Phase 1 is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Golfgreen Phase 1 is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "golfgreen_phase_2",
@@ -5613,7 +5779,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Golfgreen Phase 2 is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Golfgreen Phase 2 is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "gouriberia",
@@ -5648,7 +5815,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Gouriberia is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Gouriberia is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "green_avenue_sarbojanin",
@@ -5682,7 +5850,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Green Avenue Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Green Avenue Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "greenwood_nook",
@@ -5716,7 +5885,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Greenwood Nook is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Greenwood Nook is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ha_block",
@@ -5751,7 +5921,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "HA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "HA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "harakutir_ray_banerjee_barir_durga_pujo",
@@ -5780,7 +5951,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Harakutir Ray-Banerjee Barir Durga Pujo pandal in North Kolkata."
+    "description": "Harakutir Ray-Banerjee Barir Durga Pujo pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "hari_ghosh_street_sarbojonin",
@@ -5816,7 +5988,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hari Ghosh Street Sarbojonin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hari Ghosh Street Sarbojonin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "haridevpur_adarsha_samiti",
@@ -5850,7 +6023,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Haridevpur Adarsha Samiti is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Haridevpur Adarsha Samiti is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "harish_park_puja",
@@ -5886,7 +6060,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Harish Park Puja is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Harish Park Puja is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "haritaki_bagan",
@@ -5920,7 +6095,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Haritaki Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Haritaki Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hathkhola_dutta_barir_durga_pujo",
@@ -5955,7 +6131,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "Baboo Ramtanu Dutta , also popularly known as Tanu Baboo was amongst the foremost Baboos of colonial Calcutta . But the real story of this illustrious family begins a long long time back in the reign of Rajah Adisur of Bengal .<br>Adisur invited five learned Brahmins from Kanyakubja or Kanauj to come and settle in Bengal . Each of these Brahmins brought a non-Brahmin servitor along with them . Purushottam Dutta was one of the five servitors who came to Bengal with the legendary five Brahmins . And it was he who is credited to have founded Dutta family . He settled in the village of Bally on the banks of river Ganges . Later his descendents shifted to Andul . They were bestowed with the title ‘Chaudhury’ by the nawabs of Bengal . Finally the family split into three branches . While one branch ( of Ramsharan Dutta ) remained in Andul the other two ( Gobindasharan Dutta and Harisharan Dutta branches ) resettled themselves at GadhGobindaPur and Muragachha . Gobindasharan’s grandson Ramchandra Dutta came to settle at Chitpur in the new city of Calcutta . He was the ‘mutshuddi’ of the import export office of East India Company and also a native zamindar .<br>The family Durga puja is more than two centuries old and still continues without interruption . Presently there are three pujas held in homes of different shoriks or clans . Haatkhola Dutta once boasted of the most phenomenal and luxurious Durgotsavs in the city of Calcutta . No one but the Brahmin priests are entitled to touch the idol once she is seated on the platform for worship .The pratima is unique ‘Muttchowree’ styled . This means that the backdrop of the idol is in the shape of three temple spires , instead of the usual hemispherical type . The family still tries to maintain similarity in the pratimas of all three households . They are one of the few houses of the city which still preserve the original ‘khaas bangla’ mould of the face . Realeasing of neelkantha bird during Vijaya Dashami was an old tradition which had to stopped a couple of years back due to new rules .<br>The family also celebrates Kali puja . Tradition has it that the married ladies of the house do the farewell ‘boron’ during Durga puja and unmarried girls do it on Kali puja .Rathayatra festival of this family was also a spectacle to behold . Presently , trying conditions have forced them to retract the ritual to a modest scale . <br>Duttas were one of the very few families of old Calcutta which did not resort to appeasing British officials to create wealth and fame for themselves . There are no dancing halls in this house . There were no balls or parties and no nautches held during Durga puja to appease white shahibs . But even then , members from this family held extremely important positions of office in Colonial times and were widely respected throughout India . The family also produced countless advocates , doctors and men of repute . Netaji Subhas Chandra Bose was born to the girl ( His mother Prabhavati ) belonging to this family . Kedarnath Dutta , later known as Bhaktivindo thakur later became the founder of the new age gaudiya vaishnava movement . Rishi Aurobindo was also related with bloodlines of this family .<br><br>Courtesy: The Pujo Company"
+    "description": "Baboo Ramtanu Dutta , also popularly known as Tanu Baboo was amongst the foremost Baboos of colonial Calcutta . But the real story of this illustrious family begins a long long time back in the reign of Rajah Adisur of Bengal .<br>Adisur invited five learned Brahmins from Kanyakubja or Kanauj to come and settle in Bengal . Each of these Brahmins brought a non-Brahmin servitor along with them . Purushottam Dutta was one of the five servitors who came to Bengal with the legendary five Brahmins . And it was he who is credited to have founded Dutta family . He settled in the village of Bally on the banks of river Ganges . Later his descendents shifted to Andul . They were bestowed with the title ‘Chaudhury’ by the nawabs of Bengal . Finally the family split into three branches . While one branch ( of Ramsharan Dutta ) remained in Andul the other two ( Gobindasharan Dutta and Harisharan Dutta branches ) resettled themselves at GadhGobindaPur and Muragachha . Gobindasharan’s grandson Ramchandra Dutta came to settle at Chitpur in the new city of Calcutta . He was the ‘mutshuddi’ of the import export office of East India Company and also a native zamindar .<br>The family Durga puja is more than two centuries old and still continues without interruption . Presently there are three pujas held in homes of different shoriks or clans . Haatkhola Dutta once boasted of the most phenomenal and luxurious Durgotsavs in the city of Calcutta . No one but the Brahmin priests are entitled to touch the idol once she is seated on the platform for worship .The pratima is unique ‘Muttchowree’ styled . This means that the backdrop of the idol is in the shape of three temple spires , instead of the usual hemispherical type . The family still tries to maintain similarity in the pratimas of all three households . They are one of the few houses of the city which still preserve the original ‘khaas bangla’ mould of the face . Realeasing of neelkantha bird during Vijaya Dashami was an old tradition which had to stopped a couple of years back due to new rules .<br>The family also celebrates Kali puja . Tradition has it that the married ladies of the house do the farewell ‘boron’ during Durga puja and unmarried girls do it on Kali puja .Rathayatra festival of this family was also a spectacle to behold . Presently , trying conditions have forced them to retract the ritual to a modest scale . <br>Duttas were one of the very few families of old Calcutta which did not resort to appeasing British officials to create wealth and fame for themselves . There are no dancing halls in this house . There were no balls or parties and no nautches held during Durga puja to appease white shahibs . But even then , members from this family held extremely important positions of office in Colonial times and were widely respected throughout India . The family also produced countless advocates , doctors and men of repute . Netaji Subhas Chandra Bose was born to the girl ( His mother Prabhavati ) belonging to this family . Kedarnath Dutta , later known as Bhaktivindo thakur later became the founder of the new age gaudiya vaishnava movement . Rishi Aurobindo was also related with bloodlines of this family .<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "hatibagan_nabinpally_sarbojanin_durgotsav",
@@ -5991,7 +6168,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hatibagan Nabinpally Sarbojanin Durgotsav is one of the celebrated Durga Puja celebrations located in Hatibagan, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hatibagan Nabinpally Sarbojanin Durgotsav is one of the celebrated Durga Puja celebrations located in Hatibagan, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hatibagan_sarbojanin",
@@ -6024,7 +6202,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hatibagan Sarbojanin pandal in North Kolkata."
+    "description": "Hatibagan Sarbojanin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "hatkhola_gosain_para",
@@ -6059,7 +6238,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hatkhola Gosain Para is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hatkhola Gosain Para is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hatkhola_gosaipara_sarbojonin_durgotsab",
@@ -6093,7 +6273,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hatkhola Gosaipara Sarbojonin Durgotsab is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hatkhola Gosaipara Sarbojonin Durgotsab is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hb_block",
@@ -6127,7 +6308,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "HB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "HB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hedua_park_durga_puja",
@@ -6162,7 +6344,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hedua Park Durga Puja is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hedua Park Durga Puja is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hindustan_club",
@@ -6196,7 +6379,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hindustan_club_299",
@@ -6231,7 +6415,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hindustan Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hindustan_park",
@@ -6265,7 +6450,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hindustan Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hindustan Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hindustan_park_sarbojanin_durga_puja",
@@ -6299,7 +6485,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Hindustan Park Sarbojanin Durga Puja is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Hindustan Park Sarbojanin Durga Puja is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "hindusthan_club",
@@ -6329,7 +6516,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Hindusthan Club pandal in South Kolkata."
+    "description": "Hindusthan Club pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "hindusthan_park",
@@ -6358,7 +6546,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Hindusthan Park pandal in South Kolkata."
+    "description": "Hindusthan Park pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ia_block",
@@ -6393,7 +6582,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "IA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "IA Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ib_block",
@@ -6428,7 +6618,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "IB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "IB Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jagat_mukharjee_park",
@@ -6458,7 +6649,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Jagat Mukharjee Park pandal in North Kolkata."
+    "description": "Jagat Mukharjee Park pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "jagat_mukherjee_park",
@@ -6493,7 +6685,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jagat Mukherjee Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jagat Mukherjee Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jatra_suru_sangha",
@@ -6527,7 +6720,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jatra Suru Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jatra Suru Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jawpur_bayam_samiti",
@@ -6561,7 +6755,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jawpur Bayam Samiti is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jawpur Bayam Samiti is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jc_block",
@@ -6596,7 +6791,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "JC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "JC Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jodhpur_park",
@@ -6630,7 +6826,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jodhpur Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jodhpur Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jodhpur_park_292",
@@ -6664,7 +6861,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jodhpur Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jodhpur Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jogajatri_club",
@@ -6698,7 +6896,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Jogajatri Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Jogajatri Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "joramandir",
@@ -6732,7 +6931,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Joramandir is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Joramandir is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "jorasanko_shib_krishna_daw_bari",
@@ -6761,7 +6961,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Jorasanko Shib Krishna Daw Bari pandal in North Kolkata."
+    "description": "Jorasanko Shib Krishna Daw Bari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "judge_bagan_recreation_club",
@@ -6795,7 +6996,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Judge Bagan Recreation Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Judge Bagan Recreation Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kabiraj_bagan",
@@ -6829,7 +7031,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kabiraj Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kabiraj Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kabitirtha",
@@ -6863,7 +7066,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kabitirtha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kabitirtha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kalyani_a2_square_park",
@@ -6893,7 +7097,8 @@
       "Traditional Clay Idol"
     ],
     "image_url": "",
-    "description": "Kalyani A2 Square Park combines thoughtful social narratives with traditional Bengali artistry."
+    "description": "Kalyani A2 Square Park combines thoughtful social narratives with traditional Bengali artistry.",
+    "category": "pandal"
   },
   {
     "id": "kalyani_a9_square_park",
@@ -6923,7 +7128,8 @@
       "Illumination"
     ],
     "image_url": "",
-    "description": "Kalyani A9 Square Park is celebrated for modern conceptual themes and dynamic illumination."
+    "description": "Kalyani A9 Square Park is celebrated for modern conceptual themes and dynamic illumination.",
+    "category": "pandal"
   },
   {
     "id": "kalyani_boat_park_durgotsav",
@@ -6953,7 +7159,8 @@
       "Handicrafts"
     ],
     "image_url": "",
-    "description": "Kalyani Boat Park Durga Puja showcases picturesque waterfront artistic craftsmanship and serene ambiance."
+    "description": "Kalyani Boat Park Durga Puja showcases picturesque waterfront artistic craftsmanship and serene ambiance.",
+    "category": "pandal"
   },
   {
     "id": "kalyani_central_park_sarbojanin",
@@ -6983,7 +7190,8 @@
       "Installation Art"
     ],
     "image_url": "",
-    "description": "Kalyani Central Park Durga Puja hosts expansive ground installations and creative visual artistry."
+    "description": "Kalyani Central Park Durga Puja hosts expansive ground installations and creative visual artistry.",
+    "category": "pandal"
   },
   {
     "id": "kalyani_iti_more_luminous_club",
@@ -7018,7 +7226,8 @@
       "Chandan-nagar Illumination"
     ],
     "image_url": "",
-    "description": "Kalyani ITI More Luminous Club is legendary across Bengal for mammoth architectural replicas and stunning light displays drawing millions."
+    "description": "Kalyani ITI More Luminous Club is legendary across Bengal for mammoth architectural replicas and stunning light displays drawing millions.",
+    "category": "pandal"
   },
   {
     "id": "kalyani_rathtala_sarbojanin",
@@ -7049,7 +7258,8 @@
       "Lighting"
     ],
     "image_url": "",
-    "description": "Kalyani Rathtala Durga Puja is renowned for grand temple architecture and luminous lighting."
+    "description": "Kalyani Rathtala Durga Puja is renowned for grand temple architecture and luminous lighting.",
+    "category": "pandal"
   },
   {
     "id": "kamardanga_sitalatala_howrah",
@@ -7083,7 +7293,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kamardanga Sitalatala - Howrah is one of the celebrated Durga Puja celebrations located in Howrah. Known for its cultural devotion and festive atmosphere."
+    "description": "Kamardanga Sitalatala - Howrah is one of the celebrated Durga Puja celebrations located in Howrah. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kankurgachi_mitali_sangha",
@@ -7112,7 +7323,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kankurgachi Mitali Sangha pandal in North Kolkata."
+    "description": "Kankurgachi Mitali Sangha pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "kankurgachi_mitali_sangha_2",
@@ -7142,7 +7354,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kankurgachi Mitali Sangha pandal in South Kolkata."
+    "description": "Kankurgachi Mitali Sangha pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "kankurgachi_yubak_brinda",
@@ -7171,7 +7384,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kankurgachi Yubak Brinda pandal in North Kolkata."
+    "description": "Kankurgachi Yubak Brinda pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "kankurgachi_yubak_brinda_2",
@@ -7200,7 +7414,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kankurgachi Yubak Brinda pandal in South Kolkata."
+    "description": "Kankurgachi Yubak Brinda pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "kar_bagan",
@@ -7233,7 +7448,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kar Bagan pandal in North Kolkata."
+    "description": "Kar Bagan pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "karunamayee_g_block",
@@ -7269,7 +7485,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Karunamayee G Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Karunamayee G Block is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kashi_bose_lane",
@@ -7305,7 +7522,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kashi Bose Lane is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kashi Bose Lane is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kashi_bose_lane_durga_puja_samity",
@@ -7341,7 +7559,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kashi Bose Lane Durga Puja Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kashi Bose Lane Durga Puja Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kasi_bose_lane",
@@ -7371,7 +7590,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Kasi Bose Lane pandal in North Kolkata."
+    "description": "Kasi Bose Lane pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "kendua_shanti_sangha",
@@ -7404,7 +7624,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kendua Shanti Sangha pandal in South Kolkata."
+    "description": "Kendua Shanti Sangha pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "bandel_keota_nabin_sangha",
@@ -7435,7 +7656,8 @@
       "Sculptural Art"
     ],
     "image_url": "",
-    "description": "Keota Nabin Sangha Durga Puja in Bandel features innovative illumination, sculptural art, and grand thematic architecture."
+    "description": "Keota Nabin Sangha Durga Puja in Bandel features innovative illumination, sculptural art, and grand thematic architecture.",
+    "category": "pandal"
   },
   {
     "id": "khelat_chandra_ghosh_bari_pujo",
@@ -7464,7 +7686,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Khelat Chandra Ghosh Bari Pujo pandal in North Kolkata."
+    "description": "Khelat Chandra Ghosh Bari Pujo pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "khelat_ghose_er_durga_pujo",
@@ -7500,7 +7723,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "This Puja is one among the wonderful Banedi barir Durga Puja in north Kolkata that being started by Sri Khelat Chandra Ghosh who was the Diwan of the court of Warren Hestings (British colonial administrator in India). Khelat Chandra Ghosh was famous for his social reforming activity. He was also concerned in cultural, musical and philanthropic activities in Kolkata that time. The trusty of Khelat Chandra Ghosh happens to celebrate Durga Puja at their thakur dalan that made from marbles and also the corridor is incredibly long and encircled by embellished wall. it’s a dancing hall too. the whole design take placed by Martin & Burn co. The worship of Devi Durga is confine a single decorated wood frame thatreferred to as Ek-chala and decorated by designed materials.<br><br>Courtesy: The Pujo Company"
+    "description": "This Puja is one among the wonderful Banedi barir Durga Puja in north Kolkata that being started by Sri Khelat Chandra Ghosh who was the Diwan of the court of Warren Hestings (British colonial administrator in India). Khelat Chandra Ghosh was famous for his social reforming activity. He was also concerned in cultural, musical and philanthropic activities in Kolkata that time. The trusty of Khelat Chandra Ghosh happens to celebrate Durga Puja at their thakur dalan that made from marbles and also the corridor is incredibly long and encircled by embellished wall. it’s a dancing hall too. the whole design take placed by Martin & Burn co. The worship of Devi Durga is confine a single decorated wood frame thatreferred to as Ek-chala and decorated by designed materials.<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "kolkata",
@@ -7537,7 +7761,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kolkata is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
+    "description": "Kolkata is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kumartuli_park",
@@ -7572,7 +7797,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumartuli Park is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kumartuli Park is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kumartuli_preparation",
@@ -7607,7 +7833,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumartuli Preparation is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kumartuli Preparation is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kumartuli_sarbojanin",
@@ -7642,7 +7869,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumartuli Sarbojanin is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Kumartuli Sarbojanin is one of the celebrated Durga Puja celebrations located in Kumartuli, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "kumortuli_park_sarbojanin",
@@ -7675,7 +7903,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumortuli Park Sarbojanin pandal in North Kolkata."
+    "description": "Kumortuli Park Sarbojanin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "kumortuli_sarbajanin",
@@ -7708,7 +7937,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Kumortuli Sarbajanin pandal in North Kolkata."
+    "description": "Kumortuli Sarbajanin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "labony_estate",
@@ -7743,7 +7973,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "LABONY ESTATE is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "LABONY ESTATE is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "lake_pally_sarbojanin",
@@ -7779,7 +8010,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Lake Pally Sarbojanin is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Lake Pally Sarbojanin is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "lake_town_adhibasi_brindo_durga_puja_pandal",
@@ -7813,7 +8045,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Lake Town Adhibasi Brindo Durga Puja Pandal is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Lake Town Adhibasi Brindo Durga Puja Pandal is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "lake_town_adibashi_brinda",
@@ -7842,7 +8075,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Lake Town Adibashi Brinda pandal in North Kolkata."
+    "description": "Lake Town Adibashi Brinda pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "lake_town_netaji_sporting",
@@ -7875,7 +8109,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Lake Town Netaji Sporting pandal in North Kolkata."
+    "description": "Lake Town Netaji Sporting pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "lake_youth_corner",
@@ -7910,7 +8145,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Lake Youth Corner is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Lake Youth Corner is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "laketown_adhibasi_brinda",
@@ -7944,7 +8180,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Laketown Adhibasi Brinda is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Laketown Adhibasi Brinda is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "laketown_nutan_palli_pradeep_sangha",
@@ -7978,7 +8215,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Laketown Nutan Palli Pradeep Sangha is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Laketown Nutan Palli Pradeep Sangha is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "laketown_vivekananda_park",
@@ -8012,7 +8250,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Laketown Vivekananda Park is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Laketown Vivekananda Park is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "lala_bagan",
@@ -8045,7 +8284,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Lala Bagan pandal in North Kolkata."
+    "description": "Lala Bagan pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "loha_patti",
@@ -8074,7 +8314,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Loha Patti pandal in North Kolkata."
+    "description": "Loha Patti pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "madan_mohan_dutta_bari",
@@ -8103,7 +8344,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Madan Mohan Dutta Bari pandal in North Kolkata."
+    "description": "Madan Mohan Dutta Bari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "maddox_square",
@@ -8137,7 +8379,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Maddox Square pandal in South Kolkata."
+    "description": "Maddox Square pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "manicktala_chaltabagan_loha_patty",
@@ -8172,7 +8415,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Manicktala Chaltabagan Loha Patty is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Manicktala Chaltabagan Loha Patty is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "manoharpukur_youngs",
@@ -8208,7 +8452,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "manoharpukur_youngs_224",
@@ -8243,7 +8488,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Manoharpukur Youngs is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "md_ali_park",
@@ -8279,7 +8525,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Md. Ali Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Md. Ali Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "milangarh_sarbojanin",
@@ -8313,7 +8560,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Milangarh Sarbojanin is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Milangarh Sarbojanin is one of the celebrated Durga Puja celebrations located in Dum Dum / Lake Town, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "mitali_kankurgachi",
@@ -8347,7 +8595,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Mitali - Kankurgachi is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Mitali - Kankurgachi is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "mohammed_ali_park",
@@ -8376,7 +8625,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Mohammed Ali Park pandal in Central Kolkata."
+    "description": "Mohammed Ali Park pandal in Central Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "motijheel_sarbojanin",
@@ -8410,7 +8660,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Motijheel Sarbojanin is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Motijheel Sarbojanin is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "mudiali_club",
@@ -8443,7 +8694,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Mudiali Club pandal in South Kolkata."
+    "description": "Mudiali Club pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "muhammad_ali_park",
@@ -8479,7 +8731,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Muhammad Ali Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Muhammad Ali Park is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "mukul_sangha",
@@ -8513,7 +8766,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Mukul Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Mukul Sangha is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "murari_pukur_bidhan_sangha",
@@ -8547,7 +8801,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Murari Pukur Bidhan Sangha is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Murari Pukur Bidhan Sangha is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "naba_baghbazar",
@@ -8582,7 +8837,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Naba Baghbazar is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Naba Baghbazar is one of the celebrated Durga Puja celebrations located in Bagbazar, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "nabadurga",
@@ -8612,7 +8868,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Nabadurga pandal in South Kolkata."
+    "description": "Nabadurga pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "nabin_pally",
@@ -8645,7 +8902,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nabin Pally pandal in North Kolkata."
+    "description": "Nabin Pally pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "naboday_sangha",
@@ -8671,7 +8929,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Naboday Sangha pandal in North Kolkata."
+    "description": "Naboday Sangha pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "naktala_udayan_sangha",
@@ -8705,7 +8964,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Naktala Udayan Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Naktala Udayan Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "naktala_udayan_sangha_club",
@@ -8739,7 +8999,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Naktala Udayan Sangha club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Naktala Udayan Sangha club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "naktala_udyan_sangha",
@@ -8768,7 +9029,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Naktala Udyan Sangha pandal in South Kolkata."
+    "description": "Naktala Udyan Sangha pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "nalin_sarkar_street",
@@ -8801,7 +9063,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nalin Sarkar Street pandal in North Kolkata."
+    "description": "Nalin Sarkar Street pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "nalin_sarkar_street",
@@ -8836,7 +9099,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nalin Sarkar Street is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Nalin Sarkar Street is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "naskarpara_pally_unnayan_samity_haridevpur",
@@ -8870,7 +9134,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Naskarpara Pally Unnayan Samity - Haridevpur is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Naskarpara Pally Unnayan Samity - Haridevpur is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "naskarpur_sarbojanin",
@@ -8904,7 +9169,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Naskarpur Sarbojanin is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Naskarpur Sarbojanin is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "nepal_bhattacharjee_street",
@@ -8937,7 +9203,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nepal Bhattacharjee Street pandal in South Kolkata."
+    "description": "Nepal Bhattacharjee Street pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "nepal_bhattacharjee_street_276",
@@ -8973,7 +9240,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Nepal Bhattacharjee Street is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Nepal Bhattacharjee Street is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "netaji_jatiya_sebadal",
@@ -9007,7 +9275,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Netaji Jatiya Sebadal is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Netaji Jatiya Sebadal is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "netaji_nagar_sarbojanin",
@@ -9041,7 +9310,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Netaji Nagar Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Netaji Nagar Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "new_alipore_children_s_park",
@@ -9075,7 +9345,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "New Alipore Children's Park is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "New Alipore Children's Park is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "new_town_sarbojonin_durgotsab",
@@ -9104,7 +9375,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "New Town Sarbojonin Durgotsab pandal in North Kolkata."
+    "description": "New Town Sarbojonin Durgotsab pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "olabibitala_sarbojanin",
@@ -9138,7 +9410,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Olabibitala Sarbojanin is one of the celebrated Durga Puja celebrations located in Howrah. Known for its cultural devotion and festive atmosphere."
+    "description": "Olabibitala Sarbojanin is one of the celebrated Durga Puja celebrations located in Howrah. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "padmapukur_baroyari",
@@ -9173,7 +9446,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Padmapukur Baroyari is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Padmapukur Baroyari is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "padmapukur_youth_association",
@@ -9209,7 +9483,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Padmapukur Youth Association is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Padmapukur Youth Association is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "pally_mangal_samity",
@@ -9242,7 +9517,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pally Mangal Samity pandal in South Kolkata."
+    "description": "Pally Mangal Samity pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "pally_mangal_samity",
@@ -9276,7 +9552,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pally Mangal Samity is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Pally Mangal Samity is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "pally_saradiya_club",
@@ -9310,7 +9587,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pally Saradiya Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Pally Saradiya Club is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "pally_unnayan_samity_paschim_putiary",
@@ -9345,7 +9623,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pally Unnayan Samity Paschim Putiary is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Pally Unnayan Samity Paschim Putiary is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "chinsurah_panchanantala_sarbojonin",
@@ -9377,7 +9656,8 @@
       "Ferry Ghat Access"
     ],
     "image_url": "",
-    "description": "Panchanantala Sarbojonin Durgatsob Samity in Chinsurah focuses on thought-provoking contemporary social and cultural issues."
+    "description": "Panchanantala Sarbojonin Durgatsob Samity in Chinsurah focuses on thought-provoking contemporary social and cultural issues.",
+    "category": "pandal"
   },
   {
     "id": "park_circus",
@@ -9411,7 +9691,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Park Circus is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Park Circus is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "park_circus_uddipani",
@@ -9445,7 +9726,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Park Circus - Uddipani is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Park Circus - Uddipani is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "pathuriaghata",
@@ -9478,7 +9760,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pathuriaghata pandal in North Kolkata."
+    "description": "Pathuriaghata pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "chinsurah_peyarabagan_sarbojanin",
@@ -9509,7 +9792,8 @@
       "Clay Craft"
     ],
     "image_url": "",
-    "description": "Peyarabagan Sarbojanin in Chinsurah is famed for dazzling lighting and exquisite clay artistry."
+    "description": "Peyarabagan Sarbojanin in Chinsurah is famed for dazzling lighting and exquisite clay artistry.",
+    "category": "pandal"
   },
   {
     "id": "chinsurah_pirtala_sarbojanin",
@@ -9540,7 +9824,8 @@
       "Illumination"
     ],
     "image_url": "",
-    "description": "Pirtala Durga Puja is beloved in Chinsurah for traditional Bengali folk and art decor."
+    "description": "Pirtala Durga Puja is beloved in Chinsurah for traditional Bengali folk and art decor.",
+    "category": "pandal"
   },
   {
     "id": "poddar_nagar_park",
@@ -9574,7 +9859,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Poddar Nagar Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Poddar Nagar Park is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "prafulla_kanan_balak_brinda",
@@ -9603,7 +9889,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Prafulla Kanan Balak Brinda pandal in North Kolkata."
+    "description": "Prafulla Kanan Balak Brinda pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "pragati_pally_adhibasi_brindra",
@@ -9637,7 +9924,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pragati Pally Adhibasi Brindra is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Pragati Pally Adhibasi Brindra is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "prasanta_disha_sarbojanin",
@@ -9671,7 +9959,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Prasanta Disha Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Prasanta Disha Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "pratapaditya_road_tricone_park",
@@ -9707,7 +9996,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Pratapaditya Road Tricone Park is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Pratapaditya Road Tricone Park is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "purbachal_sarbojanin",
@@ -9742,7 +10032,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Purbachal Sarbojanin is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Purbachal Sarbojanin is one of the celebrated Durga Puja celebrations located in Salt Lake / East Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "purbachal_shakti_sangha",
@@ -9776,7 +10067,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Purbachal Shakti Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Purbachal Shakti Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "raipur_club_durga_puja_organisers_in_kolkata",
@@ -9810,7 +10102,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Raipur Club : Durga Puja Organisers in Kolkata is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Raipur Club : Durga Puja Organisers in Kolkata is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "rajdanga_naba_uday_sangha",
@@ -9844,7 +10137,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Rajdanga Naba Uday Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Rajdanga Naba Uday Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "rajdanga_naba_uday_sangha_289",
@@ -9878,7 +10172,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Rajdanga Naba Uday Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Rajdanga Naba Uday Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "rajdanga_tribarna_sangha",
@@ -9912,7 +10207,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Rajdanga Tribarna Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Rajdanga Tribarna Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ramdulal_nibas_er_durga_pujo",
@@ -9947,7 +10243,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "During the late 18th and early 19th centuries, Bengali merchant Ramdulal De(Sarkar) was a well-known figure in the maritime trade between India and America.<br><br>One of the earliest Bengali businessmen, Ramdulal Dey (Sarkar)amassed wealth in the 17th century through trade with the newly independent United States of America (USA). At a period when the US had just attained independence from Great Britain and was actively trying to develop its economy and trade, he was a pioneer in the Indo-American maritime trade. The second-oldest American consulate (and oldest in India) was established in Kolkata on November 19, 1792, by order of George Washington, the first President of the United States, due to the prosperous trading links between Ramdulal and Kolkata.<br><br>Due to their extravagant lifestyle, Asutosh Deb and Pramathanath Deb, his two sons, gained the renown nicknames “Chhatu Babu” and “Latu Babu.” They allegedly used to burn 100 rupee bills to light cigars. Despite their lack of commercial success, they were well-liked in their respective industries. Musician Asutosh alias Chhatu Babu was a prominent classical music lover and expert. His nach ghar (dancing room), where renowned national musicians and dancers like Gauhar Jaan and Pandit Ravi Shankar performed, became famous during his lifetime.<br><br>Ishwar Ram Dulal Deb (Sarkar) first held Durga Pujas at his home on Beadon Street in 1770. Later, this ritual came to be known as Chatu Babu Latu Babur Barir Traditional Durga Puja.<br>Courtesy: The Pujo Company"
+    "description": "During the late 18th and early 19th centuries, Bengali merchant Ramdulal De(Sarkar) was a well-known figure in the maritime trade between India and America.<br><br>One of the earliest Bengali businessmen, Ramdulal Dey (Sarkar)amassed wealth in the 17th century through trade with the newly independent United States of America (USA). At a period when the US had just attained independence from Great Britain and was actively trying to develop its economy and trade, he was a pioneer in the Indo-American maritime trade. The second-oldest American consulate (and oldest in India) was established in Kolkata on November 19, 1792, by order of George Washington, the first President of the United States, due to the prosperous trading links between Ramdulal and Kolkata.<br><br>Due to their extravagant lifestyle, Asutosh Deb and Pramathanath Deb, his two sons, gained the renown nicknames “Chhatu Babu” and “Latu Babu.” They allegedly used to burn 100 rupee bills to light cigars. Despite their lack of commercial success, they were well-liked in their respective industries. Musician Asutosh alias Chhatu Babu was a prominent classical music lover and expert. His nach ghar (dancing room), where renowned national musicians and dancers like Gauhar Jaan and Pandit Ravi Shankar performed, became famous during his lifetime.<br><br>Ishwar Ram Dulal Deb (Sarkar) first held Durga Pujas at his home on Beadon Street in 1770. Later, this ritual came to be known as Chatu Babu Latu Babur Barir Traditional Durga Puja.<br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "rammohan_sammilani",
@@ -9981,7 +10278,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Rammohan Sammilani is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Rammohan Sammilani is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "rani_rashmoni_er_durga_pujo",
@@ -10018,7 +10316,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "The Great Bengali lady Rani Rashmoni is famous for her social reforming activities. Rani Rashmoni is very famous to found and establishing the Dakshineswar Kali temple with the worship of Goddess Kali. There are two different Durga Puja‘s celebrated by two different families. The first one was started by Rani Rashmoni in her S.N Banerjee roadhouse. After her death, her son-in-law continued this Durga Puja in their S.N Banerjee road premises. Another Durga Puja known as ‘Kachari barrier Pujo’ is conducted today at Janbazar side premises. Great personalities of the Bengal use to visit Rani Rashmonir Puja at that time. The worship of goddess Durga is in traditional look here and it is decorated by ‘Solar Saaj’ in a Ek chala.<br><br>Courtesy: The Pujo Company"
+    "description": "The Great Bengali lady Rani Rashmoni is famous for her social reforming activities. Rani Rashmoni is very famous to found and establishing the Dakshineswar Kali temple with the worship of Goddess Kali. There are two different Durga Puja‘s celebrated by two different families. The first one was started by Rani Rashmoni in her S.N Banerjee roadhouse. After her death, her son-in-law continued this Durga Puja in their S.N Banerjee road premises. Another Durga Puja known as ‘Kachari barrier Pujo’ is conducted today at Janbazar side premises. Great personalities of the Bengal use to visit Rani Rashmonir Puja at that time. The worship of goddess Durga is in traditional look here and it is decorated by ‘Solar Saaj’ in a Ek chala.<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "roychoudhury_barir_durga_pujo",
@@ -10052,7 +10351,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "It is known as first Durga Puja in Kolkata. The worship of goddess Durga keep under the yard with eight pillars and a roof top and with no walls. It is called Attchala Mondop. This Durga Puja is extremely popular for its rituals and tradition. Wood framed”Chalchitra” use to keep each year for same usage. This family having total eight Durga Puja in their families.<br><br>Lakshmikanta Ray Mazumdar was the famous zamindar in Bengal. He was associated with the powerful Mughal general Mansinha. They got Chowdhury title and their ‘gotro’ was Saborno. This Puja Known as Saborno Ray Choudhury Durgotsav. The family of Saborno Chowdhury hailed from Halisahar and later settled in Birati and eventually migrated to Barisha. Sabarna Roy Choudhury family was the landlord of the Kolkata village.On 10th Nov 1698 they transferred by lease, their rights over the 3 villages Sutanuti, Kalikata and Gobindapur to the East India Company with Rs.1300 only. Deal was conducted by Ram Chand Mazumdar, Manohar Majumdar with Charles Layer ,Son of law of Job Charnock.<br><br>Courtesy: The Pujo Company"
+    "description": "It is known as first Durga Puja in Kolkata. The worship of goddess Durga keep under the yard with eight pillars and a roof top and with no walls. It is called Attchala Mondop. This Durga Puja is extremely popular for its rituals and tradition. Wood framed”Chalchitra” use to keep each year for same usage. This family having total eight Durga Puja in their families.<br><br>Lakshmikanta Ray Mazumdar was the famous zamindar in Bengal. He was associated with the powerful Mughal general Mansinha. They got Chowdhury title and their ‘gotro’ was Saborno. This Puja Known as Saborno Ray Choudhury Durgotsav. The family of Saborno Chowdhury hailed from Halisahar and later settled in Birati and eventually migrated to Barisha. Sabarna Roy Choudhury family was the landlord of the Kolkata village.On 10th Nov 1698 they transferred by lease, their rights over the 3 villages Sutanuti, Kalikata and Gobindapur to the East India Company with Rs.1300 only. Deal was conducted by Ram Chand Mazumdar, Manohar Majumdar with Charles Layer ,Son of law of Job Charnock.<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "roynagar_unnayan_samity",
@@ -10087,7 +10387,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Roynagar Unnayan Samity is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Roynagar Unnayan Samity is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "rupchand_mukherjee_lane_sarbojanin",
@@ -10123,7 +10424,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Rupchand Mukherjee Lane Sarbojanin is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Rupchand Mukherjee Lane Sarbojanin is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sabeda_bagan",
@@ -10157,7 +10459,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sabeda Bagan is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sabeda Bagan is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sahid_colony_sarbojanin_durga_pujo",
@@ -10183,7 +10486,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Sahid Colony Sarbojanin Durga Pujo pandal in North Kolkata."
+    "description": "Sahid Colony Sarbojanin Durga Pujo pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ad_block",
@@ -10217,7 +10521,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake AD Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake AD Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ae_block_part_1",
@@ -10251,7 +10556,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake AE Block - Part 1 is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake AE Block - Part 1 is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ae_block_part_2",
@@ -10285,7 +10591,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake AE Block - Part 2 is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake AE Block - Part 2 is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ag_block",
@@ -10319,7 +10626,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake AG Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake AG Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ah_block",
@@ -10353,7 +10661,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake AH Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake AH Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_be_block_part_2",
@@ -10387,7 +10696,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake BE Block - Part 2 is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake BE Block - Part 2 is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_bg_block",
@@ -10421,7 +10731,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake BG Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake BG Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ca_block",
@@ -10455,7 +10766,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake CA Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake CA Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_cj_block",
@@ -10490,7 +10802,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake CJ Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake CJ Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ck_cl_block",
@@ -10526,7 +10839,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake CK-CL Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake CK-CL Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_dl_block",
@@ -10562,7 +10876,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake DL block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake DL block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_gd_block",
@@ -10596,7 +10911,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake GD Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake GD Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ha_block",
@@ -10631,7 +10947,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake HA Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake HA Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_ia_block",
@@ -10666,7 +10983,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake IA Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake IA Block is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "salt_lake_laboni",
@@ -10701,7 +11019,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Salt Lake Laboni is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Salt Lake Laboni is one of the celebrated Durga Puja celebrations located in Salt Lake, Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "samaj_sebi",
@@ -10734,7 +11053,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Samaj Sebi pandal in South Kolkata."
+    "description": "Samaj Sebi pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "samaj_sebi_sangha",
@@ -10768,7 +11088,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Samaj Sebi Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Samaj Sebi Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sammilita_lalabagan_sarbojanin",
@@ -10802,7 +11123,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sammilita Lalabagan Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sammilita Lalabagan Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sammilita_malapara",
@@ -10837,7 +11159,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sammilita Malapara is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sammilita Malapara is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sandhani",
@@ -10872,7 +11195,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sandhani is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
+    "description": "Sandhani is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sanghasree",
@@ -10908,7 +11232,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sanghasree is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sanghasree is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "santhoshpur_lakepally",
@@ -10937,7 +11262,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Santhoshpur Lakepally pandal in South Kolkata."
+    "description": "Santhoshpur Lakepally pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "santosh_mitra_square",
@@ -10970,7 +11296,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santosh Mitra Square pandal in Central Kolkata."
+    "description": "Santosh Mitra Square pandal in Central Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "santoshpur_agragami",
@@ -11004,7 +11331,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Agragami is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Agragami is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "santoshpur_bibekananda_sangha",
@@ -11038,7 +11366,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Bibekananda Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Bibekananda Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "santoshpur_lake_pally",
@@ -11072,7 +11401,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Lake Pally is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Lake Pally is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "santoshpur_sonar_tori_durgatsav",
@@ -11106,7 +11436,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Sonar Tori Durgatsav is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Sonar Tori Durgatsav is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "santoshpur_trikon_park",
@@ -11140,7 +11471,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Santoshpur Trikon Park is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Santoshpur Trikon Park is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "satadal",
@@ -11175,7 +11507,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Satadal is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Satadal is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sealdah_railway_athletic_club",
@@ -11209,7 +11542,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sealdah Railway Athletic Club is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere."
+    "description": "Sealdah Railway Athletic Club is one of the celebrated Durga Puja celebrations located in Central Kolkata (College Square / Bowbazar). Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sebak_sangha",
@@ -11244,7 +11578,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sebak Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sebak Sangha is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "selimpur_naskarpara",
@@ -11278,7 +11613,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Selimpur Naskarpara is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Selimpur Naskarpara is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "selimpur_pally",
@@ -11312,7 +11648,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Selimpur Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Selimpur Pally is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "selimpur_pally_durga_puja_pandal",
@@ -11346,7 +11683,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Selimpur Pally Durga Puja Pandal is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Selimpur Pally Durga Puja Pandal is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "shib_mandir",
@@ -11379,7 +11717,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Shib Mandir pandal in South Kolkata."
+    "description": "Shib Mandir pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "shimla_street",
@@ -11408,7 +11747,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Shimla Street pandal in North Kolkata."
+    "description": "Shimla Street pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "shree_sangha",
@@ -11437,7 +11777,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Shree Sangha pandal in South Kolkata."
+    "description": "Shree Sangha pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "shurir_bagan",
@@ -11471,7 +11812,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Shurir Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Shurir Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "shyamapally_shyama_sangha",
@@ -11505,7 +11847,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Shyamapally Shyama Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Shyamapally Shyama Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sikdar_bagan_sadharan_durgotsov",
@@ -11540,7 +11883,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sikdar Bagan Sadharan Durgotsov is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sikdar Bagan Sadharan Durgotsov is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sikder_bagan",
@@ -11567,7 +11911,8 @@
     "nearest_railway_list": [],
     "special_features": [],
     "image_url": "",
-    "description": "Sikder Bagan pandal in North Kolkata."
+    "description": "Sikder Bagan pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "simla_byam_samity",
@@ -11603,7 +11948,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Simla Byam Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Simla Byam Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "simla_byayam_samity",
@@ -11639,7 +11985,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Simla Byayam Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Simla Byayam Samity is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "singhi_park",
@@ -11673,7 +12020,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Singhi Park pandal in South Kolkata."
+    "description": "Singhi Park pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "sitalatala_kishore_sangha",
@@ -11707,7 +12055,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sitalatala Kishore Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sitalatala Kishore Sangha is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sobhabazar_rajbari",
@@ -11736,7 +12085,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Sobhabazar Rajbari pandal in North Kolkata."
+    "description": "Sobhabazar Rajbari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "sodepur_dakshin_pally_sarbojonin",
@@ -11762,7 +12112,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Sodepur Dakshin Pally Sarbojonin pandal in North Kolkata."
+    "description": "Sodepur Dakshin Pally Sarbojonin pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "sodepur_pragati_sangha_haridevpur",
@@ -11796,7 +12147,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sodepur Pragati Sangha (Haridevpur) is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sodepur Pragati Sangha (Haridevpur) is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sovabazar_beniatola",
@@ -11832,7 +12184,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sovabazar Beniatola is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sovabazar Beniatola is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sovabazar_rajbari",
@@ -11867,7 +12220,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sovabazar Rajbari is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sovabazar Rajbari is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sovabazar_rajbarir_durga_pujo",
@@ -11902,7 +12256,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "The beautiful Shobhabazar Rajbari Belongs to the royal family of Raja Naba Krishna Deb, the youngest son of Ram Charan Deb, who was a businessman and a Dewan under the Nawab of Cuttack. The Rajbari had seen glory and success during the British rule in Bengal. Nabakrishna Deb’s acquaintance with Lord Clive changed his fortune he started his career as a munshi and got engaged in the personal service of Lord Clive and gradually rose to power and fame with time. After Clive appointed him to the post of his personal Confidential Secretary, he became an influential negotiator between the British and the Mughals, Nawabs, and Rajas.<br><br>Raja Nabakrishna Deb first celebrated Durga Puja in the year 1757 to rejoice in the victory of the British over Nawab Siraj-ud-Daulah of Murshidabad. It is known from resources that renowned British generals Warren Hastings and Lord Clive were among the VIP invitees for the grand festival. Swami Vivekananda was also invited to a gala reception after his return from the World Parliament of Religions held in Chicago.<br><br>The Durga Puja in Rajbari is celebrated on the Nat Mandap or the Thakurdalan, which is an open courtyard area in the middle of the palatial building. Here the idol of the Devi along with her four children Lord Ganesha, Lord Kartik, Devi Lakshmi, and Devi Sarswati are presented in an “Ek Chala” or single structure platform. Starting from the bathing of Lord Ganesha’s consort “Kala Bou” (Banana Tree), Shosti Puja, Anjali puja of Mahastami, Navami Puja, and the immersion ceremony (Bishorjon) of the Devi idol on Bijaya Dashami – these grand five days are not only celebrated with a religious mind – the impact lies more like the celebration of happiness and joy. This historic and famous festival of the Rajbari is accompanied by some celebrities and all the five days of the celebration are open to the crowd to offer their devotion and pray to “Maa”.<br><br>Courtesy: The Pujo Company"
+    "description": "The beautiful Shobhabazar Rajbari Belongs to the royal family of Raja Naba Krishna Deb, the youngest son of Ram Charan Deb, who was a businessman and a Dewan under the Nawab of Cuttack. The Rajbari had seen glory and success during the British rule in Bengal. Nabakrishna Deb’s acquaintance with Lord Clive changed his fortune he started his career as a munshi and got engaged in the personal service of Lord Clive and gradually rose to power and fame with time. After Clive appointed him to the post of his personal Confidential Secretary, he became an influential negotiator between the British and the Mughals, Nawabs, and Rajas.<br><br>Raja Nabakrishna Deb first celebrated Durga Puja in the year 1757 to rejoice in the victory of the British over Nawab Siraj-ud-Daulah of Murshidabad. It is known from resources that renowned British generals Warren Hastings and Lord Clive were among the VIP invitees for the grand festival. Swami Vivekananda was also invited to a gala reception after his return from the World Parliament of Religions held in Chicago.<br><br>The Durga Puja in Rajbari is celebrated on the Nat Mandap or the Thakurdalan, which is an open courtyard area in the middle of the palatial building. Here the idol of the Devi along with her four children Lord Ganesha, Lord Kartik, Devi Lakshmi, and Devi Sarswati are presented in an “Ek Chala” or single structure platform. Starting from the bathing of Lord Ganesha’s consort “Kala Bou” (Banana Tree), Shosti Puja, Anjali puja of Mahastami, Navami Puja, and the immersion ceremony (Bishorjon) of the Devi idol on Bijaya Dashami – these grand five days are not only celebrated with a religious mind – the impact lies more like the celebration of happiness and joy. This historic and famous festival of the Rajbari is accompanied by some celebrities and all the five days of the celebration are open to the crowd to offer their devotion and pray to “Maa”.<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "sovabazar_sarbojanin",
@@ -11937,7 +12292,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sovabazar Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Sovabazar Sarbojanin is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "sree_bhumi_sporting_club",
@@ -11970,7 +12326,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Sree Bhumi Sporting Club pandal in North Kolkata."
+    "description": "Sree Bhumi Sporting Club pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "srimani_barir_durga_pujo",
@@ -12004,7 +12361,8 @@
       "Historical Jamindar Family Puja"
     ],
     "image_url": "",
-    "description": "This is a traditional \"barir pujo\" or puja organised by an individual household as against standard pujas conducted by local communities. This puja is conducted in North Calcutta by onbe of the biggest traditional families of the city - the Srimanis. A wonderful homely atmposphere prevails here where th main door of the house is open round the clock during the festival<br><br>Courtesy: The Pujo Company"
+    "description": "This is a traditional \"barir pujo\" or puja organised by an individual household as against standard pujas conducted by local communities. This puja is conducted in North Calcutta by onbe of the biggest traditional families of the city - the Srimanis. A wonderful homely atmposphere prevails here where th main door of the house is open round the clock during the festival<br><br>Courtesy: The Pujo Company",
+    "category": "pandal"
   },
   {
     "id": "suruchi_sangha",
@@ -12038,7 +12396,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Suruchi Sangha pandal in South Kolkata."
+    "description": "Suruchi Sangha pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "surya_nagar_sarbojanin",
@@ -12073,7 +12432,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Surya Nagar Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Surya Nagar Sarbojanin is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "swapnar_bagan",
@@ -12108,7 +12468,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Swapnar Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Swapnar Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "tala_barowari",
@@ -12142,7 +12503,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tala Barowari pandal in North Kolkata."
+    "description": "Tala Barowari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "tala_palli",
@@ -12177,7 +12539,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tala Palli is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Tala Palli is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "tala_park",
@@ -12204,7 +12567,8 @@
     "nearest_railway_list": [],
     "special_features": [],
     "image_url": "",
-    "description": "Tala Park pandal in North Kolkata."
+    "description": "Tala Park pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "tala_prattoy_durga_puja_art",
@@ -12238,7 +12602,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tala Prattoy Durga Puja Art is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Tala Prattoy Durga Puja Art is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "tala_prottoy",
@@ -12268,7 +12633,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Tala Prottoy pandal in North Kolkata."
+    "description": "Tala Prottoy pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "talbagan",
@@ -12301,7 +12667,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Talbagan pandal in South Kolkata."
+    "description": "Talbagan pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "tarun_sporting_club",
@@ -12337,7 +12704,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tarun Sporting Club is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Tarun Sporting Club is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "telenga_bagan",
@@ -12371,7 +12739,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Telenga Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Telenga Bagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "telengabagan",
@@ -12405,7 +12774,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Telengabagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Telengabagan is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "the_bengal_boys_training_association",
@@ -12441,7 +12811,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "The Bengal Boys Training Association is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "The Bengal Boys Training Association is one of the celebrated Durga Puja celebrations located in Kalighat / Chetla, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "thonthonia_dutta_bari",
@@ -12470,7 +12841,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Thonthonia Dutta Bari pandal in North Kolkata."
+    "description": "Thonthonia Dutta Bari pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "triangular_park_sarbojanin",
@@ -12504,7 +12876,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Triangular Park Sarbojanin is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Triangular Park Sarbojanin is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "tridhara",
@@ -12537,7 +12910,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tridhara pandal in South Kolkata."
+    "description": "Tridhara pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "tridhara_sammilani",
@@ -12572,7 +12946,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Tridhara Sammilani is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Tridhara Sammilani is one of the celebrated Durga Puja celebrations located in Bhowanipore / South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "trikon_park",
@@ -12605,7 +12980,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Trikon Park pandal in South Kolkata."
+    "description": "Trikon Park pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "udayan_sangha",
@@ -12639,7 +13015,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Udayan Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Udayan Sangha is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "ultadanga_pallysree",
@@ -12668,7 +13045,8 @@
     ],
     "special_features": [],
     "image_url": "",
-    "description": "Ultadanga Pallysree pandal in North Kolkata."
+    "description": "Ultadanga Pallysree pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "ultadanga_sangrami",
@@ -12701,7 +13079,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Ultadanga Sangrami pandal in North Kolkata."
+    "description": "Ultadanga Sangrami pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "united_club",
@@ -12735,7 +13114,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "United Club is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "United Club is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "uttar_panchanan_gram_milan",
@@ -12769,7 +13149,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Uttar Panchanan Gram Milan is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Uttar Panchanan Gram Milan is one of the celebrated Durga Puja celebrations located in Gariahat / Ballygunge, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "vivekananda_park_athletic",
@@ -12802,7 +13183,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Vivekananda Park Athletic pandal in South Kolkata."
+    "description": "Vivekananda Park Athletic pandal in South Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "vivekananda_sporting",
@@ -12835,7 +13217,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Vivekananda Sporting pandal in North Kolkata."
+    "description": "Vivekananda Sporting pandal in North Kolkata.",
+    "category": "pandal"
   },
   {
     "id": "vivekananda_sporting_club",
@@ -12869,7 +13252,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Vivekananda Sporting Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Vivekananda Sporting Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "yuba_sangha_club",
@@ -12903,7 +13287,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Yuba Sangha Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Yuba Sangha Club is one of the celebrated Durga Puja celebrations located in Behala / Kudghat, South Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "yubak_brinda_durgapuja_mandop",
@@ -12937,7 +13322,8 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Yubak Brinda DurgaPuja Mandop is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Yubak Brinda DurgaPuja Mandop is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   },
   {
     "id": "yuva_brinda",
@@ -12972,6 +13358,7 @@
       "High Footfall Iconic Venue"
     ],
     "image_url": "",
-    "description": "Yuva Brinda is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere."
+    "description": "Yuva Brinda is one of the celebrated Durga Puja celebrations located in Shyambazar / Maniktala, North Kolkata. Known for its cultural devotion and festive atmosphere.",
+    "category": "pandal"
   }
 ]

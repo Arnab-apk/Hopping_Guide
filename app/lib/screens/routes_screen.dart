@@ -7,7 +7,7 @@ import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../widgets/pandal_detail_sheet.dart';
-import '../widgets/custom_trail_planner_dialog.dart';
+import '../widgets/puja_icons.dart';
 import 'main_navigation_screen.dart';
 
 class HoppingRoute {
@@ -22,6 +22,7 @@ class HoppingRoute {
     required this.pandalIds,
     required this.color,
     required this.icon,
+    this.pujaIconType,
   });
 
   final String id;
@@ -34,6 +35,7 @@ class HoppingRoute {
   final List<String> pandalIds;
   final Color color;
   final IconData icon;
+  final PujaIconType? pujaIconType;
 }
 
 class RoutesScreen extends StatefulWidget {
@@ -59,8 +61,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       duration: '3h 30m',
       distance: '4.8 km',
       bestTime: 'Morning 7 AM - 11 AM or Post Midnight',
-      color: PujaColors.durgaRed,
+      color: PujaColors.festivalGold,
       icon: Icons.temple_buddhist,
+      pujaIconType: PujaIconType.dhunuchiPriest,
       pandalIds: [
         'hatibagan_sarbojanin',
         'kasi_bose_lane',
@@ -81,6 +84,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
       bestTime: 'Afternoon 2 PM - 6 PM or Late Night',
       color: PujaColors.festivalGold,
       icon: Icons.stars_rounded,
+      pujaIconType: PujaIconType.durgaSunTrishul,
       pandalIds: [
         'ballygunge_cultural',
         'ekdalia_evergreen',
@@ -98,8 +102,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       duration: '3h 45m',
       distance: '4.9 km',
       bestTime: 'Evening 6 PM - 10 PM',
-      color: Color(0xFF00B0FF),
+      color: PujaColors.festivalGold,
       icon: Icons.palette_rounded,
+      pujaIconType: PujaIconType.trishulDiya,
       pandalIds: [
         'suruchi_sangha',
         'chetla_agrani',
@@ -117,8 +122,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       duration: '2h 45m',
       distance: '3.6 km',
       bestTime: 'Early Morning (Best lighting & no rush)',
-      color: PujaColors.railwayPurple,
+      color: PujaColors.festivalGold,
       icon: Icons.history_edu_rounded,
+      pujaIconType: PujaIconType.kalash,
       pandalIds: [
         'chatu_babu_latu_babus_thakur_bari',
         'sovabazar_rajbari',
@@ -135,8 +141,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       duration: '3h 15m',
       distance: '6.4 km',
       bestTime: 'Night 8 PM - 2 AM',
-      color: Color(0xFFFF9100),
+      color: PujaColors.festivalGold,
       icon: Icons.auto_awesome_rounded,
+      pujaIconType: PujaIconType.ashtabhujaDevi,
       pandalIds: [
         'sree_bhumi_sporting_club',
         'lake_town_adibashi_brinda',
@@ -153,8 +160,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       duration: '3h 00m',
       distance: '4.2 km',
       bestTime: 'Morning 8 AM - 12 PM',
-      color: Color(0xFF00E676),
+      color: PujaColors.festivalGold,
       icon: Icons.explore_rounded,
+      pujaIconType: PujaIconType.durgaEyes,
       pandalIds: [
         'bagbazar_sarbajanin',
         'kumortuli_park_sarbojanin',
@@ -222,78 +230,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
                   ),
                 ),
 
-                // Sleek AI Custom Trail Action Card
-                InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => CustomTrailPlannerDialog.show(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: isDark ? PujaColors.nightCard : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: PujaColors.festivalGold.withValues(alpha: isDark ? 0.35 : 0.4),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.auto_awesome_rounded,
-                            color: PujaColors.festivalGold,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'AI Custom Trail Planner',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14.5,
-                                  color: isDark ? Colors.white : Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Create your own route by time and vibe',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark ? Colors.white60 : Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: isDark ? Colors.white38 : Colors.black38,
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
                 // Curated Routes List
                 ..._curatedRoutes.map(
                   (route) => _buildRouteCard(route, isDark),
@@ -320,24 +256,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isDark ? PujaColors.nightCard : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isExpanded
-              ? route.color.withValues(alpha: 0.5)
-              : (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06)),
-          width: isExpanded ? 1.2 : 1,
+              ? route.color.withValues(alpha: 0.6)
+              : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
+          width: isExpanded ? 1.4 : 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           children: [
             InkWell(
@@ -352,14 +281,20 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 child: Row(
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
                         color: route.color.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
+                        border: Border.all(
+                          color: route.color.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
                       ),
                       child: Center(
-                        child: Icon(route.icon, color: route.color, size: 22),
+                        child: route.pujaIconType != null
+                            ? PujaIcon(route.pujaIconType!, size: 34, color: route.color)
+                            : Icon(route.icon, color: route.color, size: 28),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -396,34 +331,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Quick Action Button
-                    InkWell(
-                      borderRadius: BorderRadius.circular(999),
-                      onTap: () => _startCircuit(route, pandalsInRoute),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: PujaColors.durgaRed.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.play_arrow_rounded, color: PujaColors.durgaRed, size: 16),
-                            SizedBox(width: 2),
-                            Text(
-                              'Map',
-                              style: TextStyle(
-                                color: PujaColors.durgaRed,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 11.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
                     Icon(
                       isExpanded
                           ? Icons.keyboard_arrow_up_rounded
@@ -538,14 +445,14 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       height: 38,
                       child: ElevatedButton.icon(
                         onPressed: () => _startCircuit(route, pandalsInRoute),
-                        icon: const Icon(Icons.map_rounded, size: 16),
+                        icon: PujaIcon.shankha(size: 22, color: PujaColors.goldBright),
                         label: const Text('Start Circuit on Map'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: PujaColors.crimsonVelvet,
                           foregroundColor: PujaColors.goldBright,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                       ),
@@ -593,17 +500,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
   Widget _buildFirstTimersGuideCard(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? PujaColors.nightCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
           width: 1,
         ),
       ),
       child: Column(
         children: [
           InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             onTap: () {
               HapticFeedback.selectionClick();
               setState(() => _isGuideExpanded = !_isGuideExpanded);

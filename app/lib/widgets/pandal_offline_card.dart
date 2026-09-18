@@ -16,6 +16,7 @@ class PandalOfflineCard extends StatelessWidget {
   final VoidCallback onToggleBookmark;
   final bool isBookmarked;
   final VoidCallback? onClose;
+  final VoidCallback? onShowDetails;
 
   const PandalOfflineCard({
     super.key,
@@ -28,6 +29,7 @@ class PandalOfflineCard extends StatelessWidget {
     required this.onToggleBookmark,
     this.isBookmarked = false,
     this.onClose,
+    this.onShowDetails,
   });
 
   @override
@@ -119,6 +121,21 @@ class PandalOfflineCard extends StatelessWidget {
           ),
         ),
         const Spacer(),
+        if (onShowDetails != null) ...[
+          GestureDetector(
+            onTap: onShowDetails,
+            behavior: HitTestBehavior.opaque,
+            child: const Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Icon(
+                Icons.info_outline_rounded,
+                color: Colors.white70,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+        ],
         GestureDetector(
           onTap: onToggleBookmark,
           behavior: HitTestBehavior.opaque,
@@ -147,7 +164,7 @@ class PandalOfflineCard extends StatelessWidget {
   }
 
   Widget _buildTitle(PandalOfflineThemeTokens tokens) {
-    return Column(
+    final titleContent = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
@@ -201,6 +218,15 @@ class PandalOfflineCard extends StatelessWidget {
         ],
       ],
     );
+
+    if (onShowDetails != null) {
+      return GestureDetector(
+        onTap: onShowDetails,
+        behavior: HitTestBehavior.opaque,
+        child: titleContent,
+      );
+    }
+    return titleContent;
   }
 
   Widget _buildMetadataPills(PandalOfflineThemeTokens tokens) {

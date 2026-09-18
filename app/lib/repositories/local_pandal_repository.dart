@@ -3,8 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../models/pandal.dart';
+import '../models/place.dart';
 import '../utils/constants.dart';
 import 'pandal_repository.dart';
+import 'supplementary_repository.dart';
 
 List<Pandal> _parsePandalsIsolate(String jsonStr) {
   final List<dynamic> rawList = json.decode(jsonStr) as List<dynamic>;
@@ -68,5 +70,51 @@ class LocalAssetPandalRepository implements PandalRepository {
   @override
   Stream<List<Pandal>> watchAll() async* {
     yield await _load();
+  }
+
+  @override
+  Future<List<Place>> getPlaces({
+    required PlaceCategory category,
+    KolkataZone? zoneFilter,
+    String? searchQuery,
+  }) async {
+    if (category == PlaceCategory.pandal) {
+      final pandals = zoneFilter != null ? await byZone(zoneFilter) : await all();
+      var places = pandals.map(Place.fromPandal).toList();
+      if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+        final q = searchQuery.toLowerCase().trim();
+        places = places.where((p) =>
+            p.name.toLowerCase().contains(q) ||
+            (p.theme?.toLowerCase().contains(q) ?? false) ||
+            (p.area?.toLowerCase().contains(q) ?? false)).toList();
+      }
+      return places;
+    } else {
+      final foodSpots = await SupplementaryRepository().getFoodSpots();
+      final pandals = await all();
+      var places = foodSpots.map((f) {
+        final matchingPandal = pandals.cast<Pandal?>().firstWhere(
+          (p) => p != null && (p.name.toLowerCase() == f.nearbyPandal.toLowerCase() ||
+                 f.nearbyPandal.toLowerCase().contains(p.name.toLowerCase()) ||
+                 p.name.toLowerCase().contains(f.nearbyPandal.toLowerCase())),
+          orElse: () => null,
+        );
+        return Place.fromFoodSpot(f, zone: matchingPandal?.zone);
+      }).toList();
+
+      if (zoneFilter != null) {
+        places = places.where((p) => p.zone == zoneFilter).toList();
+      }
+
+      if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+        final q = searchQuery.toLowerCase().trim();
+        places = places.where((p) =>
+            p.name.toLowerCase().contains(q) ||
+            (p.type?.toLowerCase().contains(q) ?? false) ||
+            (p.mustTry?.toLowerCase().contains(q) ?? false) ||
+            (p.nearbyPandal?.toLowerCase().contains(q) ?? false)).toList();
+      }
+      return places;
+    }
   }
 }

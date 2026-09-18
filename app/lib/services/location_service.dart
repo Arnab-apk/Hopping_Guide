@@ -14,12 +14,15 @@ class LocationService extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   StreamSubscription<Position>? _positionStreamSub;
+  bool _isPaused = false;
+  DateTime? _lastBroadcastTime;
 
   Position? get currentPositionSync => _currentPosition;
   Position? get lastPosition => _currentPosition;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get isLiveTracking => _positionStreamSub != null;
+  bool get isPaused => _isPaused;
   double? get currentHeading => _currentPosition?.heading;
   double? get currentAccuracy => _currentPosition?.accuracy;
 
@@ -35,9 +38,23 @@ class LocationService extends ChangeNotifier {
 
   bool get hasRealLocation => _currentPosition != null;
 
-  /// Starts real-time continuous GPS tracking stream with high accuracy
-  Future<bool> startLiveTracking({void Function(Position)? onLocationChanged}) async {
+  /// Pauses location updates dispatching (used when map is hidden/in background)
+  void pauseLiveTracking() {
+    _isPaused = true;
+  }
+
+  /// Resumes location updates dispatching
+  void resumeLiveTracking() {
+    _isPaused = false;
+  }
+
+  /// Starts real-time continuous GPS tracking stream with high accuracy and smart throttling
+  Future<bool> startLiveTracking({
+    void Function(Position)? onLocationChanged,
+    Duration throttleInterval = const Duration(milliseconds: 1500),
+  }) async {
     if (_positionStreamSub != null) return true;
+    _isPaused = false;
 
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -82,6 +99,25 @@ class LocationService extends ChangeNotifier {
         ),
       ).listen(
         (position) {
+          if (_isPaused) return;
+
+          final now = DateTime.now();
+          if (_lastBroadcastTime != null &&
+              now.difference(_lastBroadcastTime!) < throttleInterval) {
+            // Check if movement is significant (> 12m) to bypass throttle interval
+            final last = _currentPosition;
+            if (last != null &&
+                Geolocator.distanceBetween(
+                  last.latitude,
+                  last.longitude,
+                  position.latitude,
+                  position.longitude,
+                ) < 12.0) {
+              return;
+            }
+          }
+
+          _lastBroadcastTime = now;
           _currentPosition = position;
           _error = null;
           notifyListeners();

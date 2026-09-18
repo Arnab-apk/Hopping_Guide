@@ -37,3 +37,6 @@ Thumbs.db
 
 # --- Node (seed scripts) ---
 scripts/node_modules/
+
+# --- Gradle build cache ---
+**/.gradle/

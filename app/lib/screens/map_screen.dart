@@ -12,7 +12,6 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../config/app_config.dart';
-import '../config/gemkit_config.dart';
 import '../config/theme.dart';
 import '../models/app_user.dart';
 import '../models/pandal.dart';
@@ -38,8 +37,11 @@ import '../widgets/pandal_search_autocomplete.dart';
 import '../widgets/app_tutorial_dialog.dart';
 import '../widgets/animated_fade_slide.dart';
 import '../widgets/durga_face_icon.dart';
+import '../widgets/puja_icons.dart';
+import '../models/place.dart';
 import '../widgets/user_profile_sheet.dart';
 import 'main_navigation_screen.dart';
+import 'pandal_list_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository});
@@ -1081,45 +1083,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       appBar: AppBar(
         title: const Text('Pujo Parikrama Map'),
         actions: [
-          // Engine Switcher: Switch to Magic Lane 3D Map
+          // Map Marker Legend (Explains cluster numbers and marker types)
           IconButton(
-            icon: const Icon(Icons.view_in_ar_rounded, color: PujaColors.goldBright),
-            tooltip: 'Switch to Magic Lane 3D Map',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              GemKitConfig.isMagicLaneActive.value = true;
-            },
+            icon: const Icon(Icons.info_outline_rounded),
+            tooltip: 'Map Legend',
+            onPressed: () => _showMapLegendSheet(context, isDark),
           ),
-          IconButton(
-            icon: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: _showMapSearchBar
-                    ? PujaColors.festivalGold.withValues(alpha: 0.28)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-                border: _showMapSearchBar
-                    ? Border.all(color: PujaColors.goldBright, width: 1.2)
-                    : null,
-              ),
-              child: Icon(
-                _showMapSearchBar
-                    ? Icons.search_rounded
-                    : Icons.search_outlined,
-                color: _showMapSearchBar
-                    ? PujaColors.goldBright
-                    : Colors.white.withValues(alpha: 0.75),
-                size: 20,
-              ),
-            ),
-            tooltip: _showMapSearchBar ? 'Hide Search Bar' : 'Search Pandals',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              setState(() => _showMapSearchBar = !_showMapSearchBar);
-            },
-          ),
-          // Pinned User Profile Avatar (Accessible where the Theme Toggle was)
+          // Pinned User Profile Avatar
           Padding(
             padding: const EdgeInsets.only(right: 12, left: 4),
             child: _buildProfileAvatarButton(context, isDark),
@@ -1353,11 +1323,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                   ),
                                 ],
                               ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.restaurant_rounded,
+                              child: Center(
+                                child: PujaIcon.bhogSweets(
                                   color: Colors.white,
-                                  size: 18,
+                                  size: 22,
                                 ),
                               ),
                             ),
@@ -2021,103 +1990,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: Row(
                             children: [
-                              if (squadService.hasActiveSquad)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 6),
-                                  child: InkWell(
-                                    onTap: () {
-                                      HapticFeedback.lightImpact();
-                                      if (squadService
-                                          .companionMembers
-                                          .isEmpty) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              'Squad "${squadService.squadName}" is empty (0 companions). Share code ${squadService.squadCode} to add friends!',
-                                            ),
-                                            duration: const Duration(
-                                              seconds: 3,
-                                            ),
-                                            action: SnackBarAction(
-                                              label: 'Squads',
-                                              onPressed: () =>
-                                                  MainNavigationScreen.switchTab(
-                                                    context,
-                                                    3,
-                                                  ),
-                                            ),
-                                          ),
-                                        );
-                                      } else {
-                                        squadService.toggleSquadOnMap(
-                                          !squadService.showSquadOnMap,
-                                        );
-                                      }
-                                    },
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 9,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: squadService.showSquadOnMap
-                                            ? const Color(0xFF00E676)
-                                                  .withValues(alpha: 0.16)
-                                            : (isDark
-                                                  ? Colors.white10
-                                                  : Colors.black12),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: squadService.showSquadOnMap
-                                              ? const Color(0xFF00E676)
-                                              : (isDark
-                                                    ? Colors.white24
-                                                    : Colors.black26),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: 7,
-                                            height: 7,
-                                            decoration: BoxDecoration(
-                                              color: squadService.showSquadOnMap
-                                                  ? const Color(0xFF00E676)
-                                                  : Colors.grey,
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            'Squad (${squadService.companionMembers.length})',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: squadService.showSquadOnMap
-                                                  ? (isDark
-                                                        ? const Color(
-                                                            0xFF00E676,
-                                                          )
-                                                        : const Color(
-                                                            0xFF2E7D32,
-                                                          ))
-                                                  : (isDark
-                                                        ? Colors.white60
-                                                        : Colors.black54),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               _buildZoneChip(
                                 'All (${_pandals.length})',
                                 null,
@@ -3905,169 +3780,45 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Light / Dark Mode Toggle FAB (Easy thumb navigation on map)
+                      // Secondary Quick Map Tools (Folds Nearest radar, Theme toggle, App guide into a single clean menu)
                       Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: (isDark
-                                      ? PujaColors.festivalGold
-                                      : Colors.black87)
-                                  .withValues(alpha: 0.20),
-                              blurRadius: 10,
-                              spreadRadius: 0.5,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Consumer<ThemeService>(
-                          builder: (context, themeService, _) {
-                            final isDarkActive = themeService.isDarkMode;
-                            return FloatingActionButton(
-                              heroTag: 'theme_toggle_map_fab',
-                              elevation: 3,
-                              highlightElevation: 6,
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                themeService.toggleTheme();
-                              },
-                              backgroundColor: isDark
-                                  ? const Color(0xFF22232A)
-                                  : Colors.white,
-                              foregroundColor: isDarkActive
-                                  ? PujaColors.goldBright
-                                  : const Color(0xFF1E293B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                                side: BorderSide(
-                                  color: isDarkActive
-                                      ? PujaColors.goldBright
-                                          .withValues(alpha: 0.7)
-                                      : const Color(0xFFCBD5E1),
-                                  width: 1.8,
-                                ),
-                              ),
-                              tooltip: isDarkActive
-                                  ? 'Switch to Light Mode'
-                                  : 'Switch to Dark Mode',
-                              child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 260),
-                                transitionBuilder: (child, anim) =>
-                                    RotationTransition(
-                                  turns: anim,
-                                  child: FadeTransition(
-                                    opacity: anim,
-                                    child: child,
-                                  ),
-                                ),
-                                child: Icon(
-                                  isDarkActive
-                                      ? Icons.light_mode_rounded
-                                      : Icons.dark_mode_rounded,
-                                  key: ValueKey<bool>(isDarkActive),
-                                  size: 24,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // Quick Nearest Pandal (Red Navigation Arrow Button)
-                      Tooltip(
-                        message: 'Nearest Pandal (10km) • Red Arrow Radar',
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFFF1744)
-                                    .withValues(alpha: 0.35),
-                                blurRadius: 10,
-                                spreadRadius: 0.5,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: FloatingActionButton(
-                            heroTag: 'nearest_pandal_red_arrow_fab',
-                            elevation: 3,
-                            highlightElevation: 6,
-                            onPressed: _isCalculatingRoute
-                                ? null
-                                : _findAndHighlightNearestPandal,
-                            backgroundColor: isDark
-                                ? const Color(0xFF22232A)
-                                : Colors.white,
-                            foregroundColor: const Color(0xFFFF1744),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                              side: const BorderSide(
-                                color: Color(0xFFFF1744),
-                                width: 2.2,
-                              ),
-                            ),
-                            child: _isCalculatingRoute
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.2,
-                                      color: Color(0xFFFF1744),
-                                    ),
-                                  )
-                                : const Icon(
-                                    Icons.navigation_rounded,
-                                    color: Color(0xFFFF1744),
-                                    size: 26,
-                                  ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // App Walkthrough & Guide (Festival Gold Button)
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: PujaColors.festivalGold
-                                  .withValues(alpha: 0.30),
-                              blurRadius: 10,
-                              spreadRadius: 0.5,
+                              color: Colors.black.withValues(alpha: 0.18),
+                              blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: FloatingActionButton(
-                          heroTag: 'app_tutorial_fab',
+                          heroTag: 'map_quick_tools_fab',
                           elevation: 3,
                           highlightElevation: 6,
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            AppTutorialDialog.show(context);
-                          },
+                          mini: true,
+                          onPressed: () => _showMapQuickTools(context, isDark),
                           backgroundColor: isDark
                               ? const Color(0xFF22232A)
                               : Colors.white,
-                          foregroundColor: PujaColors.festivalGold,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            side: const BorderSide(
-                              color: PujaColors.festivalGold,
-                              width: 2.2,
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: isDark
+                                  ? const Color(0xFF4A4B56)
+                                  : const Color(0xFFCFD1DC),
+                              width: 1.6,
                             ),
                           ),
-                          tooltip: 'App Walkthrough & Guide',
-                          child: const Icon(
-                            Icons.help_outline_rounded,
-                            color: PujaColors.festivalGold,
-                            size: 26,
+                          tooltip: 'Map Tools & Settings',
+                          child: Icon(
+                            Icons.tune_rounded,
+                            color: isDark ? PujaColors.goldBright : const Color(0xFF1E293B),
+                            size: 20,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       // Center & Follow My GPS Button
                       Container(
                         decoration: BoxDecoration(
@@ -4530,15 +4281,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         child: InkWell(
           borderRadius: BorderRadius.circular(999),
           onTap: () {
-            HapticFeedback.selectionClick();
-            setState(() => _showFoodSpots = !_showFoodSpots);
-            _showStatusPill(
-              _showFoodSpots
-                  ? '🍲 Showing $count iconic Food spots on map'
-                  : 'Food spots hidden',
-              icon: Icons.restaurant_rounded,
-              color: _showFoodSpots ? const Color(0xFFFF9100) : null,
-            );
+            HapticFeedback.lightImpact();
+            PandalListScreen.switchToCategory(PlaceCategory.foodSpot);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -4548,9 +4292,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.restaurant_rounded,
-                  size: 14,
+                PujaIcon.bhogSweets(
+                  size: 18,
                   color: isSelected
                       ? Colors.white
                       : const Color(0xFFE65100),
@@ -4573,6 +4316,305 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           ),
         ),
       ),
+    );
+  }
+
+  void _showMapQuickTools(BuildContext context, bool isDark) {
+    HapticFeedback.lightImpact();
+    final themeService = context.read<ThemeService>();
+    final isDarkActive = themeService.isDarkMode;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1B070B) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.black12,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Map Tools & Options',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF1744).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: PujaIcon.durgaEyes(color: const Color(0xFFFF1744), size: 28),
+                  ),
+                  title: Text(
+                    'Nearest Pandal Radar',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Locate & highlight closest pandal within 10km',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _findAndHighlightNearestPandal();
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: PujaColors.festivalGold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      isDarkActive ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                      color: PujaColors.festivalGold,
+                      size: 22,
+                    ),
+                  ),
+                  title: Text(
+                    isDarkActive ? 'Switch to Light Theme' : 'Switch to Dark Theme',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Adjust display for daytime or night hopping',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    themeService.toggleTheme();
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2979FF).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.help_outline_rounded, color: Color(0xFF2979FF), size: 22),
+                  ),
+                  title: Text(
+                    'App Walkthrough & Guide',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Learn map features, squad tracking, and shortcuts',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white60 : Colors.black54,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    AppTutorialDialog.show(context);
+                  },
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMapLegendSheet(BuildContext context, bool isDark) {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1B070B) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.black12,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Map Markers Legend',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Understand pins and badges on your Durga Puja parikrama',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildLegendRow(
+                  iconWidget: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: PujaColors.festivalGold,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      '12',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                  title: 'Numbered Pandal Pin',
+                  subtitle: 'Pandal sequence on route or list index',
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 12),
+                _buildLegendRow(
+                  iconWidget: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00E676),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(child: PujaIcon.dhaki(color: Colors.black87, size: 24)),
+                  ),
+                  title: 'Live Squad Member',
+                  subtitle: 'Real-time GPS location of active hopping squad friends',
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 12),
+                _buildLegendRow(
+                  iconWidget: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF2979FF),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(child: Icon(Icons.subway_rounded, color: Colors.white, size: 18)),
+                  ),
+                  title: 'Metro Station',
+                  subtitle: 'Nearest transit hub for easy commute',
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 12),
+                _buildLegendRow(
+                  iconWidget: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF9100),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(child: PujaIcon.bhogSweets(color: Colors.white, size: 22)),
+                  ),
+                  title: 'Food Spot / Street Food',
+                  subtitle: 'Authentic festival food stops and stalls',
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLegendRow({
+    required Widget iconWidget,
+    required String title,
+    required String subtitle,
+    required bool isDark,
+  }) {
+    return Row(
+      children: [
+        iconWidget,
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark ? Colors.white60 : Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -5252,10 +5294,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.restaurant_rounded,
-                        color: Colors.white,
-                        size: 26,
+                      child: Center(
+                        child: PujaIcon.bhogSweets(
+                          color: Colors.white,
+                          size: 30,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),

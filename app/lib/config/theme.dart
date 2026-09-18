@@ -4,270 +4,370 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'pandal_theme_tokens.dart';
 
-/// Design tokens matching Theme 1: Crimson Gold Line Art
-/// Palette: Deep Velvet Crimson, Royal Warm Gold, Ivory, and Dark Burgundy Night
+/// Design tokens matching the Google Material 3 / Material You aesthetic
+/// adapted for Kolkata Durga Puja. Combines authentic Google tonal surfaces,
+/// pill indicators, stadium search bars, and crisp Google typography.
 class PujaColors {
   PujaColors._();
 
-  // Crimson & Burgundy Tones
+  // Crimson & Burgundy Tones (Google Carmine Seed)
   static const Color durgaRed = Color(0xFFB71C1C);
   static const Color durgaRedDark = Color(0xFF5B0E1B);
   static const Color crimsonVelvet = Color(0xFF3A0810);
   static const Color durgaRedLight = Color(0xFFD32F2F);
 
-  // Sacred Gold Tones (Theme 1 Line Art Accents)
+  // Sacred Gold Tones (Refined Material You Warm Accents)
   static const Color festivalGold = Color(0xFFDCA830);
   static const Color goldBright = Color(0xFFF3C759);
   static const Color goldSoft = Color(0xFFF6EEDC);
 
-  // Surfaces & Backgrounds (Warm Festive-Night Dark & Clean Ivory)
-  static const Color ivoryBg = Color(0xFFFFF8F0);
-  static const Color nightBg = Color(0xFF0E0809);
-  static const Color nightCard = Color(0xFF1B0E13);
-  static const Color nightSurface = Color(0xFF271519);
-  static const Color nightBorder = Color(0xFF3D2630);
+  // Surfaces & Backgrounds (Google M3 Tonal Surfaces)
+  static const Color ivoryBg = Color(0xFFFDF8F7);
+  static const Color nightBg = Color(0xFF141213);
+  static const Color nightCard = Color(0xFF1E1A1B);
+  static const Color nightSurface = Color(0xFF2B2425);
+  static const Color nightBorder = Color(0xFF44383A);
 
-  // Status & Badges
-  static const Color crowdLow = Color(0xFF3FA34D);
-  static const Color crowdMedium = Color(0xFFE67E22);
-  static const Color crowdHigh = Color(0xFFC0392B);
+  // Status & Badges (Google Standard Status Colors)
+  static const Color crowdLow = Color(0xFF1E8E3E);     // Google Green
+  static const Color crowdMedium = Color(0xFFE37400);  // Google Amber
+  static const Color crowdHigh = Color(0xFFD93025);    // Google Red
 
   // Transit lines
-  static const Color metroBlue = Color(0xFF2E6BE6);
-  static const Color railwayPurple = Color(0xFF8E44AD);
+  static const Color metroBlue = Color(0xFF1A73E8);     // Google Blue
+  static const Color railwayPurple = Color(0xFF9334E6); // Google Purple
 }
 
-/// Centralized light theme matching Theme 1
-ThemeData get appTheme => ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: PujaColors.durgaRed,
-        primary: PujaColors.durgaRed,
-        secondary: PujaColors.festivalGold,
-        surface: PujaColors.ivoryBg,
-        brightness: Brightness.light,
-      ),
-      scaffoldBackgroundColor: PujaColors.ivoryBg,
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.light().textTheme),
-      appBarTheme: AppBarTheme(
-        centerTitle: true,
-        backgroundColor: PujaColors.crimsonVelvet,
-        foregroundColor: PujaColors.goldBright,
-        elevation: 1,
-        shadowColor: Colors.black26,
-        iconTheme: const IconThemeData(color: PujaColors.goldBright),
-        actionsIconTheme: const IconThemeData(color: PujaColors.goldBright),
-        titleTextStyle: const TextStyle(
-          fontFamily: 'Samarkan',
-          color: PujaColors.goldBright,
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0.5,
-        ),
-      ),
-      cardTheme: CardThemeData(
-        color: Colors.white,
-        elevation: 2,
-        shadowColor: PujaColors.crimsonVelvet.withValues(alpha: 0.12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(
-            color: PujaColors.festivalGold.withValues(alpha: 0.25),
-            width: 1,
-          ),
-        ),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: Colors.white,
-        selectedColor: PujaColors.crimsonVelvet,
-        secondarySelectedColor: PujaColors.crimsonVelvet,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-        secondaryLabelStyle: const TextStyle(fontWeight: FontWeight.w700, color: PujaColors.goldBright, fontSize: 12),
-        side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.35), width: 1),
-        shape: const StadiumBorder(),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: PujaColors.crimsonVelvet,
-        foregroundColor: PujaColors.goldBright,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.4), width: 1.2),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: PujaColors.crimsonVelvet,
-          foregroundColor: PujaColors.goldBright,
-          elevation: 2,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.4)),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: PujaColors.crimsonVelvet,
-          foregroundColor: PujaColors.goldBright,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.3)),
-          ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: PujaColors.crimsonVelvet,
-          side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.5), width: 1.2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-      ),
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
-          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
-        },
-      ),
-      splashColor: PujaColors.festivalGold.withValues(alpha: 0.12),
-      highlightColor: PujaColors.festivalGold.withValues(alpha: 0.06),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: PujaColors.festivalGold,
-        unselectedItemColor: Color(0xFF757575),
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-        type: BottomNavigationBarType.fixed,
-        elevation: 12,
-      ),
-      extensions: const [
-        PandalOfflineThemeTokens(),
-      ],
-    );
+/// Centralized light theme: Google Material Design 3 / Material You
+ThemeData get appTheme {
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: PujaColors.durgaRed,
+    brightness: Brightness.light,
+    surface: const Color(0xFFFDF8F7),
+  );
 
-/// Dark theme: Pure Minimalist OLED Dark (#0A0A0A) & Sacred Gold Accents
-ThemeData get appDarkTheme => ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: PujaColors.durgaRed,
-        primary: PujaColors.durgaRedLight,
-        secondary: PujaColors.goldBright,
-        surface: PujaColors.nightCard,
-        brightness: Brightness.dark,
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorScheme: colorScheme,
+    scaffoldBackgroundColor: colorScheme.surface,
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.light().textTheme),
+    appBarTheme: AppBarTheme(
+      centerTitle: true,
+      elevation: 0,
+      scrolledUnderElevation: 2,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
+      iconTheme: IconThemeData(color: colorScheme.onSurface),
+      actionsIconTheme: IconThemeData(color: colorScheme.onSurface),
+      titleTextStyle: GoogleFonts.plusJakartaSans(
+        color: colorScheme.onSurface,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
       ),
-      scaffoldBackgroundColor: PujaColors.nightBg,
-      textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme),
-      appBarTheme: AppBarTheme(
-        centerTitle: true,
-        backgroundColor: PujaColors.nightCard,
-        foregroundColor: PujaColors.goldBright,
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: PujaColors.goldBright),
-        actionsIconTheme: const IconThemeData(color: PujaColors.goldBright),
-        titleTextStyle: const TextStyle(
-          fontFamily: 'Samarkan',
-          color: PujaColors.goldBright,
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0.5,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      height: 74,
+      elevation: 1.5,
+      backgroundColor: colorScheme.surfaceContainer,
+      indicatorColor: colorScheme.secondaryContainer,
+      indicatorShape: const StadiumBorder(),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        return GoogleFonts.plusJakartaSans(
+          fontSize: 11.5,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          color: isSelected ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          size: 22,
+          color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant,
+        );
+      }),
+    ),
+    searchBarTheme: SearchBarThemeData(
+      elevation: const WidgetStatePropertyAll(1.5),
+      backgroundColor: WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
+      shape: const WidgetStatePropertyAll(StadiumBorder()),
+      hintStyle: WidgetStatePropertyAll(
+        GoogleFonts.plusJakartaSans(
+          fontSize: 14.5,
+          color: colorScheme.onSurfaceVariant,
         ),
       ),
-      cardTheme: CardThemeData(
-        color: PujaColors.nightCard,
-        elevation: 1.5,
-        shadowColor: PujaColors.durgaRedLight.withValues(alpha: 0.12),
+      padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 16)),
+    ),
+    cardTheme: CardThemeData(
+      color: colorScheme.surfaceContainerLow,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.65),
+          width: 1,
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: colorScheme.surfaceContainerLow,
+      selectedColor: colorScheme.secondaryContainer,
+      secondarySelectedColor: colorScheme.secondaryContainer,
+      labelStyle: GoogleFonts.plusJakartaSans(
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+        color: colorScheme.onSurface,
+      ),
+      secondaryLabelStyle: GoogleFonts.plusJakartaSans(
+        fontWeight: FontWeight.w700,
+        color: colorScheme.onSecondaryContainer,
+        fontSize: 12,
+      ),
+      side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.7), width: 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: colorScheme.primaryContainer,
+      foregroundColor: colorScheme.onPrimaryContainer,
+      elevation: 2.5,
+      shape: const CircleBorder(),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: colorScheme.surfaceContainerHigh,
+        foregroundColor: colorScheme.primary,
+        elevation: 1,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(
-            color: PujaColors.nightBorder,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      chipTheme: ChipThemeData(
-        backgroundColor: PujaColors.nightCard,
-        selectedColor: PujaColors.nightSurface,
-        secondarySelectedColor: PujaColors.nightSurface,
-        labelStyle: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white70, fontSize: 12),
-        secondaryLabelStyle: const TextStyle(fontWeight: FontWeight.w700, color: PujaColors.goldBright, fontSize: 12),
-        side: const BorderSide(color: PujaColors.nightBorder, width: 1),
-        shape: const StadiumBorder(),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: PujaColors.nightSurface,
-        foregroundColor: PujaColors.goldBright,
-        elevation: 2,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: PujaColors.nightBorder, width: 1.2),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: PujaColors.nightSurface,
-          foregroundColor: PujaColors.goldBright,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: PujaColors.nightBorder),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 14.5,
-            fontWeight: FontWeight.w700,
-          ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: colorScheme.primary,
+        side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: PujaColors.durgaRed,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+    ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+        TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+      },
+    ),
+    splashColor: colorScheme.primary.withValues(alpha: 0.08),
+    highlightColor: colorScheme.primary.withValues(alpha: 0.04),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: colorScheme.surfaceContainer,
+      selectedItemColor: colorScheme.primary,
+      unselectedItemColor: colorScheme.onSurfaceVariant,
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+      type: BottomNavigationBarType.fixed,
+      elevation: 0,
+    ),
+    extensions: const [
+      PandalOfflineThemeTokens(),
+    ],
+  );
+}
+
+/// Centralized dark theme: Google Material Design 3 / Material You Dark
+ThemeData get appDarkTheme {
+  final colorScheme = ColorScheme.fromSeed(
+    seedColor: PujaColors.durgaRed,
+    brightness: Brightness.dark,
+    surface: const Color(0xFF141213),
+  );
+
+  return ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: colorScheme,
+    scaffoldBackgroundColor: colorScheme.surface,
+    textTheme: GoogleFonts.plusJakartaSansTextTheme(ThemeData.dark().textTheme),
+    appBarTheme: AppBarTheme(
+      centerTitle: true,
+      elevation: 0,
+      scrolledUnderElevation: 2,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.onSurface,
+      iconTheme: IconThemeData(color: colorScheme.onSurface),
+      actionsIconTheme: IconThemeData(color: colorScheme.onSurface),
+      titleTextStyle: GoogleFonts.plusJakartaSans(
+        color: colorScheme.onSurface,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      height: 74,
+      elevation: 1.5,
+      backgroundColor: colorScheme.surfaceContainer,
+      indicatorColor: colorScheme.secondaryContainer,
+      indicatorShape: const StadiumBorder(),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        return GoogleFonts.plusJakartaSans(
+          fontSize: 11.5,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          color: isSelected ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          size: 22,
+          color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant,
+        );
+      }),
+    ),
+    searchBarTheme: SearchBarThemeData(
+      elevation: const WidgetStatePropertyAll(1.5),
+      backgroundColor: WidgetStatePropertyAll(colorScheme.surfaceContainerHigh),
+      shape: const WidgetStatePropertyAll(StadiumBorder()),
+      hintStyle: WidgetStatePropertyAll(
+        GoogleFonts.plusJakartaSans(
+          fontSize: 14.5,
+          color: colorScheme.onSurfaceVariant,
         ),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: PujaColors.goldBright,
-          side: const BorderSide(color: PujaColors.nightBorder, width: 1.2),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 16)),
+    ),
+    cardTheme: CardThemeData(
+      color: colorScheme.surfaceContainerLow,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          width: 1,
         ),
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
-          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
-        },
+      clipBehavior: Clip.antiAlias,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: colorScheme.surfaceContainerLow,
+      selectedColor: colorScheme.secondaryContainer,
+      secondarySelectedColor: colorScheme.secondaryContainer,
+      labelStyle: GoogleFonts.plusJakartaSans(
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+        color: colorScheme.onSurface,
       ),
-      splashColor: PujaColors.festivalGold.withValues(alpha: 0.12),
-      highlightColor: PujaColors.festivalGold.withValues(alpha: 0.05),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: PujaColors.nightCard,
-        selectedItemColor: PujaColors.goldBright,
-        unselectedItemColor: Color(0xFF888888),
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w800, fontSize: 11.5),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
+      secondaryLabelStyle: GoogleFonts.plusJakartaSans(
+        fontWeight: FontWeight.w700,
+        color: colorScheme.onSecondaryContainer,
+        fontSize: 12,
       ),
-      extensions: const [
-        PandalOfflineThemeTokens(),
-      ],
-    );
+      side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: colorScheme.primaryContainer,
+      foregroundColor: colorScheme.onPrimaryContainer,
+      elevation: 2.5,
+      shape: const CircleBorder(),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: colorScheme.surfaceContainerHigh,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 1,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: colorScheme.primary,
+        side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+        TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+      },
+    ),
+    splashColor: colorScheme.primary.withValues(alpha: 0.12),
+    highlightColor: colorScheme.primary.withValues(alpha: 0.05),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: colorScheme.surfaceContainer,
+      selectedItemColor: colorScheme.primary,
+      unselectedItemColor: colorScheme.onSurfaceVariant,
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+      type: BottomNavigationBarType.fixed,
+      elevation: 0,
+    ),
+    extensions: const [
+      PandalOfflineThemeTokens(),
+    ],
+  );
+}

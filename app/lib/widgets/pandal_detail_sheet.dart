@@ -11,6 +11,7 @@ import '../services/pandal_user_state_service.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
 import 'crowd_badge.dart';
+import 'puja_icons.dart';
 
 /// Minimalist, beautifully proportioned Pandal Detail Sheet.
 /// Features clean typography, consolidated transit card, inline distance badge,
@@ -148,11 +149,16 @@ class PandalDetailSheet extends StatelessWidget {
                             scale: isFav ? 1.2 : 1.0,
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOutBack,
-                            child: Icon(
-                              isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              color: isFav ? Colors.redAccent : (isDark ? Colors.white70 : Colors.black54),
-                              size: 18,
-                            ),
+                            child: isFav
+                                ? PujaIcon.kalash(
+                                    size: 26,
+                                    color: PujaColors.festivalGold,
+                                  )
+                                : Icon(
+                                    Icons.bookmark_border_rounded,
+                                    color: isDark ? Colors.white70 : Colors.black54,
+                                    size: 24,
+                                  ),
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -350,11 +356,13 @@ class PandalDetailSheet extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                isVis ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                                color: isVis ? Colors.green : (isDark ? Colors.white54 : Colors.black45),
-                                size: 16,
-                              ),
+                              isVis
+                                  ? PujaIcon.shankha(size: 22, color: Colors.green)
+                                  : Icon(
+                                      Icons.radio_button_unchecked_rounded,
+                                      color: (isDark ? Colors.white54 : Colors.black45),
+                                      size: 20,
+                                    ),
                               const SizedBox(width: 7),
                               Text(
                                 isVis ? 'Visited & Hopped! (Tap to unmark)' : 'Mark as Visited / Hopped',
@@ -544,10 +552,9 @@ class PandalDetailSheet extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.directions_walk_rounded,
+                              PujaIcon.shankha(
                                 color: PujaColors.goldBright,
-                                size: 19,
+                                size: 24,
                               ),
                               const SizedBox(width: 7),
                               Text(

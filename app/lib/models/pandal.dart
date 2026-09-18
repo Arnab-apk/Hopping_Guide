@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utils/constants.dart';
+import 'place.dart';
 
 /// Firestore collection: `pandals`
 /// Matches the application schema (architecture doc section 3 and data/schema/):
@@ -56,6 +57,7 @@ class Pandal {
   String get zoneLabel => zone.label;
   String? get themeType => theme.isNotEmpty ? theme : null;
   String? get bengaliName => null;
+  PlaceCategory get category => PlaceCategory.pandal;
 
   factory Pandal.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     return Pandal.fromMap(doc.id, doc.data() ?? {});

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -42,8 +41,9 @@ class WebSocketClient {
   bool get isConnected => _currentState == WebSocketConnectionState.connected;
 
   String get defaultServerUrl {
-    if (_configuredServerUrl != null && _configuredServerUrl!.isNotEmpty) {
-      return _configuredServerUrl!;
+    final customUrl = _configuredServerUrl;
+    if (customUrl != null && customUrl.isNotEmpty) {
+      return customUrl;
     }
 
     const envUrl = String.fromEnvironment('WEBSOCKET_SERVER_URL');
@@ -51,10 +51,6 @@ class WebSocketClient {
       return envUrl;
     }
 
-    // Default to Android emulator loopback or localhost
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'ws://10.0.2.2:8080/squad';
-    }
     return 'ws://localhost:8080/squad';
   }
 
@@ -87,6 +83,16 @@ class WebSocketClient {
       _cleanupChannel();
       _channel = WebSocketChannel.connect(fullUri);
 
+      _channel!.ready.then((_) {
+        _setState(WebSocketConnectionState.connected);
+        _reconnectAttempts = 0;
+        _startHeartbeat();
+        _flushBuffer();
+      }).catchError((e) {
+        debugPrint('[WebSocketClient] Channel ready note: $e');
+        _onError(e);
+      });
+
       // Wait for channel readiness or first stream event
       _channelSubscription = _channel!.stream.listen(
         _onData,
@@ -94,11 +100,6 @@ class WebSocketClient {
         onDone: _onDone,
         cancelOnError: false,
       );
-
-      _setState(WebSocketConnectionState.connected);
-      _reconnectAttempts = 0;
-      _startHeartbeat();
-      _flushBuffer();
     } catch (e) {
       debugPrint('[WebSocketClient] Connect error: $e');
       _setState(WebSocketConnectionState.error);
@@ -190,9 +191,13 @@ class WebSocketClient {
     _heartbeatTimer?.cancel();
     _reconnectTimer?.cancel();
 
+    if (_reconnectAttempts >= 3) {
+      debugPrint('[WebSocketClient] Max reconnect attempts reached, standing by');
+      return;
+    }
+
     _reconnectAttempts++;
-    // Exponential backoff: 1s, 2s, 4s, 8s, max 15s
-    final delaySeconds = (_reconnectAttempts > 4) ? 15 : (1 << (_reconnectAttempts - 1));
+    final delaySeconds = 1 << (_reconnectAttempts - 1);
     debugPrint('[WebSocketClient] Scheduling reconnect attempt #$_reconnectAttempts in ${delaySeconds}s');
 
     _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {

@@ -64,6 +64,7 @@ for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const docRef = db.collection('pandals').doc(r.id);
     batch.set(docRef, {
       name: r.name,
+      category: r.category || 'pandal',
       lat: Number(r.lat),
       lng: Number(r.lng),
       zone: r.zone,

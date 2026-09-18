@@ -205,22 +205,26 @@ void main() {
   });
 
   group('Scalability Test 5: Squad Invite Codes & High-Concurrency State Isolation', () {
-    test('1,000 generated squad codes are well-formatted and collision resistant', () async {
-      final squadService = SquadService.instance;
+    test('1,000 generated squad codes are well-formatted and collision resistant', () {
       final generatedCodes = <String>{};
 
       for (int i = 0; i < 1000; i++) {
-        await squadService.createSquad('Squad $i', 'Landmark $i');
-        final code = squadService.squadCode;
-        expect(code, isNotNull);
-        expect(code!, startsWith('PUJA'));
+        final code = SquadService.generateSquadCode();
+        expect(code, startsWith('PUJA'));
         expect(code.length, equals(8));
         generatedCodes.add(code);
-        await squadService.leaveSquad();
       }
 
       // With 1,048,576 permutations, 1,000 squads have near-zero collisions (>98% unique)
       expect(generatedCodes.length, greaterThan(980));
+    });
+
+    test('SquadService createSquad and leaveSquad state isolation', () async {
+      final squadService = SquadService.instance;
+      await squadService.createSquad('Test Squad', 'Deshapriya Park');
+      expect(squadService.hasActiveSquad, isTrue);
+      expect(squadService.squadCode, startsWith('PUJA'));
+      await squadService.leaveSquad();
       expect(squadService.hasActiveSquad, isFalse);
     });
   });
