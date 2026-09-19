@@ -153,7 +153,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   bool _showFoodSpots = false;
   bool _showMetroStations = false;
   bool _filterNearby10Km = false;
-  bool _showMapSearchBar = true;
   bool _isLoading = true;
 
   KolkataZone? _selectedZone;
@@ -193,14 +192,68 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   WalkingRoute? _highlightedRoute;
   bool _isCalculatingRoute = false;
   bool _followUser = false;
-  bool _isTrailHudExpanded = false;
   double _mapRotation = 0.0;
+  String? _lastFramedTrailId;
 
   // Floating Status Pill State (Minimal Negative Feedback)
-  String? _statusPillMessage;
-  IconData? _statusPillIcon;
-  Color? _statusPillColor;
-  Timer? _statusPillTimer;
+  OverlayEntry? _statusOverlayEntry;
+  Timer? _statusOverlayTimer;
+
+  late final TextEditingController _mapSearchController;
+  late final FocusNode _mapSearchFocusNode;
+  bool _isSearchActive = false;
+
+  String? _contextualMessage;
+  IconData? _contextualIcon;
+  Color? _contextualColor;
+  Timer? _contextualTimer;
+
+  void _handleSearchFocusOrTextChange() {
+    final active = _mapSearchFocusNode.hasFocus || _mapSearchController.text.isNotEmpty;
+    if (_isSearchActive != active) {
+      if (mounted) {
+        setState(() => _isSearchActive = active);
+      }
+      if (active) {
+        _statusOverlayTimer?.cancel();
+        _statusOverlayEntry?.remove();
+        _statusOverlayEntry = null;
+        _contextualTimer?.cancel();
+        if (_contextualMessage != null) {
+          setState(() => _contextualMessage = null);
+        }
+      }
+    }
+  }
+
+  void _setContextualBanner(
+    String message, {
+    IconData? icon,
+    Color? color,
+    Duration duration = const Duration(seconds: 4),
+  }) {
+    if (_isSearchActive) return;
+    _contextualTimer?.cancel();
+    if (mounted) {
+      setState(() {
+        _contextualMessage = message;
+        _contextualIcon = icon;
+        _contextualColor = color;
+      });
+    }
+    _contextualTimer = Timer(duration, () {
+      if (mounted && _contextualMessage == message) {
+        setState(() => _contextualMessage = null);
+      }
+    });
+  }
+
+  void _clearContextualBanner() {
+    _contextualTimer?.cancel();
+    if (_contextualMessage != null && mounted) {
+      setState(() => _contextualMessage = null);
+    }
+  }
 
   void _showStatusPill(
     String message, {
@@ -208,23 +261,103 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     Color? color,
     Duration duration = const Duration(milliseconds: 2400),
   }) {
-    _statusPillTimer?.cancel();
-    if (!mounted) return;
-    setState(() {
-      _statusPillMessage = message;
-      _statusPillIcon = icon ?? Icons.info_outline_rounded;
-      _statusPillColor = color;
-    });
-    _statusPillTimer = Timer(duration, () {
-      if (mounted) {
-        setState(() => _statusPillMessage = null);
-      }
-    });
+    _statusOverlayTimer?.cancel();
+    _statusOverlayEntry?.remove();
+    _statusOverlayEntry = null;
+
+    if (!mounted || _isSearchActive) return;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    try {
+      final overlayState = Overlay.of(context, rootOverlay: true);
+
+      _statusOverlayEntry = OverlayEntry(
+        builder: (ctx) {
+          final topPadding = MediaQuery.of(ctx).padding.top;
+          return Positioned(
+            top: topPadding + kToolbarHeight + 8,
+            left: 16,
+            right: 16,
+            child: Material(
+              color: Colors.transparent,
+              child: Center(
+                child: AnimatedFadeSlide(
+                  duration: const Duration(milliseconds: 220),
+                  offset: const Offset(0, -0.2),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: (isDark ? const Color(0xFF1E1E24) : Colors.white)
+                          .withValues(alpha: 0.96),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: color ?? PujaColors.festivalGold.withValues(alpha: 0.6),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.35 : 0.14,
+                          ),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          icon ?? Icons.info_outline_rounded,
+                          size: 16,
+                          color: color ?? PujaColors.festivalGold,
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            message,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? Colors.white : const Color(0xFF1E1E24),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+
+      overlayState.insert(_statusOverlayEntry!);
+
+      _statusOverlayTimer = Timer(duration, () {
+        if (mounted) {
+          _statusOverlayEntry?.remove();
+          _statusOverlayEntry = null;
+        }
+      });
+    } catch (_) {
+      // Fallback silently if overlay is unavailable
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    _mapSearchController = TextEditingController();
+    _mapSearchFocusNode = FocusNode();
+    _mapSearchFocusNode.addListener(_handleSearchFocusOrTextChange);
+    _mapSearchController.addListener(_handleSearchFocusOrTextChange);
     _mapController = MapController();
     _pulseController = AnimationController(
       vsync: this,
@@ -262,7 +395,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     MapScreen.pendingMetroStationAction.removeListener(
       _onPendingMetroStationAction,
     );
-    _statusPillTimer?.cancel();
+    _statusOverlayTimer?.cancel();
+    _statusOverlayEntry?.remove();
+    _statusOverlayEntry = null;
+    _mapSearchFocusNode.removeListener(_handleSearchFocusOrTextChange);
+    _mapSearchController.removeListener(_handleSearchFocusOrTextChange);
+    _mapSearchFocusNode.dispose();
+    _mapSearchController.dispose();
     LocationService.instance.stopLiveTracking();
     _cameraMoveController?.stop();
     _cameraMoveController?.dispose();
@@ -494,13 +633,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     _animatedMapMove(LatLng(pandal.lat, pandal.lng), 16.5);
+    _mapSearchController.clear();
     FocusScope.of(context).unfocus();
     setState(() {
       _selectedPandal = pandal;
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _selectedMetroStation = null;
-      _showMapSearchBar = false;
     });
     _highlightRouteTo(pandal);
     _showStatusPill(
@@ -517,6 +656,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     _animatedMapMove(LatLng(station.latitude, station.longitude), 16.2);
+    _mapSearchController.clear();
     FocusScope.of(context).unfocus();
     setState(() {
       _selectedMetroStation = station;
@@ -524,7 +664,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _highlightedRoute = null;
-      _showMapSearchBar = false;
     });
 
     _showStatusPill(
@@ -541,6 +680,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     _animatedMapMove(LatLng(spot.lat, spot.lng), 16.8);
+    _mapSearchController.clear();
     FocusScope.of(context).unfocus();
     setState(() {
       _selectedFoodSpot = spot;
@@ -548,7 +688,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedPandal = null;
       _selectedSquadMember = null;
       _selectedMetroStation = null;
-      _showMapSearchBar = false;
     });
 
     _showStatusPill(
@@ -588,7 +727,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _followUser = false;
-      _showMapSearchBar = false;
     });
 
     final route = await RoutingService.instance.getWalkingRouteToPoint(
@@ -602,7 +740,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
-      _showMapSearchBar = false;
     });
 
     if (route.points.isNotEmpty) {
@@ -642,7 +779,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
       _selectedPandal = pandal;
-      _showMapSearchBar = false;
     });
 
     if (userPos == null && mounted) {
@@ -663,7 +799,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
-      _showMapSearchBar = false;
     });
 
     // Fit camera to display both user and pandal walking corridor
@@ -777,7 +912,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _isCalculatingRoute = true;
       _selectedSquadMember = member;
       _selectedPandal = null;
-      _showMapSearchBar = false;
     });
 
     final route = await RoutingService.instance.getWalkingRouteToPoint(
@@ -791,7 +925,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
-      _showMapSearchBar = false;
     });
 
     if (route.points.isNotEmpty) {
@@ -841,7 +974,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedSquadMember = null;
       _followUser = false;
       _showFoodSpots = true;
-      _showMapSearchBar = false;
     });
 
     final route = await RoutingService.instance.getWalkingRouteToPoint(
@@ -855,7 +987,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     setState(() {
       _highlightedRoute = route;
       _isCalculatingRoute = false;
-      _showMapSearchBar = false;
     });
 
     if (route.points.isNotEmpty) {
@@ -933,7 +1064,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     if (zone == null) {
       _animatedMapMove(const LatLng(22.65, 88.38), 10.8);
-      _showStatusPill(
+      _setContextualBanner(
         'Showing all ${_pandals.length} pandals across Kolkata & Suburbs',
         icon: Icons.auto_awesome_rounded,
       );
@@ -943,7 +1074,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _animatedMapMove(center, zoom);
 
       final count = _pandals.where((p) => p.zone == zone).length;
-      _showStatusPill(
+      _setContextualBanner(
         '📍 ${zone.label} · $count Pandals',
         icon: Icons.location_on_rounded,
       );
@@ -1059,8 +1190,23 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final visible = _visiblePandals;
     final squadService = Provider.of<SquadService>(context);
+    final trailService = Provider.of<CustomHoppingTrailService>(context);
+    final bool isTrailActive = trailService.hasActiveTrail;
+    final activeTrail = trailService.activeTrail;
+    final visible = _visiblePandals;
+
+    // Automatic Trail Mode camera framing when entering a trail
+    if (isTrailActive && activeTrail != null && activeTrail.stops.isNotEmpty) {
+      if (_lastFramedTrailId != activeTrail.id) {
+        _lastFramedTrailId = activeTrail.id;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _fitTrailBounds(activeTrail);
+        });
+      }
+    } else if (!isTrailActive) {
+      _lastFramedTrailId = null;
+    }
 
     // Deep-focus on squad member if navigated from Squads screen
     if (squadService.focusedMemberId != null) {
@@ -1113,6 +1259,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 rotationThreshold: 15.0,
               ),
               onTap: (_, _) {
+                if (_isSearchActive) {
+                  _mapSearchController.clear();
+                  _mapSearchFocusNode.unfocus();
+                }
                 if (_selectedPandal != null ||
                     _selectedSquadMember != null ||
                     _selectedFoodSpot != null) {
@@ -1246,47 +1396,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Custom AI Hopping Trail Connected Polyline
-              Consumer<CustomHoppingTrailService>(
-                builder: (context, trailService, _) {
-                  if (!trailService.hasActiveTrail ||
-                      trailService.activeTrail!.stops.length < 2) {
-                    return const SizedBox.shrink();
-                  }
-                  final stops = trailService.activeTrail!.stops;
-                  final pts = stops.map((p) => LatLng(p.lat, p.lng)).toList();
-                  final bool dimTrail =
-                      _highlightedRoute != null &&
-                      _highlightedRoute!.points.isNotEmpty;
-                  final double alphaMul = dimTrail ? 0.25 : 1.0;
-                  return RepaintBoundary(
-                    child: PolylineLayer(
-                      polylines: [
-                        Polyline(
-                          points: pts,
-                          strokeWidth: 7.0,
-                          color: PujaColors.festivalGold.withValues(
-                            alpha: 0.35 * alphaMul,
-                          ),
-                        ),
-                        Polyline(
-                          points: pts,
-                          strokeWidth: 3.8,
-                          color: PujaColors.festivalGold.withValues(
-                            alpha: alphaMul,
-                          ),
-                          pattern: StrokePattern.dashed(
-                            segments: const [10, 6],
-                          ),
-                        ),
-                      ],
+              // Dual-Segment Trail Path Layer (Trail Mode)
+              if (isTrailActive && activeTrail != null && activeTrail.stops.isNotEmpty)
+                RepaintBoundary(
+                  child: PolylineLayer(
+                    polylines: _buildTrailPolylines(
+                      activeTrail,
+                      _effectiveUserLocation,
+                      isDark,
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
 
               // Food / Bhog Spot Markers (Minimalist & Accessible Touch Target)
-              if (_showFoodSpots)
+              if (_showFoodSpots && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: _visibleFoodSpots.map((f) {
@@ -1338,7 +1461,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
 
               // Selected Metro / Railway Station Beacon Layer (Prominent Glow & Accessible Target)
-              if (_selectedMetroStation != null)
+              if (_selectedMetroStation != null && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: [
@@ -1416,7 +1539,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
 
               // Full Kolkata Metro & Railway Stations Network Layer (Large & Distinct)
-              if (_showMetroStations)
+              if (_showMetroStations && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: MetroRepository.allStations.map((stn) {
@@ -1495,36 +1618,44 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Clustered Pandal Markers Layer (Smooth Spatial LOD)
-              RepaintBoundary(
-                child: _ClusteredPandalLayer(
-                  visiblePandals: visible,
-                  selectedPandal: _selectedPandal,
-                  pulseController: _pulseController,
-                  onSelectPandal: (p) {
-                    if (_followUser) {
-                      setState(() => _followUser = false);
-                    }
-                    setState(() {
-                      _selectedPandal = p;
-                      _selectedSquadMember = null;
-                      _highlightedRoute = null;
-                    });
-                    _animatedMapMove(
-                      LatLng(p.lat, p.lng),
-                      (_mapController.camera.zoom < 15.0
-                          ? 15.0
-                          : _mapController.camera.zoom),
-                    );
-                  },
-                  onZoomToCluster: (point, targetZoom) {
-                    _animatedMapMove(point, targetZoom);
-                  },
+              // Clustered Pandal Markers Layer in Browse Mode vs Trail Stop Markers in Trail Mode
+              if (!isTrailActive)
+                RepaintBoundary(
+                  child: _ClusteredPandalLayer(
+                    visiblePandals: visible,
+                    selectedPandal: _selectedPandal,
+                    pulseController: _pulseController,
+                    onSelectPandal: (p) {
+                      if (_followUser) {
+                        setState(() => _followUser = false);
+                      }
+                      setState(() {
+                        _selectedPandal = p;
+                        _selectedSquadMember = null;
+                        _highlightedRoute = null;
+                      });
+                      _animatedMapMove(
+                        LatLng(p.lat, p.lng),
+                        (_mapController.camera.zoom < 15.0
+                            ? 15.0
+                            : _mapController.camera.zoom),
+                      );
+                    },
+                    onZoomToCluster: (point, targetZoom) {
+                      _animatedMapMove(point, targetZoom);
+                    },
+                  ),
+                )
+              else if (activeTrail != null && activeTrail.stops.isNotEmpty)
+                // Active Trail Stop Markers (Numbered Pins ①②③... with Visit Progress)
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: _buildTrailMarkers(context, activeTrail, isDark),
+                  ),
                 ),
-              ),
 
               // Designated Squad Meet-up Landmark Flag Marker (Enlarged)
-              if (squadService.hasActiveSquad && squadService.showSquadOnMap)
+              if (squadService.hasActiveSquad && squadService.showSquadOnMap && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: [
@@ -1601,7 +1732,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
 
               // Live Squad Members MarkerLayer (Stable Glowing DP - Enlarged)
-              if (squadService.hasActiveSquad && squadService.showSquadOnMap)
+              if (squadService.hasActiveSquad && squadService.showSquadOnMap && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: squadService.companionMembers.map((member) {
@@ -1935,164 +2066,110 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (_showMapSearchBar) ...[
-                  PandalSearchAutocomplete(
-                    pandals: _pandals,
-                    foodSpots: _foodSpots,
-                    metroStations: MetroRepository.allStations,
-                    userLat: _userPosition?.latitude,
-                    userLng: _userPosition?.longitude,
-                    isFloatingOnMap: true,
-                    hintText: 'Search pandals, metro, food spots...',
-                    onPandalSelected: _onPandalSelectedFromSearch,
-                    onMetroSelected: _onMetroSelectedFromSearch,
-                    onFoodSpotSelected: _onFoodSpotSelectedFromSearch,
-                    onSubmitted: (_) {
-                      FocusScope.of(context).unfocus();
-                      setState(() => _showMapSearchBar = false);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (isDark ? PujaColors.nightCard : Colors.white)
-                        .withValues(alpha: 0.94),
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.16),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.35),
-                      width: 1.2,
+                PandalSearchAutocomplete(
+                  controller: _mapSearchController,
+                  focusNode: _mapSearchFocusNode,
+                  pandals: _pandals,
+                  foodSpots: _foodSpots,
+                  metroStations: MetroRepository.allStations,
+                  userLat: _userPosition?.latitude,
+                  userLng: _userPosition?.longitude,
+                  isFloatingOnMap: true,
+                  hintText: 'Search pandals, metro, food spots...',
+                  onPandalSelected: _onPandalSelectedFromSearch,
+                  onMetroSelected: _onMetroSelectedFromSearch,
+                  onFoodSpotSelected: _onFoodSpotSelectedFromSearch,
+                  onSubmitted: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+                const SizedBox(height: 8),
+                if (!_isSearchActive) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 4,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      // Pinned "Regions ▾" button that opens bottom sheet
-                      _buildRegionMenuButton(isDark),
-                      Container(
-                        height: 22,
-                        width: 1,
-                        color: isDark ? Colors.white24 : Colors.black12,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                    decoration: BoxDecoration(
+                      color: (isDark ? PujaColors.nightCard : Colors.white)
+                          .withValues(alpha: 0.94),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.16),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                        width: 1.2,
                       ),
-                      // Scrollable zone chips with short labels
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
+                    ),
+                    child: isTrailActive && activeTrail != null
+                        ? _buildTrailSummaryBar(
+                            context,
+                            activeTrail,
+                            trailService,
+                            isDark,
+                          )
+                        : Row(
                             children: [
-                              _buildZoneChip(
-                                'All (${_pandals.length})',
-                                null,
-                                isDark,
+                              // Pinned "Regions ▾" button that opens bottom sheet
+                              _buildRegionMenuButton(isDark),
+                              Container(
+                                height: 22,
+                                width: 1,
+                                color: isDark ? Colors.white24 : Colors.black12,
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
                               ),
-                              _buildNearbyChip(isDark),
-                              _buildCustomTrailChip(isDark),
-                              _buildMetroToggleChip(isDark),
-                              _buildFoodToggleChip(isDark),
+                              // Scrollable zone chips with short labels
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  child: Row(
+                                    children: [
+                                      _buildZoneChip(
+                                        'All (${_pandals.length})',
+                                        null,
+                                        isDark,
+                                      ),
+                                      _buildNearbyChip(isDark),
+                                      _buildCustomTrailChip(isDark),
+                                      _buildMetroToggleChip(isDark),
+                                      _buildFoodToggleChip(isDark),
+                                      if (squadService.hasActiveSquad)
+                                        _buildSquadStatusChip(isDark, squadService),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                height: 22,
+                                width: 1,
+                                color: isDark ? Colors.white24 : Colors.black12,
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                              ),
+                              // Pinned Theme Toggle Chip (Light / Dark Mode)
+                              _buildThemeToggleChip(context, isDark),
                             ],
                           ),
-                        ),
-                      ),
-                      Container(
-                        height: 22,
-                        width: 1,
-                        color: isDark ? Colors.white24 : Colors.black12,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                      ),
-                      // Pinned Theme Toggle Chip (Light / Dark Mode)
-                      _buildThemeToggleChip(context, isDark),
-                    ],
                   ),
-                ),
-                // Squad Friends At-A-Glance Floating Bar
-                if (squadService.hasActiveSquad) ...[
-                  const SizedBox(height: 6),
-                  _buildSquadFriendsAtAGlance(isDark, squadService),
+                  if (_contextualMessage != null) ...[
+                    const SizedBox(height: 6),
+                    _buildContextualBanner(isDark),
+                  ],
                 ],
               ],
             ),
           ),
 
-          // Non-Intrusive Floating Status Pill (Minimal Negative Feedback)
-          if (_statusPillMessage != null)
-            Positioned(
-              top: _showMapSearchBar ? 116 : 58,
-              left: 24,
-              right: 24,
-              child: Center(
-                child: AnimatedFadeSlide(
-                  duration: const Duration(milliseconds: 220),
-                  offset: const Offset(0, -0.2),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      color: (isDark ? const Color(0xFF1E1E24) : Colors.white)
-                          .withValues(alpha: 0.96),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color:
-                            _statusPillColor ??
-                            PujaColors.festivalGold.withValues(alpha: 0.6),
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha: isDark ? 0.35 : 0.12,
-                          ),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          _statusPillIcon,
-                          size: 16,
-                          color: _statusPillColor ?? PujaColors.festivalGold,
-                        ),
-                        const SizedBox(width: 7),
-                        Flexible(
-                          child: Text(
-                            _statusPillMessage!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
           // Top Floating Route HUD Banner
           if (_highlightedRoute != null)
             Positioned(
-              top: _showMapSearchBar ? 122 : 66,
+              top: 122,
               left: 14,
               right: 14,
               child: AnimatedFadeSlide(
@@ -2204,368 +2281,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             ),
 
-          // Top Floating Active Custom Hopping Trail HUD
-          Consumer<CustomHoppingTrailService>(
-            builder: (context, trailService, _) {
-              if (!trailService.hasActiveTrail) return const SizedBox.shrink();
-              final trail = trailService.activeTrail!;
-              final target = trail.currentTargetPandal;
-              final total = trail.totalStops;
-              final visited = trail.visitedCount;
-              final percent = total > 0 ? (visited / total) : 0.0;
-
-              final baseTop = _showMapSearchBar ? 122.0 : 66.0;
-
-              return Positioned(
-                top: _highlightedRoute != null ? (baseTop + 74) : baseTop,
-                left: 14,
-                right: 14,
-                child: AnimatedFadeSlide(
-                  duration: const Duration(milliseconds: 280),
-                  offset: const Offset(0, -0.15),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: _isTrailHudExpanded ? 10 : 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: (isDark ? const Color(0xFF1E1F29) : Colors.white)
-                          .withValues(alpha: 0.98),
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: PujaColors.festivalGold,
-                        width: 1.4,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: PujaColors.festivalGold.withValues(
-                            alpha: 0.22,
-                          ),
-                          blurRadius: 14,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: _isTrailHudExpanded
-                        ? Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFF1744),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      'Stop ${trail.currentStopIndex + 1} of $total',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      target != null
-                                          ? target.name
-                                          : 'All stops visited!',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 13.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark
-                                            ? Colors.white
-                                            : Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    icon: const Icon(
-                                      Icons.keyboard_arrow_up_rounded,
-                                      size: 20,
-                                    ),
-                                    tooltip: 'Collapse',
-                                    onPressed: () {
-                                      HapticFeedback.selectionClick();
-                                      setState(
-                                        () => _isTrailHudExpanded = false,
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    icon: const Icon(
-                                      Icons.close_rounded,
-                                      size: 18,
-                                    ),
-                                    tooltip: 'End Trail',
-                                    onPressed: () {
-                                      HapticFeedback.lightImpact();
-                                      trailService.endTrail();
-                                      _showStatusPill(
-                                        'Custom trail ended',
-                                        icon: Icons.flag_outlined,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              // Progress Bar
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: LinearProgressIndicator(
-                                        value: percent,
-                                        minHeight: 6,
-                                        backgroundColor: isDark
-                                            ? Colors.white12
-                                            : Colors.grey.shade200,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation<Color>(
-                                              Color(0xFFFF1744),
-                                            ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '$visited/$total Visited',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: PujaColors.festivalGold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              // Bottom row: Auto-visit status & Actions
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: const BoxDecoration(
-                                          color: Color(0xFF00E676),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        'Auto-Visit (80m) Active',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark
-                                              ? const Color(0xFF00E676)
-                                              : const Color(0xFF2E7D32),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      if (target != null)
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            minimumSize: Size.zero,
-                                            tapTargetSize: MaterialTapTargetSize
-                                                .shrinkWrap,
-                                          ),
-                                          onPressed: () {
-                                            _highlightRouteTo(target);
-                                          },
-                                          child: const Text(
-                                            'Path 🗺️',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      if (target != null)
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            minimumSize: Size.zero,
-                                            tapTargetSize: MaterialTapTargetSize
-                                                .shrinkWrap,
-                                          ),
-                                          onPressed: () {
-                                            trailService.recordAutoVisit(
-                                              target,
-                                            );
-                                            _showStatusPill(
-                                              '✓ Visited ${target.name}!',
-                                              icon: Icons.check_circle_rounded,
-                                              color: const Color(0xFF00C853),
-                                            );
-                                          },
-                                          child: const Text(
-                                            '✓ Visited',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: PujaColors.festivalGold,
-                                            ),
-                                          ),
-                                        ),
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
-                                        onPressed: () =>
-                                            trailService.skipCurrentStop(),
-                                        child: const Text(
-                                          'Skip ⏭',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF1744),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  '${trail.currentStopIndex + 1}/$total',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () => setState(
-                                    () => _isTrailHudExpanded = true,
-                                  ),
-                                  child: Text(
-                                    target != null
-                                        ? target.name
-                                        : 'All stops visited!',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.black87,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              if (target != null)
-                                IconButton(
-                                  visualDensity: VisualDensity.compact,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  constraints: const BoxConstraints(),
-                                  icon: const Icon(
-                                    Icons.check_circle_rounded,
-                                    color: Color(0xFF00C853),
-                                    size: 20,
-                                  ),
-                                  tooltip: 'Mark Visited',
-                                  onPressed: () {
-                                    HapticFeedback.lightImpact();
-                                    trailService.recordAutoVisit(target);
-                                    _showStatusPill(
-                                      '✓ Visited ${target.name}!',
-                                      icon: Icons.check_circle_rounded,
-                                      color: const Color(0xFF00C853),
-                                    );
-                                  },
-                                ),
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  size: 20,
-                                  color: PujaColors.festivalGold,
-                                ),
-                                tooltip: 'Expand Details',
-                                onPressed: () {
-                                  HapticFeedback.selectionClick();
-                                  setState(() => _isTrailHudExpanded = true);
-                                },
-                              ),
-                              IconButton(
-                                visualDensity: VisualDensity.compact,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
-                                constraints: const BoxConstraints(),
-                                icon: const Icon(Icons.close_rounded, size: 18),
-                                tooltip: 'End Trail',
-                                onPressed: () {
-                                  HapticFeedback.lightImpact();
-                                  trailService.endTrail();
-                                  _showStatusPill(
-                                    'Custom trail ended',
-                                    icon: Icons.flag_outlined,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-              );
-            },
-          ),
+          // (Active Trail HUD is now docked in the top bar as Trail Summary Bar)
 
           // Bottom Mini-Card Preview when a Pandal is tapped (Animated entrance)
           if (_selectedPandal != null)
@@ -4063,15 +3779,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 _filterNearby10Km = false;
                 _highlightedRoute = null;
               });
-              _showStatusPill(
-                'Nearby filter cleared · Showing all',
-                icon: Icons.filter_alt_off_rounded,
-              );
+              _clearContextualBanner();
             } else {
               setState(() {
                 _selectedZone = null;
                 _followUser = false;
               });
+              _setContextualBanner(
+                '📍 Showing pandals within 10 km',
+                icon: Icons.navigation_rounded,
+                color: const Color(0xFFFF1744),
+              );
               _findAndHighlightNearestPandal();
             }
           },
@@ -4140,9 +3858,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   initialLocationLabel: _userPosition != null
                       ? 'My Live Location'
                       : null,
+                  pandals: _pandals,
                   onTrailStarted: () {
                     FocusScope.of(context).unfocus();
-                    setState(() => _showMapSearchBar = false);
                     final firstStop =
                         trailService.activeTrail?.currentTargetPandal;
                     if (firstStop != null) {
@@ -4173,7 +3891,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     Text(
                       hasActive
                           ? 'Trail (${trail!.visitedCount}/${trail.totalStops})'
-                          : 'Plan Trail ⏱️',
+                          : 'Custom Trail ⏱️',
                       style: TextStyle(
                         color: hasActive
                             ? Colors.black87
@@ -4192,6 +3910,468 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         );
       },
     );
+  }
+
+  Widget _buildTrailSummaryBar(
+    BuildContext context,
+    ActiveCustomTrail trail,
+    CustomHoppingTrailService trailService,
+    bool isDark,
+  ) {
+    // Calculate remaining distance and time (unified with GemKit native route calculation)
+    double remainingDistKm = trail.remainingRoutedDistanceKm ?? 0.0;
+    int remainingMin = trail.remainingRoutedDurationMinutes ?? 0;
+    final unvisitedStops = trail.stops
+        .where((s) => !trail.visitedPandalIds.contains(s.id))
+        .toList();
+
+    if (trail.remainingRoutedDistanceKm == null) {
+      if (unvisitedStops.isNotEmpty) {
+        LatLng prev = _effectiveUserLocation ?? trail.startPoint;
+        for (final s in unvisitedStops) {
+          final dMeters = haversineMeters(
+            prev.latitude,
+            prev.longitude,
+            s.lat,
+            s.lng,
+          );
+          remainingDistKm += dMeters / 1000.0;
+          prev = LatLng(s.lat, s.lng);
+        }
+      }
+
+      remainingMin =
+          ((remainingDistKm / 4.2) * 60 + (unvisitedStops.length * 15)).round();
+    }
+
+    final String distStr = remainingDistKm < 1.0
+        ? '${(remainingDistKm * 1000).round()}m'
+        : '${remainingDistKm.toStringAsFixed(1)} km';
+
+    final target = trail.currentTargetPandal;
+
+    return Row(
+      children: [
+        // Trail Icon / Mode Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: PujaColors.festivalGold.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: PujaColors.festivalGold.withValues(alpha: 0.6),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.route_rounded,
+                size: 14,
+                color: PujaColors.festivalGold,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'TRAIL',
+                style: GoogleFonts.plusJakartaSans(
+                  color: PujaColors.festivalGold,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        // Trail Metrics: Distance · Time · Stops
+        Expanded(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () {
+              if (target != null) {
+                _animatedMapMove(LatLng(target.lat, target.lng), 15.5);
+                setState(() => _selectedPandal = target);
+              } else {
+                _fitTrailBounds(trail);
+              }
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      '$distStr · ${remainingMin > 0 ? "$remainingMin min left" : "Finished"}',
+                      style: TextStyle(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '(${trail.visitedCount}/${trail.totalStops})',
+                      style: const TextStyle(
+                        color: PujaColors.festivalGold,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                if (target != null)
+                  Text(
+                    'Next: ${target.name}',
+                    style: TextStyle(
+                      color: isDark ? Colors.white60 : Colors.black54,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            ),
+          ),
+        ),
+
+        // Quick Mark-Visited Action Button (if target pending)
+        if (target != null)
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Color(0xFF00C853),
+              size: 20,
+            ),
+            tooltip: 'Mark ${target.name} Visited',
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              trailService.recordAutoVisit(target);
+              _showStatusPill(
+                '✓ Visited ${target.name}!',
+                icon: Icons.check_circle_rounded,
+                color: const Color(0xFF00C853),
+              );
+            },
+          ),
+
+        // Exit Trail Mode Button
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              trailService.endTrail();
+              _lastFramedTrailId = null;
+              setState(() {
+                _selectedPandal = null;
+                _highlightedRoute = null;
+              });
+              _showStatusPill(
+                'Exited trail mode · Browse restored',
+                icon: Icons.map_outlined,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF1744).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: const Color(0xFFFF1744).withValues(alpha: 0.5),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(
+                    Icons.close_rounded,
+                    size: 13,
+                    color: Color(0xFFFF1744),
+                  ),
+                  SizedBox(width: 3),
+                  Text(
+                    'Exit',
+                    style: TextStyle(
+                      color: Color(0xFFFF1744),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Polyline> _buildTrailPolylines(
+    ActiveCustomTrail trail,
+    LatLng? liveLoc,
+    bool isDark,
+  ) {
+    final polylines = <Polyline>[];
+    if (trail.stops.isEmpty) return polylines;
+
+    final startCoord = trail.startPoint;
+
+    // Segment 1: "Getting there" (Live location -> Trail's start point)
+    // Thin, dashed, muted color (blueGrey). Only drawn if liveLoc is separated from startPoint by > 60m.
+    if (liveLoc != null) {
+      final double distMeters = haversineMeters(
+        liveLoc.latitude,
+        liveLoc.longitude,
+        startCoord.latitude,
+        startCoord.longitude,
+      );
+      if (distMeters > 60.0) {
+        polylines.add(
+          Polyline(
+            points: [liveLoc, startCoord],
+            strokeWidth: 2.8,
+            color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+            pattern: StrokePattern.dashed(segments: const [8, 6]),
+          ),
+        );
+      }
+    }
+
+    // Segment 2: "Your trail" (Starting point -> Stop 1 -> Stop 2 -> ... -> Stop N)
+    // Bold, solid brand gold with high contrast underglow.
+    // If GemKit has calculated a real road-following route, use its coordinates.
+    final List<LatLng> trailCoords;
+    if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
+      trailCoords = trail.routedPolyline!;
+    } else {
+      final coords = <LatLng>[];
+      final firstStop = trail.stops.first;
+      final double distToFirst = haversineMeters(
+        startCoord.latitude,
+        startCoord.longitude,
+        firstStop.lat,
+        firstStop.lng,
+      );
+      if (distToFirst > 15.0) {
+        coords.add(startCoord);
+      }
+      for (final s in trail.stops) {
+        coords.add(LatLng(s.lat, s.lng));
+      }
+      trailCoords = coords;
+    }
+
+    if (trailCoords.length >= 2) {
+      // Glow/underglow line
+      polylines.add(
+        Polyline(
+          points: trailCoords,
+          strokeWidth: 8.5,
+          color: PujaColors.festivalGold.withValues(alpha: 0.3),
+        ),
+      );
+      // Solid brand gold primary line
+      polylines.add(
+        Polyline(
+          points: trailCoords,
+          strokeWidth: 5.0,
+          color: PujaColors.festivalGold,
+        ),
+      );
+    }
+
+    return polylines;
+  }
+
+  List<Marker> _buildTrailMarkers(
+    BuildContext context,
+    ActiveCustomTrail trail,
+    bool isDark,
+  ) {
+    final markers = <Marker>[];
+    final startCoord = trail.startPoint;
+
+    // Flag start marker if distinct from Stop 1
+    if (trail.stops.isNotEmpty) {
+      final firstStop = trail.stops.first;
+      final distToFirst = haversineMeters(
+        startCoord.latitude,
+        startCoord.longitude,
+        firstStop.lat,
+        firstStop.lng,
+      );
+      if (distToFirst > 60.0) {
+        markers.add(
+          Marker(
+            point: startCoord,
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF64748B),
+                  width: 2.2,
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.flag_rounded,
+                  color: Color(0xFF64748B),
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    // Numbered stop pins (①, ②, ③...) in resolved visit order
+    for (int i = 0; i < trail.stops.length; i++) {
+      final stop = trail.stops[i];
+      final stopNum = i + 1;
+      final isVisited = trail.visitedPandalIds.contains(stop.id);
+      final isCurrent = trail.currentTargetPandal?.id == stop.id;
+      final isSelected = _selectedPandal?.id == stop.id;
+
+      final double size = (isCurrent || isSelected) ? 46.0 : 38.0;
+
+      markers.add(
+        Marker(
+          point: LatLng(stop.lat, stop.lng),
+          width: size + 10,
+          height: size + 10,
+          alignment: Alignment.center,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _selectedPandal = stop;
+                _selectedSquadMember = null;
+                _selectedMetroStation = null;
+                _selectedFoodSpot = null;
+              });
+              _animatedMapMove(
+                LatLng(stop.lat, stop.lng),
+                _mapController.camera.zoom < 15.0
+                    ? 15.0
+                    : _mapController.camera.zoom,
+              );
+            },
+            child: Center(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: size,
+                height: size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isVisited
+                      ? const Color(0xFF00C853)
+                      : isCurrent
+                          ? const Color(0xFFFF1744)
+                          : (isDark
+                              ? const Color(0xFF1E1F28)
+                              : Colors.white),
+                  border: Border.all(
+                    color: isCurrent
+                        ? Colors.white
+                        : isVisited
+                            ? Colors.white
+                            : PujaColors.festivalGold,
+                    width: (isCurrent || isSelected) ? 2.8 : 2.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: isCurrent
+                          ? const Color(0xFFFF1744).withValues(alpha: 0.65)
+                          : isVisited
+                              ? const Color(0xFF00C853).withValues(alpha: 0.5)
+                              : Colors.black.withValues(alpha: 0.35),
+                      blurRadius: (isCurrent || isSelected) ? 10 : 4,
+                      spreadRadius: isCurrent ? 2 : 0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: isVisited
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        )
+                      : Text(
+                          '$stopNum',
+                          style: TextStyle(
+                            color: isCurrent
+                                ? Colors.white
+                                : (isDark
+                                    ? PujaColors.festivalGold
+                                    : const Color(0xFFB78103)),
+                            fontWeight: FontWeight.w900,
+                            fontSize: (isCurrent || isSelected) ? 17 : 14,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return markers;
+  }
+
+  void _fitTrailBounds(ActiveCustomTrail trail) {
+    if (trail.stops.isEmpty) return;
+    final points = <LatLng>[
+      trail.startPoint,
+      ...trail.stops.map((s) => LatLng(s.lat, s.lng)),
+    ];
+    if (_effectiveUserLocation != null) {
+      final distM = haversineMeters(
+        _effectiveUserLocation!.latitude,
+        _effectiveUserLocation!.longitude,
+        points.first.latitude,
+        points.first.longitude,
+      );
+      if (distM < 15000) {
+        points.add(_effectiveUserLocation!);
+      }
+    }
+    final bounds = LatLngBounds.fromPoints(points);
+    try {
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 80),
+        ),
+      );
+    } catch (_) {}
   }
 
   Widget _buildMetroToggleChip(bool isDark) {
@@ -4216,13 +4396,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           onTap: () {
             HapticFeedback.selectionClick();
             setState(() => _showMetroStations = !_showMetroStations);
-            _showStatusPill(
-              _showMetroStations
-                  ? '🚇 Showing 40+ Kolkata Metro stations on map'
-                  : 'Metro stations hidden',
-              icon: Icons.subway_rounded,
-              color: _showMetroStations ? PujaColors.metroBlue : null,
-            );
+            if (_showMetroStations) {
+              _setContextualBanner(
+                '🚇 Showing 40+ Kolkata Metro stations on map',
+                icon: Icons.subway_rounded,
+                color: PujaColors.metroBlue,
+              );
+            } else {
+              _clearContextualBanner();
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -4313,6 +4495,73 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContextualBanner(bool isDark) {
+    if (_contextualMessage == null) return const SizedBox.shrink();
+    return AnimatedFadeSlide(
+      duration: const Duration(milliseconds: 220),
+      offset: const Offset(0, -0.15),
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 540),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: (isDark ? const Color(0xFF1E1E24) : Colors.white).withValues(alpha: 0.96),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: (_contextualColor ?? PujaColors.festivalGold).withValues(alpha: 0.55),
+              width: 1.1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_contextualIcon != null) ...[
+                Icon(
+                  _contextualIcon,
+                  size: 15,
+                  color: _contextualColor ?? PujaColors.festivalGold,
+                ),
+                const SizedBox(width: 7),
+              ],
+              Flexible(
+                child: Text(
+                  _contextualMessage!,
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 6),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _clearContextualBanner,
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: isDark ? Colors.white54 : Colors.black45,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -4734,202 +4983,411 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSquadFriendsAtAGlance(bool isDark, SquadService squadService) {
+  Widget _buildSquadStatusChip(bool isDark, SquadService squadService) {
     final companions = squadService.companionMembers;
+    final count = companions.length + 1; // You + companions
+    final label = companions.isEmpty ? 'Squad' : 'Squad ($count)';
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 6.0),
+      child: Material(
+        elevation: 1.5,
+        color: isDark ? const Color(0xFF132A1C) : const Color(0xFFE8F5E9),
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: const Color(0xFF00E676).withValues(alpha: 0.7),
+            width: 1.2,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            _showSquadDetailsSheet(context, squadService, isDark);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 11,
+              vertical: 6,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 7.5,
+                  height: 7.5,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF00E676),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF00E676),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF69F0AE) : const Color(0xFF1B5E20),
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showSquadDetailsSheet(BuildContext context, SquadService squadService, bool isDark) {
+    final companions = squadService.companionMembers;
+    final squadCode = squadService.squadCode ?? 'SQUAD';
     final userPos = _userPosition;
 
-    return AnimatedFadeSlide(
-      duration: const Duration(milliseconds: 240),
-      offset: const Offset(0, -0.1),
-      child: Container(
-        height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: (isDark ? const Color(0xFF161618) : Colors.white).withValues(alpha: 0.94),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: PujaColors.festivalGold.withValues(alpha: 0.4),
-            width: 1.1,
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF181318) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.22),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Squad Code Badge
-            GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                MainNavigationScreen.switchTab(context, 3);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 12,
+            bottom: MediaQuery.of(ctx).padding.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top drag pill
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Header: Squad status with live dot & close button
+              Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00E676),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF00E676),
+                          blurRadius: 6,
+                          spreadRadius: 1.5,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Hopping Squad Active',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.pop(ctx),
+                    visualDensity: VisualDensity.compact,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Squad Invite Code Card
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: PujaColors.durgaRed.withValues(alpha: 0.15),
+                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: PujaColors.durgaRed.withValues(alpha: 0.4),
-                    width: 0.8,
+                    color: PujaColors.festivalGold.withValues(alpha: 0.4),
+                    width: 1,
                   ),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.groups_rounded, size: 14, color: PujaColors.durgaRed),
-                    const SizedBox(width: 4),
-                    Text(
-                      squadService.squadCode ?? 'SQUAD',
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w800,
-                        color: PujaColors.durgaRed,
-                        letterSpacing: 0.4,
+                    const Icon(Icons.qr_code_rounded, size: 20, color: PujaColors.festivalGold),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'INVITE CODE',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              letterSpacing: 1.1,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white54 : Colors.black45,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            squadCode,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                              color: isDark ? PujaColors.festivalGold : const Color(0xFFB8860B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Clipboard.setData(ClipboardData(text: squadCode));
+                        Navigator.pop(ctx);
+                        _showStatusPill(
+                          'Invite code $squadCode copied to clipboard!',
+                          icon: Icons.check_circle_rounded,
+                          color: const Color(0xFF00E676),
+                        );
+                      },
+                      icon: const Icon(Icons.copy_rounded, size: 15),
+                      label: const Text('Copy'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: isDark ? PujaColors.festivalGold : const Color(0xFFB8860B),
+                        visualDensity: VisualDensity.compact,
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+              const SizedBox(height: 14),
 
-            const SizedBox(width: 6),
-
-            // Divider
-            Container(
-              width: 1,
-              height: 22,
-              color: isDark ? Colors.white12 : Colors.black12,
-            ),
-
-            const SizedBox(width: 6),
-
-            // Companions list or Waiting for friends state
-            if (companions.isEmpty)
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Squad active • Waiting for friends...',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark ? Colors.white60 : Colors.black54,
+              // Companions or Waiting state
+              if (companions.isEmpty) ...[
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: (isDark ? const Color(0xFF221A22) : const Color(0xFFFFF9E6))
+                        .withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: PujaColors.festivalGold.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: PujaColors.festivalGold.withValues(alpha: 0.18),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.hourglass_top_rounded,
+                          size: 20,
+                          color: PujaColors.festivalGold,
                         ),
                       ),
-                    ),
-
-                  ],
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: companions.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
-                  itemBuilder: (context, idx) {
-                    final member = companions[idx];
-                    final isFocused = _selectedSquadMember?.id == member.id;
-                    final distStr = userPos != null
-                        ? '${(haversineMeters(userPos.latitude, userPos.longitude, member.latitude, member.longitude)).round()}m'
-                        : 'Live';
-
-                    return GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        _animatedMapMove(
-                          LatLng(member.latitude, member.longitude),
-                          (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom),
-                        );
-                        _highlightRouteToMember(member);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: isFocused
-                              ? PujaColors.festivalGold.withValues(alpha: 0.2)
-                              : (isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04)),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isFocused ? PujaColors.festivalGold : Colors.transparent,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Friend Google DP with online dot
-                            Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                CircleAvatar(
-                                  radius: 13,
-                                  backgroundColor: member.avatarColor,
-                                  backgroundImage: (member.photoUrl != null && member.photoUrl!.isNotEmpty)
-                                      ? NetworkImage(member.photoUrl!)
-                                      : null,
-                                  child: (member.photoUrl == null || member.photoUrl!.isEmpty)
-                                      ? Text(
-                                          member.initials,
-                                          style: const TextStyle(
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.w800,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : null,
-                                ),
-                                Container(
-                                  width: 6,
-                                  height: 6,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF00E676),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 1),
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              'Waiting for friends...',
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
                             ),
-                            const SizedBox(width: 5),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  member.name.split(' ')[0],
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark ? Colors.white : Colors.black87,
-                                  ),
-                                ),
-                                Text(
-                                  distStr,
-                                  style: const TextStyle(
-                                    fontSize: 8.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF00E676),
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(height: 3),
+                            Text(
+                              'Share your code to let companions join and view live GPS locations.',
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: isDark ? Colors.white60 : Colors.black54,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    );
+                    ],
+                  ),
+                ),
+              ] else ...[
+                Text(
+                  'Companions Nearby (${companions.length})',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 180),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: companions.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    itemBuilder: (context, idx) {
+                      final member = companions[idx];
+                      final dist = userPos != null
+                          ? haversineMeters(
+                              userPos.latitude,
+                              userPos.longitude,
+                              member.latitude,
+                              member.longitude,
+                            )
+                          : null;
+                      final distStr = dist != null
+                          ? (dist < 1000
+                              ? '${dist.round()} m away'
+                              : '${(dist / 1000).toStringAsFixed(1)} km away')
+                          : 'Live location';
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isDark ? Colors.white12 : Colors.black12,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: member.avatarColor,
+                              backgroundImage: (member.photoUrl != null && member.photoUrl!.isNotEmpty)
+                                  ? NetworkImage(member.photoUrl!)
+                                  : null,
+                              child: (member.photoUrl == null || member.photoUrl!.isEmpty)
+                                  ? Text(
+                                      member.initials,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    member.name,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white : Colors.black87,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    distStr,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Color(0xFF00E676),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                HapticFeedback.selectionClick();
+                                _animatedMapMove(
+                                  LatLng(member.latitude, member.longitude),
+                                  (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom),
+                                );
+                                _highlightRouteToMember(member);
+                              },
+                              icon: const Icon(Icons.near_me_rounded, size: 14),
+                              label: const Text('Locate'),
+                              style: TextButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                foregroundColor: PujaColors.festivalGold,
+                                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+
+              // Action button to open full Squad tab
+              SizedBox(
+                height: 44,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    HapticFeedback.selectionClick();
+                    MainNavigationScreen.switchTab(context, 3);
                   },
+                  icon: const Icon(Icons.groups_rounded, size: 18),
+                  label: const Text(
+                    'Open Hopping Squad Hub',
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: PujaColors.durgaRed,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    elevation: 2,
+                  ),
                 ),
               ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 

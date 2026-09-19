@@ -7,6 +7,7 @@ class AppUser {
     required this.displayName,
     this.email,
     this.photoUrl,
+    this.phoneNumber,
     this.isGuest = false,
   });
 
@@ -14,6 +15,7 @@ class AppUser {
   final String? displayName;
   final String? email;
   final String? photoUrl;
+  final String? phoneNumber;
   final bool isGuest;
 
   String get initials {
@@ -30,6 +32,7 @@ class AppUser {
     String? displayName,
     String? email,
     String? photoUrl,
+    String? phoneNumber,
     bool? isGuest,
   }) {
     return AppUser(
@@ -37,6 +40,7 @@ class AppUser {
       displayName: displayName ?? this.displayName,
       email: email ?? this.email,
       photoUrl: photoUrl ?? this.photoUrl,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       isGuest: isGuest ?? this.isGuest,
     );
   }
@@ -46,6 +50,7 @@ class AppUser {
         displayName: user?.displayName,
         email: user?.email,
         photoUrl: user?.photoURL,
+        phoneNumber: user?.phoneNumber,
         isGuest: false,
       );
 
@@ -54,6 +59,7 @@ class AppUser {
         displayName: 'Guest Pujo Hopper',
         email: null,
         photoUrl: null,
+        phoneNumber: null,
         isGuest: true,
       );
 
@@ -62,6 +68,7 @@ class AppUser {
         'displayName': displayName,
         'email': email,
         'photoUrl': photoUrl,
+        'phoneNumber': phoneNumber,
         'isGuest': isGuest,
       };
 
@@ -70,6 +77,7 @@ class AppUser {
         displayName: json['displayName'] as String?,
         email: json['email'] as String?,
         photoUrl: json['photoUrl'] as String?,
+        phoneNumber: json['phoneNumber'] as String? ?? json['phone_number'] as String?,
         isGuest: json['isGuest'] as bool? ?? false,
       );
 }

@@ -12,6 +12,7 @@ class SquadMember {
     required this.status,
     required this.lastSeen,
     this.photoUrl,
+    this.phoneNumber,
     this.isHost = false,
     this.isUser = false,
     this.batteryLevel = 90,
@@ -25,6 +26,7 @@ class SquadMember {
   final String status;
   final DateTime lastSeen;
   final String? photoUrl;
+  final String? phoneNumber;
   final bool isHost;
   final bool isUser;
   final int batteryLevel;
@@ -48,6 +50,7 @@ class SquadMember {
     String? status,
     DateTime? lastSeen,
     String? photoUrl,
+    String? phoneNumber,
     bool? isHost,
     bool? isUser,
     int? batteryLevel,
@@ -61,6 +64,7 @@ class SquadMember {
       status: status ?? this.status,
       lastSeen: lastSeen ?? this.lastSeen,
       photoUrl: photoUrl ?? this.photoUrl,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       isHost: isHost ?? this.isHost,
       isUser: isUser ?? this.isUser,
       batteryLevel: batteryLevel ?? this.batteryLevel,
@@ -75,6 +79,7 @@ class SquadMember {
         'lng': longitude,
         'status': status,
         'photo_url': photoUrl,
+        'phone_number': phoneNumber,
         'is_host': isHost,
         'is_user': isUser,
         'battery': batteryLevel,
@@ -90,6 +95,7 @@ class SquadMember {
       longitude: (json['lng'] as num?)?.toDouble() ?? 88.3725,
       status: json['status'] as String? ?? 'Active • Pandal Hopping',
       photoUrl: json['photo_url'] as String? ?? json['photoUrl'] as String?,
+      phoneNumber: json['phone_number'] as String? ?? json['phoneNumber'] as String?,
       isHost: json['is_host'] as bool? ?? false,
       isUser: json['is_user'] as bool? ?? false,
       batteryLevel: (json['battery'] as num?)?.toInt() ?? 85,

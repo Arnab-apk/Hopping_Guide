@@ -8,6 +8,7 @@ import '../utils/haversine.dart';
 import 'location_service.dart';
 import 'notification_progress_service.dart';
 import 'pandal_user_state_service.dart';
+import 'trail_optimizer.dart';
 
 /// User's preferred vibe / hopping style
 enum HoppingStyle {
@@ -107,6 +108,32 @@ class ActiveCustomTrail {
   })  : startedAt = startedAt ?? DateTime.now(),
         visitedPandalIds = {};
 
+  /// Factory constructor for custom trails created via the Custom Trail Builder
+  factory ActiveCustomTrail.custom({
+    required String id,
+    required LatLng startingLocation,
+    required String startingAddress,
+    required List<Pandal> stops,
+    required double totalDistanceKm,
+    required int totalEstimatedMinutes,
+    HoppingStyle style = HoppingStyle.express,
+    HoppingTransitMode transitMode = HoppingTransitMode.walking,
+    DateTime? startedAt,
+  }) {
+    return ActiveCustomTrail(
+      id: id,
+      style: style,
+      timeBudgetMinutes: totalEstimatedMinutes,
+      transitMode: transitMode,
+      startingLocation: startingLocation,
+      startingAddress: startingAddress,
+      stops: stops,
+      totalDistanceKm: totalDistanceKm,
+      totalEstimatedMinutes: totalEstimatedMinutes,
+      startedAt: startedAt,
+    );
+  }
+
   final String id;
   final HoppingStyle style;
   final int timeBudgetMinutes;
@@ -117,6 +144,23 @@ class ActiveCustomTrail {
   final double totalDistanceKm;
   final int totalEstimatedMinutes;
   final DateTime startedAt;
+
+  /// Real road-routed distance in kilometers computed via GemKit native RoutingService.
+  double? routedDistanceKm;
+
+  /// Real road-routed duration in minutes (including dwelling time) computed via GemKit native RoutingService.
+  int? routedEstimatedMinutes;
+
+  /// Remaining routed distance in km for unvisited stops
+  double? remainingRoutedDistanceKm;
+
+  /// Remaining routed duration in minutes for unvisited stops
+  int? remainingRoutedDurationMinutes;
+
+  /// High-resolution road-following coordinates along actual streets from GemKit route calculation.
+  List<LatLng>? routedPolyline;
+
+  LatLng get startPoint => startingLocation;
 
   int currentStopIndex = 0;
   final Set<String> visitedPandalIds;
@@ -144,8 +188,11 @@ class ActiveCustomTrail {
   }
 
   int get remainingEstimatedMinutes {
+    if (remainingRoutedDurationMinutes != null) {
+      return remainingRoutedDurationMinutes!;
+    }
     final elapsed = DateTime.now().difference(startedAt).inMinutes;
-    final left = totalEstimatedMinutes - elapsed;
+    final left = (routedEstimatedMinutes ?? totalEstimatedMinutes) - elapsed;
     return left > 0 ? left : 5;
   }
 }
@@ -167,8 +214,55 @@ class CustomHoppingTrailService extends ChangeNotifier {
   bool get hasActiveTrail => _activeTrail != null && !_activeTrail!.isCompleted;
   Pandal? get currentTarget => _activeTrail?.currentTargetPandal;
 
+  /// Updates the active trail with real road-following metrics calculated by GemKit RoutingService.
+  void updateRoutedStats({
+    required double distanceKm,
+    required int durationMinutes,
+    List<LatLng>? polyline,
+    double? remainingDistanceKm,
+    int? remainingDurationMinutes,
+  }) {
+    if (_activeTrail == null) return;
+    _activeTrail!.routedDistanceKm = distanceKm;
+    _activeTrail!.routedEstimatedMinutes = durationMinutes;
+    if (polyline != null && polyline.isNotEmpty) {
+      _activeTrail!.routedPolyline = polyline;
+    }
+    _activeTrail!.remainingRoutedDistanceKm = remainingDistanceKm ?? distanceKm;
+    _activeTrail!.remainingRoutedDurationMinutes =
+        remainingDurationMinutes ?? durationMinutes;
+    _updateNotificationShade();
+    notifyListeners();
+  }
+
   void attachUserStateService(PandalUserStateService service) {
     _userStateService = service;
+  }
+
+  /// Generates a deterministic, on-device shortest Hamiltonian trail
+  /// through user-selected pandals using Held-Karp / 2-opt optimization.
+  ActiveCustomTrail generateOptimizedTrail({
+    required LatLng startPos,
+    required String startLabel,
+    required List<Pandal> selectedPandals,
+  }) {
+    final result = TrailOptimizer.optimizePandalStops(
+      start: startPos,
+      stops: selectedPandals,
+    );
+
+    // Estimate dwell time (~15 mins per pandal) + walk duration
+    final totalEstMinutes =
+        (result.totalDurationMinutes + (result.orderedStops.length * 15)).round();
+
+    return ActiveCustomTrail.custom(
+      id: 'custom_trail_${DateTime.now().millisecondsSinceEpoch}',
+      startingLocation: startPos,
+      startingAddress: startLabel,
+      stops: result.orderedStops,
+      totalDistanceKm: result.totalDistanceKm,
+      totalEstimatedMinutes: totalEstMinutes,
+    );
   }
 
   /// Generates an optimized custom pandal itinerary tailored to
@@ -386,10 +480,14 @@ class CustomHoppingTrailService extends ChangeNotifier {
     // Advance to next pandal
     if (trail.currentStopIndex < trail.totalStops - 1) {
       trail.currentStopIndex++;
+      trail.remainingRoutedDistanceKm = null;
+      trail.remainingRoutedDurationMinutes = null;
       await _updateNotificationShade();
     } else {
       // All stops visited!
       trail.isCompleted = true;
+      trail.remainingRoutedDistanceKm = 0.0;
+      trail.remainingRoutedDurationMinutes = 0;
       await NotificationProgressService.instance.showTrailCompleted(
         totalVisited: trail.totalStops,
       );
@@ -404,6 +502,8 @@ class CustomHoppingTrailService extends ChangeNotifier {
     final trail = _activeTrail!;
     if (trail.currentStopIndex < trail.totalStops - 1) {
       trail.currentStopIndex++;
+      trail.remainingRoutedDistanceKm = null;
+      trail.remainingRoutedDurationMinutes = null;
       await _updateNotificationShade();
       notifyListeners();
     } else {

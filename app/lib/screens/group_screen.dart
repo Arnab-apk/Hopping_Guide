@@ -3,29 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../config/theme.dart';
+import '../models/chat_message.dart';
 import '../models/squad_member.dart';
-import '../services/auth_service.dart';
+import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
 import '../utils/haversine.dart';
-import '../utils/responsive.dart';
-import '../widgets/google_logo.dart';
 import '../widgets/puja_icons.dart';
 import '../widgets/user_profile_sheet.dart';
 import 'main_navigation_screen.dart';
+import 'squad_chat_screen.dart';
 
-/// Screen for creating/joining hopping squads, viewing live member locations,
-/// adjusting meetup points, and dispatching crowd separation alerts.
+/// Simplified Screen for Durga Puja Hopping Squads.
+/// Consolidated into 4 cohesive cards:
+/// 1. Squad Identity Card (name, code, invite action)
+/// 2. Squad Settings Card (meetup landmark, live GPS toggle, separation threshold)
+/// 3. Squad Members Card (host row with profile link, companion list, dialer call, inline empty state)
+/// 4. Squad Chat & Media Card (live messaging, photo/video sharing entry)
 class GroupScreen extends StatelessWidget {
   const GroupScreen({super.key});
 
   void _shareInvite(BuildContext context, SquadService squadService) {
     if (!squadService.hasActiveSquad) return;
     final code = squadService.squadCode;
+    final name = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
     SharePlus.instance.share(
       ShareParams(
-        text: 'Join my Durga Puja Hopping Squad "${squadService.squadName}" on Pujo Parikrama App!\n\n'
+        text: 'Join my Durga Puja Hopping Squad "$name" on Pujo Parikrama App!\n\n'
             '🔑 Squad Code: $code\n'
             '📍 Meet-up Point: ${squadService.meetupPointName}\n\n'
             '🔗 Tap to auto-join: https://sharodiya.com/join?code=$code\n'
@@ -69,7 +75,8 @@ class GroupScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () async {
-              final squadName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
+              final rawName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
+              final squadName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
               final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Landmark' : meetupController.text.trim();
               Navigator.pop(ctx);
 
@@ -142,11 +149,13 @@ class GroupScreen extends StatelessWidget {
   }
 
   Future<void> _leaveGroup(BuildContext context, SquadService squadService) async {
+    final rawName = squadService.squadName ?? 'Squad';
+    final cleanName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Leave Squad?'),
-        content: Text('Are you sure you want to leave "${squadService.squadName}"?'),
+        content: Text('Are you sure you want to leave "$cleanName"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -168,6 +177,41 @@ class GroupScreen extends StatelessWidget {
         );
       }
     }
+  }
+
+  void _showEditSquadNameDialog(BuildContext context, SquadService squadService) {
+    final current = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
+    final controller = TextEditingController(text: current);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Edit Squad Name'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Squad Name',
+            hintText: 'e.g. Bagbazar Pandal Crawlers',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                squadService.updateSquadName(newName);
+              }
+              Navigator.pop(ctx);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _setMeetupPoint(BuildContext context, SquadService squadService) {
@@ -201,6 +245,41 @@ class GroupScreen extends StatelessWidget {
             child: const Text('Update'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showSeparationThresholdDialog(BuildContext context, SquadService squadService) {
+    final current = squadService.separationThresholdMeters;
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('Separation Alert Distance'),
+        children: [100, 250, 500, 1000].map((meters) {
+          final isSelected = current == meters;
+          return ListTile(
+            leading: Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+              color: isSelected ? PujaColors.durgaRed : null,
+            ),
+            title: Text('$meters m ${meters == 500 ? '(Standard)' : ''}'),
+            subtitle: Text(
+              meters <= 250
+                  ? 'High sensitivity — dense pandal crowds'
+                  : meters <= 500
+                      ? 'Standard pandal hopping zone'
+                      : 'Wide area — neighborhood parikrama',
+              style: const TextStyle(fontSize: 12),
+            ),
+            onTap: () {
+              squadService.setSeparationThreshold(meters);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Separation alert threshold set to $meters m')),
+              );
+            },
+          );
+        }).toList(),
       ),
     );
   }
@@ -246,6 +325,32 @@ class GroupScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _callCompanion(BuildContext context, SquadMember member) async {
+    final phone = member.phoneNumber?.trim();
+    if (phone != null && phone.isNotEmpty) {
+      final uri = Uri.parse('tel:$phone');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Could not open phone dialer for $phone')),
+          );
+        }
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${member.name} has not added a phone number to their profile.'),
+          action: SnackBarAction(
+            label: 'OK',
+            onPressed: () {},
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -254,36 +359,11 @@ class GroupScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hopping Squad (Groups)'),
+        title: const Text('Hopping Squad'),
         actions: [
-          IconButton(
-            tooltip: 'My Profile',
-            icon: Consumer<AuthService>(
-              builder: (ctx, auth, _) {
-                final photo = auth.currentUserModel?.photoUrl;
-                if (photo != null && photo.isNotEmpty) {
-                  return Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: PujaColors.festivalGold, width: 1.5),
-                    ),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: photo,
-                        fit: BoxFit.cover,
-                        errorWidget: (c, u, e) => const Icon(Icons.account_circle, color: PujaColors.festivalGold),
-                      ),
-                    ),
-                  );
-                }
-                return const Icon(Icons.account_circle_outlined);
-              },
-            ),
-            onPressed: () => UserProfileSheet.show(context),
-          ),
           PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Squad Options',
             onSelected: (value) {
               if (value == 'create') _createGroup(context, squadService);
               if (value == 'join') _joinGroup(context, squadService);
@@ -308,12 +388,9 @@ class GroupScreen extends StatelessWidget {
   }
 
   Widget _buildNoGroupView(BuildContext context, ThemeData theme, SquadService squadService) {
-    final isDark = theme.brightness == Brightness.dark;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildProfileHeaderCard(context, theme, isDark),
-        const SizedBox(height: 12),
         Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -367,331 +444,567 @@ class GroupScreen extends StatelessWidget {
   }
 
   Widget _buildActiveGroupView(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
-    final members = squadService.members;
-    final userMember = members.where((m) => m.isUser).firstOrNull;
-
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // User Profile Header Card
-        _buildProfileHeaderCard(context, theme, isDark),
+        // Card 1 — Squad Identity
+        _buildSquadIdentityCard(context, theme, isDark, squadService),
+        const SizedBox(height: 16),
 
-        // Squad Code Banner
-        Card(
-          color: isDark ? PujaColors.nightCard : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: PujaColors.festivalGold.withValues(alpha: 0.35),
-              width: 1.2,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+        // Card 2 — Squad Settings (merges meetup point, GPS toggle, and separation alert threshold)
+        _buildSquadSettingsCard(context, theme, isDark, squadService),
+        const SizedBox(height: 16),
+
+        // Card 3 — Squad Members (host row + companion rows + inline empty state)
+        _buildSquadMembersCard(context, theme, isDark, squadService),
+        const SizedBox(height: 16),
+
+        // Card 4 — Squad Chat & Media
+        _buildSquadChatCard(context, theme, isDark, squadService),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  // --- CARD 1: SQUAD IDENTITY ---
+  Widget _buildSquadIdentityCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+    final rawName = squadService.squadName ?? 'My Squad';
+    final displayName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
+    final membersCount = squadService.members.length;
+    final memberText = membersCount == 1 ? '1 member hopping together' : '$membersCount members hopping together';
+    final code = squadService.squadCode ?? '';
+
+    return Card(
+      color: isDark ? PujaColors.nightCard : Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+          width: 1.2,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () => _showEditSquadNameDialog(context, squadService),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                displayName,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'serif',
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(
+                              Icons.edit_outlined,
+                              size: 16,
+                              color: PujaColors.festivalGold,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        memberText,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.white60 : Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Squad Code Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: PujaColors.crimsonVelvet.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: PujaColors.festivalGold.withValues(alpha: 0.45),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        code,
+                        style: TextStyle(
+                          color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: code));
+                          HapticFeedback.lightImpact();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Squad code copied to clipboard!')),
+                          );
+                        },
+                        child: Icon(
+                          Icons.copy_rounded,
+                          size: 16,
+                          color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: PujaColors.durgaRed,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: PujaIcon.shankha(size: 20, color: Colors.white),
+                label: const Text(
+                  'Invite Companions',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _shareInvite(context, squadService);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- CARD 2: SQUAD SETTINGS (Merges 3 cards: meetup landmark + GPS switch + Separation alert) ---
+  Widget _buildSquadSettingsCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+    return Card(
+      color: isDark ? PujaColors.nightCard : Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark ? Colors.white12 : Colors.black12,
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          children: [
+            // Row 1: Meet-up Point
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _setMeetupPoint(context, squadService);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
                   children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: PujaColors.festivalGold.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: PujaIcon.kalash(color: PujaColors.festivalGold, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Designated Meet-up Point',
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: PujaColors.festivalGold,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            squadService.meetupPointName,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
+                  ],
+                ),
+              ),
+            ),
+
+            const Divider(height: 16),
+
+            // Row 2: Live Location Sharing Toggle
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: (squadService.isSharingLocation ? const Color(0xFF00E676) : Colors.grey)
+                          .withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      squadService.isSharingLocation ? Icons.location_on : Icons.location_off,
+                      color: squadService.isSharingLocation ? const Color(0xFF00E676) : Colors.grey,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Share Live GPS Location',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13.5,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          squadService.isSharingLocation
+                              ? 'Broadcasting live pin to squad'
+                              : 'Live location is paused',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: isDark ? Colors.white54 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Switch.adaptive(
+                    value: squadService.isSharingLocation,
+                    activeThumbColor: const Color(0xFF00E676),
+                    activeTrackColor: const Color(0xFF00E676).withValues(alpha: 0.3),
+                    onChanged: (val) {
+                      HapticFeedback.selectionClick();
+                      squadService.toggleLocationSharing(val);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const Divider(height: 16),
+
+            // Row 3: Separation Alert Distance & SOS
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                _showSeparationThresholdDialog(context, squadService);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: PujaIcon.trishulEyes(color: Colors.red, size: 22),
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            squadService.squadName ?? 'My Squad',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'serif',
+                            'Separation Alert Distance',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13.5,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
-                            members.length == 1
-                                ? '1 member hopping together'
-                                : '${members.length} members hopping together',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: isDark ? Colors.white60 : Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: PujaColors.crimsonVelvet.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.45),
-                          width: 1.2,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            squadService.squadCode ?? '',
+                            'Threshold: ${squadService.separationThresholdMeters} m • Tap to configure',
                             style: TextStyle(
-                              color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16,
-                              letterSpacing: 2,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          InkWell(
-                            onTap: () {
-                              Clipboard.setData(ClipboardData(text: squadService.squadCode ?? ''));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Code copied to clipboard!')),
-                              );
-                            },
-                            child: Icon(
-                              Icons.copy,
-                              size: 16,
-                              color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
+                              fontSize: 11.5,
+                              color: isDark ? Colors.white54 : Colors.black54,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    // SOS trigger button
+                    IconButton(
+                      icon: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 22),
+                      tooltip: 'Send Separation SOS Alert',
+                      onPressed: () {
+                        HapticFeedback.heavyImpact();
+                        _triggerSeparationSOS(context);
+                      },
+                    ),
+                    const Icon(Icons.tune_rounded, size: 18, color: Colors.grey),
                   ],
                 ),
-                const Divider(height: 24),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    children: [
-                      FilledButton.icon(
-                        icon: PujaIcon.shankha(size: context.dynamicIcon(24), color: Colors.white),
-                        label: Text('Invite Companions', style: TextStyle(fontSize: context.dynamicFont(13))),
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          _shareInvite(context, squadService);
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      FilledButton.tonalIcon(
-                        icon: PujaIcon.trishulEyes(color: Colors.red, size: context.dynamicIcon(24)),
-                        label: Text('Separation Alert (500 m)', style: TextStyle(color: Colors.red, fontSize: context.dynamicFont(13))),
-                        onPressed: () {
-                          HapticFeedback.heavyImpact();
-                          _triggerSeparationSOS(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 16),
+      ),
+    );
+  }
 
-        // Designated Meet-up Point Card
-        Card(
-          color: isDark ? PujaColors.nightSurface : PujaColors.goldSoft,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(
-              color: PujaColors.festivalGold.withValues(alpha: 0.4),
-              width: 1.2,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+  // --- CARD 3: SQUAD MEMBERS (Host row + Companion rows + Inline empty state) ---
+  Widget _buildSquadMembersCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+    final members = squadService.members;
+    final userMember = members.where((m) => m.isUser).firstOrNull;
+    final companions = squadService.companionMembers;
+
+    return Card(
+      color: isDark ? PujaColors.nightCard : Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark ? Colors.white12 : Colors.black12,
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header Row: Members (1 Host, 0 Others) · View on Map
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: PujaColors.festivalGold.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: PujaIcon.kalash(color: PujaColors.festivalGold, size: context.dynamicIcon(32)),
-                ),
-                const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Designated Meet-up Point',
-                        style: TextStyle(fontSize: context.dynamicFont(12), fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        squadService.meetupPointName,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: context.dynamicFont(14),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'Members (1 Host, ${companions.length} Others)',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.edit, size: context.dynamicIcon(20)),
-                  tooltip: 'Change Meetup Point',
+                FilledButton.tonalIcon(
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  icon: const Icon(Icons.map_outlined, size: 15),
+                  label: const Text('View on Map', style: TextStyle(fontSize: 12)),
                   onPressed: () {
-                    HapticFeedback.selectionClick();
-                    _setMeetupPoint(context, squadService);
+                    HapticFeedback.lightImpact();
+                    MainNavigationScreen.switchTab(context, 0);
                   },
                 ),
               ],
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
 
-        // Live Location Sharing Card
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
+
+            // You (Host) Row — tapping opens Profile
+            if (userMember != null)
+              _buildHostRow(context, userMember, theme, isDark),
+
+            // Companions or Inline Empty State
+            if (companions.isEmpty) ...[
+              const Divider(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Column(
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          squadService.isSharingLocation ? Icons.location_on : Icons.location_off,
-                          color: squadService.isSharingLocation ? const Color(0xFF00E676) : Colors.grey,
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: PujaColors.festivalGold.withValues(alpha: 0.12),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Share Live GPS Location',
-                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                        child: PujaIcon.dhaki(
+                          size: 36,
+                          color: PujaColors.festivalGold,
                         ),
-                      ],
+                      ),
                     ),
-                    Switch.adaptive(
-                      value: squadService.isSharingLocation,
-                      activeThumbColor: const Color(0xFF00E676),
-                      activeTrackColor: const Color(0xFF00E676).withValues(alpha: 0.3),
-                      onChanged: (val) {
-                        HapticFeedback.selectionClick();
-                        squadService.toggleLocationSharing(val);
+                    const SizedBox(height: 8),
+                    Text(
+                      'No companions have joined yet',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Share squad code "${squadService.squadCode}" to hop together.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.5)),
+                      ),
+                      icon: PujaIcon.shankha(size: 16, color: PujaColors.festivalGold),
+                      label: const Text('Invite Companions', style: TextStyle(fontSize: 12)),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        _shareInvite(context, squadService);
                       },
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  squadService.isSharingLocation
-                      ? 'Squad members can see your live marker and relative distance on their map.'
-                      : 'Live location paused. Turn on so friends can locate you in crowded areas.',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: isDark ? Colors.white60 : Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
-
-        // Squad Friends At-A-Glance (Only shown when companions are active, eliminating duplicate empty state)
-        if (squadService.companionMembers.isNotEmpty) ...[
-          _buildSquadFriendsAtAGlance(context, theme, isDark, squadService, userMember),
-          const SizedBox(height: 18),
-        ],
-
-        // Squad Members Header with Quick Map Jump
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                squadService.companionMembers.isEmpty
-                    ? 'Squad Members (1 Host, 0 Companions)'
-                    : 'Squad Members (${members.length})',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton.tonalIcon(
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                visualDensity: VisualDensity.compact,
+            ] else ...[
+              const Divider(height: 16),
+              ...companions.map(
+                (comp) => _buildCompanionRow(context, comp, userMember, theme, isDark, squadService),
               ),
-              icon: const Icon(Icons.map_rounded, size: 16),
-              label: const Text('View on Map'),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                MainNavigationScreen.switchTab(context, 0);
-              },
-            ),
+            ],
           ],
         ),
-        const SizedBox(height: 8),
+      ),
+    );
+  }
 
-        // User / Host Tile
-        if (userMember != null)
-          _buildMemberTile(context, userMember, userMember, theme, isDark, squadService),
-
-        // Companions or Empty State
-        if (squadService.companionMembers.isEmpty)
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: isDark ? Colors.white12 : Colors.black12,
-                width: 1,
+  Widget _buildHostRow(BuildContext context, SquadMember userMember, ThemeData theme, bool isDark) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        UserProfileSheet.show(context);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Row(
+          children: [
+            // User Avatar
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: PujaColors.festivalGold, width: 2),
+              ),
+              child: ClipOval(
+                child: userMember.photoUrl != null && userMember.photoUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: userMember.photoUrl!,
+                        fit: BoxFit.cover,
+                        errorWidget: (c, u, e) => CircleAvatar(
+                          backgroundColor: PujaColors.durgaRed.withValues(alpha: 0.2),
+                          child: Text(userMember.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundColor: PujaColors.durgaRed.withValues(alpha: 0.2),
+                        child: Text(userMember.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      ),
               ),
             ),
-            color: isDark ? PujaColors.nightCard.withValues(alpha: 0.6) : Colors.grey.shade50,
-            margin: const EdgeInsets.only(top: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: PujaColors.festivalGold.withValues(alpha: 0.15),
-                    ),
-                    child: PujaIcon.dhaki(
-                      size: 48,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          userMember.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'HOST',
+                          style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.amber),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '0 m (Here) • Tap to view Profile',
+                    style: TextStyle(
+                      fontSize: 11.5,
                       color: PujaColors.festivalGold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No Companions Yet',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Your squad starts with only you as host. Share your squad code with friends to see their live GPS markers on the map.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: isDark ? Colors.white60 : Colors.black54,
-                      height: 1.4,
                     ),
                   ),
                 ],
               ),
             ),
-          )
-        else
-          ...squadService.companionMembers
-              .map((member) => _buildMemberTile(context, member, userMember, theme, isDark, squadService)),
-      ],
+            Text(
+              '🔋${userMember.batteryLevel}%',
+              style: TextStyle(
+                fontSize: 11,
+                color: isDark ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right_rounded, size: 20, color: Colors.grey),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildMemberTile(
+  Widget _buildCompanionRow(
     BuildContext context,
     SquadMember member,
     SquadMember? userMember,
@@ -699,8 +1012,8 @@ class GroupScreen extends StatelessWidget {
     bool isDark,
     SquadService squadService,
   ) {
-    final distanceText = member.isUser || userMember == null
-        ? '0 m (Here)'
+    final distanceText = userMember == null
+        ? 'Nearby'
         : formatDistance(
             haversineMeters(
               userMember.latitude,
@@ -710,220 +1023,163 @@ class GroupScreen extends StatelessWidget {
             ),
           );
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: member.isUser ? PujaColors.festivalGold : member.avatarColor,
-                  width: member.isUser ? 2.0 : 1.5,
-                ),
-              ),
-              child: ClipOval(
-                child: member.photoUrl != null && member.photoUrl!.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: member.photoUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (ctx, url) => CircleAvatar(
-                          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
-                          foregroundColor: member.avatarColor,
-                          child: Text(
-                            member.initials,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(17)),
-                          ),
-                        ),
-                        errorWidget: (ctx, url, err) => CircleAvatar(
-                          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
-                          foregroundColor: member.avatarColor,
-                          child: Text(
-                            member.initials,
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(17)),
-                          ),
-                        ),
-                      )
-                    : CircleAvatar(
-                        backgroundColor: member.avatarColor.withValues(alpha: 0.2),
-                        foregroundColor: member.avatarColor,
-                        child: Text(
-                          member.initials,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: context.dynamicFont(14)),
-                        ),
-                      ),
-              ),
-            ),
-            Positioned(
-              right: -1,
-              bottom: -1,
-              child: Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00E676),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                    width: 2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        title: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                member.name,
-                maxLines: 2,
-                softWrap: true,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: member.isUser ? FontWeight.bold : FontWeight.w600,
-                  fontSize: context.dynamicFont(14),
-                ),
-              ),
-            ),
-            if (member.isHost) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  'HOST',
-                  style: TextStyle(fontSize: context.dynamicFont(10), fontWeight: FontWeight.bold, color: Colors.amber),
-                ),
-              ),
-            ],
-          ],
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 3),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      child: Row(
+        children: [
+          // Companion Avatar with online badge
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              Expanded(
-                child: Text(
-                  '${member.status} • $distanceText',
-                  maxLines: 2,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: context.dynamicFont(12)),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: member.avatarColor, width: 1.5),
+                ),
+                child: ClipOval(
+                  child: member.photoUrl != null && member.photoUrl!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: member.photoUrl!,
+                          fit: BoxFit.cover,
+                          errorWidget: (c, u, e) => CircleAvatar(
+                            backgroundColor: member.avatarColor.withValues(alpha: 0.2),
+                            child: Text(member.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        )
+                      : CircleAvatar(
+                          backgroundColor: member.avatarColor.withValues(alpha: 0.2),
+                          child: Text(member.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '🔋${member.batteryLevel}%',
-                style: TextStyle(
-                  fontSize: context.dynamicFont(11),
-                  color: member.batteryLevel < 20 ? Colors.red : (isDark ? Colors.white60 : Colors.black54),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00E676),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: isDark ? const Color(0xFF1E1E1E) : Colors.white, width: 1.5),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-        trailing: IconButton(
-          icon: Icon(Icons.navigation_outlined, color: PujaColors.durgaRed, size: context.dynamicIcon(20)),
-          tooltip: 'Locate on Map',
-          onPressed: () {
-            HapticFeedback.selectionClick();
-            squadService.focusMember(member.id);
-            MainNavigationScreen.switchTab(context, 0);
-          },
-        ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  member.name,
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${member.status} • $distanceText',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '🔋${member.batteryLevel}%',
+            style: TextStyle(
+              fontSize: 11,
+              color: member.batteryLevel < 20 ? Colors.red : (isDark ? Colors.white60 : Colors.black54),
+            ),
+          ),
+          const SizedBox(width: 2),
+          // Locate on map button
+          IconButton(
+            icon: const Icon(Icons.navigation_outlined, color: PujaColors.durgaRed, size: 19),
+            tooltip: 'Locate on Map',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              squadService.focusMember(member.id);
+              MainNavigationScreen.switchTab(context, 0);
+            },
+          ),
+          // Native dialer Call button
+          IconButton(
+            icon: const Icon(Icons.phone_rounded, color: Colors.green, size: 19),
+            tooltip: 'Call Companion',
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _callCompanion(context, member);
+            },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildProfileHeaderCard(BuildContext context, ThemeData theme, bool isDark) {
-    final authService = Provider.of<AuthService>(context);
-    final user = authService.currentUserModel;
-    final photoUrl = user?.photoUrl;
-    final displayName = user?.displayName ?? 'Hopper Guest';
-    final email = user?.email ?? 'Parikrama Traveler';
-    final isGoogle = authService.isGoogleUser;
+  // --- CARD 4: SQUAD CHAT & MEDIA ---
+  Widget _buildSquadChatCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+    final squadCode = squadService.squadCode ?? 'SQUAD';
+    final squadName = (squadService.squadName ?? 'Squad Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      color: isDark ? PujaColors.nightCard : Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+          color: PujaColors.durgaRed.withValues(alpha: 0.35),
           width: 1.2,
         ),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           HapticFeedback.selectionClick();
-          UserProfileSheet.show(context);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => SquadChatScreen(
+                squadCode: squadCode,
+                squadName: squadName,
+              ),
+            ),
+          );
         },
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Google DP
               Container(
-                width: 60,
-                height: 60,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: PujaColors.festivalGold,
-                    width: 2,
+                  gradient: const LinearGradient(
+                    colors: [
+                      PujaColors.durgaRed,
+                      PujaColors.crimsonVelvet,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.3),
+                      color: PujaColors.durgaRed.withValues(alpha: 0.3),
                       blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
-                child: ClipOval(
-                  child: photoUrl != null && photoUrl.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: photoUrl,
-                          fit: BoxFit.cover,
-                          placeholder: (c, u) => Container(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
-                            child: const Icon(Icons.person, color: PujaColors.festivalGold),
-                          ),
-                          errorWidget: (c, u, e) => Container(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
-                            child: Center(
-                              child: Text(
-                                user?.initials ?? 'HP',
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Container(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.2),
-                          child: Center(
-                            child: Text(
-                              user?.initials ?? 'HP',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
-                            ),
-                          ),
-                        ),
-                ),
+                child: const Icon(Icons.forum_rounded, color: Colors.white, size: 24),
               ),
               const SizedBox(width: 14),
-              // User details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -932,308 +1188,86 @@ class GroupScreen extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            displayName,
+                            'Squad Chat & Media',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
+                              fontSize: 14.5,
                             ),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (isGoogle) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF4285F4).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const GoogleLogo(size: 11),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Google',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark ? const Color(0xFF8AB4F8) : const Color(0xFF1A73E8),
-                                  ),
-                                ),
-                              ],
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Live',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: PujaColors.festivalGold,
                             ),
                           ),
-                        ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: 3),
-                    Text(
-                      email,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark ? Colors.white60 : Colors.black54,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                    StreamBuilder<List<ChatMessage>>(
+                      stream: SquadChatService.instance.messagesStream(squadCode),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                          final latest = snapshot.data!.first;
+                          String preview = latest.text ?? 'Shared a photo';
+                          if (latest.isVideo) preview = 'Shared a video clip';
+                          return Text(
+                            '${latest.senderName.split(' ')[0]}: $preview',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          );
+                        }
+                        return Text(
+                          'Send real-time texts, photos & videos',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark ? Colors.white54 : Colors.black54,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
-              // Profile button
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              const SizedBox(width: 8),
+              FilledButton.tonal(
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   visualDensity: VisualDensity.compact,
-                  side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.5)),
                 ),
-                icon: const Icon(Icons.person_outline_rounded, size: 16),
-                label: const Text('Profile', style: TextStyle(fontSize: 12)),
                 onPressed: () {
                   HapticFeedback.selectionClick();
-                  UserProfileSheet.show(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => SquadChatScreen(
+                        squadCode: squadCode,
+                        squadName: squadName,
+                      ),
+                    ),
+                  );
                 },
+                child: const Text('Open Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSquadFriendsAtAGlance(
-    BuildContext context,
-    ThemeData theme,
-    bool isDark,
-    SquadService squadService,
-    SquadMember? userMember,
-  ) {
-    final companions = squadService.companionMembers;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.flash_on_rounded, color: PujaColors.festivalGold, size: 20),
-                const SizedBox(width: 6),
-                Text(
-                  'Squad Friends At-A-Glance',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ],
-            ),
-            if (companions.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF00E676),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${companions.length} Online',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        if (companions.isEmpty)
-          Card(
-            color: isDark ? PujaColors.nightCard.withValues(alpha: 0.7) : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: PujaColors.festivalGold.withValues(alpha: 0.25),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.person_add_alt_1_rounded, color: PujaColors.festivalGold, size: 22),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'No Companions Active',
-                          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Share your squad code to invite friends and see their live GPS locations on the map.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: isDark ? Colors.white60 : Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          SizedBox(
-            height: 124,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: companions.length,
-              separatorBuilder: (ctx, i) => const SizedBox(width: 10),
-              itemBuilder: (ctx, index) {
-                final friend = companions[index];
-                final dist = userMember != null
-                    ? formatDistance(
-                        haversineMeters(
-                          userMember.latitude,
-                          userMember.longitude,
-                          friend.latitude,
-                          friend.longitude,
-                        ),
-                      )
-                    : 'Nearby';
-
-                return InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    squadService.focusMember(friend.id);
-                    MainNavigationScreen.switchTab(context, 0);
-                  },
-                  child: Container(
-                    width: 108,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isDark ? PujaColors.nightCard : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: PujaColors.festivalGold.withValues(alpha: 0.35),
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: PujaColors.festivalGold, width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: PujaColors.festivalGold.withValues(alpha: 0.3),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ClipOval(
-                                child: friend.photoUrl != null && friend.photoUrl!.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        imageUrl: friend.photoUrl!,
-                                        fit: BoxFit.cover,
-                                        placeholder: (c, u) => CircleAvatar(
-                                          backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
-                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                        ),
-                                        errorWidget: (c, u, e) => CircleAvatar(
-                                          backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
-                                          child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                        ),
-                                      )
-                                    : CircleAvatar(
-                                        backgroundColor: friend.avatarColor.withValues(alpha: 0.2),
-                                        child: Text(friend.initials, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                      ),
-                              ),
-                            ),
-                            Positioned(
-                              right: -1,
-                              bottom: -1,
-                              child: Container(
-                                width: 11,
-                                height: 11,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00E676),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                                    width: 1.8,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          friend.name.split(' ')[0],
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            dist,
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: PujaColors.festivalGold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-      ],
     );
   }
 }

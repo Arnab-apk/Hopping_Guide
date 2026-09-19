@@ -49,6 +49,7 @@ class SquadService extends ChangeNotifier {
   bool _isSharingLocation = true;
   bool _batterySaver = false;
   bool _showSquadOnMap = true;
+  int _separationThresholdMeters = 500;
   String? _focusedMemberId;
   String? _lastError;
 
@@ -70,6 +71,7 @@ class SquadService extends ChangeNotifier {
   bool get isSharingLocation => _isSharingLocation;
   bool get isBatterySaver => _batterySaver;
   bool get showSquadOnMap => _showSquadOnMap;
+  int get separationThresholdMeters => _separationThresholdMeters;
   String? get focusedMemberId => _focusedMemberId;
   String? get lastError => _lastError;
   List<SquadMember> get members => List.unmodifiable(_members);
@@ -154,10 +156,15 @@ class SquadService extends ChangeNotifier {
       final code = prefs.getString('saved_group_code');
       final name = prefs.getString('saved_group_name');
       final meetup = prefs.getString('saved_meetup_point');
+      final thresh = prefs.getInt('saved_separation_threshold');
+
+      if (thresh != null && thresh > 0) {
+        _separationThresholdMeters = thresh;
+      }
 
       if (code != null && name != null) {
         _squadCode = code;
-        _squadName = name;
+        _squadName = name.replaceAll(RegExp(r',\s*s\b'), "'s");
         if (meetup != null) _meetupPointName = meetup;
         _initMembers(isHost: true);
         _listenToCloud();
@@ -175,6 +182,7 @@ class SquadService extends ChangeNotifier {
   Future<void> _persistState() async {
     try {
       final prefs = _prefs ?? await SharedPreferences.getInstance();
+      await prefs.setInt('saved_separation_threshold', _separationThresholdMeters);
       if (_squadCode != null) {
         await prefs.setString('saved_group_code', _squadCode!);
         await prefs.setString('saved_group_name', _squadName ?? 'My Squad');
@@ -211,6 +219,7 @@ class SquadService extends ChangeNotifier {
         status: isHost ? 'Squad Host • GPS Live' : 'Joined • GPS Live',
         lastSeen: DateTime.now(),
         photoUrl: user?.photoUrl,
+        phoneNumber: user?.phoneNumber,
         isHost: isHost,
         isUser: true,
         batteryLevel: 95,
@@ -219,6 +228,28 @@ class SquadService extends ChangeNotifier {
     );
   }
 
+  /// Update squad name with automatic typo comma correction
+  Future<void> updateSquadName(String newName) async {
+    final clean = newName.trim().replaceAll(RegExp(r',\s*s\b'), "'s");
+    if (clean.isEmpty) return;
+    _squadName = clean;
+    await _persistState();
+    await _pushMetaToCloud();
+    _wsClient.sendMessage({
+      'type': 'update_squad_meta',
+      'squad_code': _squadCode,
+      'metadata': {'name': clean},
+    });
+    notifyListeners();
+  }
+
+  /// Set the crowd separation alert threshold in meters
+  Future<void> setSeparationThreshold(int meters) async {
+    if (meters <= 0) return;
+    _separationThresholdMeters = meters;
+    await _persistState();
+    notifyListeners();
+  }
 
   static const String _codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
@@ -237,7 +268,8 @@ class SquadService extends ChangeNotifier {
 
     final code = generateSquadCode(_random);
     _squadCode = code;
-    _squadName = name.trim().isEmpty ? 'My Puja Squad' : name.trim();
+    final cleanName = name.trim().replaceAll(RegExp(r',\s*s\b'), "'s");
+    _squadName = cleanName.isEmpty ? 'My Puja Squad' : cleanName;
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Landmark' : meetup.trim();
 
     // Use current real GPS position immediately
@@ -526,6 +558,21 @@ class SquadService extends ChangeNotifier {
     } catch (_) {
       return null;
     }
+  }
+
+  @visibleForTesting
+  void addCompanionForTesting(SquadMember companion) {
+    _members.removeWhere((m) => m.id == companion.id);
+    _members.add(companion.copyWith(isUser: false));
+    notifyListeners();
+  }
+
+  @visibleForTesting
+  void resetForTesting() {
+    _squadCode = null;
+    _squadName = null;
+    _members.clear();
+    _separationThresholdMeters = 500;
   }
 
   // --- High-Speed In-Memory WebSocket Live Sync ---

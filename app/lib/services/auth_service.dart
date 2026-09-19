@@ -172,17 +172,19 @@ class AuthService extends ChangeNotifier {
     return googleUser;
   }
 
-  /// Update the current user's profile details (Name, DP, Email)
+  /// Update the current user's profile details (Name, DP, Email, Phone)
   Future<void> updateProfile({
     String? displayName,
     String? email,
     String? photoUrl,
+    String? phoneNumber,
   }) async {
     if (_currentUserModel == null) return;
     _currentUserModel = _currentUserModel!.copyWith(
       displayName: displayName,
       email: email,
       photoUrl: photoUrl,
+      phoneNumber: phoneNumber,
     );
     await _saveUser(_currentUserModel);
     notifyListeners();

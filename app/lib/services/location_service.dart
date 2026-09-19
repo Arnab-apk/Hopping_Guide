@@ -16,12 +16,14 @@ class LocationService extends ChangeNotifier {
   StreamSubscription<Position>? _positionStreamSub;
   bool _isPaused = false;
   DateTime? _lastBroadcastTime;
+  static bool enableTestMode = false;
+  bool _isTestLiveTracking = false;
 
   Position? get currentPositionSync => _currentPosition;
   Position? get lastPosition => _currentPosition;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get isLiveTracking => _positionStreamSub != null;
+  bool get isLiveTracking => _positionStreamSub != null || _isTestLiveTracking;
   bool get isPaused => _isPaused;
   double? get currentHeading => _currentPosition?.heading;
   double? get currentAccuracy => _currentPosition?.accuracy;
@@ -53,6 +55,11 @@ class LocationService extends ChangeNotifier {
     void Function(Position)? onLocationChanged,
     Duration throttleInterval = const Duration(milliseconds: 1500),
   }) async {
+    if (enableTestMode) {
+      _isTestLiveTracking = true;
+      notifyListeners();
+      return true;
+    }
     if (_positionStreamSub != null) return true;
     _isPaused = false;
 
@@ -140,6 +147,9 @@ class LocationService extends ChangeNotifier {
 
   /// Stops continuous live GPS stream
   void stopLiveTracking() {
+    if (enableTestMode) {
+      _isTestLiveTracking = false;
+    }
     _positionStreamSub?.cancel();
     _positionStreamSub = null;
     notifyListeners();

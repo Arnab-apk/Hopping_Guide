@@ -65,6 +65,59 @@ class UserProfileSheet extends StatelessWidget {
     );
   }
 
+  void _editPhoneNumber(BuildContext context, AppUser user) {
+    final controller = TextEditingController(text: user.phoneNumber ?? '');
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Squad Phone Number'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Visible to your squad companions only for quick native calling during Pujo hopping.',
+              style: TextStyle(fontSize: 12.5, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.phone,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Phone Number (Optional)',
+                hintText: '+91 98765 43210',
+                prefixIcon: Icon(Icons.phone_outlined),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty)
+            TextButton(
+              onPressed: () {
+                AuthService.instance.updateProfile(phoneNumber: '');
+                Navigator.pop(ctx);
+              },
+              child: const Text('Clear', style: TextStyle(color: Colors.redAccent)),
+            ),
+          FilledButton(
+            onPressed: () {
+              final newPhone = controller.text.trim();
+              AuthService.instance.updateProfile(phoneNumber: newPhone);
+              Navigator.pop(ctx);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _chooseGoogleAvatar(BuildContext context, AppUser user) {
     showModalBottomSheet(
       context: context,
@@ -354,7 +407,69 @@ class UserProfileSheet extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 22),
+              const SizedBox(height: 10),
+
+              // Squad Phone Number (Optional, for squad calling)
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  if (authUser != null) {
+                    _editPhoneNumber(context, authUser);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? Colors.white12 : Colors.black12,
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.phone_outlined,
+                        size: 14,
+                        color: PujaColors.festivalGold,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        (authUser?.phoneNumber != null && authUser!.phoneNumber!.isNotEmpty)
+                            ? authUser.phoneNumber!
+                            : 'Add Phone (Squad Calling)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: (authUser?.phoneNumber != null && authUser!.phoneNumber!.isNotEmpty)
+                              ? (isDark ? Colors.white70 : Colors.black87)
+                              : PujaColors.festivalGold,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 12,
+                        color: (authUser?.phoneNumber != null && authUser!.phoneNumber!.isNotEmpty)
+                            ? (isDark ? Colors.white38 : Colors.black38)
+                            : PujaColors.festivalGold,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Visible to your squad companions only',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  color: isDark ? Colors.white38 : Colors.black38,
+                ),
+              ),
+
+              const SizedBox(height: 18),
 
               // --- Hopper Parikrama Stats Grid ---
               Container(
