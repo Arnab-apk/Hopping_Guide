@@ -8,7 +8,6 @@ import '../config/theme.dart';
 import '../services/auth_service.dart';
 import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
-import '../widgets/google_account_chooser_dialog.dart';
 import '../widgets/google_logo.dart';
 import '../widgets/puja_icons.dart';
 
@@ -112,7 +111,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     await AuthService.instance.signInAsGuest();
     if (!mounted) return;
     setState(() => _isLoading = false);
-    Navigator.of(context).pushReplacementNamed('/main');
+    Navigator.of(context).pushReplacementNamed('/greeting');
   }
 
   Future<void> _enterWithGoogle() async {
@@ -122,31 +121,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     setState(() => _isLoading = false);
 
     if (result.success) {
-      Navigator.of(context).pushReplacementNamed('/main');
+      Navigator.of(context).pushReplacementNamed('/greeting');
     } else if (result.isCancelled) {
       // User dismissed the Google account prompt
     } else {
-      // Google Sign-In encountered an issue; offer the Google Account Chooser
+      // Real Google Sign-In failed; notify user of the exact error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: PujaColors.durgaRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: Text(
-            result.errorMessage ?? 'Google Sign-In failed.',
+            result.errorMessage ?? 'Google Sign-In failed. Please verify your Firebase SHA-1 setup.',
             style: const TextStyle(color: Colors.white, fontSize: 13),
           ),
-          action: SnackBarAction(
-            label: 'Choose Profile',
-            textColor: PujaColors.festivalGold,
-            onPressed: () async {
-              final chosen = await GoogleAccountChooserDialog.show(context);
-              if (chosen != null && mounted) {
-                Navigator.of(context).pushReplacementNamed('/main');
-              }
-            },
-          ),
-          duration: const Duration(seconds: 5),
+          duration: const Duration(seconds: 4),
         ),
       );
     }

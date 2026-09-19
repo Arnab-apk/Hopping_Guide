@@ -26,11 +26,11 @@ import '../services/location_service.dart';
 import '../services/routing_service.dart';
 import '../services/squad_service.dart';
 import '../services/theme_service.dart';
+import '../services/pandal_user_state_service.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/pandal_spatial_cluster.dart';
 import '../utils/responsive.dart';
-import '../widgets/crowd_badge.dart';
 import '../widgets/custom_trail_planner_dialog.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/pandal_search_autocomplete.dart';
@@ -38,10 +38,9 @@ import '../widgets/app_tutorial_dialog.dart';
 import '../widgets/animated_fade_slide.dart';
 import '../widgets/durga_face_icon.dart';
 import '../widgets/puja_icons.dart';
-import '../models/place.dart';
 import '../widgets/user_profile_sheet.dart';
+import '../widgets/leaflet_map_components.dart';
 import 'main_navigation_screen.dart';
-import 'pandal_list_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository});
@@ -976,6 +975,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedFoodSpot = spot;
       _selectedPandal = null;
       _selectedSquadMember = null;
+      _selectedMetroStation = null;
       _followUser = false;
       _showFoodSpots = true;
     });
@@ -1269,11 +1269,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 }
                 if (_selectedPandal != null ||
                     _selectedSquadMember != null ||
-                    _selectedFoodSpot != null) {
+                    _selectedFoodSpot != null ||
+                    _selectedMetroStation != null) {
                   setState(() {
                     _selectedPandal = null;
                     _selectedSquadMember = null;
                     _selectedFoodSpot = null;
+                    _selectedMetroStation = null;
                   });
                 }
               },
@@ -1412,51 +1414,37 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Food / Bhog Spot Markers (Minimalist & Accessible Touch Target)
+              // Food / Bhog Spot Markers (Leaflet Restaurant Pins)
               if (_showFoodSpots && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: _visibleFoodSpots.map((f) {
+                      final isSelected = _selectedFoodSpot?.id == f.id;
                       return Marker(
                         point: LatLng(f.lat, f.lng),
-                        width: 48,
-                        height: 48,
-                        alignment: Alignment.center,
+                        width: isSelected ? 44 : 34,
+                        height: isSelected ? 56 : 44,
+                        alignment: Alignment.topCenter,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
                             HapticFeedback.selectionClick();
+                            setState(() {
+                              _selectedFoodSpot = f;
+                              _selectedPandal = null;
+                              _selectedMetroStation = null;
+                              _highlightedRoute = null;
+                            });
                             _animatedMapMove(
                               LatLng(f.lat, f.lng),
                               (_mapController.camera.zoom < 15.5
                                   ? 15.5
                                   : _mapController.camera.zoom),
                             );
-                            _showFoodSpotSheet(f, isDark);
                           },
-                          child: Center(
-                            child: Container(
-                              width: 34,
-                              height: 34,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF57C00),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2.0),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black38,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 1.5),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: PujaIcon.bhogSweets(
-                                  color: Colors.white,
-                                  size: 22,
-                                ),
-                              ),
-                            ),
+                          child: LeafletMarkerPin.restaurant(
+                            isSelected: isSelected,
+                            pulseAnimation: isSelected ? _pulseController : null,
                           ),
                         ),
                       );
@@ -1464,97 +1452,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Selected Metro / Railway Station Beacon Layer (Prominent Glow & Accessible Target)
-              if (_selectedMetroStation != null && !isTrailActive)
-                RepaintBoundary(
-                  child: MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: LatLng(
-                          _selectedMetroStation!.latitude,
-                          _selectedMetroStation!.longitude,
-                        ),
-                        width: 58,
-                        height: 58,
-                        alignment: Alignment.center,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            _animatedMapMove(
-                              LatLng(
-                                _selectedMetroStation!.latitude,
-                                _selectedMetroStation!.longitude,
-                              ),
-                              (_mapController.camera.zoom < 16.0
-                                  ? 16.0
-                                  : _mapController.camera.zoom),
-                            );
-                          },
-                          child: Center(
-                            child: Builder(
-                              builder: (context) {
-                                final isRailway = _selectedMetroStation!.name.toLowerCase().contains('railway');
-                                final baseColor = isRailway ? PujaColors.railwayPurple : _selectedMetroStation!.line.color;
-                                return Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: baseColor,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 2.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: baseColor.withValues(
-                                          alpha: 0.85,
-                                        ),
-                                        blurRadius: 12,
-                                        spreadRadius: 3,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Center(
-                                    child: isRailway
-                                        ? const Icon(
-                                            Icons.train_rounded,
-                                            color: Colors.white,
-                                            size: 22,
-                                          )
-                                        : const Text(
-                                            'M',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w900,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Full Kolkata Metro & Railway Stations Network Layer (Large & Distinct)
+              // Full Kolkata Metro & Railway Stations Network Layer (Leaflet Metro Pins)
               if (_showMetroStations && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: MetroRepository.allStations.map((stn) {
                       final isStationSelected = _selectedMetroStation?.id == stn.id;
                       final isRailway = stn.name.toLowerCase().contains('railway');
-                      final baseColor = isRailway ? PujaColors.railwayPurple : stn.line.color;
+                      final lineColor = isRailway ? PujaColors.railwayPurple : stn.line.color;
                       return Marker(
                         point: LatLng(stn.latitude, stn.longitude),
-                        width: isStationSelected ? 56 : 48,
-                        height: isStationSelected ? 56 : 48,
-                        alignment: Alignment.center,
+                        width: isStationSelected ? 44 : 34,
+                        height: isStationSelected ? 56 : 44,
+                        alignment: Alignment.topCenter,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
@@ -1572,49 +1482,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                   : _mapController.camera.zoom,
                             );
                           },
-                          child: Center(
-                            child: Container(
-                              width: isStationSelected ? 40 : 32,
-                              height: isStationSelected ? 40 : 32,
-                              decoration: BoxDecoration(
-                                color: baseColor,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isStationSelected ? Colors.amberAccent : Colors.white,
-                                  width: isStationSelected ? 2.5 : 1.8,
-                                ),
-                                boxShadow: [
-                                  if (isStationSelected)
-                                    BoxShadow(
-                                      color: baseColor.withValues(alpha: 0.8),
-                                      blurRadius: 10,
-                                      spreadRadius: 2,
-                                    )
-                                  else
-                                    const BoxShadow(
-                                      color: Colors.black38,
-                                      blurRadius: 4,
-                                      offset: Offset(0, 1.5),
-                                    ),
-                                ],
-                              ),
-                              child: Center(
-                                child: isRailway
-                                    ? Icon(
-                                        Icons.train_rounded,
-                                        color: Colors.white,
-                                        size: isStationSelected ? 20 : 16,
-                                      )
-                                    : Text(
-                                        'M',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: isStationSelected ? 16 : 13,
-                                        ),
-                                      ),
-                              ),
-                            ),
+                          child: LeafletMarkerPin.metro(
+                            isSelected: isStationSelected,
+                            lineColor: lineColor,
+                            isRailway: isRailway,
+                            pulseAnimation: isStationSelected ? _pulseController : null,
                           ),
                         ),
                       );
@@ -2058,6 +1930,90 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ],
                 ),
               ),
+
+              // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, and Metro Stations
+              if (_selectedPandal != null ||
+                  _selectedFoodSpot != null ||
+                  _selectedMetroStation != null)
+                MarkerLayer(
+                  markers: [
+                    if (_selectedPandal != null)
+                      Marker(
+                        point: LatLng(_selectedPandal!.lat, _selectedPandal!.lng),
+                        width: 290,
+                        height: 220,
+                        alignment: const Alignment(0.0, -1.24),
+                        child: LeafletMapPopup.pandal(
+                          pandal: _selectedPandal!,
+                          isDark: isDark,
+                          isHopped: context
+                                  .watch<PandalUserStateService?>()
+                                  ?.isVisited(_selectedPandal!.id) ??
+                              false,
+                          onClose: () {
+                            setState(() {
+                              _selectedPandal = null;
+                            });
+                          },
+                          onDirections: () {
+                            _highlightRouteTo(_selectedPandal!);
+                          },
+                          onDetails: () {
+                            PandalDetailSheet.show(context, _selectedPandal!);
+                          },
+                          onToggleHopped: () {
+                            context
+                                .read<PandalUserStateService?>()
+                                ?.toggleVisited(_selectedPandal!.id);
+                          },
+                        ),
+                      )
+                    else if (_selectedFoodSpot != null)
+                      Marker(
+                        point: LatLng(_selectedFoodSpot!.lat, _selectedFoodSpot!.lng),
+                        width: 290,
+                        height: 200,
+                        alignment: const Alignment(0.0, -1.24),
+                        child: LeafletMapPopup.restaurant(
+                          spot: _selectedFoodSpot!,
+                          isDark: isDark,
+                          onClose: () {
+                            setState(() {
+                              _selectedFoodSpot = null;
+                            });
+                          },
+                          onDirections: () {
+                            _highlightRouteToFoodSpot(_selectedFoodSpot!);
+                          },
+                          onDetails: () {
+                            _showFoodSpotSheet(_selectedFoodSpot!, isDark);
+                          },
+                        ),
+                      )
+                    else if (_selectedMetroStation != null)
+                      Marker(
+                        point: LatLng(
+                          _selectedMetroStation!.latitude,
+                          _selectedMetroStation!.longitude,
+                        ),
+                        width: 290,
+                        height: 200,
+                        alignment: const Alignment(0.0, -1.24),
+                        child: LeafletMapPopup.metro(
+                          station: _selectedMetroStation!,
+                          isDark: isDark,
+                          onClose: () {
+                            setState(() {
+                              _selectedMetroStation = null;
+                            });
+                          },
+                          onDirections: () {
+                            _highlightRouteToMetroStation(_selectedMetroStation!);
+                          },
+                        ),
+                      ),
+                  ],
+                ),
             ],
           ),
 
@@ -2286,275 +2242,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             ),
 
           // (Active Trail HUD is now docked in the top bar as Trail Summary Bar)
-
-          // Bottom Mini-Card Preview when a Pandal is tapped (Animated entrance)
-          if (_selectedPandal != null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
-              child: AnimatedFadeSlide(
-                duration: const Duration(milliseconds: 320),
-                offset: const Offset(0, 0.14),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF181818) : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.12)
-                          : Colors.black.withValues(alpha: 0.08),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.45 : 0.12,
-                        ),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 14.0,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 9,
-                                vertical: 3.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: PujaColors.durgaRed.withValues(
-                                  alpha: 0.1,
-                                ),
-                                borderRadius: BorderRadius.circular(7),
-                                border: Border.all(
-                                  color: PujaColors.durgaRed.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                _selectedPandal!.zone.label,
-                                style: const TextStyle(
-                                  color: PujaColors.durgaRed,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            CrowdBadge(crowdLevel: _selectedPandal!.crowdLevel),
-                            const Spacer(),
-                            IconButton(
-                              icon: Icon(
-                                Icons.close_rounded,
-                                size: 20,
-                                color: isDark ? Colors.white60 : Colors.black45,
-                              ),
-                              tooltip: 'Dismiss',
-                              onPressed: () => setState(() {
-                                _selectedPandal = null;
-                                _highlightedRoute = null;
-                              }),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 28,
-                                minHeight: 28,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _selectedPandal!.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: context.dynamicFont(15.5),
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.2,
-                            height: 1.22,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        if (_selectedPandal!.theme.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            _selectedPandal!.theme,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: context.dynamicFont(12.5),
-                              fontWeight: FontWeight.w400,
-                              color: isDark ? Colors.white70 : Colors.black54,
-                              height: 1.25,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            _buildInfoBadge(
-                              icon: Icons.schedule_rounded,
-                              label: _selectedPandal!.timings,
-                              isDark: isDark,
-                            ),
-                            if (_selectedPandal!.nearestMetro != null &&
-                                _selectedPandal!.nearestMetro!.isNotEmpty)
-                              _buildInfoBadge(
-                                icon: Icons.directions_subway_rounded,
-                                label: _selectedPandal!.nearestMetro!,
-                                isDark: isDark,
-                                iconColor: PujaColors.metroBlue,
-                              ),
-                            if (_userPosition != null)
-                              _buildInfoBadge(
-                                icon: Icons.near_me_rounded,
-                                label: formatDistance(
-                                  haversineMeters(
-                                    _userPosition!.latitude,
-                                    _userPosition!.longitude,
-                                    _selectedPandal!.lat,
-                                    _selectedPandal!.lng,
-                                  ),
-                                ),
-                                isDark: isDark,
-                                iconColor: PujaColors.durgaRed,
-                                highlight: true,
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: FilledButton.icon(
-                                onPressed: () {
-                                  HapticFeedback.lightImpact();
-                                  PandalDetailSheet.show(
-                                    context,
-                                    _selectedPandal!,
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.info_outline_rounded,
-                                  size: 15,
-                                ),
-                                label: const Text(
-                                  'Details',
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: PujaColors.durgaRed,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              flex: 5,
-                              child: Builder(
-                                builder: (context) {
-                                  final bool isPathActive =
-                                      _highlightedRoute != null &&
-                                      _highlightedRoute!.destinationTitle ==
-                                          _selectedPandal!.name;
-                                  return FilledButton.icon(
-                                    onPressed: _isCalculatingRoute
-                                        ? null
-                                        : () {
-                                            if (isPathActive) {
-                                              _clearRoute();
-                                            } else {
-                                              _highlightRouteTo(
-                                                _selectedPandal!,
-                                              );
-                                            }
-                                          },
-                                    icon: _isCalculatingRoute
-                                        ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : Icon(
-                                            isPathActive
-                                                ? Icons.close_rounded
-                                                : Icons.directions_walk_rounded,
-                                            size: 16,
-                                          ),
-                                    label: Text(
-                                      isPathActive
-                                          ? 'Clear Path'
-                                          : 'Trace Path',
-                                      style: const TextStyle(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: isPathActive
-                                          ? (isDark
-                                                ? Colors.white12
-                                                : Colors.grey.shade200)
-                                          : (isDark
-                                                ? const Color(0xFF00E5FF)
-                                                : const Color(0xFF1565C0)),
-                                      foregroundColor: isPathActive
-                                          ? (isDark
-                                                ? Colors.white70
-                                                : Colors.black87)
-                                          : (isDark
-                                                ? Colors.black87
-                                                : Colors.white),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
 
           // Bottom Mini-Card Preview when a Squad Member is tapped
           if (_selectedSquadMember != null)
@@ -2855,610 +2542,37 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             ),
 
-          // Bottom Mini-Card Preview when a Food Spot / Restaurant is tapped
-          if (_selectedFoodSpot != null &&
-              _selectedPandal == null &&
-              _selectedSquadMember == null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
-              child: AnimatedFadeSlide(
-                duration: const Duration(milliseconds: 320),
-                offset: const Offset(0, 0.14),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1E1C18) : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: const Color(0xFFFF9800).withValues(alpha: 0.5),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.45 : 0.12,
-                        ),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 14.0,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 9,
-                                vertical: 3.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(7),
-                                border: Border.all(
-                                  color: Colors.orange.withValues(alpha: 0.4),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                _selectedFoodSpot!.type,
-                                style: const TextStyle(
-                                  color: Color(0xFFE65100),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                            if (_selectedFoodSpot!.rating != null) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00C853)
-                                      .withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.star_rounded,
-                                      size: 12,
-                                      color: Color(0xFF00C853),
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      _selectedFoodSpot!.rating!
-                                          .toStringAsFixed(1),
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color(0xFF00C853),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            const Spacer(),
-                            IconButton(
-                              icon: Icon(
-                                Icons.close_rounded,
-                                size: 20,
-                                color: isDark ? Colors.white60 : Colors.black45,
-                              ),
-                              tooltip: 'Dismiss',
-                              onPressed: () => setState(() {
-                                _selectedFoodSpot = null;
-                                _highlightedRoute = null;
-                              }),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 28,
-                                minHeight: 28,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _selectedFoodSpot!.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: context.dynamicFont(15.5),
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        if (_selectedFoodSpot!.mustTry != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            '🍲 Must Try: ${_selectedFoodSpot!.mustTry}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: context.dynamicFont(12.5),
-                              fontWeight: FontWeight.w500,
-                              color: isDark
-                                  ? const Color(0xFFFFAB40)
-                                  : const Color(0xFFD84315),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            _buildInfoBadge(
-                              icon: Icons.location_on_outlined,
-                              label: 'Near ${_selectedFoodSpot!.nearbyPandal}',
-                              isDark: isDark,
-                            ),
-                            if (_selectedFoodSpot!.priceRange != null)
-                              _buildInfoBadge(
-                                icon: Icons.payments_outlined,
-                                label: _selectedFoodSpot!.priceRange!,
-                                isDark: isDark,
-                              ),
-                            if (_userPosition != null)
-                              _buildInfoBadge(
-                                icon: Icons.near_me_rounded,
-                                label: formatDistance(
-                                  haversineMeters(
-                                    _userPosition!.latitude,
-                                    _userPosition!.longitude,
-                                    _selectedFoodSpot!.lat,
-                                    _selectedFoodSpot!.lng,
-                                  ),
-                                ),
-                                isDark: isDark,
-                                iconColor: Colors.orange.shade800,
-                                highlight: true,
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: FilledButton.icon(
-                                onPressed: () {
-                                  HapticFeedback.lightImpact();
-                                  _showFoodSpotSheet(
-                                    _selectedFoodSpot!,
-                                    isDark,
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.info_outline_rounded,
-                                  size: 15,
-                                ),
-                                label: const Text(
-                                  'Details',
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: const Color(0xFFE65100),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  elevation: 0,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              flex: 5,
-                              child: Builder(
-                                builder: (context) {
-                                  final bool isPathActive =
-                                      _highlightedRoute != null &&
-                                      _highlightedRoute!.destinationTitle ==
-                                          _selectedFoodSpot!.name;
-                                  return FilledButton.icon(
-                                    onPressed: _isCalculatingRoute
-                                        ? null
-                                        : () {
-                                            if (isPathActive) {
-                                              _clearRoute();
-                                            } else {
-                                              _highlightRouteToFoodSpot(
-                                                _selectedFoodSpot!,
-                                              );
-                                            }
-                                          },
-                                    icon: _isCalculatingRoute
-                                        ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : Icon(
-                                            isPathActive
-                                                ? Icons.close_rounded
-                                                : Icons.directions_walk_rounded,
-                                            size: 16,
-                                          ),
-                                    label: Text(
-                                      isPathActive
-                                          ? 'Clear Path'
-                                          : 'Trace Path',
-                                      style: const TextStyle(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: isPathActive
-                                          ? (isDark
-                                                ? Colors.white12
-                                                : Colors.grey.shade200)
-                                          : (isDark
-                                                ? const Color(0xFF00E5FF)
-                                                : const Color(0xFF1565C0)),
-                                      foregroundColor: isPathActive
-                                          ? (isDark
-                                                ? Colors.white70
-                                                : Colors.black87)
-                                          : (isDark
-                                                ? Colors.black87
-                                                : Colors.white),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+          // Leaflet Map Attribution Watermark (Classic "Leaflet | © OpenStreetMap contributors")
+          Positioned(
+            left: 8,
+            bottom: 8,
+            child: LeafletAttributionControl(
+              isDark: isDark,
             ),
+          ),
 
-          // Bottom Mini-Card Preview when a Metro Station is tapped
-          if (_selectedMetroStation != null &&
-              _selectedPandal == null &&
-              _selectedSquadMember == null &&
-              _selectedFoodSpot == null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
-              child: AnimatedFadeSlide(
-                duration: const Duration(milliseconds: 320),
-                offset: const Offset(0, 0.14),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1B1F2A) : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: _selectedMetroStation!.line.color.withValues(
-                        alpha: 0.6,
-                      ),
-                      width: 1.4,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.45 : 0.12,
-                        ),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 14.0,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 9,
-                                vertical: 3.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: _selectedMetroStation!.line.color
-                                    .withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(7),
-                                border: Border.all(
-                                  color: _selectedMetroStation!.line.color
-                                      .withValues(alpha: 0.5),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                _selectedMetroStation!.line.label.toUpperCase(),
-                                style: TextStyle(
-                                  color: _selectedMetroStation!.line.color,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            ),
-                            if (_selectedMetroStation!.isInterchange) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 3.5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF2E7D32)
-                                      .withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(7),
-                                  border: Border.all(
-                                    color: const Color(0xFF2E7D32)
-                                        .withValues(alpha: 0.5),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: const Text(
-                                  'INTERCHANGE',
-                                  style: TextStyle(
-                                    color: Color(0xFF2E7D32),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            const Spacer(),
-                            IconButton(
-                              icon: Icon(
-                                Icons.close_rounded,
-                                size: 20,
-                                color: isDark ? Colors.white60 : Colors.black45,
-                              ),
-                              tooltip: 'Dismiss',
-                              onPressed: () => setState(() {
-                                _selectedMetroStation = null;
-                                _highlightedRoute = null;
-                              }),
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 28,
-                                minHeight: 28,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _selectedMetroStation!.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: context.dynamicFont(16),
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          _selectedMetroStation!.line.corridor,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: context.dynamicFont(11.5),
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.white60 : Colors.black54,
-                          ),
-                        ),
-                        if (_selectedMetroStation!
-                            .popularPandalsNearby
-                            .isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: _selectedMetroStation!
-                                .popularPandalsNearby
-                                .take(3)
-                                .map((pandalName) {
-                                  return ActionChip(
-                                    visualDensity: VisualDensity.compact,
-                                    padding: EdgeInsets.zero,
-                                    labelPadding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                    ),
-                                    backgroundColor: isDark
-                                        ? Colors.white.withValues(alpha: 0.08)
-                                        : Colors.grey.shade100,
-                                    avatar: const Icon(
-                                      Icons.temple_hindu_rounded,
-                                      size: 12,
-                                      color: PujaColors.festivalGold,
-                                    ),
-                                    label: Text(
-                                      pandalName,
-                                      style: TextStyle(
-                                        fontSize: context.dynamicFont(10),
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark
-                                            ? Colors.white70
-                                            : Colors.black87,
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      final match = _pandals.firstWhere(
-                                        (p) => p.name.toLowerCase().contains(
-                                          pandalName.toLowerCase(),
-                                        ),
-                                        orElse: () => _pandals.first,
-                                      );
-                                      _onPandalSelectedFromSearch(match);
-                                    },
-                                  );
-                                })
-                                .toList(),
-                          ),
-                        ],
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  HapticFeedback.lightImpact();
-                                  _animatedMapMove(
-                                    LatLng(
-                                      _selectedMetroStation!.latitude,
-                                      _selectedMetroStation!.longitude,
-                                    ),
-                                    16.5,
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.my_location_rounded,
-                                  size: 15,
-                                ),
-                                label: const Text(
-                                  'Center on Map',
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor:
-                                      _selectedMetroStation!.line.color,
-                                  side: BorderSide(
-                                    color: _selectedMetroStation!.line.color
-                                        .withValues(alpha: 0.5),
-                                    width: 1.2,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              flex: 5,
-                              child: Builder(
-                                builder: (context) {
-                                  final bool isPathActive =
-                                      _highlightedRoute != null &&
-                                      _highlightedRoute!.destinationTitle ==
-                                          _selectedMetroStation!.name;
-                                  return FilledButton.icon(
-                                    onPressed: _isCalculatingRoute
-                                        ? null
-                                        : () {
-                                            if (isPathActive) {
-                                              _clearRoute();
-                                            } else {
-                                              _highlightRouteToMetroStation(
-                                                _selectedMetroStation!,
-                                              );
-                                            }
-                                          },
-                                    icon: _isCalculatingRoute
-                                        ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : Icon(
-                                            isPathActive
-                                                ? Icons.close_rounded
-                                                : Icons.directions_walk_rounded,
-                                            size: 16,
-                                          ),
-                                    label: Text(
-                                      isPathActive
-                                          ? 'Clear Path'
-                                          : 'Trace Path',
-                                      style: const TextStyle(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: isPathActive
-                                          ? (isDark
-                                                ? Colors.white12
-                                                : Colors.grey.shade200)
-                                          : (isDark
-                                                ? const Color(0xFF00E5FF)
-                                                : const Color(0xFF1565C0)),
-                                      foregroundColor: isPathActive
-                                          ? (isDark
-                                                ? Colors.white70
-                                                : Colors.black87)
-                                          : (isDark
-                                                ? Colors.black87
-                                                : Colors.white),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      elevation: 0,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+          // Leaflet Zoom Control (Stacked + / −)
+          Positioned(
+            right: 16,
+            bottom: 148,
+            child: LeafletZoomControl(
+              onZoomIn: () {
+                final currentZoom = _mapController.camera.zoom;
+                _animatedMapMove(
+                  _mapController.camera.center,
+                  (currentZoom + 1.0).clamp(10.0, 18.0),
+                );
+              },
+              onZoomOut: () {
+                final currentZoom = _mapController.camera.zoom;
+                _animatedMapMove(
+                  _mapController.camera.center,
+                  (currentZoom - 1.0).clamp(10.0, 18.0),
+                );
+              },
+              isDark: isDark,
             ),
+          ),
 
           if (_isLoading)
             const Center(
@@ -4257,32 +3371,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         markers.add(
           Marker(
             point: startCoord,
-            width: 42,
-            height: 42,
-            alignment: Alignment.center,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: const Color(0xFF64748B),
-                  width: 2.2,
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 6,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.flag_rounded,
-                  color: Color(0xFF64748B),
-                  size: 20,
-                ),
-              ),
+            width: 38,
+            height: 48,
+            alignment: Alignment.topCenter,
+            child: const LeafletMarkerPin(
+              category: LeafletPinCategory.custom,
+              pinColor: Color(0xFF455A64),
+              customIcon: Icons.flag_rounded,
+              size: 36,
             ),
           ),
         );
@@ -4297,14 +3393,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       final isCurrent = trail.currentTargetPandal?.id == stop.id;
       final isSelected = _selectedPandal?.id == stop.id;
 
-      final double size = (isCurrent || isSelected) ? 46.0 : 38.0;
-
       markers.add(
         Marker(
           point: LatLng(stop.lat, stop.lng),
-          width: size + 10,
-          height: size + 10,
-          alignment: Alignment.center,
+          width: (isCurrent || isSelected) ? 48 : 38,
+          height: (isCurrent || isSelected) ? 60 : 48,
+          alignment: Alignment.topCenter,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
@@ -4322,62 +3416,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     : _mapController.camera.zoom,
               );
             },
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: size,
-                height: size,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isVisited
-                      ? const Color(0xFF00C853)
-                      : isCurrent
-                          ? const Color(0xFFFF1744)
-                          : (isDark
-                              ? const Color(0xFF1E1F28)
-                              : Colors.white),
-                  border: Border.all(
-                    color: isCurrent
-                        ? Colors.white
-                        : isVisited
-                            ? Colors.white
-                            : PujaColors.festivalGold,
-                    width: (isCurrent || isSelected) ? 2.8 : 2.0,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isCurrent
-                          ? const Color(0xFFFF1744).withValues(alpha: 0.65)
-                          : isVisited
-                              ? const Color(0xFF00C853).withValues(alpha: 0.5)
-                              : Colors.black.withValues(alpha: 0.35),
-                      blurRadius: (isCurrent || isSelected) ? 10 : 4,
-                      spreadRadius: isCurrent ? 2 : 0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: isVisited
-                      ? const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        )
-                      : Text(
-                          '$stopNum',
-                          style: TextStyle(
-                            color: isCurrent
-                                ? Colors.white
-                                : (isDark
-                                    ? PujaColors.festivalGold
-                                    : const Color(0xFFB78103)),
-                            fontWeight: FontWeight.w900,
-                            fontSize: (isCurrent || isSelected) ? 17 : 14,
-                          ),
-                        ),
-                ),
-              ),
+            child: LeafletMarkerPin.pandal(
+              isSelected: isSelected || isCurrent,
+              isVisited: isVisited,
+              trailIndex: stopNum,
+              size: (isCurrent || isSelected) ? 46 : 36,
+              pulseAnimation: (isCurrent || isSelected) ? _pulseController : null,
             ),
           ),
         ),
@@ -4518,8 +3562,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         child: InkWell(
           borderRadius: BorderRadius.circular(999),
           onTap: () {
-            HapticFeedback.lightImpact();
-            PandalListScreen.switchToCategory(PlaceCategory.foodSpot);
+            HapticFeedback.selectionClick();
+            setState(() => _showFoodSpots = !_showFoodSpots);
+            if (_showFoodSpots) {
+              _setContextualBanner(
+                '🍛 Showing famous food spots & sweet shops on map',
+                icon: Icons.restaurant_rounded,
+                color: const Color(0xFFE65100),
+              );
+            } else {
+              _clearContextualBanner();
+            }
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -6110,58 +5163,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       },
     );
   }
-
-
-  Widget _buildInfoBadge({
-    required IconData icon,
-    required String label,
-    required bool isDark,
-    Color? iconColor,
-    bool highlight = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7.5, vertical: 3.5),
-      decoration: BoxDecoration(
-        color: highlight
-            ? PujaColors.durgaRed.withValues(alpha: isDark ? 0.20 : 0.09)
-            : (isDark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.black.withValues(alpha: 0.05)),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: highlight
-              ? PujaColors.durgaRed.withValues(alpha: 0.35)
-              : (isDark
-                    ? Colors.white.withValues(alpha: 0.08)
-                    : Colors.black.withValues(alpha: 0.06)),
-          width: 0.8,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 13,
-            color: iconColor ?? (isDark ? Colors.white60 : Colors.black54),
-          ),
-          const SizedBox(width: 4.5),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: highlight ? FontWeight.w700 : FontWeight.w500,
-              color: highlight
-                  ? PujaColors.durgaRed
-                  : (isDark
-                        ? Colors.white.withValues(alpha: 0.88)
-                        : Colors.black87),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _ClusteredPandalLayer extends StatelessWidget {
@@ -6203,13 +5204,12 @@ class _ClusteredPandalLayer extends StatelessWidget {
         if (item.isCluster) {
           final count = item.count;
           final isLarge = count > 99;
-          final visualSize = isLarge ? 44.0 : 38.0;
 
           return Marker(
             point: item.point,
-            width: 52,
-            height: 52,
-            alignment: Alignment.center,
+            width: isLarge ? 50 : 44,
+            height: isLarge ? 62 : 54,
+            alignment: Alignment.topCenter,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -6217,46 +5217,10 @@ class _ClusteredPandalLayer extends StatelessWidget {
                 final nextZoom = (camera.zoom + 1.8).clamp(11.0, 16.5);
                 onZoomToCluster(item.point, nextZoom);
               },
-              child: RepaintBoundary(
-                child: Center(
-                  child: Container(
-                    width: visualSize,
-                    height: visualSize,
-                    decoration: BoxDecoration(
-                      color: PujaColors.crimsonVelvet,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: PujaColors.festivalGold,
-                        width: 2.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.45),
-                          blurRadius: 6,
-                          offset: const Offset(0, 1),
-                        ),
-                        const BoxShadow(
-                          color: Colors.black38,
-                          blurRadius: 4,
-                          offset: Offset(0, 1.5),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        count > 999
-                            ? '${(count / 1000).toStringAsFixed(1)}k'
-                            : '$count',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: isLarge ? 12.5 : 12.0,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              child: LeafletMarkerPin(
+                category: LeafletPinCategory.cluster,
+                clusterCount: count,
+                size: isLarge ? 48 : 42,
               ),
             ),
           );
@@ -6265,146 +5229,35 @@ class _ClusteredPandalLayer extends StatelessWidget {
         final p = item.primaryPandal ?? item.pandals.first;
         final isSelected = selectedPandal?.id == p.id;
 
+        int trailIndex = -1;
+        bool isVisited = false;
+        if (activeTrail != null) {
+          trailIndex = activeTrail.stops.indexWhere(
+            (s) => s.id == p.id,
+          );
+          if (trailIndex != -1) {
+            isVisited = activeTrail.visitedPandalIds.contains(p.id);
+          }
+        }
+
         return Marker(
           point: LatLng(p.lat, p.lng),
-          width: isSelected ? 58 : 48,
-          height: isSelected ? 58 : 48,
-          alignment: Alignment.center,
+          width: isSelected ? 48 : 38,
+          height: isSelected ? 60 : 48,
+          alignment: Alignment.topCenter,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
               HapticFeedback.selectionClick();
               onSelectPandal(p);
             },
-            child: isSelected
-                ? RepaintBoundary(
-                    child: Center(
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: PujaColors.crimsonVelvet,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: PujaColors.goldBright,
-                            width: 2.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: PujaColors.festivalGold.withValues(alpha: 0.85),
-                              blurRadius: 12,
-                              spreadRadius: 3,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(
-                              color: PujaColors.goldBright,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                : RepaintBoundary(
-                    child: Builder(
-                      builder: (context) {
-                        int trailIndex = -1;
-                        if (activeTrail != null) {
-                          trailIndex = activeTrail.stops.indexWhere(
-                            (s) => s.id == p.id,
-                          );
-                        }
-
-                        if (trailIndex != -1 && activeTrail != null) {
-                          final isVisited = activeTrail.visitedPandalIds
-                              .contains(p.id);
-                          final isCurrent =
-                              trailIndex == activeTrail.currentStopIndex;
-
-                          return Center(
-                            child: Container(
-                              width: isCurrent ? 36 : 30,
-                              height: isCurrent ? 36 : 30,
-                              decoration: BoxDecoration(
-                                color: isVisited
-                                    ? const Color(0xFF00C853)
-                                    : (isCurrent
-                                           ? const Color(0xFFFF1744)
-                                           : PujaColors.festivalGold),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 4,
-                                    offset: Offset(0, 1.5),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: isVisited
-                                    ? const Icon(
-                                        Icons.check_rounded,
-                                        color: Colors.white,
-                                        size: 18,
-                                      )
-                                    : Text(
-                                        '${trailIndex + 1}',
-                                        style: TextStyle(
-                                          color: isCurrent
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 12.5,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          );
-                        }
-
-                        return Center(
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: PujaColors.crimsonVelvet,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: PujaColors.festivalGold,
-                                width: 2.0,
-                              ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black38,
-                                  blurRadius: 4,
-                                  offset: Offset(0, 1.5),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+            child: LeafletMarkerPin.pandal(
+              isSelected: isSelected,
+              isVisited: isVisited,
+              trailIndex: trailIndex != -1 ? trailIndex + 1 : null,
+              size: isSelected ? 46 : 36,
+              pulseAnimation: isSelected ? pulseController : null,
+            ),
           ),
         );
       }).toList(),

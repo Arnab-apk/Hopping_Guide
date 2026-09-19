@@ -39,10 +39,14 @@ class AuthService extends ChangeNotifier {
   static AuthService? _instance;
   static AuthService get instance => _instance ??= AuthService._();
 
+  static const String defaultWebClientId =
+      '1034026195231-r8jdg9toh8tu4ppa7mphlsi70125ha4n.apps.googleusercontent.com';
+
   static Future<AuthService> create() async {
     final prefs = await SharedPreferences.getInstance();
     final service = AuthService._(prefs);
     await service._loadSavedUser();
+    await service._ensureGoogleInitialized();
     _instance = service;
     return service;
   }
@@ -107,23 +111,19 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  /// Web Client ID from Firebase / Google Cloud Console used as serverClientId for ID token exchange
-  static const String defaultServerClientId =
-      '1034026195231-r8jdg9toh8tu4ppa7mphlsi70125ha4n.apps.googleusercontent.com';
-
   Future<void> _ensureGoogleInitialized() async {
     if (_isGoogleInitialized) return;
     try {
       const webClientId = String.fromEnvironment(
         'GOOGLE_WEB_CLIENT_ID',
-        defaultValue: defaultServerClientId,
+        defaultValue: defaultWebClientId,
       );
-      final clientIdToUse =
-          webClientId.isNotEmpty ? webClientId : defaultServerClientId;
+      final clientId = webClientId.isNotEmpty ? webClientId : defaultWebClientId;
       await GoogleSignIn.instance.initialize(
-        serverClientId: clientIdToUse,
+        serverClientId: clientId,
       );
       _isGoogleInitialized = true;
+      debugPrint('GoogleSignIn.initialize successful with serverClientId: $clientId');
     } catch (e) {
       debugPrint('GoogleSignIn.initialize note: $e');
     }

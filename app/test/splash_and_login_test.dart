@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:kolkata_puja/screens/greeting_splash_screen.dart';
 import 'package:kolkata_puja/screens/main_navigation_screen.dart';
 import 'package:kolkata_puja/screens/splash_screen.dart';
 import 'package:kolkata_puja/screens/welcome_screen.dart';
@@ -55,6 +56,7 @@ void main() {
         home: home,
         routes: {
           '/main': (context) => const MainNavigationScreen(),
+          '/greeting': (context) => const GreetingSplashScreen(),
           '/welcome': (context) => const WelcomeScreen(),
         },
       ),
@@ -138,7 +140,7 @@ void main() {
       expect(find.byType(SplashScreen), findsNothing);
     });
 
-    testWidgets('authenticated user bypasses login and navigates to MainNavigationScreen',
+    testWidgets('authenticated user bypasses login and navigates to GreetingSplashScreen then MainNavigationScreen',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 2340);
       tester.view.devicePixelRatio = 2.75;
@@ -162,13 +164,18 @@ void main() {
       // Initially on SplashScreen
       expect(find.byType(SplashScreen), findsOneWidget);
 
-      // Advance clock past minimum duration and tutorial delay
+      // Advance clock past minimum duration
       await tester.pump(const Duration(milliseconds: 150));
-      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pump();
 
-      // Directly navigates to MainNavigationScreen (skips WelcomeScreen!)
-      expect(find.byType(MainNavigationScreen), findsOneWidget);
+      // Directly navigates to GreetingSplashScreen (skips WelcomeScreen!)
+      expect(find.byType(GreetingSplashScreen), findsOneWidget);
       expect(find.byType(WelcomeScreen), findsNothing);
+
+      // Advance through greeting duration to navigate to MainNavigationScreen
+      await tester.pump(const Duration(milliseconds: 1900));
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.byType(MainNavigationScreen), findsOneWidget);
     });
   });
 

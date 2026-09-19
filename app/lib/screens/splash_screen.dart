@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/auth_service.dart';
-import 'main_navigation_screen.dart';
+import 'greeting_splash_screen.dart';
 import 'welcome_screen.dart';
 
 /// Full-bleed in-app splash screen displaying the three-dancer Dhunuchi illustration.
@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => isLoggedIn
-            ? const MainNavigationScreen()
+            ? const GreetingSplashScreen()
             : const WelcomeScreen(),
       ),
     );

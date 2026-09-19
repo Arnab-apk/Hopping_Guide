@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
+import '../repositories/pandal_repository.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/puja_icons.dart';
@@ -39,14 +40,16 @@ class HoppingRoute {
 }
 
 class RoutesScreen extends StatefulWidget {
-  const RoutesScreen({super.key});
+  const RoutesScreen({super.key, this.repository});
+
+  final PandalRepository? repository;
 
   @override
   State<RoutesScreen> createState() => _RoutesScreenState();
 }
 
 class _RoutesScreenState extends State<RoutesScreen> {
-  final LocalAssetPandalRepository _repo = LocalAssetPandalRepository();
+  late final PandalRepository _repo;
   Map<String, Pandal> _pandalMap = {};
   bool _isLoading = true;
   bool _isGuideExpanded = false;
@@ -176,6 +179,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
   @override
   void initState() {
     super.initState();
+    _repo = widget.repository ?? LocalAssetPandalRepository();
     _loadAllPandals();
   }
 
@@ -257,7 +261,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isExpanded
               ? route.color.withValues(alpha: 0.6)
@@ -265,8 +269,11 @@ class _RoutesScreenState extends State<RoutesScreen> {
           width: isExpanded ? 1.4 : 1,
         ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
         child: Column(
           children: [
             InkWell(
@@ -345,7 +352,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
             if (isExpanded) ...[
               const Divider(height: 1),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -439,25 +446,34 @@ class _RoutesScreenState extends State<RoutesScreen> {
                         ),
                       );
                     }),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 38,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _startCircuit(route, pandalsInRoute),
-                        icon: PujaIcon.shankha(size: 22, color: PujaColors.goldBright),
-                        label: const Text('Start Circuit on Map'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: PujaColors.crimsonVelvet,
-                          foregroundColor: PujaColors.goldBright,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _startCircuit(route, pandalsInRoute),
+                    icon: PujaIcon.shankha(size: 22, color: PujaColors.goldBright),
+                    label: const Text(
+                      'Start Circuit on Map',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
                       ),
                     ),
-                  ],
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PujaColors.crimsonVelvet,
+                      foregroundColor: PujaColors.goldBright,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -501,13 +517,18 @@ class _RoutesScreenState extends State<RoutesScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
           width: 1,
         ),
       ),
-      child: Column(
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        child: Column(
         children: [
           InkWell(
             borderRadius: BorderRadius.circular(12),
@@ -580,6 +601,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
             ),
           ],
         ],
+      ),
       ),
     );
   }
