@@ -11,7 +11,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-Passing%20(138%2F138)-success?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com)
+[![Tests](https://img.shields.io/badge/Tests-Passing%20(143%2F143)-success?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com)
 [![Analysis](https://img.shields.io/badge/Analysis-0%20Issues-brightgreen?style=for-the-badge&logo=dart&logoColor=white)](https://github.com)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web-orange?style=for-the-badge&logo=android&logoColor=white)](https://github.com)
 
@@ -37,11 +37,12 @@
 | 🧭 **Custom Trail Optimizer** | **Held-Karp & 2-opt TSP** | Mathematically optimal walking order using Held-Karp dynamic programming ($N \le 12$) and 2-opt heuristic ($N > 12$) |
 | 👥 **Consolidated Squad Hub** | **4-Card Hub** | Overview & 6-char code, Destination & Configurable Separation Alerts (250m/500m/1000m), Member List with battery indicators, Locate on Map, and **One-Tap Phone Calling (`tel:`)** |
 | 💬 **Private Squad Chat** | **Chat & Media Sharing** | Dedicated in-squad group chat screen with real-time text streaming, photo/video sharing with Cloudinary URLs, and in-memory fallback for offline/demo mode |
+| 🎨 **Splash & Divine Auth** | **Two-Layer Splash** | Native Android 12+ icon splash on `#0E0B0C`, in-app 3-dancer Dhunuchi splash (`splash_illustration.webp`), and Maa Durga eyes motif login background (`login_bg_eyes.webp`) with lowered glassmorphic auth card |
 | 📍 **Regional Coverage** | **8 Zones** | Kolkata (North, Central, South, Salt Lake, New Town) + Suburbs (Kalyani, Chinsurah, Bandel) |
 | 🗺️ **Map Tile Provider** | **Dual Engine** | Free-tier `flutter_map` OpenStreetMap raster tiles + Native on-device Magic Lane GemKit vector map & 3D buildings |
 | 🚨 **Emergency Lifeline** | **1-Touch Calling** | Direct phone integration for Kolkata Police (100), Ambulance (102), Fire (101), Women Helpline (1091), Traffic & Disaster Management |
 | 📱 **Mobile UX Optimization** | **100% Clean Layout** | In-layout contextual banner below filter chips (zero header overlap), compact squad status chip in filter row, single-line ellipsis truncation |
-| 🧪 **Test & Lint Health** | **138/138 Passing** | `flutter analyze` = 0 issues, 138/138 automated unit, widget, and integration tests passing across 11 test suites |
+| 🧪 **Test & Lint Health** | **143/143 Passing** | `flutter analyze` = 0 issues, 143/143 automated unit, widget, and integration tests passing across 12 test suites |
 
 ---
 

@@ -10,6 +10,7 @@ import 'screens/map_screen.dart';
 import 'screens/pandal_detail_screen.dart';
 import 'screens/pandal_list_screen.dart';
 import 'screens/routes_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/welcome_screen.dart';
 
 /// Root application widget supporting Light and Dark modes and deep-link routing.
@@ -66,8 +67,10 @@ class KolkataPujaApp extends StatelessWidget {
         return null;
       },
       routes: {
-        '/': (context) => const WelcomeScreen(),
+        '/': (context) => const SplashScreen(),
+        '/splash': (context) => const SplashScreen(),
         '/welcome': (context) => const WelcomeScreen(),
+        '/login': (context) => const WelcomeScreen(),
         '/main': (context) => const MainNavigationScreen(),
         '/map': (context) => const MapScreen(),
         '/list': (context) => const PandalListScreen(),

@@ -8,14 +8,17 @@ import '../config/theme.dart';
 import '../services/auth_service.dart';
 import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
-import '../widgets/durga_eyes_formation.dart';
 import '../widgets/google_logo.dart';
 import '../widgets/puja_icons.dart';
 
-/// Premium, non-scrollable Welcome & Login screen for Pujo Parikrama.
-/// Features a pure dark OLED background, the divine eyes of Maa Durga prominently
-/// visible with an animated Chokkhu Daan stroke-formation effect, an ambient breathing
-/// pupil glow, countdown capsule, authentic Google Sign-In, and instant guest entry.
+/// Alias for WelcomeScreen reflecting the login/authentication functionality
+typedef LoginScreen = WelcomeScreen;
+
+/// Premium Welcome & Login screen for Pujo Parikrama.
+///
+/// Features the divine Maa Durga eyes motif background illustration (`login_bg_eyes.webp`),
+/// defensive legibility scrim, calm upper zone with grand Bengali-styled title & countdown,
+/// and the obsidian glassmorphic login card nestled cleanly in the lower dark band.
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -27,7 +30,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   late Timer _timer;
   late Duration _timeUntilPuja;
   late final AnimationController _entranceController;
-  late final Animation<double> _eyesFormation;
   late final Animation<double> _headerFade;
   late final Animation<Offset> _headerSlide;
   late final Animation<double> _countdownFade;
@@ -48,12 +50,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
 
     _entranceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    );
-
-    _eyesFormation = CurvedAnimation(
-      parent: _entranceController,
-      curve: const Interval(0.0, 0.70, curve: Curves.easeOutQuart),
+      duration: const Duration(milliseconds: 1800),
     );
 
     _headerFade = CurvedAnimation(
@@ -160,391 +157,381 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light, // Crisp white battery/wifi/clock icons on pure black
         statusBarBrightness: Brightness.dark,      // iOS dark mode status bar
-        systemNavigationBarColor: Colors.black,
+        systemNavigationBarColor: Color(0xFF0E0B0C),
         systemNavigationBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: Colors.black, // Pure complete dark background
+        backgroundColor: const Color(0xFF0E0B0C),
         body: Stack(
           fit: StackFit.expand,
           children: [
-            // 1. Pure Black Background Base
-            Container(color: Colors.black),
+            // 1. Background illustration: Maa Durga Eyes motif (Image 1)
+            Image.asset(
+              'assets/images/login_bg_eyes.webp',
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: const Color(0xFF0E0B0C),
+              ),
+            ),
 
-            // 2. Dedicated Status Bar Shield Gradient
+            // 2. Defensive legibility scrim (stops 0.58 to 1.0 leaving the divine eyes fully radiant)
+            const DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Color(0xCC0E0B0C)],
+                  stops: [0.58, 1.0],
+                ),
+              ),
+            ),
+
+            // 3. Subtle top status bar scrim for battery/clock/title legibility
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               height: 100,
               child: IgnorePointer(
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withValues(alpha: 0.95),
-                        Colors.black.withValues(alpha: 0.5),
+                        Color(0xFF0E0B0C).withValues(alpha: 0.85),
                         Colors.transparent,
                       ],
-                      stops: const [0.0, 0.6, 1.0],
+                      stops: const [0.0, 1.0],
                     ),
                   ),
                 ),
               ),
             ),
 
-            // 3. Dynamic Day-Specific Ambient Aura in Background
-            Positioned(
-              top: size.height * 0.16,
-              left: size.width * 0.10,
-              right: size.width * 0.10,
-              height: 240,
-              child: IgnorePointer(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: activeDay.auraGradient,
-                      stops: const [0.0, 0.5, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // 4. Main Scrollable Content (Seamless, non-overflowing)
+            // 4. Foreground Content mapped into calm upper zone and dark lower zone
             SafeArea(
-              top: true,
-              bottom: true,
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 440),
-                  child: ScrollConfiguration(
-                    behavior: const ScrollBehavior().copyWith(overscroll: false),
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final double eyeGap = (constraints.maxHeight - (isCompact ? 410 : 475)).clamp(12.0, 360.0);
+                  return SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 440),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            children: [
+                              SizedBox(height: isCompact ? 10 : 16),
 
-                          // Header Group (Grand Title in Bengali & Pujo Parikrama)
-                          RepaintBoundary(
-                            child: FadeTransition(
-                              opacity: _headerFade,
-                              child: SlideTransition(
-                                position: _headerSlide,
-                                child: Column(
-                                  children: [
-                                    // Grand Title in Bengali (দুর্গাপূজা)
-                                    ShaderMask(
-                                      shaderCallback: (bounds) => const LinearGradient(
-                                        colors: [
-                                          Color(0xFFFFFFFF),
-                                          Color(0xFFFFF3D6),
-                                          Color(0xFFFFD54F),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                      ).createShader(bounds),
-                                      child: Text(
-                                        'Durga Puja',
-                                        style: TextStyle(
-                                          fontFamily: 'Samarkan',
-                                          fontSize: isCompact ? 50 : 60,
-                                          letterSpacing: 0.6,
-                                          color: Colors.white,
-                                          shadows: [
-                                            Shadow(
-                                              color: PujaColors.festivalGold.withValues(alpha: 0.7),
-                                              blurRadius: 16,
+                                  // Header Group (Grand Title & Pujo Parikrama)
+                                  RepaintBoundary(
+                                    child: FadeTransition(
+                                      opacity: _headerFade,
+                                      child: SlideTransition(
+                                        position: _headerSlide,
+                                        child: Column(
+                                          children: [
+                                            ShaderMask(
+                                              shaderCallback: (bounds) => const LinearGradient(
+                                                colors: [
+                                                  Color(0xFFFFFFFF),
+                                                  Color(0xFFFFF3D6),
+                                                  Color(0xFFFFD54F),
+                                                ],
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                              ).createShader(bounds),
+                                              child: Text(
+                                                'Durga Puja',
+                                                style: TextStyle(
+                                                  fontFamily: 'Samarkan',
+                                                  fontSize: isCompact ? 46 : 56,
+                                                  letterSpacing: 0.6,
+                                                  color: Colors.white,
+                                                  shadows: [
+                                                    Shadow(
+                                                      color: PujaColors.festivalGold.withValues(alpha: 0.7),
+                                                      blurRadius: 16,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'Pujo Parikrama',
+                                              style: TextStyle(
+                                                fontFamily: 'Samarkan',
+                                                fontSize: isCompact ? 16 : 19,
+                                                letterSpacing: 1.5,
+                                                color: PujaColors.festivalGold,
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Pujo Parikrama',
-                                      style: TextStyle(
-                                        fontFamily: 'Samarkan',
-                                        fontSize: isCompact ? 16 : 19,
-                                        letterSpacing: 1.5,
-                                        color: PujaColors.festivalGold,
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  // Live Countdown Capsule (Sleek glassmorphic bar in upper calm zone)
+                                  FadeTransition(
+                                    opacity: _countdownFade,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF141414).withValues(alpha: 0.70),
+                                          borderRadius: BorderRadius.circular(16),
+                                          border: Border.all(
+                                            color: activeDay.primaryAccent.withValues(alpha: 0.35),
+                                            width: 0.9,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            _buildCountdownItem(days.toString(), 'DAYS', activeDay.primaryAccent),
+                                            _buildDivider(),
+                                            _buildCountdownItem(hours.toString().padLeft(2, '0'), 'HOURS', activeDay.primaryAccent),
+                                            _buildDivider(),
+                                            _buildCountdownItem(minutes.toString().padLeft(2, '0'), 'MINS', activeDay.primaryAccent),
+                                            _buildDivider(),
+                                            _buildCountdownItem(seconds.toString().padLeft(2, '0'), 'SECS', activeDay.primaryAccent),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          // 5. MAA DURGA'S DIVINE EYES (Prominently visible with formation animation)
-                          // Tapping the eyes replays the sacred stroke formation
-                          GestureDetector(
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              _entranceController.forward(from: 0.0);
-                            },
-                            child: DurgaEyesFormation(
-                              formationProgress: _eyesFormation,
-                              height: isCompact ? 175 : 215,
-                              width: double.infinity,
-                              showImage: true,
-                            ),
-                          ),
-
-                          const SizedBox(height: 6),
-
-                          // 6. Live Countdown Capsule with Seconds (Sleek glassmorphic bar)
-                          FadeTransition(
-                            opacity: _countdownFade,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF141414).withValues(alpha: 0.70),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: activeDay.primaryAccent.withValues(alpha: 0.35),
-                                    width: 0.9,
                                   ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildCountdownItem(days.toString(), 'DAYS', activeDay.primaryAccent),
-                                    _buildDivider(),
-                                    _buildCountdownItem(hours.toString().padLeft(2, '0'), 'HOURS', activeDay.primaryAccent),
-                                    _buildDivider(),
-                                    _buildCountdownItem(minutes.toString().padLeft(2, '0'), 'MINS', activeDay.primaryAccent),
-                                    _buildDivider(),
-                                    _buildCountdownItem(seconds.toString().padLeft(2, '0'), 'SECS', activeDay.primaryAccent),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
 
-                          const SizedBox(height: 12),
+                                  // Eye gap opens up the canvas for Maa Durga's divine eyes in the illustration
+                                  SizedBox(height: eyeGap),
 
-                          // 7. Login Action Card (Obsidian glassmorphism nestled below the eyes)
-                          RepaintBoundary(
-                            child: FadeTransition(
-                              opacity: _cardFade,
-                              child: SlideTransition(
-                                position: _cardSlide,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(22),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF0D0D0D).withValues(alpha: 0.72),
-                                        borderRadius: BorderRadius.circular(22),
-                                        border: Border.all(
-                                          color: PujaColors.festivalGold.withValues(alpha: 0.35),
-                                          width: 1.1,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.6),
-                                            blurRadius: 22,
-                                            offset: const Offset(0, 8),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          Text(
-                                            'Begin Your Parikrama',
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: context.dynamicFont(16.5),
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.white,
-                                              letterSpacing: 0.2,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Discover 380+ Verified Pandals, real-time crowd status, walking paths & live metro routes.',
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.plusJakartaSans(
-                                              fontSize: context.dynamicFont(11.8),
-                                              color: Colors.white.withValues(alpha: 0.72),
-                                              height: 1.35,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-
-                                          // 1. Primary Action: Enter as Guest
-                                          SizedBox(
-                                            height: 48,
-                                            child: FilledButton(
-                                              style: FilledButton.styleFrom(
-                                                backgroundColor: PujaColors.durgaRed,
-                                                foregroundColor: Colors.white,
-                                                elevation: 0,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(13),
-                                                  side: BorderSide(
-                                                    color: PujaColors.festivalGold.withValues(alpha: 0.5),
-                                                    width: 1,
-                                                  ),
-                                                ),
-                                              ),
-                                              onPressed: _isLoading
-                                                  ? null
-                                                  : () {
-                                                      HapticFeedback.lightImpact();
-                                                      _enterAsGuest();
-                                                    },
-                                              child: _isLoading
-                                                  ? const SizedBox(
-                                                      height: 18,
-                                                      width: 18,
-                                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                                    )
-                                                  : Row(
-                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                      children: [
-                                                         PujaIcon.shankha(size: 24, color: PujaColors.festivalGold),
-                                                        const SizedBox(width: 9),
-                                                        Text(
-                                                          'Enter as Guest',
-                                                          style: GoogleFonts.plusJakartaSans(
-                                                            fontWeight: FontWeight.w700,
-                                                            fontSize: 14.5,
-                                                            letterSpacing: 0.2,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                            ),
-                                          ),
-
-                                          const SizedBox(height: 11),
-
-                                          // Professional "OR" Divider
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child: Divider(
-                                                  color: Colors.white.withValues(alpha: 0.15),
-                                                  thickness: 0.8,
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                child: Text(
-                                                  'OR',
-                                                  style: GoogleFonts.plusJakartaSans(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w700,
-                                                    letterSpacing: 1.4,
-                                                    color: Colors.white.withValues(alpha: 0.45),
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: Divider(
-                                                  color: Colors.white.withValues(alpha: 0.15),
-                                                  thickness: 0.8,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-
-                                          const SizedBox(height: 11),
-
-                                          // 2. Secondary Action: Continue with Google
-                                          SizedBox(
-                                            height: 48,
-                                            child: OutlinedButton(
-                                              style: OutlinedButton.styleFrom(
-                                                backgroundColor: const Color(0xFF181818).withValues(alpha: 0.8),
-                                                foregroundColor: Colors.white,
-                                                side: BorderSide(
-                                                  color: Colors.white.withValues(alpha: 0.2),
+                                  // Login Action Card nestled into the dark lower band of Image 1
+                                  RepaintBoundary(
+                                    child: FadeTransition(
+                                      opacity: _cardFade,
+                                      child: SlideTransition(
+                                        position: _cardSlide,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(22),
+                                          child: BackdropFilter(
+                                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF0D0D0D).withValues(alpha: 0.76),
+                                                borderRadius: BorderRadius.circular(22),
+                                                border: Border.all(
+                                                  color: PujaColors.festivalGold.withValues(alpha: 0.35),
                                                   width: 1.1,
                                                 ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(13),
-                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black.withValues(alpha: 0.6),
+                                                    blurRadius: 22,
+                                                    offset: const Offset(0, 8),
+                                                  ),
+                                                ],
                                               ),
-                                              onPressed: _isLoading
-                                                  ? null
-                                                  : () {
-                                                      HapticFeedback.lightImpact();
-                                                      _enterWithGoogle();
-                                                    },
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                                 children: [
-                                                  const GoogleLogo(size: 19),
-                                                  const SizedBox(width: 11),
                                                   Text(
-                                                    'Continue with Google',
+                                                    'Begin Your Parikrama',
+                                                    textAlign: TextAlign.center,
                                                     style: GoogleFonts.plusJakartaSans(
-                                                      fontWeight: FontWeight.w600,
-                                                      fontSize: 14,
+                                                      fontSize: context.dynamicFont(16.5),
+                                                      fontWeight: FontWeight.w800,
                                                       color: Colors.white,
-                                                      letterSpacing: 0.1,
+                                                      letterSpacing: 0.2,
                                                     ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    'Discover 380+ Verified Pandals, real-time crowd status, walking paths & live metro routes.',
+                                                    textAlign: TextAlign.center,
+                                                    style: GoogleFonts.plusJakartaSans(
+                                                      fontSize: context.dynamicFont(11.8),
+                                                      color: Colors.white.withValues(alpha: 0.72),
+                                                      height: 1.35,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+
+                                                  // 1. Primary Action: Enter as Guest
+                                                  SizedBox(
+                                                    height: 48,
+                                                    child: FilledButton(
+                                                      style: FilledButton.styleFrom(
+                                                        backgroundColor: PujaColors.durgaRed,
+                                                        foregroundColor: Colors.white,
+                                                        elevation: 0,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(13),
+                                                          side: BorderSide(
+                                                            color: PujaColors.festivalGold.withValues(alpha: 0.5),
+                                                            width: 1,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      onPressed: _isLoading
+                                                          ? null
+                                                          : () {
+                                                              HapticFeedback.lightImpact();
+                                                              _enterAsGuest();
+                                                            },
+                                                      child: _isLoading
+                                                          ? const SizedBox(
+                                                              height: 18,
+                                                              width: 18,
+                                                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                                            )
+                                                          : Row(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: [
+                                                                PujaIcon.shankha(size: 24, color: PujaColors.festivalGold),
+                                                                const SizedBox(width: 9),
+                                                                Text(
+                                                                  'Enter as Guest',
+                                                                  style: GoogleFonts.plusJakartaSans(
+                                                                    fontWeight: FontWeight.w700,
+                                                                    fontSize: 14.5,
+                                                                    letterSpacing: 0.2,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(height: 11),
+
+                                                  // Professional "OR" Divider
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Divider(
+                                                          color: Colors.white.withValues(alpha: 0.15),
+                                                          thickness: 0.8,
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                        child: Text(
+                                                          'OR',
+                                                          style: GoogleFonts.plusJakartaSans(
+                                                            fontSize: 10,
+                                                            fontWeight: FontWeight.w700,
+                                                            letterSpacing: 1.4,
+                                                            color: Colors.white.withValues(alpha: 0.45),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Divider(
+                                                          color: Colors.white.withValues(alpha: 0.15),
+                                                          thickness: 0.8,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+
+                                                  const SizedBox(height: 11),
+
+                                                  // 2. Secondary Action: Continue with Google
+                                                  SizedBox(
+                                                    height: 48,
+                                                    child: OutlinedButton(
+                                                      style: OutlinedButton.styleFrom(
+                                                        backgroundColor: const Color(0xFF181818).withValues(alpha: 0.8),
+                                                        foregroundColor: Colors.white,
+                                                        side: BorderSide(
+                                                          color: Colors.white.withValues(alpha: 0.2),
+                                                          width: 1.1,
+                                                        ),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(13),
+                                                        ),
+                                                      ),
+                                                      onPressed: _isLoading
+                                                          ? null
+                                                          : () {
+                                                              HapticFeedback.lightImpact();
+                                                              _enterWithGoogle();
+                                                            },
+                                                      child: Row(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          const GoogleLogo(size: 19),
+                                                          const SizedBox(width: 11),
+                                                          Flexible(
+                                                            child: Text(
+                                                              'Continue with Google',
+                                                              style: GoogleFonts.plusJakartaSans(
+                                                                fontWeight: FontWeight.w600,
+                                                                fontSize: 14,
+                                                                color: Colors.white,
+                                                                letterSpacing: 0.1,
+                                                              ),
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  const SizedBox(height: 11),
+
+                                                  // Trust & Privacy Note
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.offline_pin_rounded,
+                                                        size: 12,
+                                                        color: Colors.white.withValues(alpha: 0.42),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Flexible(
+                                                        child: Text(
+                                                          'Offline First • Zero Friction • Instant Access',
+                                                          style: GoogleFonts.plusJakartaSans(
+                                                            fontSize: 10.5,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: Colors.white.withValues(alpha: 0.42),
+                                                          ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
                                             ),
                                           ),
-
-                                          const SizedBox(height: 11),
-
-                                          // Trust & Privacy Note
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                Icons.offline_pin_rounded,
-                                                size: 12,
-                                                color: Colors.white.withValues(alpha: 0.42),
-                                              ),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                'Offline First • Zero Friction • Instant Access',
-                                                style: GoogleFonts.plusJakartaSans(
-                                                  fontSize: 10.5,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white.withValues(alpha: 0.42),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
+
+                                SizedBox(height: isCompact ? 12 : 20),
+                              ],
                             ),
                           ),
-
-                          const SizedBox(height: 16),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
+                    );
+                  },
               ),
             ),
           ],
