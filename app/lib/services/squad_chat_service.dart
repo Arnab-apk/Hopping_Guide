@@ -238,6 +238,11 @@ class SquadChatService {
     }
   }
 
+  /// Ingest an incoming message from Neon Realtime WebSocket fan-out
+  void receiveIncomingWsMessage(ChatMessage message) {
+    _saveLocalMessage(message.squadId, message);
+  }
+
   /// Upload media to Cloudinary using an unsigned upload preset.
   /// Automatically falls back to a high-quality festive sample URL if network or preset fails,
   /// ensuring 100% demo resilience and zero crash risk.

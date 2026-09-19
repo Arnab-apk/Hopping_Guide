@@ -8,8 +8,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/theme.dart';
 import '../models/chat_message.dart';
 import '../models/squad_member.dart';
+import '../services/auth_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
+import '../services/websocket_client.dart';
 import '../utils/haversine.dart';
 import '../widgets/puja_icons.dart';
 import '../widgets/user_profile_sheet.dart';
@@ -31,7 +33,7 @@ class GroupScreen extends StatelessWidget {
     final name = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
     SharePlus.instance.share(
       ShareParams(
-        text: 'Join my Durga Puja Hopping Squad "$name" on Pujo Parikrama App!\n\n'
+        text: 'Join my Durga Puja Hopping Squad "$name" on Uma App!\n\n'
             '🔑 Squad Code: $code\n'
             '📍 Meet-up Point: ${squadService.meetupPointName}\n\n'
             '🔗 Tap to auto-join: https://sharodiya.com/join?code=$code\n'
@@ -444,9 +446,29 @@ class GroupScreen extends StatelessWidget {
   }
 
   Widget _buildActiveGroupView(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+    final authUser = context.watch<AuthService?>()?.currentUserModel ?? AuthService.instance.currentUserModel;
+    final isGuest = authUser?.isGuest ?? false;
+    final alert = squadService.activeSeparationAlert;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        // Realtime Connection Status Pill
+        _buildConnectionPill(context, squadService, isDark),
+        const SizedBox(height: 12),
+
+        // Separation Alert Banner (if companion is straying)
+        if (alert != null) ...[
+          _buildSeparationAlertBanner(context, theme, alert, squadService),
+          const SizedBox(height: 12),
+        ],
+
+        // Guest Upgrade Banner (if anonymous user)
+        if (isGuest) ...[
+          _buildGuestUpgradeBanner(context, theme, isDark),
+          const SizedBox(height: 12),
+        ],
+
         // Card 1 — Squad Identity
         _buildSquadIdentityCard(context, theme, isDark, squadService),
         const SizedBox(height: 16),
@@ -463,6 +485,254 @@ class GroupScreen extends StatelessWidget {
         _buildSquadChatCard(context, theme, isDark, squadService),
         const SizedBox(height: 24),
       ],
+    );
+  }
+
+  Widget _buildConnectionPill(BuildContext context, SquadService squadService, bool isDark) {
+    final state = squadService.wsConnectionState;
+    Color dotColor;
+    String statusText;
+    Color bgColor;
+
+    switch (state) {
+      case WebSocketConnectionState.connected:
+        dotColor = const Color(0xFF00E676);
+        statusText = 'Neon Realtime Connected';
+        bgColor = (isDark ? const Color(0xFF1B3820) : const Color(0xFFE8F5E9));
+        break;
+      case WebSocketConnectionState.connecting:
+        dotColor = const Color(0xFFFFB300);
+        statusText = 'Connecting to Neon Realtime...';
+        bgColor = (isDark ? const Color(0xFF3E2723) : const Color(0xFFFFF8E1));
+        break;
+      case WebSocketConnectionState.reconnecting:
+        dotColor = const Color(0xFFFF9800);
+        statusText = 'Reconnecting to Squad...';
+        bgColor = (isDark ? const Color(0xFF3E2723) : const Color(0xFFFFF3E0));
+        break;
+      case WebSocketConnectionState.error:
+      case WebSocketConnectionState.disconnected:
+        dotColor = Colors.grey;
+        statusText = 'Realtime Offline';
+        bgColor = (isDark ? const Color(0xFF262626) : const Color(0xFFF5F5F5));
+        break;
+    }
+
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: dotColor.withValues(alpha: 0.4),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: dotColor.withValues(alpha: 0.5),
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              statusText,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeparationAlertBanner(
+    BuildContext context,
+    ThemeData theme,
+    SquadSeparationAlert alert,
+    SquadService squadService,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFEBEE),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.redAccent, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '⚠️ Separation Alert: ${alert.memberName} is straying!',
+                  style: const TextStyle(
+                    color: Color(0xFFC62828),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Currently ${alert.distanceMeters}m away from the squad (Threshold: ${alert.thresholdMeters}m). Stay together in festive crowds!',
+                  style: const TextStyle(
+                    color: Color(0xFF424242),
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      icon: const Icon(Icons.navigation_outlined, size: 16, color: PujaColors.durgaRed),
+                      label: const Text('Locate', style: TextStyle(color: PujaColors.durgaRed, fontSize: 12)),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        squadService.focusMember(alert.memberId);
+                        MainNavigationScreen.switchTab(context, 0);
+                      },
+                    ),
+                    const SizedBox(width: 6),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                      child: const Text('Dismiss', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                      onPressed: () {
+                        squadService.dismissSeparationAlert();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuestUpgradeBanner(
+    BuildContext context,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF2C2214) : const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: PujaColors.festivalGold.withValues(alpha: 0.6),
+          width: 1.2,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.shield_outlined,
+            color: PujaColors.festivalGold,
+            size: 24,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Hopping as Guest Hopper',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13.5,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'Link your Google account to save your squad and keep your spot across phones without changing your ID.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 32,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: PujaColors.festivalGold,
+                      foregroundColor: Colors.black87,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      elevation: 0,
+                    ),
+                    icon: const Icon(Icons.login, size: 16),
+                    label: const Text('Link Google Account', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      HapticFeedback.mediumImpact();
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      final res = await AuthService.instance.upgradeGuestToGoogle();
+                      if (res.isSuccess) {
+                        scaffoldMessenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('🎉 Account upgraded to Google! Your squad membership is preserved.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } else if (res.isCancelled) {
+                        // User cancelled Google picker, do nothing
+                      } else {
+                        scaffoldMessenger.showSnackBar(
+                          SnackBar(
+                            content: Text(res.errorMessage ?? 'Failed to upgrade account'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -979,9 +1249,9 @@ class GroupScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    '0 m (Here) • Tap to view Profile',
-                    style: TextStyle(
+                  Text(
+                    '${userMember.markerStateDot} 0 m (Here) • Tap to view Profile',
+                    style: const TextStyle(
                       fontSize: 11.5,
                       color: PujaColors.festivalGold,
                     ),
@@ -1061,7 +1331,7 @@ class GroupScreen extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00E676),
+                    color: member.isOnline ? const Color(0xFF00E676) : Colors.grey,
                     shape: BoxShape.circle,
                     border: Border.all(color: isDark ? const Color(0xFF1E1E1E) : Colors.white, width: 1.5),
                   ),
@@ -1082,7 +1352,7 @@ class GroupScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${member.status} • $distanceText',
+                  '${member.markerStateDot} ${member.status} • $distanceText • ${member.lastSeenText}',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: isDark ? Colors.white60 : Colors.black54,

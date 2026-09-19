@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -11,9 +12,9 @@ enum WebSocketConnectionState {
   error,
 }
 
-/// Robust, low-latency WebSocket client for squad live-tracking.
-/// Supports exponential backoff reconnection, automatic heartbeats,
-/// and message streams.
+/// Robust, low-latency WebSocket client for Kolkata Puja hopping squads.
+/// Supports exponential backoff reconnection (1s..30s), automatic heartbeats,
+/// scoped squad channels (`squad:<squad_id>`), and standardized event envelopes.
 class WebSocketClient {
   WebSocketClient({String? serverUrl}) : _configuredServerUrl = serverUrl;
 
@@ -30,10 +31,11 @@ class WebSocketClient {
   Timer? _reconnectTimer;
   int _reconnectAttempts = 0;
   String? _lastAuthToken;
+  String? _lastSquadId;
   bool _intentionalClose = false;
 
   final List<Map<String, dynamic>> _messageBuffer = [];
-  static const int _maxBufferedMessages = 10;
+  static const int _maxBufferedMessages = 20;
 
   Stream<WebSocketConnectionState> get connectionState => _stateController.stream;
   WebSocketConnectionState get currentState => _currentState;
@@ -51,7 +53,11 @@ class WebSocketClient {
       return envUrl;
     }
 
-    return 'ws://localhost:8080/squad';
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      return 'ws://10.0.2.2:8080/ws';
+    }
+
+    return 'ws://localhost:8080/ws';
   }
 
   void _setState(WebSocketConnectionState newState) {
@@ -62,17 +68,31 @@ class WebSocketClient {
     }
   }
 
-  /// Establish WebSocket connection with user authentication token
-  Future<void> connect([String? authToken]) async {
-    _lastAuthToken = authToken;
+  /// Construct standard channel URI with token & squadId query parameters
+  Uri buildChannelUri({String? token, String? squadId}) {
+    final base = defaultServerUrl;
+    final params = <String>[];
+    if (token != null && token.isNotEmpty) {
+      params.add('token=${Uri.encodeComponent(token)}');
+    }
+    if (squadId != null && squadId.isNotEmpty) {
+      params.add('squadId=${Uri.encodeComponent(squadId)}');
+    }
+
+    final queryString = params.isNotEmpty
+        ? (base.contains('?') ? '&${params.join('&')}' : '?${params.join('&')}')
+        : '';
+    return Uri.parse('$base$queryString');
+  }
+
+  /// Establish WebSocket connection with user authentication token & squadId
+  Future<void> connect([String? authToken, String? squadId]) async {
+    _lastAuthToken = authToken ?? _lastAuthToken;
+    _lastSquadId = squadId ?? _lastSquadId;
     _intentionalClose = false;
     _reconnectTimer?.cancel();
 
-    final base = defaultServerUrl;
-    final tokenParam = authToken != null && authToken.isNotEmpty
-        ? (base.contains('?') ? '&token=$authToken' : '?token=$authToken')
-        : '';
-    final fullUri = Uri.parse('$base$tokenParam');
+    final fullUri = buildChannelUri(token: _lastAuthToken, squadId: _lastSquadId);
 
     debugPrint('[WebSocketClient] Connecting to $fullUri');
     _setState(_reconnectAttempts > 0
@@ -85,7 +105,7 @@ class WebSocketClient {
 
       _channel!.ready.then((_) {
         _setState(WebSocketConnectionState.connected);
-        _reconnectAttempts = 0;
+        _reconnectAttempts = 0; // Reset backoff upon successful connection
         _startHeartbeat();
         _flushBuffer();
       }).catchError((e) {
@@ -93,7 +113,7 @@ class WebSocketClient {
         _onError(e);
       });
 
-      // Wait for channel readiness or first stream event
+      // Listen for events
       _channelSubscription = _channel!.stream.listen(
         _onData,
         onError: _onError,
@@ -111,7 +131,6 @@ class WebSocketClient {
     try {
       final decoded = jsonDecode(raw.toString());
       if (decoded is Map<String, dynamic>) {
-        // If it's a heartbeat ack, silence it or log
         if (decoded['type'] == 'heartbeat_ack') {
           return;
         }
@@ -138,9 +157,9 @@ class WebSocketClient {
     }
   }
 
-  /// Sends a message, or buffers it if temporarily disconnected
+  /// Sends a raw message or standardized envelope, buffering it if temporarily disconnected
   Future<void> sendMessage(Map<String, dynamic> message) async {
-    message['timestamp'] = DateTime.now().millisecondsSinceEpoch;
+    message.putIfAbsent('timestamp', () => DateTime.now().millisecondsSinceEpoch);
 
     if (_channel != null && isConnected) {
       try {
@@ -156,6 +175,26 @@ class WebSocketClient {
       _messageBuffer.removeAt(0);
     }
     _messageBuffer.add(message);
+  }
+
+  /// Standardized Realtime Envelope helper (Section 22)
+  Future<Map<String, dynamic>> sendEnvelope({
+    required String type,
+    required String squadId,
+    required String senderId,
+    required Map<String, dynamic> payload,
+    String? eventId,
+  }) async {
+    final envelope = <String, dynamic>{
+      'type': type,
+      'eventId': eventId ?? 'evt_${DateTime.now().millisecondsSinceEpoch}',
+      'squadId': squadId,
+      'senderId': senderId,
+      'timestamp': DateTime.now().toUtc().toIso8601String(),
+      'payload': payload,
+    };
+    await sendMessage(envelope);
+    return envelope;
   }
 
   void _flushBuffer() {
@@ -186,22 +225,18 @@ class WebSocketClient {
     });
   }
 
+  /// Exponential backoff reconnect: 1s, 2s, 4s, 8s, up to 30s max (Sections 42-43)
   void _scheduleReconnect() {
     if (_intentionalClose) return;
     _heartbeatTimer?.cancel();
     _reconnectTimer?.cancel();
 
-    if (_reconnectAttempts >= 3) {
-      debugPrint('[WebSocketClient] Max reconnect attempts reached, standing by');
-      return;
-    }
-
     _reconnectAttempts++;
-    final delaySeconds = 1 << (_reconnectAttempts - 1);
-    debugPrint('[WebSocketClient] Scheduling reconnect attempt #$_reconnectAttempts in ${delaySeconds}s');
+    final delaySeconds = min(pow(2, _reconnectAttempts - 1).toInt(), 30);
+    debugPrint('[WebSocketClient] Reconnect attempt #$_reconnectAttempts in ${delaySeconds}s');
 
     _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {
-      connect(_lastAuthToken);
+      connect(_lastAuthToken, _lastSquadId);
     });
   }
 

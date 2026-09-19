@@ -270,7 +270,7 @@ void main() {
     // 1. Search bar is unconditionally visible before search
     final searchBarFinder = find.byType(TextField);
     expect(searchBarFinder, findsOneWidget);
-    expect(find.text('Pujo Parikrama Map'), findsOneWidget);
+    expect(find.text('Uma Map'), findsOneWidget);
 
     // 2. Tap Metro chip to trigger contextual banner
     final metroChipFinder = find.textContaining('Metro');

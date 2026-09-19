@@ -8,6 +8,7 @@ import '../utils/haversine.dart';
 import 'location_service.dart';
 import 'notification_progress_service.dart';
 import 'pandal_user_state_service.dart';
+import 'routing_service.dart';
 import 'trail_optimizer.dart';
 
 /// User's preferred vibe / hopping style
@@ -246,8 +247,34 @@ class CustomHoppingTrailService extends ChangeNotifier {
     required String startLabel,
     required List<Pandal> selectedPandals,
   }) {
+    if (selectedPandals.isEmpty) {
+      return ActiveCustomTrail.custom(
+        id: 'custom_trail_${DateTime.now().millisecondsSinceEpoch}',
+        startingLocation: startPos,
+        startingAddress: startLabel,
+        stops: const [],
+        totalDistanceKm: 0.0,
+        totalEstimatedMinutes: 0,
+      );
+    }
+
+    // Check if startPos is in walking vicinity of any selected pandal (<= 2500m).
+    // If user is remote (e.g. at home 38.5 km away), anchor the shortest-path
+    // optimizer at the first pandal so the trail metrics and ordering reflect
+    // the pandal hopping circuit itself, not a 38 km cross-district march.
+    double minDistToPandals = double.infinity;
+    for (final p in selectedPandals) {
+      final d = haversineMeters(startPos.latitude, startPos.longitude, p.lat, p.lng);
+      if (d < minDistToPandals) minDistToPandals = d;
+    }
+
+    final bool isUserClose = minDistToPandals <= 2500.0;
+    final effectiveStart = isUserClose
+        ? startPos
+        : LatLng(selectedPandals.first.lat, selectedPandals.first.lng);
+
     final result = TrailOptimizer.optimizePandalStops(
-      start: startPos,
+      start: effectiveStart,
       stops: selectedPandals,
     );
 
@@ -257,8 +284,10 @@ class CustomHoppingTrailService extends ChangeNotifier {
 
     return ActiveCustomTrail.custom(
       id: 'custom_trail_${DateTime.now().millisecondsSinceEpoch}',
-      startingLocation: startPos,
-      startingAddress: startLabel,
+      startingLocation: isUserClose
+          ? startPos
+          : LatLng(result.orderedStops.first.lat, result.orderedStops.first.lng),
+      startingAddress: isUserClose ? startLabel : result.orderedStops.first.name,
       stops: result.orderedStops,
       totalDistanceKm: result.totalDistanceKm,
       totalEstimatedMinutes: totalEstMinutes,
@@ -421,6 +450,9 @@ class CustomHoppingTrailService extends ChangeNotifier {
     _activeTrail!.currentStopIndex = 0;
     _activeTrail!.isCompleted = false;
 
+    // Immediately trigger asynchronous real road routing calculation
+    unawaited(calculateAndApplyRoadRoute(trail));
+
     // Start location tracking if not running
     await LocationService.instance.startLiveTracking();
 
@@ -439,6 +471,60 @@ class CustomHoppingTrailService extends ChangeNotifier {
     // Initial notification
     await _updateNotificationShade();
     notifyListeners();
+  }
+
+  /// Computes a real street-following pedestrian route for the active custom trail
+  /// using [RoutingService] and updates polyline, distance, and duration stats.
+  Future<void> calculateAndApplyRoadRoute(ActiveCustomTrail trail) async {
+    if (trail.stops.isEmpty) return;
+
+    final waypoints = <LatLng>[];
+
+    // Pandal-centric circuit:
+    // Only include startingLocation if it is close to the first stop (<= 2000m).
+    // If the user's starting point is remote (e.g. > 2.0 km away), do NOT route walking
+    // across districts, but keep the trail focused on the pandals.
+    final firstStop = trail.stops.first;
+    final distToFirst = haversineMeters(
+      trail.startingLocation.latitude,
+      trail.startingLocation.longitude,
+      firstStop.lat,
+      firstStop.lng,
+    );
+
+    if (distToFirst <= 2000.0 && distToFirst > 20.0) {
+      waypoints.add(trail.startingLocation);
+    }
+
+    for (final s in trail.stops) {
+      waypoints.add(LatLng(s.lat, s.lng));
+    }
+
+    if (waypoints.length < 2) return;
+
+    try {
+      final route = await RoutingService.instance.getMultiStopRoute(
+        waypoints: waypoints,
+        routeTitle: 'Custom Hopping Trail',
+      );
+
+      final distanceKm = double.parse((route.distanceMeters / 1000.0).toStringAsFixed(1));
+      final dwellMinutes = trail.stops.length * 15;
+      final durationMinutes = ((route.durationSeconds / 60.0) + dwellMinutes).round();
+
+      // Only update if this trail is still active
+      if (_activeTrail?.id == trail.id) {
+        updateRoutedStats(
+          distanceKm: distanceKm,
+          durationMinutes: durationMinutes,
+          polyline: route.points,
+          remainingDistanceKm: distanceKm,
+          remainingDurationMinutes: durationMinutes,
+        );
+      }
+    } catch (e) {
+      debugPrint('[CustomHoppingTrailService] Road routing failed: $e');
+    }
   }
 
   /// Checks if the user is within the 80-meter auto-visit threshold of the target pandal.
@@ -480,8 +566,15 @@ class CustomHoppingTrailService extends ChangeNotifier {
     // Advance to next pandal
     if (trail.currentStopIndex < trail.totalStops - 1) {
       trail.currentStopIndex++;
-      trail.remainingRoutedDistanceKm = null;
-      trail.remainingRoutedDurationMinutes = null;
+      final unvisitedCount = trail.totalStops - trail.visitedCount;
+      if (trail.routedDistanceKm != null && trail.totalStops > 0) {
+        final remainingFrac = unvisitedCount / trail.totalStops;
+        trail.remainingRoutedDistanceKm = double.parse(
+          (trail.routedDistanceKm! * remainingFrac).toStringAsFixed(1),
+        );
+        trail.remainingRoutedDurationMinutes =
+            (trail.routedEstimatedMinutes! * remainingFrac).round();
+      }
       await _updateNotificationShade();
     } else {
       // All stops visited!
@@ -502,8 +595,15 @@ class CustomHoppingTrailService extends ChangeNotifier {
     final trail = _activeTrail!;
     if (trail.currentStopIndex < trail.totalStops - 1) {
       trail.currentStopIndex++;
-      trail.remainingRoutedDistanceKm = null;
-      trail.remainingRoutedDurationMinutes = null;
+      final unvisitedCount = trail.totalStops - trail.visitedCount;
+      if (trail.routedDistanceKm != null && trail.totalStops > 0) {
+        final remainingFrac = unvisitedCount / trail.totalStops;
+        trail.remainingRoutedDistanceKm = double.parse(
+          (trail.routedDistanceKm! * remainingFrac).toStringAsFixed(1),
+        );
+        trail.remainingRoutedDurationMinutes =
+            (trail.routedEstimatedMinutes! * remainingFrac).round();
+      }
       await _updateNotificationShade();
       notifyListeners();
     } else {

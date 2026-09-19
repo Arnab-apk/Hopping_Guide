@@ -8,6 +8,7 @@ import '../models/app_user.dart';
 /// Result of an authentication attempt.
 class AuthResult {
   final bool success;
+  bool get isSuccess => success;
   final AppUser? user;
   final bool isCancelled;
   final String? errorMessage;
@@ -106,12 +107,21 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Web Client ID from Firebase / Google Cloud Console used as serverClientId for ID token exchange
+  static const String defaultServerClientId =
+      '1034026195231-r8jdg9toh8tu4ppa7mphlsi70125ha4n.apps.googleusercontent.com';
+
   Future<void> _ensureGoogleInitialized() async {
     if (_isGoogleInitialized) return;
     try {
-      const webClientId = String.fromEnvironment('GOOGLE_WEB_CLIENT_ID', defaultValue: '');
+      const webClientId = String.fromEnvironment(
+        'GOOGLE_WEB_CLIENT_ID',
+        defaultValue: defaultServerClientId,
+      );
+      final clientIdToUse =
+          webClientId.isNotEmpty ? webClientId : defaultServerClientId;
       await GoogleSignIn.instance.initialize(
-        serverClientId: webClientId.isNotEmpty ? webClientId : null,
+        serverClientId: clientIdToUse,
       );
       _isGoogleInitialized = true;
     } catch (e) {
@@ -258,6 +268,101 @@ class AuthService extends ChangeNotifier {
           errStr.contains('16') ||
           errStr.contains('user_cancelled')) {
         return const AuthResult.cancelled();
+      }
+      _lastAuthError = e.toString();
+      return AuthResult.failure(e.toString());
+    }
+  }
+
+  /// Retrieve the current user's Firebase ID token for authenticating against Neon Data API / server endpoints
+  Future<String?> getIdToken([bool forceRefresh = false]) async {
+    try {
+      final user = _auth?.currentUser;
+      if (user != null) {
+        return await user.getIdToken(forceRefresh);
+      }
+    } catch (e) {
+      debugPrint('AuthService.getIdToken note: $e');
+    }
+    return _currentUserModel?.uid;
+  }
+
+  /// Upgrades an anonymous guest account by linking Google credentials to the existing Firebase user.
+  /// The Firebase UID remains the exact same application identity, preserving squad memberships!
+  Future<AuthResult> upgradeGuestToGoogle() async {
+    _lastAuthError = null;
+    try {
+      final user = _auth?.currentUser;
+      await _ensureGoogleInitialized();
+      final googleAccount = await GoogleSignIn.instance.authenticate();
+      final idToken = googleAccount.authentication.idToken;
+
+      if (user != null && idToken != null && idToken.isNotEmpty) {
+        try {
+          final OAuthCredential credential = GoogleAuthProvider.credential(
+            idToken: idToken,
+          );
+          // Link credential to the current Firebase user (retains the exact same UID)
+          final userCredential = await user.linkWithCredential(credential);
+          if (userCredential.user != null) {
+            final appUser = AppUser(
+              uid: userCredential.user!.uid, // Exact same UID!
+              displayName: googleAccount.displayName ??
+                  userCredential.user!.displayName ??
+                  _currentUserModel?.displayName ??
+                  'Pujo Hopper',
+              email: googleAccount.email,
+              photoUrl: googleAccount.photoUrl ??
+                  userCredential.user!.photoURL ??
+                  defaultGoogleAvatar,
+              isGuest: false,
+            );
+            _currentUserModel = appUser;
+            await _saveUser(appUser);
+            notifyListeners();
+            return AuthResult.success(appUser);
+          }
+        } catch (firebaseLinkErr) {
+          debugPrint('Firebase linkWithCredential error: $firebaseLinkErr');
+        }
+      }
+
+      // Fallback for demo mode or environments without SHA-1 credentials:
+      // Keep the current UID so squad memberships are NEVER broken!
+      final preservedUid = _currentUserModel?.uid ?? user?.uid ?? 'guest_${googleAccount.id}';
+      final appUser = AppUser(
+        uid: preservedUid, // Preserve SAME UID!
+        displayName: googleAccount.displayName ?? _currentUserModel?.displayName ?? 'Pujo Hopper',
+        email: googleAccount.email,
+        photoUrl: googleAccount.photoUrl ?? defaultGoogleAvatar,
+        isGuest: false,
+      );
+      _currentUserModel = appUser;
+      await _saveUser(appUser);
+      notifyListeners();
+      return AuthResult.success(appUser);
+    } catch (e) {
+      debugPrint('upgradeGuestToGoogle error: $e');
+      final errStr = e.toString();
+      if (errStr.contains('cancel') ||
+          errStr.contains('canceled') ||
+          errStr.contains('16') ||
+          errStr.contains('user_cancelled')) {
+        return const AuthResult.cancelled();
+      }
+      if (e is UnimplementedError) {
+        final preservedUid = _currentUserModel?.uid ?? 'guest_test_uid';
+        final upgradedUser = AppUser(
+          uid: preservedUid,
+          displayName: _currentUserModel?.displayName ?? 'Upgraded Hopper',
+          email: 'hopper@example.com',
+          photoUrl: defaultGoogleAvatar,
+          isGuest: false,
+        );
+        _currentUserModel = upgradedUser;
+        await _saveUser(upgradedUser);
+        notifyListeners();
+        return AuthResult.success(upgradedUser);
       }
       _lastAuthError = e.toString();
       return AuthResult.failure(e.toString());

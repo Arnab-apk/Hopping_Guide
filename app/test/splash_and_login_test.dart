@@ -217,7 +217,7 @@ void main() {
 
       // 2. Verify Title and Countdown in upper zone
       expect(find.text('Durga Puja'), findsOneWidget);
-      expect(find.text('Pujo Parikrama'), findsOneWidget);
+      expect(find.text('Uma'), findsOneWidget);
       expect(find.text('DAYS'), findsOneWidget);
       expect(find.text('HOURS'), findsOneWidget);
 

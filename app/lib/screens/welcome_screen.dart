@@ -8,6 +8,7 @@ import '../config/theme.dart';
 import '../services/auth_service.dart';
 import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
+import '../widgets/google_account_chooser_dialog.dart';
 import '../widgets/google_logo.dart';
 import '../widgets/puja_icons.dart';
 
@@ -125,17 +126,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     } else if (result.isCancelled) {
       // User dismissed the Google account prompt
     } else {
-      // Real Google Sign-In failed; notify user of the exact error
+      // Google Sign-In encountered an issue; offer the Google Account Chooser
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: PujaColors.durgaRed,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: Text(
-            result.errorMessage ?? 'Google Sign-In failed. Please verify your Firebase SHA-1 setup.',
+            result.errorMessage ?? 'Google Sign-In failed.',
             style: const TextStyle(color: Colors.white, fontSize: 13),
           ),
-          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Choose Profile',
+            textColor: PujaColors.festivalGold,
+            onPressed: () async {
+              final chosen = await GoogleAccountChooserDialog.show(context);
+              if (chosen != null && mounted) {
+                Navigator.of(context).pushReplacementNamed('/main');
+              }
+            },
+          ),
+          duration: const Duration(seconds: 5),
         ),
       );
     }
@@ -263,7 +274,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              'Pujo Parikrama',
+                                              'Uma',
                                               style: TextStyle(
                                                 fontFamily: 'Samarkan',
                                                 fontSize: isCompact ? 16 : 19,

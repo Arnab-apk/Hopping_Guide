@@ -279,6 +279,132 @@ class RoutingService {
     );
   }
 
+  /// Fetches a walking route through an ordered sequence of waypoints (e.g. for custom pandal hopping trails).
+  /// Utilizes multi-stop OSRM pedestrian routing with Douglas-Peucker simplification,
+  /// spatial caching, and offline geodesic fallback.
+  Future<WalkingRoute> getMultiStopRoute({
+    required List<LatLng> waypoints,
+    String? routeTitle,
+  }) async {
+    if (waypoints.length < 2) {
+      return WalkingRoute(
+        customTitle: routeTitle ?? 'Trail',
+        points: waypoints,
+        distanceMeters: 0,
+        durationSeconds: 0,
+        isFallback: false,
+      );
+    }
+
+    // 1. Spatial quantization cache check
+    final cacheKey = waypoints
+        .map((p) => '${p.latitude.toStringAsFixed(3)},${p.longitude.toStringAsFixed(3)}')
+        .join(';');
+
+    final cached = _routeCache[cacheKey];
+    if (cached != null &&
+        DateTime.now().difference(cached.timestamp) < const Duration(minutes: 15)) {
+      return cached.route;
+    }
+
+    // 2. Circuit Breaker check
+    final now = DateTime.now();
+    if (_circuitBreakerUntil != null && now.isBefore(_circuitBreakerUntil!)) {
+      return _buildMultiStopGeodesicFallback(waypoints, routeTitle);
+    }
+
+    // 3. Format OSRM coordinates: lon1,lat1;lon2,lat2;lon3,lat3...
+    final coordsParam = waypoints
+        .map((p) => '${p.longitude},${p.latitude}')
+        .join(';');
+
+    final url = Uri.parse(
+      'https://router.project-osrm.org/route/v1/foot/$coordsParam?overview=full&geometries=geojson',
+    );
+
+    try {
+      final response = await _client.get(
+        url,
+        headers: {
+          'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
+          'Accept': 'application/json',
+        },
+      ).timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final routes = data['routes'] as List?;
+        if (routes != null && routes.isNotEmpty) {
+          final route0 = routes[0] as Map<String, dynamic>;
+          final geometry = route0['geometry'] as Map<String, dynamic>?;
+          final coordinates = geometry?['coordinates'] as List?;
+          final distance = (route0['distance'] as num?)?.toDouble() ?? 0.0;
+          final rawDuration = (route0['duration'] as num?)?.toDouble() ?? 0.0;
+
+          if (coordinates != null && coordinates.isNotEmpty) {
+            final points = coordinates.map((coord) {
+              final pair = coord as List;
+              return LatLng(
+                (pair[1] as num).toDouble(),
+                (pair[0] as num).toDouble(),
+              );
+            }).toList();
+
+            final optimizedPoints = optimizeRoute(points);
+
+            // Calibrated pedestrian walking speed: 4.5 km/h = 1.25 m/s
+            final walkingDurationSeconds = distance > 0 ? (distance / 1.25) : 0.0;
+
+            final route = WalkingRoute(
+              customTitle: routeTitle ?? 'Trail',
+              points: optimizedPoints,
+              distanceMeters: distance,
+              durationSeconds: walkingDurationSeconds,
+              drivingDurationSeconds: rawDuration > 0 ? rawDuration : null,
+              isFallback: false,
+            );
+
+            _consecutiveFailures = 0;
+            _circuitBreakerUntil = null;
+            if (_routeCache.length >= 100) _routeCache.clear();
+            _routeCache[cacheKey] = (route: route, timestamp: now);
+
+            return route;
+          }
+        }
+      }
+      _recordFailure();
+    } catch (_) {
+      _recordFailure();
+    }
+
+    return _buildMultiStopGeodesicFallback(waypoints, routeTitle);
+  }
+
+  WalkingRoute _buildMultiStopGeodesicFallback(List<LatLng> waypoints, String? title) {
+    double totalMeters = 0.0;
+    for (int i = 0; i < waypoints.length - 1; i++) {
+      totalMeters += haversineMeters(
+        waypoints[i].latitude,
+        waypoints[i].longitude,
+        waypoints[i + 1].latitude,
+        waypoints[i + 1].longitude,
+      );
+    }
+    final estimatedStreetMeters = totalMeters * 1.25;
+    final walkingDurationSeconds = estimatedStreetMeters / 1.25;
+    final estimatedDrivingSeconds = estimatedStreetMeters / 11.1;
+
+    return WalkingRoute(
+      customTitle: title ?? 'Trail',
+      points: waypoints,
+      distanceMeters: estimatedStreetMeters,
+      durationSeconds: walkingDurationSeconds,
+      drivingDurationSeconds: estimatedDrivingSeconds,
+      isFallback: true,
+    );
+  }
+
   /// Helper to find the closest pandal from a given coordinate
   Pandal? findNearestPandal({
     required LatLng userPosition,

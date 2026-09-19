@@ -264,7 +264,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
-          _category == PlaceCategory.pandal ? 'Kolkata Pandals' : 'Food Spots',
+          _category == PlaceCategory.pandal ? 'Pandals' : 'Food Spots',
         ),
         actions: [
           PopupMenuButton<String>(

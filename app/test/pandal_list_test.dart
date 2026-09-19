@@ -117,7 +117,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Kolkata Pandals'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Pandals'), findsOneWidget);
     expect(find.text('Hatibagan Sarbojanin'), findsOneWidget);
     expect(find.text('Ekdalia Evergreen'), findsOneWidget);
     // Food spots should NEVER appear on the pandals segment
@@ -143,8 +143,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // 1. Initial Pandals segment
-    expect(find.text('Kolkata Pandals'), findsOneWidget);
-    expect(find.text('Pandals'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Pandals'), findsOneWidget);
+    expect(find.text('Pandals'), findsWidgets);
     expect(find.text('Food Spots'), findsOneWidget);
     expect(find.text('Hatibagan Sarbojanin'), findsOneWidget);
     expect(find.text('Golbari (New Punjabi Hotel)'), findsNothing);
@@ -163,10 +163,21 @@ void main() {
     expect(find.text('Search by restaurant, cuisine, area...'), findsOneWidget);
 
     // 3. Switch back to Pandals segment
-    await tester.tap(find.text('Pandals'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(SegmentedButton<PlaceCategory>),
+        matching: find.text('Pandals'),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    expect(find.text('Kolkata Pandals'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text('Pandals'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Hatibagan Sarbojanin'), findsOneWidget);
     expect(find.text('Golbari (New Punjabi Hotel)'), findsNothing);
     expect(find.text('Search by pandal, area, metro, theme...'), findsOneWidget);

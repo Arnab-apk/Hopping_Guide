@@ -42,7 +42,7 @@ class PandalDetailSheet extends StatelessWidget {
         text: '🌟 Explore ${pandal.name} (${pandal.zone.label}) during Durga Puja 2026!\n'
             '📍 Location: https://maps.google.com/?q=${pandal.latitude},${pandal.longitude}\n'
             '🚇 Nearest Metro: ${pandal.nearestMetro ?? "Available on Map"}\n'
-            'Discovered via Pujo Parikrama App.',
+            'Discovered via Uma App.',
       ),
     );
   }

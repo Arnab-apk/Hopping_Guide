@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kolkata_puja/models/pandal.dart';
 import 'package:kolkata_puja/services/custom_hopping_trail_service.dart';
 import 'package:kolkata_puja/services/pandal_user_state_service.dart';
+import 'package:kolkata_puja/services/routing_service.dart';
 import 'package:kolkata_puja/utils/constants.dart';
 
 /// No-op fake so [NotificationProgressService] can initialize in tests without
@@ -179,6 +180,79 @@ void main() {
       await service.skipCurrentStop();
       expect(service.activeTrail!.currentStopIndex, equals(1));
       expect(service.activeTrail!.visitedCount, equals(0));
+
+      await service.endTrail();
+    });
+
+    test('generateOptimizedTrail sanitizes remote user location (> 2.5 km away) and does not inflate trail distance', () {
+      final service = CustomHoppingTrailService.instance;
+      // Remote user position ~38.5 km north (e.g., near Kalyani / Barrackpore)
+      const remoteUserPos = LatLng(22.9500, 88.3712);
+
+      final trail = service.generateOptimizedTrail(
+        startPos: remoteUserPos,
+        startLabel: 'Home (Remote GPS)',
+        selectedPandals: [mockPandals[0], mockPandals[1]], // Hatibagan Sarbojanin & Kashi Bose Lane
+      );
+
+      // Trail metrics MUST NOT include the 38.5 km cross-district march!
+      // The two pandals in Hatibagan are ~250m apart.
+      expect(trail.totalDistanceKm, lessThan(3.0));
+      // Total estimated time must be realistic (~30-35 mins), not 580 minutes!
+      expect(trail.totalEstimatedMinutes, lessThan(60));
+      // Starting location is anchored at the first pandal, not the remote GPS
+      expect(trail.startingLocation.latitude, closeTo(mockPandals[0].lat, 0.01));
+    });
+
+    test('RoutingService getMultiStopRoute computes valid route across waypoints', () async {
+      final waypoints = [
+        LatLng(mockPandals[0].lat, mockPandals[0].lng),
+        LatLng(mockPandals[1].lat, mockPandals[1].lng),
+        LatLng(mockPandals[2].lat, mockPandals[2].lng),
+      ];
+
+      final route = await RoutingService.instance.getMultiStopRoute(
+        waypoints: waypoints,
+        routeTitle: 'North Kolkata Heritage Hop',
+      );
+
+      expect(route.points.length, greaterThanOrEqualTo(2));
+      expect(route.distanceMeters, greaterThan(0));
+      expect(route.durationSeconds, greaterThan(0));
+      expect(route.customTitle, equals('North Kolkata Heritage Hop'));
+    });
+
+    test('recordAutoVisit smoothly updates remaining routed distance and minutes', () async {
+      final service = CustomHoppingTrailService.instance;
+      const start = LatLng(22.5995, 88.3712);
+      final trail = service.generateTrail(
+        startPos: start,
+        startLabel: 'Hatibagan',
+        style: HoppingStyle.express,
+        timeBudgetMinutes: 120,
+        transitMode: HoppingTransitMode.walking,
+        allPandals: mockPandals.take(2).toList(),
+      );
+
+      await service.startTrail(trail);
+
+      // Manually set initial routed stats
+      service.updateRoutedStats(
+        distanceKm: 2.0,
+        durationMinutes: 40,
+        polyline: [const LatLng(22.5995, 88.3712), const LatLng(22.5980, 88.3735)],
+        remainingDistanceKm: 2.0,
+        remainingDurationMinutes: 40,
+      );
+
+      expect(service.activeTrail!.remainingRoutedDistanceKm, equals(2.0));
+      expect(service.activeTrail!.remainingRoutedDurationMinutes, equals(40));
+
+      // Record visit for first pandal (1 out of 2 visited -> 50% remaining)
+      await service.recordAutoVisit(mockPandals[0]);
+
+      expect(service.activeTrail!.remainingRoutedDistanceKm, equals(1.0));
+      expect(service.activeTrail!.remainingRoutedDurationMinutes, equals(20));
 
       await service.endTrail();
     });

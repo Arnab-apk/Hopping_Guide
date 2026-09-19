@@ -7,18 +7,30 @@
     "dev": "ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "node test/test-client.js"
+    "test": "node test/test-neon-squad.js",
+    "test:legacy": "node test/test-client.js"
   },
-  "keywords": ["websocket", "realtime", "squad", "location", "geotracking", "durga-puja"],
+  "keywords": [
+    "websocket",
+    "realtime",
+    "squad",
+    "location",
+    "geotracking",
+    "durga-puja"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.7",
     "ioredis": "^5.4.2",
+    "pg": "^8.23.0",
+    "uuid": "^14.0.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.23.1",
+    "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.13",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"

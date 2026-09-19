@@ -195,6 +195,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   double _mapRotation = 0.0;
   String? _lastFramedTrailId;
 
+  // Trail Polyline Memoization Cache (prevents frame drops and blank tile lag on GPS updates)
+  List<Polyline>? _cachedTrailCorePolylines;
+  String? _cachedTrailCoreKey;
+
   // Floating Status Pill State (Minimal Negative Feedback)
   OverlayEntry? _statusOverlayEntry;
   Timer? _statusOverlayTimer;
@@ -1227,7 +1231,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pujo Parikrama Map'),
+        title: const Text('Uma Map'),
         actions: [
           // Map Marker Legend (Explains cluster numbers and marker types)
           IconButton(
@@ -3918,7 +3922,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     CustomHoppingTrailService trailService,
     bool isDark,
   ) {
-    // Calculate remaining distance and time (unified with GemKit native route calculation)
+    // Calculate remaining distance and time (unified with OSRM street route calculation)
     double remainingDistKm = trail.remainingRoutedDistanceKm ?? 0.0;
     int remainingMin = trail.remainingRoutedDurationMinutes ?? 0;
     final unvisitedStops = trail.stops
@@ -3927,8 +3931,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     if (trail.remainingRoutedDistanceKm == null) {
       if (unvisitedStops.isNotEmpty) {
-        LatLng prev = _effectiveUserLocation ?? trail.startPoint;
-        for (final s in unvisitedStops) {
+        // Only include user location if within close walking range (<= 2000m) of the first unvisited stop.
+        // If user is remote (e.g. 38.5 km away), calculate distance between the pandal stops only!
+        final userLoc = _effectiveUserLocation;
+        final firstStop = unvisitedStops.first;
+        final bool userIsClose = userLoc != null &&
+            haversineMeters(userLoc.latitude, userLoc.longitude, firstStop.lat, firstStop.lng) <= 2000.0;
+
+        LatLng prev = userIsClose ? userLoc : LatLng(firstStop.lat, firstStop.lng);
+        final startIndex = userIsClose ? 0 : 1;
+
+        for (int i = startIndex; i < unvisitedStops.length; i++) {
+          final s = unvisitedStops[i];
           final dMeters = haversineMeters(
             prev.latitude,
             prev.longitude,
@@ -3949,6 +3963,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         : '${remainingDistKm.toStringAsFixed(1)} km';
 
     final target = trail.currentTargetPandal;
+
+    // Check if user is remotely located from the current target pandal (> 2.5 km)
+    final userLoc = _effectiveUserLocation;
+    final double? distToTargetKm = (userLoc != null && target != null)
+        ? haversineMeters(userLoc.latitude, userLoc.longitude, target.lat, target.lng) / 1000.0
+        : null;
+    final bool isUserRemote = distToTargetKm != null && distToTargetKm > 2.5;
 
     return Row(
       children: [
@@ -4027,9 +4048,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
                 if (target != null)
                   Text(
-                    'Next: ${target.name}',
+                    isUserRemote
+                        ? 'Next: ${target.name} · ${distToTargetKm.toStringAsFixed(0)} km away (take Metro/cab)'
+                        : 'Next: ${target.name}',
                     style: TextStyle(
-                      color: isDark ? Colors.white60 : Colors.black54,
+                      color: isUserRemote
+                          ? PujaColors.festivalGold
+                          : (isDark ? Colors.white60 : Colors.black54),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
@@ -4073,6 +4098,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               HapticFeedback.selectionClick();
               trailService.endTrail();
               _lastFramedTrailId = null;
+              _cachedTrailCorePolylines = null;
+              _cachedTrailCoreKey = null;
               setState(() {
                 _selectedPandal = null;
                 _highlightedRoute = null;
@@ -4123,13 +4150,65 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     LatLng? liveLoc,
     bool isDark,
   ) {
-    final polylines = <Polyline>[];
-    if (trail.stops.isEmpty) return polylines;
+    if (trail.stops.isEmpty) return const [];
 
     final startCoord = trail.startPoint;
 
-    // Segment 1: "Getting there" (Live location -> Trail's start point)
-    // Thin, dashed, muted color (blueGrey). Only drawn if liveLoc is separated from startPoint by > 60m.
+    // 1. Memoized Core Trail Polylines (Glow + Brand Gold Primary Line)
+    // Only reconstructed when the trail ID, routed polyline geometry, or theme changes,
+    // completely eliminating map stutter and tile-loading lag caused by continuous GPS ticks.
+    final String coreKey =
+        '${trail.id}_${trail.routedPolyline?.length ?? 0}_$isDark';
+    if (_cachedTrailCoreKey != coreKey || _cachedTrailCorePolylines == null) {
+      final corePolylines = <Polyline>[];
+      final List<LatLng> trailCoords;
+      if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
+        trailCoords = trail.routedPolyline!;
+      } else {
+        final coords = <LatLng>[];
+        final firstStop = trail.stops.first;
+        final double distToFirst = haversineMeters(
+          startCoord.latitude,
+          startCoord.longitude,
+          firstStop.lat,
+          firstStop.lng,
+        );
+        // Only include startCoord if within reasonable walking reach (<= 2000m)
+        if (distToFirst > 15.0 && distToFirst <= 2000.0) {
+          coords.add(startCoord);
+        }
+        for (final s in trail.stops) {
+          coords.add(LatLng(s.lat, s.lng));
+        }
+        trailCoords = coords;
+      }
+
+      if (trailCoords.length >= 2) {
+        // Glow/underglow line
+        corePolylines.add(
+          Polyline(
+            points: trailCoords,
+            strokeWidth: 8.5,
+            color: PujaColors.festivalGold.withValues(alpha: 0.3),
+          ),
+        );
+        // Solid brand gold primary line
+        corePolylines.add(
+          Polyline(
+            points: trailCoords,
+            strokeWidth: 5.0,
+            color: PujaColors.festivalGold,
+          ),
+        );
+      }
+      _cachedTrailCorePolylines = corePolylines;
+      _cachedTrailCoreKey = coreKey;
+    }
+
+    final polylines = <Polyline>[];
+
+    // 2. Segment 1: "Getting there" (Live location -> Trail's start point)
+    // Thin, dashed, muted color (blueGrey). Only drawn if liveLoc is within walking reach (<= 2500m) and separated by > 60m.
     if (liveLoc != null) {
       final double distMeters = haversineMeters(
         liveLoc.latitude,
@@ -4137,7 +4216,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         startCoord.latitude,
         startCoord.longitude,
       );
-      if (distMeters > 60.0) {
+      if (distMeters > 60.0 && distMeters <= 2500.0) {
         polylines.add(
           Polyline(
             points: [liveLoc, startCoord],
@@ -4149,47 +4228,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       }
     }
 
-    // Segment 2: "Your trail" (Starting point -> Stop 1 -> Stop 2 -> ... -> Stop N)
-    // Bold, solid brand gold with high contrast underglow.
-    // If GemKit has calculated a real road-following route, use its coordinates.
-    final List<LatLng> trailCoords;
-    if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
-      trailCoords = trail.routedPolyline!;
-    } else {
-      final coords = <LatLng>[];
-      final firstStop = trail.stops.first;
-      final double distToFirst = haversineMeters(
-        startCoord.latitude,
-        startCoord.longitude,
-        firstStop.lat,
-        firstStop.lng,
-      );
-      if (distToFirst > 15.0) {
-        coords.add(startCoord);
-      }
-      for (final s in trail.stops) {
-        coords.add(LatLng(s.lat, s.lng));
-      }
-      trailCoords = coords;
-    }
-
-    if (trailCoords.length >= 2) {
-      // Glow/underglow line
-      polylines.add(
-        Polyline(
-          points: trailCoords,
-          strokeWidth: 8.5,
-          color: PujaColors.festivalGold.withValues(alpha: 0.3),
-        ),
-      );
-      // Solid brand gold primary line
-      polylines.add(
-        Polyline(
-          points: trailCoords,
-          strokeWidth: 5.0,
-          color: PujaColors.festivalGold,
-        ),
-      );
+    // Add cached core lines
+    if (_cachedTrailCorePolylines != null) {
+      polylines.addAll(_cachedTrailCorePolylines!);
     }
 
     return polylines;
@@ -4212,7 +4253,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         firstStop.lat,
         firstStop.lng,
       );
-      if (distToFirst > 60.0) {
+      if (distToFirst > 60.0 && distToFirst <= 2500.0) {
         markers.add(
           Marker(
             point: startCoord,
@@ -4348,21 +4389,35 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   void _fitTrailBounds(ActiveCustomTrail trail) {
     if (trail.stops.isEmpty) return;
-    final points = <LatLng>[
-      trail.startPoint,
-      ...trail.stops.map((s) => LatLng(s.lat, s.lng)),
-    ];
+
+    final stopPoints = trail.stops.map((s) => LatLng(s.lat, s.lng)).toList();
+    final points = <LatLng>[...stopPoints];
+
+    // Only include startPoint if within walking proximity (<= 2500m) of Stop 1
+    final firstStop = stopPoints.first;
+    final distStartToFirst = haversineMeters(
+      trail.startPoint.latitude,
+      trail.startPoint.longitude,
+      firstStop.latitude,
+      firstStop.longitude,
+    );
+    if (distStartToFirst <= 2500.0) {
+      points.add(trail.startPoint);
+    }
+
+    // Only include live user position if within walking proximity (<= 2500m) of Stop 1
     if (_effectiveUserLocation != null) {
-      final distM = haversineMeters(
+      final distUserToFirst = haversineMeters(
         _effectiveUserLocation!.latitude,
         _effectiveUserLocation!.longitude,
-        points.first.latitude,
-        points.first.longitude,
+        firstStop.latitude,
+        firstStop.longitude,
       );
-      if (distM < 15000) {
+      if (distUserToFirst <= 2500.0) {
         points.add(_effectiveUserLocation!);
       }
     }
+
     final bounds = LatLngBounds.fromPoints(points);
     try {
       _mapController.fitCamera(

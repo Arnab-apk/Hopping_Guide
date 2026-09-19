@@ -1256,7 +1256,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pujo Parikrama (Magic Lane 3D)'),
+        title: const Text('Uma (Magic Lane 3D)'),
         actions: [
           // Engine Switcher: Switch to 2D OSM Map
           IconButton(

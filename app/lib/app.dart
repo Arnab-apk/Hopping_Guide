@@ -24,7 +24,7 @@ class KolkataPujaApp extends StatelessWidget {
     final themeService = context.watch<ThemeService?>();
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'Pujo Parikrama',
+      title: 'Uma',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
       darkTheme: appDarkTheme,

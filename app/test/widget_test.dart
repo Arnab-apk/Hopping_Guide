@@ -19,6 +19,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 2300));
     await tester.pumpAndSettle();
 
-    expect(find.text('Pujo Parikrama'), findsOneWidget);
+    expect(find.text('Uma'), findsOneWidget);
   });
 }

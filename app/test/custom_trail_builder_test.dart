@@ -202,11 +202,11 @@ void main() {
     expect(updated.routedPolyline, isNotNull);
     expect(updated.routedPolyline!.length, 4);
 
-    // Advance stop - remaining routed metrics invalidate until next leg/route calculation
+    // Advance stop - remaining routed metrics smoothly decrement based on unvisited fraction
     await trailService.recordAutoVisit(testPandals[0]);
     expect(trailService.activeTrail!.visitedPandalIds.contains('pandal_1'), isTrue);
-    expect(trailService.activeTrail!.remainingRoutedDistanceKm, isNull);
-    expect(trailService.activeTrail!.remainingRoutedDurationMinutes, isNull);
+    expect(trailService.activeTrail!.remainingRoutedDistanceKm, 0.9);
+    expect(trailService.activeTrail!.remainingRoutedDurationMinutes, 14);
 
     trailService.removeListener(listener);
     await trailService.endTrail();
