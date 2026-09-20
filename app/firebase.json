@@ -1,4 +1,4 @@
-﻿{
+{
   "flutter": {
     "platforms": {
       "android": {
@@ -20,5 +20,8 @@
   },
   "database": {
     "rules": "database/database.rules.json"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

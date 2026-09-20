@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import 'config/theme.dart';
 import 'services/theme_service.dart';
-import 'services/auth_service.dart';
 import 'screens/app_root_coordinator.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
@@ -23,8 +22,6 @@ class KolkataPujaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeService = context.watch<ThemeService?>();
-    final authService = context.watch<AuthService?>();
-    final isLoggedIn = authService?.isAuthenticated ?? false;
 
     return MaterialApp(
       navigatorKey: navigatorKey,
