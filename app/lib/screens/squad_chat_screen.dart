@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../config/theme.dart';
@@ -90,7 +92,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Share Festival Media',
+                'Share Pandal Photo',
                 style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -99,7 +101,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Share photos or short pandal video clips (≤20s) with your squad',
+                'Take a live photo with camera or choose from gallery',
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.white60 : Colors.black54,
@@ -110,30 +112,21 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildMediaOption(
-                    icon: Icons.photo_camera_rounded,
-                    label: 'Pandal Photo',
+                    icon: Icons.camera_alt_rounded,
+                    label: 'Camera',
                     color: PujaColors.festivalGold,
                     onTap: () {
                       Navigator.pop(ctx);
-                      _uploadAndSendSampleMedia(isVideo: false);
+                      _pickAndSendPhoto(ImageSource.camera);
                     },
                   ),
                   _buildMediaOption(
-                    icon: Icons.videocam_rounded,
-                    label: 'Short Clip (≤20s)',
+                    icon: Icons.photo_library_rounded,
+                    label: 'Gallery',
                     color: PujaColors.durgaRed,
                     onTap: () {
                       Navigator.pop(ctx);
-                      _uploadAndSendSampleMedia(isVideo: true);
-                    },
-                  ),
-                  _buildMediaOption(
-                    icon: Icons.collections_rounded,
-                    label: 'Festival Gallery',
-                    color: Colors.amber.shade700,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _uploadAndSendSampleMedia(isVideo: false);
+                      _pickAndSendPhoto(ImageSource.gallery);
                     },
                   ),
                 ],
@@ -159,8 +152,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         onTap();
       },
       child: Container(
-        width: 100,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        width: 120,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(16),
@@ -168,13 +161,13 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 30),
+            Icon(icon, color: color, size: 32),
             const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -184,47 +177,54 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     );
   }
 
-  Future<void> _uploadAndSendSampleMedia({required bool isVideo}) async {
-    setState(() => _isSending = true);
-    final auth = Provider.of<AuthService>(context, listen: false);
-    final user = auth.currentUserModel;
-    final senderId = user?.uid ?? 'user_self';
-    final senderName = user?.displayName ?? 'You';
-    final photoUrl = user?.photoUrl;
-
+  Future<void> _pickAndSendPhoto(ImageSource source) async {
     try {
-      // Simulate quick sample upload to Cloudinary/fallback
-      final sampleBytes = Uint8List.fromList([0, 1, 2, 3]);
-      final mediaUrl = await SquadChatService.instance.uploadSquadMedia(
-        bytes: sampleBytes,
-        fileName: isVideo ? 'pandal_clip.mp4' : 'pandal_moment.jpg',
-        isVideo: isVideo,
-        durationSeconds: isVideo ? 15 : null,
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 75,
       );
+
+      if (picked == null) return;
+
+      setState(() => _isSending = true);
+
+      final bytes = await picked.readAsBytes();
+      if (bytes.isEmpty) return;
+
+      final base64String = base64Encode(bytes);
+      final mediaDataUri = 'data:image/jpeg;base64,$base64String';
+
+      final auth = Provider.of<AuthService>(context, listen: false);
+      final user = auth.currentUserModel;
+      final senderId = user?.uid ?? 'user_self';
+      final senderName = user?.displayName ?? 'You';
+      final photoUrl = user?.photoUrl;
 
       await SquadChatService.instance.sendMedia(
         widget.squadCode,
         senderId: senderId,
         senderName: senderName,
-        mediaUrl: mediaUrl,
-        isVideo: isVideo,
+        mediaUrl: mediaDataUri,
+        isVideo: false,
         senderPhotoUrl: photoUrl,
-        caption: isVideo ? '🎥 Live video from the pandal queue!' : '📸 Maa Durga pratima from our trail!',
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(isVideo ? '🎥 Video shared to squad!' : '📸 Photo shared to squad!'),
+          const SnackBar(
+            content: Text('📸 Photo shared with squad!'),
             backgroundColor: PujaColors.durgaRed,
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Media share error: $e')),
+          SnackBar(content: Text('Could not share photo: $e')),
         );
       }
     } finally {
@@ -232,6 +232,54 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         setState(() => _isSending = false);
       }
     }
+  }
+
+  Widget _buildChatImage(String mediaUrl, {BoxFit fit = BoxFit.cover, double? height, double? width}) {
+    if (mediaUrl.startsWith('data:image') || !mediaUrl.startsWith('http')) {
+      try {
+        final cleanBase64 = mediaUrl.contains(',') ? mediaUrl.split(',').last : mediaUrl;
+        final bytes = base64Decode(cleanBase64);
+        return Image.memory(
+          bytes,
+          fit: fit,
+          height: height,
+          width: width,
+          errorBuilder: (c, e, s) => Container(
+            height: height ?? 180,
+            width: width,
+            color: Colors.black12,
+            child: const Center(
+              child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 40),
+            ),
+          ),
+        );
+      } catch (e) {
+        debugPrint('[SquadChat] Error decoding base64 image: $e');
+      }
+    }
+
+    return CachedNetworkImage(
+      imageUrl: mediaUrl,
+      height: height,
+      width: width,
+      fit: fit,
+      placeholder: (c, u) => Container(
+        height: height ?? 180,
+        width: width,
+        color: Colors.black12,
+        child: const Center(
+          child: CircularProgressIndicator(color: PujaColors.festivalGold),
+        ),
+      ),
+      errorWidget: (c, u, e) => Container(
+        height: height ?? 180,
+        width: width,
+        color: Colors.black12,
+        child: const Center(
+          child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 40),
+        ),
+      ),
+    );
   }
 
   void _showMediaViewer(BuildContext context, ChatMessage msg) {
@@ -259,20 +307,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
             if (msg.mediaUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  imageUrl: msg.mediaUrl!,
+                child: _buildChatImage(
+                  msg.mediaUrl!,
                   fit: BoxFit.contain,
-                  placeholder: (c, u) => const SizedBox(
-                    height: 250,
-                    child: Center(child: CircularProgressIndicator(color: PujaColors.festivalGold)),
-                  ),
-                  errorWidget: (c, u, e) => Container(
-                    height: 250,
-                    color: Colors.black54,
-                    child: const Center(
-                      child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 48),
-                    ),
-                  ),
                 ),
               ),
             if (msg.text != null && msg.text!.isNotEmpty)
@@ -317,7 +354,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         ),
         actions: [
           IconButton(
-            tooltip: _filterMediaOnly ? 'Show All Messages' : 'Photos & Videos Only',
+            tooltip: _filterMediaOnly ? 'Show All Messages' : 'Photos Only',
             icon: Icon(
               _filterMediaOnly ? Icons.chat_bubble_outline_rounded : Icons.photo_library_outlined,
               color: _filterMediaOnly ? PujaColors.festivalGold : null,
@@ -343,7 +380,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                   const SizedBox(width: 8),
                   const Expanded(
                     child: Text(
-                      'Showing Shared Photos & Videos Gallery',
+                      'Showing Shared Photos Gallery',
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
                     ),
                   ),
@@ -429,7 +466,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.add_photo_alternate_rounded, color: PujaColors.festivalGold),
-                    tooltip: 'Share Photo or Video',
+                    tooltip: 'Share Photo',
                     onPressed: _showMediaPicker,
                   ),
                   Expanded(
@@ -529,65 +566,17 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                       ),
                     ),
 
-                  // Media Display (Image or Video)
+                  // Photo Display
                   if (msg.type == ChatMessageType.image && msg.mediaUrl != null) ...[
                     GestureDetector(
                       onTap: () => _showMediaViewer(context, msg),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl: msg.mediaUrl!,
-                          height: 180,
+                        child: _buildChatImage(
+                          msg.mediaUrl!,
+                          height: 200,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          placeholder: (c, u) => Container(
-                            height: 180,
-                            color: Colors.black12,
-                            child: const Center(
-                              child: CircularProgressIndicator(color: PujaColors.festivalGold),
-                            ),
-                          ),
-                          errorWidget: (c, u, e) => Container(
-                            height: 180,
-                            color: Colors.black12,
-                            child: const Center(
-                              child: Icon(Icons.photo, color: Colors.grey),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                  ] else if (msg.type == ChatMessageType.video && msg.mediaUrl != null) ...[
-                    GestureDetector(
-                      onTap: () => _showMediaViewer(context, msg),
-                      child: Container(
-                        height: 150,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.black87,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            const Icon(Icons.play_circle_fill_rounded, size: 48, color: PujaColors.festivalGold),
-                            Positioned(
-                              bottom: 8,
-                              right: 8,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.black54,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  'VIDEO',
-                                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ),

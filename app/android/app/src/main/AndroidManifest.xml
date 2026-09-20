@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <!-- Foreground service for live location sharing while the app/notification is active.
          Foreground-only (no ACCESS_BACKGROUND_LOCATION) to avoid the Play Store
          background-location justification review (see architecture doc section 6). -->

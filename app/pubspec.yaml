@@ -51,6 +51,7 @@ dependencies:
   flutter_tts: ^4.2.0  # Text-to-speech for voice navigation
   http: ^1.6.0
   share_plus: ^13.3.0
+  image_picker: ^1.1.2
   url_launcher: ^6.3.2
   provider: ^6.1.5+1
   cached_network_image: ^4.0.0

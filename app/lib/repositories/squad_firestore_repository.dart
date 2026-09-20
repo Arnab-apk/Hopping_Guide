@@ -214,6 +214,8 @@ class SquadFirestoreRepository {
     bool? isOnline,
     bool? shareLocation,
     String? status,
+    String? name,
+    String? photoUrl,
   }) async {
     final fs = _firestore;
     if (fs == null) return;
@@ -228,6 +230,8 @@ class SquadFirestoreRepository {
       if (isOnline != null) updateData['is_online'] = isOnline;
       if (shareLocation != null) updateData['share_location'] = shareLocation;
       if (status != null && status.isNotEmpty) updateData['status'] = status;
+      if (name != null && name.isNotEmpty) updateData['name'] = name;
+      if (photoUrl != null && photoUrl.isNotEmpty) updateData['photo_url'] = photoUrl;
 
       await fs
           .collection('squads')

@@ -172,6 +172,10 @@ class SquadService extends ChangeNotifier {
         _initMembers(isHost: true);
         _listenToCloud();
         _syncUserLocationToCloud();
+        LocationService.instance.startLiveTracking().catchError((e) {
+          debugPrint('[SquadService] startLiveTracking on load error: $e');
+          return false;
+        });
       }
     } catch (e) {
       debugPrint('[SquadService] _loadSavedState error: $e');
@@ -276,14 +280,28 @@ class SquadService extends ChangeNotifier {
     _squadName = cleanName.isEmpty ? 'My Puja Squad' : cleanName;
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Landmark' : meetup.trim();
 
-    // Use current real GPS position immediately
-    final currentPos = LocationService.instance.currentPositionSync;
+    // Try to get fresh real GPS coordinate before writing to Firestore
+    Position? currentPos = LocationService.instance.currentPositionSync;
+    if (currentPos == null) {
+      try {
+        currentPos = await LocationService.instance.currentPosition().timeout(const Duration(seconds: 4));
+      } catch (e) {
+        debugPrint('[SquadService] initial GPS fix timeout/error: $e');
+      }
+    }
+
     final realLat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
     final realLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
     _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
 
     _initMembers(isHost: true, userLat: realLat, userLng: realLng);
     final hostMember = _members.first;
+
+    // Start live tracking immediately so GPS updates continuously stream
+    LocationService.instance.startLiveTracking().catchError((e) {
+      debugPrint('[SquadService] startLiveTracking on create error: $e');
+      return false;
+    });
 
     // 1. Create squad in Cloud Firestore
     try {
@@ -306,6 +324,7 @@ class SquadService extends ChangeNotifier {
 
     await _persistState();
     _listenToCloud();
+    _syncUserLocationToCloud();
     notifyListeners();
 
     // If location fix was still settling, refresh asynchronously
@@ -378,12 +397,26 @@ class SquadService extends ChangeNotifier {
     final sep = (squadData['separationThresholdMeters'] as num?)?.toInt();
     if (sep != null && sep > 0) _separationThresholdMeters = sep;
 
-    final currentPos = LocationService.instance.currentPositionSync;
+    Position? currentPos = LocationService.instance.currentPositionSync;
+    if (currentPos == null) {
+      try {
+        currentPos = await LocationService.instance.currentPosition().timeout(const Duration(seconds: 4));
+      } catch (e) {
+        debugPrint('[SquadService] join GPS fix timeout/error: $e');
+      }
+    }
+
     final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.defaultKolkataCenter.latitude;
     final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.defaultKolkataCenter.longitude;
 
     _initMembers(isHost: false, userLat: lat, userLng: lng);
     final member = _members.first;
+
+    // Start live tracking immediately so GPS updates continuously stream
+    LocationService.instance.startLiveTracking().catchError((e) {
+      debugPrint('[SquadService] startLiveTracking on join error: $e');
+      return false;
+    });
 
     if (_squadId != null) {
       await _repo.joinSquad(squadId: _squadId!, member: member);
@@ -391,6 +424,7 @@ class SquadService extends ChangeNotifier {
 
     await _persistState();
     _listenToCloud();
+    _syncUserLocationToCloud();
     notifyListeners();
 
     if (currentPos == null) {
@@ -498,6 +532,8 @@ class SquadService extends ChangeNotifier {
       isOnline: true,
       shareLocation: true,
       status: self.status,
+      name: user.displayName,
+      photoUrl: user.photoUrl,
     ).catchError((e) {
       debugPrint('[SquadService] _syncUserLocationToCloud note: $e');
     });
@@ -650,13 +686,16 @@ class SquadService extends ChangeNotifier {
         for (final companion in currentCompanions) {
           final idx = _members.indexWhere((m) => m.id == companion.id);
           if (idx != -1) {
-            if (_members[idx].latitude != companion.latitude ||
-                _members[idx].longitude != companion.longitude ||
-                _members[idx].status != companion.status ||
-                _members[idx].batteryLevel != companion.batteryLevel ||
-                _members[idx].photoUrl != companion.photoUrl ||
-                _members[idx].isOnline != companion.isOnline ||
-                _members[idx].shareLocation != companion.shareLocation) {
+            final existing = _members[idx];
+            if (existing.latitude != companion.latitude ||
+                existing.longitude != companion.longitude ||
+                existing.name != companion.name ||
+                existing.status != companion.status ||
+                existing.batteryLevel != companion.batteryLevel ||
+                existing.photoUrl != companion.photoUrl ||
+                existing.isOnline != companion.isOnline ||
+                existing.shareLocation != companion.shareLocation ||
+                existing.lastSeen != companion.lastSeen) {
               _members[idx] = companion;
               changed = true;
             }
