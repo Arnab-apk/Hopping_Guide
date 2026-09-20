@@ -105,6 +105,8 @@ class ActiveCustomTrail {
     required this.stops,
     required this.totalDistanceKm,
     required this.totalEstimatedMinutes,
+    this.allowMetro = false,
+    this.legs = const [],
     DateTime? startedAt,
   })  : startedAt = startedAt ?? DateTime.now(),
         visitedPandalIds = {};
@@ -119,6 +121,8 @@ class ActiveCustomTrail {
     required int totalEstimatedMinutes,
     HoppingStyle style = HoppingStyle.express,
     HoppingTransitMode transitMode = HoppingTransitMode.walking,
+    bool allowMetro = false,
+    List<TrailLeg> legs = const [],
     DateTime? startedAt,
   }) {
     return ActiveCustomTrail(
@@ -131,6 +135,8 @@ class ActiveCustomTrail {
       stops: stops,
       totalDistanceKm: totalDistanceKm,
       totalEstimatedMinutes: totalEstimatedMinutes,
+      allowMetro: allowMetro,
+      legs: legs,
       startedAt: startedAt,
     );
   }
@@ -144,7 +150,11 @@ class ActiveCustomTrail {
   final List<Pandal> stops;
   final double totalDistanceKm;
   final int totalEstimatedMinutes;
+  final bool allowMetro;
+  final List<TrailLeg> legs;
   final DateTime startedAt;
+
+  bool get hasMetroLegs => legs.any((l) => l.mode == LegMode.metro);
 
   /// Real road-routed distance in kilometers computed via GemKit native RoutingService.
   double? routedDistanceKm;
@@ -246,6 +256,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
     required LatLng startPos,
     required String startLabel,
     required List<Pandal> selectedPandals,
+    bool allowMetro = false,
   }) {
     if (selectedPandals.isEmpty) {
       return ActiveCustomTrail.custom(
@@ -255,6 +266,8 @@ class CustomHoppingTrailService extends ChangeNotifier {
         stops: const [],
         totalDistanceKm: 0.0,
         totalEstimatedMinutes: 0,
+        allowMetro: allowMetro,
+        legs: const [],
       );
     }
 
@@ -276,9 +289,10 @@ class CustomHoppingTrailService extends ChangeNotifier {
     final result = TrailOptimizer.optimizePandalStops(
       start: effectiveStart,
       stops: selectedPandals,
+      allowMetro: allowMetro,
     );
 
-    // Estimate dwell time (~15 mins per pandal) + walk duration
+    // Estimate dwell time (~15 mins per pandal) + walk/metro duration
     final totalEstMinutes =
         (result.totalDurationMinutes + (result.orderedStops.length * 15)).round();
 
@@ -291,6 +305,8 @@ class CustomHoppingTrailService extends ChangeNotifier {
       stops: result.orderedStops,
       totalDistanceKm: result.totalDistanceKm,
       totalEstimatedMinutes: totalEstMinutes,
+      allowMetro: allowMetro,
+      legs: result.legs,
     );
   }
 
@@ -477,6 +493,112 @@ class CustomHoppingTrailService extends ChangeNotifier {
   /// using [RoutingService] and updates polyline, distance, and duration stats.
   Future<void> calculateAndApplyRoadRoute(ActiveCustomTrail trail) async {
     if (trail.stops.isEmpty) return;
+
+    if (trail.hasMetroLegs) {
+      // Multi-modal trail: assemble road-routed walks and metro transit polylines
+      final fullPoints = <LatLng>[];
+      double totalDistanceMeters = 0.0;
+      double totalTransitSeconds = 0.0;
+
+      for (final leg in trail.legs) {
+        if (leg.mode == LegMode.walk) {
+          try {
+            final legRoute = await RoutingService.instance.getWalkingRouteToPoint(
+              start: leg.from,
+              destination: leg.to,
+              destinationName: 'Walk Leg',
+            );
+            fullPoints.addAll(legRoute.points);
+            totalDistanceMeters += legRoute.distanceMeters;
+            totalTransitSeconds += legRoute.durationSeconds;
+          } catch (_) {
+            fullPoints.addAll([leg.from, leg.to]);
+            final d = haversineMeters(
+                  leg.from.latitude,
+                  leg.from.longitude,
+                  leg.to.latitude,
+                  leg.to.longitude,
+                ) *
+                1.25;
+            totalDistanceMeters += d;
+            totalTransitSeconds += (d / ((4.5 * 1000) / 3600));
+          }
+        } else if (leg.mode == LegMode.metro && leg.metroDetail != null) {
+          final detail = leg.metroDetail!;
+          final boardPos = detail.boardingStation.toLatLng();
+          final alightPos = detail.alightingStation.toLatLng();
+
+          // 1. Walk from leg.from to boarding station
+          try {
+            final walkToBoard = await RoutingService.instance.getWalkingRouteToPoint(
+              start: leg.from,
+              destination: boardPos,
+              destinationName: 'Walk to Metro',
+            );
+            fullPoints.addAll(walkToBoard.points);
+            totalDistanceMeters += walkToBoard.distanceMeters;
+          } catch (_) {
+            fullPoints.addAll([leg.from, boardPos]);
+            totalDistanceMeters += haversineMeters(
+              leg.from.latitude,
+              leg.from.longitude,
+              boardPos.latitude,
+              boardPos.longitude,
+            );
+          }
+
+          // 2. Metro segment line
+          if (detail.requiresInterchange && detail.interchangeStation != null) {
+            fullPoints.addAll([boardPos, detail.interchangeStation!.toLatLng(), alightPos]);
+          } else {
+            fullPoints.addAll([boardPos, alightPos]);
+          }
+          final metroDistM = haversineMeters(
+            boardPos.latitude,
+            boardPos.longitude,
+            alightPos.latitude,
+            alightPos.longitude,
+          );
+          totalDistanceMeters += metroDistM;
+
+          // 3. Walk from alighting station to leg.to
+          try {
+            final walkFromAlight = await RoutingService.instance.getWalkingRouteToPoint(
+              start: alightPos,
+              destination: leg.to,
+              destinationName: 'Walk from Metro',
+            );
+            fullPoints.addAll(walkFromAlight.points);
+            totalDistanceMeters += walkFromAlight.distanceMeters;
+          } catch (_) {
+            fullPoints.addAll([alightPos, leg.to]);
+            totalDistanceMeters += haversineMeters(
+              alightPos.latitude,
+              alightPos.longitude,
+              leg.to.latitude,
+              leg.to.longitude,
+            );
+          }
+
+          totalTransitSeconds += (detail.totalMinutes * 60.0);
+        }
+      }
+
+      final distanceKm = double.parse((totalDistanceMeters / 1000.0).toStringAsFixed(1));
+      final dwellMinutes = trail.stops.length * 15;
+      final durationMinutes = ((totalTransitSeconds / 60.0) + dwellMinutes).round();
+
+      if (_activeTrail?.id == trail.id) {
+        updateRoutedStats(
+          distanceKm: distanceKm,
+          durationMinutes: durationMinutes,
+          polyline: fullPoints,
+          remainingDistanceKm: distanceKm,
+          remainingDurationMinutes: durationMinutes,
+        );
+      }
+      return;
+    }
 
     final waypoints = <LatLng>[];
 

@@ -71,14 +71,14 @@ void main() {
   });
 
   group('Feature 2: Kolkata Metro Transit Network Integrity', () {
-    test('Metro network contains all 41 stations mapped across 4 operational lines', () {
+    test('Metro network contains all 55 stations mapped across 5 operational lines', () {
       final stations = MetroRepository.allStations;
-      expect(stations.length, equals(41));
+      expect(stations.length, equals(55));
 
       final lines = stations.map((s) => s.line).toSet();
-      expect(lines.length, equals(4)); // Blue, Green, Purple, Orange
+      expect(lines.length, equals(5)); // Blue, Green, Purple, Orange, Yellow
 
-      // Esplanade and Kavi Subhash are major interchange hubs
+      // Esplanade, Kavi Subhash, and Noapara are major interchange hubs
       final esplanade = stations.firstWhere((s) => s.name.contains('Esplanade'));
       expect(esplanade.isInterchange, isTrue);
 
@@ -94,11 +94,11 @@ void main() {
         (s) => s.name.toLowerCase().contains('shyambazar'),
       ).toList();
       expect(shyambazarResults, isNotEmpty);
-      expect(shyambazarResults.first.id, equals('m_shyambazar'));
+      expect(shyambazarResults.first.id, equals('shyambazar'));
 
       // Dakshineswar lookup
       final dakshineswar = MetroRepository.allStations.firstWhere(
-        (s) => s.id == 'm_dakshineswar',
+        (s) => s.matchesId('dakshineswar'),
       );
       expect(dakshineswar.name, contains('Dakshineswar'));
     });

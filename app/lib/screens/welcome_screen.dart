@@ -141,6 +141,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
     }
   }
 
+  TextStyle _getSamarkanStyle({
+    required double fontSize,
+    required Color color,
+    FontWeight fontWeight = FontWeight.w600,
+    double letterSpacing = 0.4,
+  }) {
+    return TextStyle(
+      fontFamily: 'Samarkan',
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -215,7 +230,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
             SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final double eyeGap = (constraints.maxHeight - (isCompact ? 410 : 475)).clamp(12.0, 360.0);
+                  final double topSpacing = isCompact
+                      ? 48.0
+                      : (constraints.maxHeight * 0.092).clamp(65.0, 95.0);
+                  final double eyeGap = (constraints.maxHeight - (isCompact ? 390 : 450) - topSpacing).clamp(16.0, 360.0);
                   return SingleChildScrollView(
                     physics: const ClampingScrollPhysics(),
                     child: Center(
@@ -225,57 +243,38 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Column(
                             children: [
-                              SizedBox(height: isCompact ? 10 : 16),
+                              SizedBox(height: topSpacing),
 
-                                  // Header Group (Grand Title & Pujo Parikrama)
-                                  RepaintBoundary(
-                                    child: FadeTransition(
-                                      opacity: _headerFade,
-                                      child: SlideTransition(
-                                        position: _headerSlide,
-                                        child: Column(
-                                          children: [
-                                            ShaderMask(
-                                              shaderCallback: (bounds) => const LinearGradient(
-                                                colors: [
-                                                  Color(0xFFFFFFFF),
-                                                  Color(0xFFFFF3D6),
-                                                  Color(0xFFFFD54F),
-                                                ],
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                              ).createShader(bounds),
-                                              child: Text(
-                                                'Durga Puja',
-                                                style: TextStyle(
-                                                  fontFamily: 'Samarkan',
-                                                  fontSize: isCompact ? 46 : 56,
-                                                  letterSpacing: 0.6,
-                                                  color: Colors.white,
-                                                  shadows: [
-                                                    Shadow(
-                                                      color: PujaColors.festivalGold.withValues(alpha: 0.7),
-                                                      blurRadius: 16,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              'Uma',
-                                              style: TextStyle(
-                                                fontFamily: 'Samarkan',
-                                                fontSize: isCompact ? 16 : 19,
-                                                letterSpacing: 1.5,
-                                                color: PujaColors.festivalGold,
-                                              ),
-                                            ),
-                                          ],
+                              // Header Group (Grand Title: Uma Asche)
+                              RepaintBoundary(
+                                child: FadeTransition(
+                                  opacity: _headerFade,
+                                  child: SlideTransition(
+                                    position: _headerSlide,
+                                    child: ShaderMask(
+                                      shaderCallback: (bounds) => const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFFFFF3D6),
+                                          Color(0xFFFFD54F),
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ).createShader(bounds),
+                                      child: Text(
+                                        'Uma Asche',
+                                        textAlign: TextAlign.center,
+                                        style: _getSamarkanStyle(
+                                          fontSize: isCompact ? 44 : 52,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.8,
                                         ),
                                       ),
                                     ),
                                   ),
+                                ),
+                              ),
 
                                   const SizedBox(height: 8),
 
@@ -346,11 +345,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                                   Text(
                                                     'Begin Your Parikrama',
                                                     textAlign: TextAlign.center,
-                                                    style: GoogleFonts.plusJakartaSans(
-                                                      fontSize: context.dynamicFont(16.5),
-                                                      fontWeight: FontWeight.w800,
-                                                      color: Colors.white,
-                                                      letterSpacing: 0.2,
+                                                    style: _getSamarkanStyle(
+                                                      fontSize: context.dynamicFont(18),
+                                                      color: PujaColors.festivalGold,
+                                                      fontWeight: FontWeight.w600,
+                                                      letterSpacing: 0.3,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 4),

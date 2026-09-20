@@ -18,6 +18,13 @@ class LocationService extends ChangeNotifier {
   DateTime? _lastBroadcastTime;
   static bool enableTestMode = false;
   bool _isTestLiveTracking = false;
+  void Function(Position)? _testLocationCallback;
+
+  void emitTestPosition(Position pos) {
+    _currentPosition = pos;
+    notifyListeners();
+    _testLocationCallback?.call(pos);
+  }
 
   Position? get currentPositionSync => _currentPosition;
   Position? get lastPosition => _currentPosition;
@@ -31,6 +38,7 @@ class LocationService extends ChangeNotifier {
   /// Async getter for location compatibility
   Future<Position?> currentPosition() async {
     if (_currentPosition != null) return _currentPosition;
+    if (enableTestMode) return _currentPosition;
     return await updateLiveLocation();
   }
 
@@ -39,6 +47,15 @@ class LocationService extends ChangeNotifier {
       : defaultKolkataCenter;
 
   bool get hasRealLocation => _currentPosition != null;
+
+  /// Resolves the current device location permission status without triggering a prompt
+  static Future<LocationPermission> resolvePermissionStatus() async {
+    try {
+      return await Geolocator.checkPermission();
+    } catch (_) {
+      return LocationPermission.denied;
+    }
+  }
 
   /// Pauses location updates dispatching (used when map is hidden/in background)
   void pauseLiveTracking() {
@@ -57,6 +74,7 @@ class LocationService extends ChangeNotifier {
   }) async {
     if (enableTestMode) {
       _isTestLiveTracking = true;
+      _testLocationCallback = onLocationChanged;
       notifyListeners();
       return true;
     }
@@ -149,6 +167,7 @@ class LocationService extends ChangeNotifier {
   void stopLiveTracking() {
     if (enableTestMode) {
       _isTestLiveTracking = false;
+      _testLocationCallback = null;
     }
     _positionStreamSub?.cancel();
     _positionStreamSub = null;

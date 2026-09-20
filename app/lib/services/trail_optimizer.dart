@@ -1,7 +1,11 @@
 import 'package:latlong2/latlong.dart';
 
 import '../models/pandal.dart';
+import '../models/trail_leg.dart';
 import '../utils/haversine.dart';
+import 'metro_transit_estimator.dart';
+
+export '../models/trail_leg.dart';
 
 /// Result of a trail optimization run.
 class TrailOptimizationResult {
@@ -10,19 +14,23 @@ class TrailOptimizationResult {
     required this.totalDurationMinutes,
     required this.totalDistanceKm,
     required this.visitOrderIndices,
+    this.legs = const [],
   });
 
   /// The pandals in the optimal visit order.
   final List<Pandal> orderedStops;
 
-  /// Total walking duration in minutes from start through all stops.
+  /// Total duration in minutes from start through all stops (walking + metro rides).
   final double totalDurationMinutes;
 
-  /// Total walking distance in kilometers from start through all stops.
+  /// Total walking/transit distance in kilometers from start through all stops.
   final double totalDistanceKm;
 
   /// 0-indexed indices into the original stops list representing the visit order.
   final List<int> visitOrderIndices;
+
+  /// Ordered transit legs between successive stops (walk vs metro).
+  final List<TrailLeg> legs;
 }
 
 /// On-device deterministic shortest Hamiltonian path optimizer.
@@ -51,6 +59,7 @@ class TrailOptimizer {
     required List<Pandal> stops,
     double walkingSpeedKmH = defaultWalkingSpeedKmH,
     double circuityFactor = defaultCircuityFactor,
+    bool allowMetro = false,
   }) {
     if (stops.isEmpty) {
       return const TrailOptimizationResult(
@@ -58,24 +67,38 @@ class TrailOptimizer {
         totalDurationMinutes: 0.0,
         totalDistanceKm: 0.0,
         visitOrderIndices: [],
+        legs: [],
       );
     }
 
     if (stops.length == 1) {
+      final p1 = stops.first;
+      final target = LatLng(p1.lat, p1.lng);
+      final legs = buildLegBreakdown(
+        [start, target],
+        allowMetro: allowMetro,
+        walkingSpeedKmH: walkingSpeedKmH,
+        circuityFactor: circuityFactor,
+      );
       final distM = haversineMeters(
             start.latitude,
             start.longitude,
-            stops.first.lat,
-            stops.first.lng,
+            p1.lat,
+            p1.lng,
           ) *
           circuityFactor;
       final speedMPerMin = (walkingSpeedKmH * 1000.0) / 60.0;
-      final durationMin = distM / speedMPerMin;
+      final walkDurationMin = distM / speedMPerMin;
+      final durationMin = (legs.isNotEmpty && legs.first.isMetro)
+          ? legs.first.metroDetail!.totalMinutes
+          : walkDurationMin;
+
       return TrailOptimizationResult(
         orderedStops: List.from(stops),
         totalDurationMinutes: durationMin,
         totalDistanceKm: double.parse((distM / 1000.0).toStringAsFixed(2)),
         visitOrderIndices: const [0],
+        legs: legs,
       );
     }
 
@@ -84,6 +107,7 @@ class TrailOptimizer {
       stops: stops,
       walkingSpeedKmH: walkingSpeedKmH,
       circuityFactor: circuityFactor,
+      allowMetro: allowMetro,
     );
 
     final result = optimize(durationMatrix);
@@ -92,6 +116,18 @@ class TrailOptimizer {
     // Map node index -> 0-indexed stop index: (node - 1)
     final stopIndices = result.order.map((node) => node - 1).toList();
     final ordered = stopIndices.map((i) => stops[i]).toList();
+
+    final orderedPoints = [
+      start,
+      ...ordered.map((p) => LatLng(p.lat, p.lng)),
+    ];
+
+    final legs = buildLegBreakdown(
+      orderedPoints,
+      allowMetro: allowMetro,
+      walkingSpeedKmH: walkingSpeedKmH,
+      circuityFactor: circuityFactor,
+    );
 
     // Compute total distance along the optimized path
     double totalDistM = 0.0;
@@ -112,6 +148,7 @@ class TrailOptimizer {
       totalDurationMinutes: result.totalDuration,
       totalDistanceKm: double.parse((totalDistM / 1000.0).toStringAsFixed(2)),
       visitOrderIndices: stopIndices,
+      legs: legs,
     );
   }
 
@@ -121,6 +158,7 @@ class TrailOptimizer {
     required List<Pandal> stops,
     double walkingSpeedKmH = defaultWalkingSpeedKmH,
     double circuityFactor = defaultCircuityFactor,
+    bool allowMetro = false,
   }) {
     final n = stops.length + 1;
     final points = [
@@ -132,18 +170,29 @@ class TrailOptimizer {
 
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        if (i == j) {
-          matrix[i][j] = 0.0;
-        } else {
-          final distM = haversineMeters(
-                points[i].latitude,
-                points[i].longitude,
-                points[j].latitude,
-                points[j].longitude,
-              ) *
-              circuityFactor;
-          matrix[i][j] = distM / speedMPerMin;
+        if (i == j) continue;
+        final walkDistM = haversineMeters(
+              points[i].latitude,
+              points[i].longitude,
+              points[j].latitude,
+              points[j].longitude,
+            ) *
+            circuityFactor;
+        final walkMinutes = walkDistM / speedMPerMin;
+
+        if (!allowMetro) {
+          matrix[i][j] = walkMinutes;
+          continue;
         }
+
+        final metro = MetroTransitEstimator.estimate(
+          points[i],
+          points[j],
+          walkingSpeedKmH: walkingSpeedKmH,
+        );
+        matrix[i][j] = metro != null
+            ? (metro.totalMinutes < walkMinutes ? metro.totalMinutes : walkMinutes)
+            : walkMinutes;
       }
     }
 

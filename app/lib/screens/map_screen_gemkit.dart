@@ -51,9 +51,10 @@ import 'pandal_list_screen.dart';
 /// - Top Omni-search bar with instant camera centering
 /// - Follow-me GPS tracking and compass bearing
 class MapScreenGemKit extends StatefulWidget {
-  const MapScreenGemKit({super.key, this.repository});
+  const MapScreenGemKit({super.key, this.repository, this.onMapCreated});
 
   final PandalRepository? repository;
+  final void Function(GemMapController)? onMapCreated;
 
   @override
   State<MapScreenGemKit> createState() => _MapScreenGemKitState();
@@ -451,6 +452,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
   void _onMapCreated(GemMapController controller) {
     _mapController = controller;
     debugPrint('[GemMap] Platform view created. Mode: AndroidViewMode.auto (HCPP enabled on API 34+)');
+    widget.onMapCreated?.call(controller);
 
     // Apply 3D perspective tilt
     if (_is3DMode) {
@@ -906,6 +908,11 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
 
     if (unvisitedStops.isEmpty) {
       _clearTrailRoute();
+      return;
+    }
+
+    if (trail.hasMetroLegs) {
+      CustomHoppingTrailService.instance.calculateAndApplyRoadRoute(trail);
       return;
     }
 

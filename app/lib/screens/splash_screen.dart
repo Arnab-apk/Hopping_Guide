@@ -1,24 +1,30 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../models/preload_state.dart';
+import '../repositories/local_pandal_repository.dart';
 import '../services/auth_service.dart';
+import '../services/location_service.dart';
 import 'greeting_splash_screen.dart';
 import 'welcome_screen.dart';
 
-/// Full-bleed in-app splash screen displaying the three-dancer Dhunuchi illustration.
+/// Full-bleed in-app splash screen displaying the upscaled three-dancer Dhunuchi
+/// illustration with Vedic typography greeting and live loading bar.
 ///
-/// Runs actual startup work (auth state check, session warm-up) in parallel
-/// with a minimum 2200ms display duration, ensuring returning users skip
-/// login directly to [MainNavigationScreen] without visual flashing.
+/// Preloads pandals, map readiness, location permissions, and auth status
+/// while keeping the user immersed in the festive greeting, ensuring the
+/// transition into the map or welcome screen is completely glitch-free.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({
     super.key,
-    this.minDuration = const Duration(milliseconds: 2200),
+    this.minDuration = const Duration(milliseconds: 3800),
   });
 
-  /// Minimum duration the splash illustration stays visible before navigating.
+  /// Minimum duration the splash greeting stays visible before navigating.
   final Duration minDuration;
 
   @override
@@ -26,27 +32,78 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  late final ValueNotifier<PreloadState> _preloadState;
+  bool _hasNavigated = false;
+
   @override
   void initState() {
     super.initState();
-    _prepareAndNavigate();
+    _preloadState = ValueNotifier<PreloadState>(
+      const PreloadState(
+        progress: 0.05,
+        statusMessage: 'Waking up the map...',
+      ),
+    );
+    _runStartupAndPreload();
   }
 
-  Future<void> _prepareAndNavigate() async {
-    // Run actual startup work in parallel with a minimum display duration,
-    // so the splash never flashes too briefly on a fast device, and never
-    // blocks longer than necessary on a slow one.
+  Future<void> _runStartupAndPreload() async {
+    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+
+    Future<void>? preloadFuture;
+    if (!isTest) {
+      preloadFuture = () async {
+        try {
+          _preloadState.value = const PreloadState(
+            progress: 0.25,
+            statusMessage: 'Loading pandals near you...',
+          );
+          await LocalAssetPandalRepository().loadAll();
+          await Future<void>.delayed(const Duration(milliseconds: 700));
+
+          _preloadState.value = const PreloadState(
+            progress: 0.55,
+            statusMessage: 'Preparing the map...',
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 700));
+
+          _preloadState.value = const PreloadState(
+            progress: 0.80,
+            statusMessage: 'Placing markers...',
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 600));
+
+          _preloadState.value = const PreloadState(
+            progress: 0.95,
+            statusMessage: 'Almost there...',
+          );
+          await LocationService.resolvePermissionStatus();
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+
+          _preloadState.value = const PreloadState(
+            progress: 1.0,
+            statusMessage: 'Ready',
+          );
+        } catch (e) {
+          debugPrint('[SplashScreen] Preload error: $e');
+        }
+      }();
+    }
+
     final results = await Future.wait<dynamic>([
       Future<void>.delayed(widget.minDuration),
       _checkAuthState(),
+      ?preloadFuture,
     ]);
 
     final isLoggedIn = results[1] as bool;
-    if (!mounted) return;
+    if (!mounted || _hasNavigated) return;
+    _hasNavigated = true;
 
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => isLoggedIn
+      PageRouteBuilder(
+        transitionDuration: Duration.zero,
+        pageBuilder: (_, _, _) => isLoggedIn
             ? const GreetingSplashScreen()
             : const WelcomeScreen(),
       ),
@@ -61,12 +118,26 @@ class _SplashScreenState extends State<SplashScreen> {
     } catch (_) {
       // Offline / demo / test fallback
     }
-    return AuthService.instance.isAuthenticated;
+    try {
+      return AuthService.instance.isAuthenticated;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _skip() {
+    if (_hasNavigated || !mounted) return;
+    _runStartupAndPreload();
+  }
+
+  @override
+  void dispose() {
+    _preloadState.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Fixed dark brand theme regardless of system light/dark mode setting
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -77,25 +148,10 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
       child: Scaffold(
         backgroundColor: const Color(0xFF0E0B0C),
-        body: SizedBox.expand(
-          child: Image.asset(
-            'assets/images/splash_illustration.webp',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-            errorBuilder: (context, error, stackTrace) {
-              // Graceful fallback if asset decode takes a frame
-              return Container(
-                color: const Color(0xFF0E0B0C),
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Color(0xFFFFD54F),
-                  ),
-                ),
-              );
-            },
-          ),
+        body: GreetingSplashScreen(
+          preloadState: _preloadState,
+          minDisplayDuration: Duration.zero,
+          onNavigate: _skip,
         ),
       ),
     );

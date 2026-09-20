@@ -7,6 +7,7 @@
   "scripts": {
     "scrape": "node scrape_pujoplanner.js",
     "scrape:thepujo": "node scrape_thepujo.mjs",
+    "scrape:toilets": "node scrape_toilets.mjs",
     "merge:pandals": "node merge_pandals.mjs",
     "seed": "node seed_pandals.js",
     "seed:dry": "node seed_pandals.js --dry-run"

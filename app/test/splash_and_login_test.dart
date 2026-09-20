@@ -223,8 +223,7 @@ void main() {
       expect(bgWidget.fit, BoxFit.cover);
 
       // 2. Verify Title and Countdown in upper zone
-      expect(find.text('Durga Puja'), findsOneWidget);
-      expect(find.text('Uma'), findsOneWidget);
+      expect(find.text('Uma Asche'), findsOneWidget);
       expect(find.text('DAYS'), findsOneWidget);
       expect(find.text('HOURS'), findsOneWidget);
 

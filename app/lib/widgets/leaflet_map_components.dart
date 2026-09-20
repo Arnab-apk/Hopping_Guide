@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../config/theme.dart';
 import '../models/food_spot.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
+import '../models/toilet.dart';
 import '../widgets/crowd_badge.dart';
 
 enum LeafletPinCategory {
@@ -120,6 +122,38 @@ class LeafletMarkerPin extends StatelessWidget {
       accentColor: lineColor,
       isRailway: isRailway,
       pulseAnimation: pulseAnimation,
+    );
+  }
+
+  /// Convenience constructor for Public Toilet markers
+  factory LeafletMarkerPin.toilet({
+    Key? key,
+    bool isMale = true,
+    bool isFemale = true,
+    bool isSelected = false,
+    double width = 28.0,
+    double height = 36.0,
+  }) {
+    final Color pinColor = (isMale && isFemale)
+        ? const Color(0xFF00695C) // teal — combined
+        : isMale
+            ? const Color(0xFF1565C0) // steel blue — male
+            : const Color(0xFFAD1457); // deep pink — female
+
+    final IconData icon = (isMale && isFemale)
+        ? Icons.wc_rounded
+        : isMale
+            ? Icons.male_rounded
+            : Icons.female_rounded;
+
+    return LeafletMarkerPin(
+      key: key,
+      category: LeafletPinCategory.custom,
+      customIcon: icon,
+      pinColor: pinColor,
+      width: width,
+      height: height,
+      isSelected: isSelected,
     );
   }
 
@@ -625,6 +659,7 @@ class LeafletMapPopup extends StatelessWidget {
     this.pandal,
     this.foodSpot,
     this.metroStation,
+    this.toilet,
     this.distanceKm,
     this.isDark,
     this.onClose,
@@ -632,7 +667,7 @@ class LeafletMapPopup extends StatelessWidget {
     this.onDetails,
     this.onToggleHopped,
     this.isHopped = false,
-  }) : assert(pandal != null || foodSpot != null || metroStation != null);
+  }) : assert(pandal != null || foodSpot != null || metroStation != null || toilet != null);
 
   /// Convenience constructor for Puja Pandals
   factory LeafletMapPopup.pandal({
@@ -701,9 +736,29 @@ class LeafletMapPopup extends StatelessWidget {
     );
   }
 
+  /// Convenience constructor for Public Toilets
+  factory LeafletMapPopup.toilet({
+    Key? key,
+    required ToiletEntry toilet,
+    double? distanceKm,
+    bool isDark = false,
+    VoidCallback? onClose,
+    VoidCallback? onDirections,
+  }) {
+    return LeafletMapPopup(
+      key: key,
+      toilet: toilet,
+      distanceKm: distanceKm,
+      isDark: isDark,
+      onClose: onClose,
+      onDirections: onDirections,
+    );
+  }
+
   final Pandal? pandal;
   final FoodSpot? foodSpot;
   final MetroStation? metroStation;
+  final ToiletEntry? toilet;
   final double? distanceKm;
   final bool? isDark;
   final VoidCallback? onClose;
@@ -723,7 +778,7 @@ class LeafletMapPopup extends StatelessWidget {
         children: [
           // 1. Popup Speech-Bubble Container (Leaflet style)
           Container(
-            width: 275,
+            width: 286,
             decoration: BoxDecoration(
               color: effectiveDark ? const Color(0xFF1E1E1E) : Colors.white,
               borderRadius: BorderRadius.circular(14),
@@ -750,8 +805,10 @@ class LeafletMapPopup extends StatelessWidget {
                   // Top Header Row: Category Badge + Close '×' Button
                   Row(
                     children: [
-                      _buildCategoryBadge(effectiveDark),
-                      const Spacer(),
+                      Expanded(
+                        child: _buildCategoryBadge(effectiveDark),
+                      ),
+                      const SizedBox(width: 6),
                       InkWell(
                         onTap: onClose,
                         borderRadius: BorderRadius.circular(12),
@@ -772,6 +829,7 @@ class LeafletMapPopup extends StatelessWidget {
                   if (pandal != null) _buildPandalContent(effectiveDark),
                   if (foodSpot != null) _buildFoodSpotContent(effectiveDark),
                   if (metroStation != null) _buildMetroContent(effectiveDark),
+                  if (toilet != null) _buildToiletContent(effectiveDark),
 
                   const SizedBox(height: 10),
 
@@ -802,23 +860,27 @@ class LeafletMapPopup extends StatelessWidget {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-            decoration: BoxDecoration(
-              color: PujaColors.durgaRed.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: PujaColors.durgaRed.withValues(alpha: 0.35),
-                width: 0.8,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              decoration: BoxDecoration(
+                color: PujaColors.durgaRed.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: PujaColors.durgaRed.withValues(alpha: 0.35),
+                  width: 0.8,
+                ),
               ),
-            ),
-            child: Text(
-              pandal!.zoneLabel.toUpperCase(),
-              style: const TextStyle(
-                color: PujaColors.durgaRed,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.3,
+              child: Text(
+                pandal!.zoneLabel.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: PujaColors.durgaRed,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.3,
+                ),
               ),
             ),
           ),
@@ -843,13 +905,65 @@ class LeafletMapPopup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('🍽️ ', style: TextStyle(fontSize: 10)),
-            Text(
-              foodSpot!.type.toUpperCase(),
-              style: const TextStyle(
-                color: Color(0xFFE65100),
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.3,
+            Flexible(
+              child: Text(
+                foodSpot!.type.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Color(0xFFE65100),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (toilet != null) {
+      final isMaleOnly = toilet!.male && !toilet!.female;
+      final Color color = (toilet!.male && toilet!.female)
+          ? const Color(0xFF00695C)
+          : isMaleOnly
+              ? const Color(0xFF1565C0)
+              : const Color(0xFFAD1457);
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: color.withValues(alpha: 0.45),
+            width: 0.8,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              (toilet!.male && toilet!.female)
+                  ? Icons.wc_rounded
+                  : isMaleOnly
+                      ? Icons.male_rounded
+                      : Icons.female_rounded,
+              size: 11,
+              color: color,
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                toilet!.genderLabel.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.3,
+                ),
               ),
             ),
           ],
@@ -879,17 +993,94 @@ class LeafletMapPopup extends StatelessWidget {
             color: lineColor,
           ),
           const SizedBox(width: 4),
-          Text(
-            metroStation!.line.label.toUpperCase(),
-            style: TextStyle(
-              color: lineColor,
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.3,
+          Flexible(
+            child: Text(
+              metroStation!.line.label.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: lineColor,
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.3,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildToiletContent(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          toilet!.displayName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.w800,
+            fontSize: 15,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          toilet!.access == 'public' ? 'Public Sanitation Facility' : toilet!.access,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: isDark ? Colors.white70 : Colors.black54,
+            fontSize: 12,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            if (distanceKm != null) ...[
+              const Icon(Icons.navigation_rounded, size: 12, color: Color(0xFF2979FF)),
+              const SizedBox(width: 2),
+              Text(
+                '${distanceKm!.toStringAsFixed(1)} km',
+                style: const TextStyle(
+                  color: Color(0xFF2979FF),
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 8),
+            ] else if (toilet!.distM > 0) ...[
+              const Icon(Icons.directions_walk_rounded, size: 12, color: Color(0xFF2979FF)),
+              const SizedBox(width: 2),
+              Text(
+                toilet!.distLabel,
+                style: const TextStyle(
+                  color: Color(0xFF2979FF),
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: (toilet!.fee ? Colors.orange : Colors.green).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                toilet!.fee ? '₹ Paid' : 'Free',
+                style: TextStyle(
+                  color: toilet!.fee ? Colors.orange : Colors.green,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -948,11 +1139,15 @@ class LeafletMapPopup extends StatelessWidget {
               ),
               const SizedBox(width: 8),
             ],
-            Text(
-              pandal!.timings.isNotEmpty ? pandal!.timings : 'Free entry',
-              style: TextStyle(
-                color: isDark ? Colors.white60 : Colors.black45,
-                fontSize: 11.5,
+            Flexible(
+              child: Text(
+                pandal!.timings.isNotEmpty ? pandal!.timings : 'Free entry',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isDark ? Colors.white60 : Colors.black45,
+                  fontSize: 11.5,
+                ),
               ),
             ),
           ],
@@ -1036,50 +1231,114 @@ class LeafletMapPopup extends StatelessWidget {
   }
 
   Widget _buildMetroContent(bool isDark) {
+    final stn = metroStation!;
+    final subtitleText = stn.isInterchange
+        ? 'Interchange (${stn.connectingLines.map((l) => l.label).join(", ")})'
+        : stn.line.corridor;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          metroStation!.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w800,
-            fontSize: 15,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          metroStation!.line.corridor,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: isDark ? Colors.white70 : Colors.black54,
-            fontSize: 12,
-          ),
-        ),
-        const SizedBox(height: 6),
         Row(
           children: [
+            Expanded(
+              child: Text(
+                stn.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black87,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14.5,
+                ),
+              ),
+            ),
+            if (stn.code != null && stn.code!.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  stn.code!,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white70 : Colors.black54,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (stn.nameBn != null && stn.nameBn!.isNotEmpty) ...[
+          const SizedBox(height: 1),
+          Text(
+            stn.nameBn!,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: isDark ? Colors.white70 : Colors.black54,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+        const SizedBox(height: 2),
+        Text(
+          subtitleText,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: isDark ? Colors.white60 : Colors.black54,
+            fontSize: 11,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            if (stn.layout != null && stn.layout!.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: stn.line.color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  stn.layout!,
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    color: stn.line.color,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
             if (distanceKm != null) ...[
-              const Icon(Icons.navigation_rounded, size: 12, color: Color(0xFF2979FF)),
+              const Icon(Icons.navigation_rounded, size: 11, color: Color(0xFF2979FF)),
               const SizedBox(width: 2),
               Text(
                 '${distanceKm!.toStringAsFixed(1)} km',
                 style: const TextStyle(
                   color: Color(0xFF2979FF),
-                  fontSize: 11.5,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
             ],
-            Text(
-              '${metroStation!.popularPandalsNearby.length} pandals nearby',
-              style: TextStyle(
-                color: isDark ? Colors.white60 : Colors.black54,
-                fontSize: 11.5,
+            Flexible(
+              child: Text(
+                '${stn.popularPandalsNearby.length} pandals nearby',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isDark ? Colors.white60 : Colors.black54,
+                  fontSize: 11,
+                ),
               ),
             ),
           ],
@@ -1262,36 +1521,50 @@ class LeafletAttributionControl extends StatelessWidget {
 }
 
 /// Iconic Leaflet stacked Zoom Control (+ / −) buttons.
+/// Refined with modern squircle styling, configurable dimensions,
+/// crisp tactile touch targets, and visual alignment with map toolbars.
 class LeafletZoomControl extends StatelessWidget {
   const LeafletZoomControl({
     super.key,
     required this.onZoomIn,
     required this.onZoomOut,
     this.isDark,
+    this.width = 46.0,
+    this.buttonHeight = 44.0,
+    this.borderRadius = 16.0,
+    this.iconSize = 22.0,
   });
 
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final bool? isDark;
+  final double width;
+  final double buttonHeight;
+  final double borderRadius;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    final effectiveDark = isDark ?? (Theme.of(context).brightness == Brightness.dark);
-    final bgColor = effectiveDark ? const Color(0xFF242424) : Colors.white;
-    final fgColor = effectiveDark ? Colors.white : Colors.black87;
+    final effectiveDark =
+        isDark ?? (Theme.of(context).brightness == Brightness.dark);
+    final bgColor = effectiveDark ? const Color(0xFF22232A) : Colors.white;
+    final fgColor = effectiveDark ? Colors.white : const Color(0xFF1E293B);
+    final borderColor =
+        effectiveDark ? const Color(0xFF4A4B56) : const Color(0xFFCFD1DC);
 
     return Container(
+      width: width,
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: effectiveDark ? Colors.white12 : Colors.black12,
-          width: 0.8,
+          color: borderColor,
+          width: 1.6,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: effectiveDark ? 0.4 : 0.15),
-            blurRadius: 6,
+            color: Colors.black.withValues(alpha: effectiveDark ? 0.25 : 0.14),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -1299,30 +1572,52 @@ class LeafletZoomControl extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          InkWell(
-            onTap: onZoomIn,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-            child: SizedBox(
-              width: 32,
-              height: 32,
-              child: Center(
-                child: Icon(Icons.add, size: 18, color: fgColor),
+          Tooltip(
+            message: 'Zoom In',
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  onZoomIn();
+                },
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(borderRadius - 1.6),
+                ),
+                child: SizedBox(
+                  width: width,
+                  height: buttonHeight,
+                  child: Center(
+                    child: Icon(Icons.add, size: iconSize, color: fgColor),
+                  ),
+                ),
               ),
             ),
           ),
           Divider(
             height: 1,
             thickness: 1,
-            color: effectiveDark ? Colors.white12 : Colors.black12,
+            color: borderColor.withValues(alpha: 0.7),
           ),
-          InkWell(
-            onTap: onZoomOut,
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(6)),
-            child: SizedBox(
-              width: 32,
-              height: 32,
-              child: Center(
-                child: Icon(Icons.remove, size: 18, color: fgColor),
+          Tooltip(
+            message: 'Zoom Out',
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  onZoomOut();
+                },
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(borderRadius - 1.6),
+                ),
+                child: SizedBox(
+                  width: width,
+                  height: buttonHeight,
+                  child: Center(
+                    child: Icon(Icons.remove, size: iconSize, color: fgColor),
+                  ),
+                ),
               ),
             ),
           ),
@@ -1331,3 +1626,4 @@ class LeafletZoomControl extends StatelessWidget {
     );
   }
 }
+

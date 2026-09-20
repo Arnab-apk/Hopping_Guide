@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'config/theme.dart';
 import 'services/theme_service.dart';
-import 'screens/greeting_splash_screen.dart';
+import 'screens/app_root_coordinator.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
 import 'screens/main_navigation_screen.dart';
@@ -70,7 +70,7 @@ class KolkataPujaApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(),
         '/splash': (context) => const SplashScreen(),
-        '/greeting': (context) => const GreetingSplashScreen(),
+        '/greeting': (context) => const AppRootCoordinator(),
         '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const WelcomeScreen(),
         '/main': (context) => const MainNavigationScreen(),

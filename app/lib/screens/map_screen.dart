@@ -16,6 +16,8 @@ import '../config/theme.dart';
 import '../models/app_user.dart';
 import '../models/pandal.dart';
 import '../models/squad_member.dart';
+import '../models/toilet.dart';
+import '../models/trail_leg.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/metro_repository.dart';
 import '../repositories/pandal_repository.dart';
@@ -43,9 +45,10 @@ import '../widgets/leaflet_map_components.dart';
 import 'main_navigation_screen.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key, this.repository});
+  const MapScreen({super.key, this.repository, this.onMapReady});
 
   final PandalRepository? repository;
+  final VoidCallback? onMapReady;
 
   /// Global notifier to request an in-app walking route or centering on a target food spot.
   static final ValueNotifier<({FoodSpot spot, bool traceRoute})?>
@@ -100,6 +103,24 @@ class MapScreen extends StatefulWidget {
     MainNavigationScreen.switchTab(context, 0);
   }
 
+  /// Global notifier to request an in-app walking route or centering on a target public toilet.
+  static final ValueNotifier<({ToiletEntry toilet, bool traceRoute})?>
+  pendingToiletAction = ValueNotifier<({ToiletEntry toilet, bool traceRoute})?>(
+    null,
+  );
+
+  /// Helper to route to a toilet from any screen without external apps
+  static void routeToToilet(BuildContext context, ToiletEntry toilet) {
+    pendingToiletAction.value = (toilet: toilet, traceRoute: true);
+    MainNavigationScreen.switchTab(context, 0);
+  }
+
+  /// Helper to center on a toilet from any screen
+  static void centerOnToilet(BuildContext context, ToiletEntry toilet) {
+    pendingToiletAction.value = (toilet: toilet, traceRoute: false);
+    MainNavigationScreen.switchTab(context, 0);
+  }
+
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
@@ -149,8 +170,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   List<Pandal> _pandals = [];
   List<FoodSpot> _foodSpots = [];
+  List<PandalToilets> _allToilets = [];
   bool _showFoodSpots = false;
   bool _showMetroStations = false;
+  bool _showToilets = false;
   bool _filterNearby10Km = false;
   bool _isLoading = true;
 
@@ -159,7 +182,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   SquadMember? _selectedSquadMember;
   FoodSpot? _selectedFoodSpot;
   MetroStation? _selectedMetroStation;
+  ToiletEntry? _selectedToilet;
   Position? _userPosition;
+
+  List<ToiletEntry> get _uniqueToilets {
+    final map = <String, ToiletEntry>{};
+    for (final pt in _allToilets) {
+      for (final t in pt.allNearby) {
+        map[t.id] = t;
+      }
+      if (pt.nearestMale != null) {
+        map[pt.nearestMale!.id] = pt.nearestMale!;
+      }
+      if (pt.nearestFemale != null) {
+        map[pt.nearestFemale!.id] = pt.nearestFemale!;
+      }
+    }
+    return map.values.toList();
+  }
 
   LatLng? get _effectiveUserLocation {
     // If a walking route is active, ensure the user's DP is anchored to the path's starting point
@@ -387,6 +427,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         (_) => _onPendingMetroStationAction(),
       );
     }
+    MapScreen.pendingToiletAction.addListener(
+      _onPendingToiletAction,
+    );
+    if (MapScreen.pendingToiletAction.value != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _onPendingToiletAction(),
+      );
+    }
     _loadData();
     _startContinuousTracking();
   }
@@ -397,6 +445,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     MapScreen.pendingPandalAction.removeListener(_onPendingPandalAction);
     MapScreen.pendingMetroStationAction.removeListener(
       _onPendingMetroStationAction,
+    );
+    MapScreen.pendingToiletAction.removeListener(
+      _onPendingToiletAction,
     );
     _statusOverlayTimer?.cancel();
     _statusOverlayEntry?.remove();
@@ -454,6 +505,38 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedPandal = null;
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
+      _selectedToilet = null;
+    });
+  }
+
+  void _onPendingToiletAction() {
+    final action = MapScreen.pendingToiletAction.value;
+    if (action != null) {
+      MapScreen.pendingToiletAction.value = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (action.traceRoute) {
+          _highlightRouteToToilet(action.toilet);
+        } else {
+          _selectToilet(action.toilet);
+        }
+      });
+    }
+  }
+
+  void _selectToilet(ToiletEntry toilet) {
+    HapticFeedback.selectionClick();
+    _animatedMapMove(
+      LatLng(toilet.lat, toilet.lng),
+      (_mapController.camera.zoom < 16.0 ? 16.0 : _mapController.camera.zoom),
+    );
+    setState(() {
+      _selectedToilet = toilet;
+      _selectedPandal = null;
+      _selectedSquadMember = null;
+      _selectedFoodSpot = null;
+      _selectedMetroStation = null;
+      _showToilets = true;
     });
   }
 
@@ -530,14 +613,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    final results = await Future.wait([_repo.all(), _suppRepo.getFoodSpots()]);
+    final results = await Future.wait([
+      _repo.all(),
+      _suppRepo.getFoodSpots(),
+      _suppRepo.getToilets(),
+    ]);
 
     if (!mounted) return;
     setState(() {
       _pandals = results[0] as List<Pandal>;
       _foodSpots = results[1] as List<FoodSpot>;
+      _allToilets = results[2] as List<PandalToilets>;
       _isLoading = false;
     });
+    widget.onMapReady?.call();
   }
 
   void _startContinuousTracking() {
@@ -1010,6 +1099,71 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _highlightRouteToToilet(ToiletEntry toilet) async {
+    HapticFeedback.mediumImpact();
+    FocusScope.of(context).unfocus();
+    var userPos = _userPosition;
+    userPos ??= await LocationService.instance.currentPosition();
+
+    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
+    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
+
+    // Check if user is far from Kolkata (e.g. testing on an emulator or remote location)
+    final distToKolkata = haversineMeters(
+      userLat,
+      userLng,
+      AppConfig.defaultLat,
+      AppConfig.defaultLng,
+    );
+    final bool isFarAway = distToKolkata > 70000;
+
+    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
+    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final start = LatLng(refLat, refLng);
+    final dest = LatLng(toilet.lat, toilet.lng);
+
+    setState(() {
+      if (userPos != null) _userPosition = userPos;
+      _isCalculatingRoute = true;
+      _selectedToilet = toilet;
+      _selectedPandal = null;
+      _selectedSquadMember = null;
+      _selectedMetroStation = null;
+      _selectedFoodSpot = null;
+      _followUser = false;
+      _showToilets = true;
+    });
+
+    final route = await RoutingService.instance.getWalkingRouteToPoint(
+      start: start,
+      destination: dest,
+      destinationName: toilet.displayName,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _highlightedRoute = route;
+      _isCalculatingRoute = false;
+    });
+
+    if (route.points.isNotEmpty) {
+      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
+        ),
+      );
+    }
+
+    _showStatusPill(
+      '🚶 Path to ${toilet.displayName} (${route.formattedDistance} · ${route.formattedDuration})',
+      icon: Icons.wc_rounded,
+      color: const Color(0xFF00695C),
+    );
+  }
+
   void _clearRoute() {
     HapticFeedback.selectionClick();
     setState(() {
@@ -1017,6 +1171,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedSquadMember = null;
       _selectedFoodSpot = null;
       _selectedMetroStation = null;
+      _selectedToilet = null;
     });
   }
 
@@ -1287,6 +1442,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   setState(() => _mapRotation = camera.rotation);
                 }
               },
+              onMapReady: () {
+                widget.onMapReady?.call();
+              },
             ),
             children: [
               RepaintBoundary(
@@ -1421,6 +1579,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     markers: _visibleFoodSpots.map((f) {
                       final isSelected = _selectedFoodSpot?.id == f.id;
                       return Marker(
+                        rotate: true,
                         point: LatLng(f.lat, f.lng),
                         width: isSelected ? 44 : 34,
                         height: isSelected ? 56 : 44,
@@ -1452,6 +1611,23 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
+              // Full Kolkata Metro Lines Track Network (5 Official Corridors)
+              if (_showMetroStations && !isTrailActive)
+                RepaintBoundary(
+                  child: PolylineLayer(
+                    polylines: [
+                      for (final entry in MetroRepository.lineTrackCoordinates.entries)
+                        Polyline(
+                          points: entry.value,
+                          strokeWidth: 4.2,
+                          color: entry.key.color.withValues(alpha: 0.85),
+                          borderColor: Colors.black54,
+                          borderStrokeWidth: 1.0,
+                        ),
+                    ],
+                  ),
+                ),
+
               // Full Kolkata Metro & Railway Stations Network Layer (Leaflet Metro Pins)
               if (_showMetroStations && !isTrailActive)
                 RepaintBoundary(
@@ -1461,6 +1637,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       final isRailway = stn.name.toLowerCase().contains('railway');
                       final lineColor = isRailway ? PujaColors.railwayPurple : stn.line.color;
                       return Marker(
+                        rotate: true,
                         point: LatLng(stn.latitude, stn.longitude),
                         width: isStationSelected ? 44 : 34,
                         height: isStationSelected ? 56 : 44,
@@ -1487,6 +1664,47 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             lineColor: lineColor,
                             isRailway: isRailway,
                             pulseAnimation: isStationSelected ? _pulseController : null,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+              // Public Toilets Layer (Leaflet Toilet Pins)
+              if (_showToilets && !isTrailActive)
+                RepaintBoundary(
+                  child: MarkerLayer(
+                    markers: _uniqueToilets.map((t) {
+                      final isSelected = _selectedToilet?.id == t.id;
+                      return Marker(
+                        rotate: true,
+                        point: LatLng(t.lat, t.lng),
+                        width: isSelected ? 44 : 32,
+                        height: isSelected ? 56 : 40,
+                        alignment: Alignment.topCenter,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              _selectedToilet = t;
+                              _selectedPandal = null;
+                              _selectedFoodSpot = null;
+                              _selectedMetroStation = null;
+                              _highlightedRoute = null;
+                            });
+                            _animatedMapMove(
+                              LatLng(t.lat, t.lng),
+                              (_mapController.camera.zoom < 16.0
+                                  ? 16.0
+                                  : _mapController.camera.zoom),
+                            );
+                          },
+                          child: LeafletMarkerPin.toilet(
+                            isMale: t.male,
+                            isFemale: t.female,
+                            isSelected: isSelected,
                           ),
                         ),
                       );
@@ -1536,6 +1754,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   child: MarkerLayer(
                     markers: [
                       Marker(
+                        rotate: true,
                         point: squadService.meetupPointCoords,
                         width: 56,
                         height: 56,
@@ -1616,6 +1835,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       final avatarColor = member.avatarColor;
                       final size = isSelected ? 46.0 : 40.0;
                       return Marker(
+                        rotate: true,
                         point: LatLng(member.latitude, member.longitude),
                         width: size + 20,
                         height: size + 20,
@@ -1731,9 +1951,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   child: MarkerLayer(
                   markers: [
                     Marker(
+                      rotate: true,
                       point: _effectiveUserLocation!,
                       width: 64,
                       height: 64,
+                      alignment: Alignment.center,
                       child: RepaintBoundary(
                         child: AnimatedBuilder(
                           animation: _pulseController,
@@ -1804,7 +2026,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 // Directional Navigation Arrow pointing towards target or forward heading
                                 if (arrowBearing != null)
                                   Transform.rotate(
-                                    angle: (arrowBearing * math.pi / 180),
+                                    angle: ((arrowBearing - _mapRotation) * math.pi / 180),
                                     child: Transform.translate(
                                       offset: const Offset(0, -20),
                                       child: Icon(
@@ -1931,14 +2153,16 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
 
-              // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, and Metro Stations
+              // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, Metro Stations, and Toilets
               if (_selectedPandal != null ||
                   _selectedFoodSpot != null ||
-                  _selectedMetroStation != null)
+                  _selectedMetroStation != null ||
+                  _selectedToilet != null)
                 MarkerLayer(
                   markers: [
                     if (_selectedPandal != null)
                       Marker(
+                        rotate: true,
                         point: LatLng(_selectedPandal!.lat, _selectedPandal!.lng),
                         width: 290,
                         height: 220,
@@ -1970,6 +2194,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       )
                     else if (_selectedFoodSpot != null)
                       Marker(
+                        rotate: true,
                         point: LatLng(_selectedFoodSpot!.lat, _selectedFoodSpot!.lng),
                         width: 290,
                         height: 200,
@@ -1992,12 +2217,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       )
                     else if (_selectedMetroStation != null)
                       Marker(
+                        rotate: true,
                         point: LatLng(
                           _selectedMetroStation!.latitude,
                           _selectedMetroStation!.longitude,
                         ),
-                        width: 290,
-                        height: 200,
+                        width: 300,
+                        height: 215,
                         alignment: const Alignment(0.0, -1.24),
                         child: LeafletMapPopup.metro(
                           station: _selectedMetroStation!,
@@ -2009,6 +2235,29 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           },
                           onDirections: () {
                             _highlightRouteToMetroStation(_selectedMetroStation!);
+                          },
+                        ),
+                      )
+                    else if (_selectedToilet != null)
+                      Marker(
+                        rotate: true,
+                        point: LatLng(
+                          _selectedToilet!.lat,
+                          _selectedToilet!.lng,
+                        ),
+                        width: 290,
+                        height: 180,
+                        alignment: const Alignment(0.0, -1.24),
+                        child: LeafletMapPopup.toilet(
+                          toilet: _selectedToilet!,
+                          isDark: isDark,
+                          onClose: () {
+                            setState(() {
+                              _selectedToilet = null;
+                            });
+                          },
+                          onDirections: () {
+                            _highlightRouteToToilet(_selectedToilet!);
                           },
                         ),
                       ),
@@ -2100,6 +2349,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                       _buildCustomTrailChip(isDark),
                                       _buildMetroToggleChip(isDark),
                                       _buildFoodToggleChip(isDark),
+                                      _buildToiletToggleChip(isDark),
                                       if (squadService.hasActiveSquad)
                                         _buildSquadStatusChip(isDark, squadService),
                                     ],
@@ -2551,213 +2801,117 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             ),
           ),
 
-          // Leaflet Zoom Control (Stacked + / −)
-          Positioned(
-            right: 16,
-            bottom: 148,
-            child: LeafletZoomControl(
-              onZoomIn: () {
-                final currentZoom = _mapController.camera.zoom;
-                _animatedMapMove(
-                  _mapController.camera.center,
-                  (currentZoom + 1.0).clamp(10.0, 18.0),
-                );
-              },
-              onZoomOut: () {
-                final currentZoom = _mapController.camera.zoom;
-                _animatedMapMove(
-                  _mapController.camera.center,
-                  (currentZoom - 1.0).clamp(10.0, 18.0),
-                );
-              },
-              isDark: isDark,
-            ),
-          ),
-
           if (_isLoading)
             const Center(
               child: CircularProgressIndicator(color: PujaColors.durgaRed),
             ),
 
-          // Floating Quick Actions (Nearest Pandal, Cuisine, Guide, Region, GPS)
-          // Managed inside the Stack with a subtle, minimalistic fade & micro-glide
+          // Floating Action Toolbar (Zoom In/Out, Quick Tools, GPS Follow, Compass)
+          // Unified vertical stack on the right edge with matching 46x46 dimensions and smooth squircle styling
           Positioned(
             right: 16,
             bottom: 24,
-            child: AnimatedOpacity(
-              opacity:
-                  (_selectedPandal == null &&
-                      _selectedSquadMember == null &&
-                      _selectedFoodSpot == null &&
-                      _selectedMetroStation == null)
-                  ? 1.0
-                  : 0.0,
+            child: AnimatedSlide(
+              offset: _selectedSquadMember == null
+                  ? Offset.zero
+                  : const Offset(0, 0.04),
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeOutCubic,
-              child: IgnorePointer(
-                ignoring:
-                    (_selectedPandal != null ||
-                    _selectedSquadMember != null ||
-                    _selectedFoodSpot != null ||
-                    _selectedMetroStation != null),
-                child: AnimatedSlide(
-                  offset:
-                      (_selectedPandal == null &&
-                          _selectedSquadMember == null &&
-                          _selectedFoodSpot == null &&
-                          _selectedMetroStation == null)
-                      ? Offset.zero
-                      : const Offset(0, 0.04),
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
+              child: AnimatedOpacity(
+                opacity: _selectedSquadMember == null ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                child: IgnorePointer(
+                  ignoring: _selectedSquadMember != null,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Secondary Quick Map Tools (Folds Nearest radar, Theme toggle, App guide into a single clean menu)
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.18),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: FloatingActionButton(
-                          heroTag: 'map_quick_tools_fab',
-                          elevation: 3,
-                          highlightElevation: 6,
-                          mini: true,
-                          onPressed: () => _showMapQuickTools(context, isDark),
-                          backgroundColor: isDark
-                              ? const Color(0xFF22232A)
-                              : Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: isDark
-                                  ? const Color(0xFF4A4B56)
-                                  : const Color(0xFFCFD1DC),
-                              width: 1.6,
-                            ),
-                          ),
-                          tooltip: 'Map Tools & Settings',
-                          child: Icon(
-                            Icons.tune_rounded,
-                            color: isDark ? PujaColors.goldBright : const Color(0xFF1E293B),
-                            size: 20,
-                          ),
-                        ),
+                      // Leaflet Zoom Control (Stacked + / −)
+                      LeafletZoomControl(
+                        width: 46.0,
+                        buttonHeight: 44.0,
+                        borderRadius: 16.0,
+                        iconSize: 22.0,
+                        isDark: isDark,
+                        onZoomIn: () {
+                          final currentZoom = _mapController.camera.zoom;
+                          _animatedMapMove(
+                            _mapController.camera.center,
+                            (currentZoom + 1.0).clamp(10.0, 18.0),
+                          );
+                        },
+                        onZoomOut: () {
+                          final currentZoom = _mapController.camera.zoom;
+                          _animatedMapMove(
+                            _mapController.camera.center,
+                            (currentZoom - 1.0).clamp(10.0, 18.0),
+                          );
+                        },
                       ),
                       const SizedBox(height: 12),
-                      // Center & Follow My GPS Button
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: _followUser
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(0xFF2979FF)
-                                        .withValues(alpha: 0.38),
-                                    blurRadius: 10,
-                                    spreadRadius: 0.5,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
-                              : null,
+
+                      // Secondary Quick Map Tools (Nearest radar, Theme toggle, App guide)
+                      _buildMapActionButton(
+                        icon: Icon(
+                          Icons.tune_rounded,
+                          color: isDark
+                              ? PujaColors.goldBright
+                              : const Color(0xFF1E293B),
+                          size: 20,
                         ),
-                        child: FloatingActionButton(
-                          heroTag: 'follow_user_gps_fab',
-                          elevation: 3,
-                          highlightElevation: 6,
-                          onPressed: _toggleFollowUser,
-                          backgroundColor: _followUser
-                              ? const Color(0xFF2979FF)
-                              : (isDark
-                                  ? const Color(0xFF22232A)
-                                  : Colors.white),
-                          foregroundColor: _followUser
+                        onTap: () => _showMapQuickTools(context, isDark),
+                        tooltip: 'Map Tools & Settings',
+                        isDark: isDark,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Center & Follow My GPS Button
+                      _buildMapActionButton(
+                        icon: Icon(
+                          _followUser
+                              ? Icons.navigation_rounded
+                              : Icons.my_location,
+                          color: _followUser
                               ? Colors.white
                               : (isDark ? Colors.white : Colors.black87),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            side: BorderSide(
-                              color: _followUser
-                                  ? const Color(0xFF2979FF)
-                                  : (isDark
-                                      ? const Color(0xFF4A4B56)
-                                      : const Color(0xFFCFD1DC)),
-                              width: 2.2,
-                            ),
-                          ),
-                          tooltip: _followUser
-                              ? 'Live Tracking Active (Tap for free-roam)'
-                              : 'Center & Follow My GPS',
-                          child: Icon(
-                            _followUser
-                                ? Icons.navigation_rounded
-                                : Icons.my_location,
-                            size: 26,
-                          ),
+                          size: 22,
                         ),
+                        onTap: _toggleFollowUser,
+                        tooltip: _followUser
+                            ? 'Live Tracking Active (Tap for free-roam)'
+                            : 'Center & Follow My GPS',
+                        isDark: isDark,
+                        isActive: _followUser,
+                        activeColor: const Color(0xFF2979FF),
                       ),
+
                       // Compass Reset-North Button (only shown when map is rotated)
-                      if (_mapRotation.abs() > 2.0)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.18),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: FloatingActionButton(
-                              heroTag: 'compass_reset_north_fab',
-                              elevation: 3,
-                              highlightElevation: 6,
-                              mini: true,
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                _mapController.rotate(0.0);
-                                _showStatusPill(
-                                  'Map re-oriented to North',
-                                  icon: Icons.explore_rounded,
-                                );
-                              },
-                              backgroundColor: isDark
-                                  ? const Color(0xFF22232A)
-                                  : Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
-                                side: BorderSide(
-                                  color: isDark
-                                      ? const Color(0xFF4A4B56)
-                                      : const Color(0xFFCFD1DC),
-                                  width: 1.8,
-                                ),
-                              ),
-                              tooltip: 'Reset to North',
-                              child: Transform.rotate(
-                                angle: -_mapRotation * math.pi / 180,
-                                child: Icon(
-                                  Icons.explore_rounded,
-                                  color: isDark
-                                      ? const Color(0xFF00E5FF)
-                                      : PujaColors.durgaRed,
-                                  size: 22,
-                                ),
-                              ),
+                      if (_mapRotation.abs() > 2.0) ...[
+                        const SizedBox(height: 10),
+                        _buildMapActionButton(
+                          icon: Transform.rotate(
+                            angle: -_mapRotation * math.pi / 180,
+                            child: Icon(
+                              Icons.explore_rounded,
+                              color: isDark
+                                  ? const Color(0xFF00E5FF)
+                                  : PujaColors.durgaRed,
+                              size: 22,
                             ),
                           ),
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            _mapController.rotate(0.0);
+                            _showStatusPill(
+                              'Map re-oriented to North',
+                              icon: Icons.explore_rounded,
+                            );
+                          },
+                          tooltip: 'Reset to North',
+                          isDark: isDark,
                         ),
+                      ],
                     ],
                   ),
                 ),
@@ -2765,6 +2919,63 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Compact, tactile map floating action button with consistent 46x46 dimensions,
+  /// squircle corners, theme borders, and smooth haptic feedback.
+  Widget _buildMapActionButton({
+    required Widget icon,
+    required VoidCallback onTap,
+    required String tooltip,
+    required bool isDark,
+    bool isActive = false,
+    Color? activeColor,
+    Color? activeBorderColor,
+    double size = 46.0,
+  }) {
+    final bgColor = isActive
+        ? (activeColor ?? const Color(0xFF2979FF))
+        : (isDark ? const Color(0xFF22232A) : Colors.white);
+    final borderColor = isActive
+        ? (activeBorderColor ?? const Color(0xFF2979FF))
+        : (isDark ? const Color(0xFF4A4B56) : const Color(0xFFCFD1DC));
+
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: borderColor,
+            width: 1.6,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isActive
+                  ? (activeColor ?? const Color(0xFF2979FF))
+                      .withValues(alpha: 0.38)
+                  : Colors.black.withValues(alpha: isDark ? 0.25 : 0.14),
+              blurRadius: isActive ? 10 : 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onTap();
+            },
+            child: Center(child: icon),
+          ),
+        ),
       ),
     );
   }
@@ -3272,49 +3483,123 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     // Only reconstructed when the trail ID, routed polyline geometry, or theme changes,
     // completely eliminating map stutter and tile-loading lag caused by continuous GPS ticks.
     final String coreKey =
-        '${trail.id}_${trail.routedPolyline?.length ?? 0}_$isDark';
+        '${trail.id}_${trail.routedPolyline?.length ?? 0}_${trail.hasMetroLegs}_$isDark';
     if (_cachedTrailCoreKey != coreKey || _cachedTrailCorePolylines == null) {
       final corePolylines = <Polyline>[];
-      final List<LatLng> trailCoords;
-      if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
-        trailCoords = trail.routedPolyline!;
+
+      if (trail.hasMetroLegs) {
+        // Multi-modal rendering: individual walk segments and authentic metro lines
+        for (final leg in trail.legs) {
+          if (leg.mode == LegMode.walk) {
+            // Walking segment between consecutive pandals
+            corePolylines.add(
+              Polyline(
+                points: [leg.from, leg.to],
+                strokeWidth: 8.0,
+                color: PujaColors.festivalGold.withValues(alpha: 0.3),
+              ),
+            );
+            corePolylines.add(
+              Polyline(
+                points: [leg.from, leg.to],
+                strokeWidth: 5.0,
+                color: PujaColors.festivalGold,
+              ),
+            );
+          } else if (leg.mode == LegMode.metro && leg.metroDetail != null) {
+            final detail = leg.metroDetail!;
+            final boardPos = detail.boardingStation.toLatLng();
+            final alightPos = detail.alightingStation.toLatLng();
+            final metroColor = detail.boardingStation.line.color;
+
+            // 1. Pedestrian connection: pandal to boarding station (dashed)
+            corePolylines.add(
+              Polyline(
+                points: [leg.from, boardPos],
+                strokeWidth: 3.5,
+                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                pattern: StrokePattern.dashed(segments: const [6, 4]),
+              ),
+            );
+
+            // 2. Metro rail track: boarding -> [interchange] -> alighting
+            final metroPoints = [
+              boardPos,
+              if (detail.requiresInterchange && detail.interchangeStation != null)
+                detail.interchangeStation!.toLatLng(),
+              alightPos,
+            ];
+            // Glowing underlay
+            corePolylines.add(
+              Polyline(
+                points: metroPoints,
+                strokeWidth: 9.0,
+                color: metroColor.withValues(alpha: 0.35),
+              ),
+            );
+            // Solid brand transit line
+            corePolylines.add(
+              Polyline(
+                points: metroPoints,
+                strokeWidth: 5.5,
+                color: metroColor,
+              ),
+            );
+
+            // 3. Pedestrian connection: alighting station to pandal (dashed)
+            corePolylines.add(
+              Polyline(
+                points: [alightPos, leg.to],
+                strokeWidth: 3.5,
+                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                pattern: StrokePattern.dashed(segments: const [6, 4]),
+              ),
+            );
+          }
+        }
       } else {
-        final coords = <LatLng>[];
-        final firstStop = trail.stops.first;
-        final double distToFirst = haversineMeters(
-          startCoord.latitude,
-          startCoord.longitude,
-          firstStop.lat,
-          firstStop.lng,
-        );
-        // Only include startCoord if within reasonable walking reach (<= 2000m)
-        if (distToFirst > 15.0 && distToFirst <= 2000.0) {
-          coords.add(startCoord);
+        final List<LatLng> trailCoords;
+        if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
+          trailCoords = trail.routedPolyline!;
+        } else {
+          final coords = <LatLng>[];
+          final firstStop = trail.stops.first;
+          final double distToFirst = haversineMeters(
+            startCoord.latitude,
+            startCoord.longitude,
+            firstStop.lat,
+            firstStop.lng,
+          );
+          // Only include startCoord if within reasonable walking reach (<= 2000m)
+          if (distToFirst > 15.0 && distToFirst <= 2000.0) {
+            coords.add(startCoord);
+          }
+          for (final s in trail.stops) {
+            coords.add(LatLng(s.lat, s.lng));
+          }
+          trailCoords = coords;
         }
-        for (final s in trail.stops) {
-          coords.add(LatLng(s.lat, s.lng));
+
+        if (trailCoords.length >= 2) {
+          // Glow/underglow line
+          corePolylines.add(
+            Polyline(
+              points: trailCoords,
+              strokeWidth: 8.5,
+              color: PujaColors.festivalGold.withValues(alpha: 0.3),
+            ),
+          );
+          // Solid brand gold primary line
+          corePolylines.add(
+            Polyline(
+              points: trailCoords,
+              strokeWidth: 5.0,
+              color: PujaColors.festivalGold,
+            ),
+          );
         }
-        trailCoords = coords;
       }
 
-      if (trailCoords.length >= 2) {
-        // Glow/underglow line
-        corePolylines.add(
-          Polyline(
-            points: trailCoords,
-            strokeWidth: 8.5,
-            color: PujaColors.festivalGold.withValues(alpha: 0.3),
-          ),
-        );
-        // Solid brand gold primary line
-        corePolylines.add(
-          Polyline(
-            points: trailCoords,
-            strokeWidth: 5.0,
-            color: PujaColors.festivalGold,
-          ),
-        );
-      }
       _cachedTrailCorePolylines = corePolylines;
       _cachedTrailCoreKey = coreKey;
     }
@@ -3370,6 +3655,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       if (distToFirst > 60.0 && distToFirst <= 2500.0) {
         markers.add(
           Marker(
+            rotate: true,
             point: startCoord,
             width: 38,
             height: 48,
@@ -3395,6 +3681,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
       markers.add(
         Marker(
+          rotate: true,
           point: LatLng(stop.lat, stop.lng),
           width: (isCurrent || isSelected) ? 48 : 38,
           height: (isCurrent || isSelected) ? 60 : 48,
@@ -3426,6 +3713,49 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           ),
         ),
       );
+    }
+
+    // Station badges for metro-assisted legs
+    if (trail.hasMetroLegs) {
+      final addedStationIds = <String>{};
+      for (final leg in trail.legs) {
+        if (leg.mode == LegMode.metro && leg.metroDetail != null) {
+          final detail = leg.metroDetail!;
+          final stationsToMark = <MetroStation>[
+            detail.boardingStation,
+            if (detail.requiresInterchange && detail.interchangeStation != null)
+              detail.interchangeStation!,
+            detail.alightingStation,
+          ];
+
+          for (final stn in stationsToMark) {
+            if (addedStationIds.contains(stn.id)) continue;
+            addedStationIds.add(stn.id);
+
+            final bool isInterchange = stn.id == detail.interchangeStation?.id;
+            markers.add(
+              Marker(
+                rotate: true,
+                point: stn.toLatLng(),
+                width: 36,
+                height: 46,
+                alignment: Alignment.topCenter,
+                child: Tooltip(
+                  message: '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
+                  child: LeafletMarkerPin(
+                    category: LeafletPinCategory.custom,
+                    pinColor: isInterchange ? const Color(0xFFE65100) : stn.line.color,
+                    customIcon: isInterchange
+                        ? Icons.transfer_within_a_station_rounded
+                        : Icons.subway_rounded,
+                    size: 32,
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+      }
     }
 
     return markers;
@@ -3497,7 +3827,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             setState(() => _showMetroStations = !_showMetroStations);
             if (_showMetroStations) {
               _setContextualBanner(
-                '🚇 Showing 40+ Kolkata Metro stations on map',
+                '🚇 Showing 55 Kolkata Metro stations across 5 lines on map',
                 icon: Icons.subway_rounded,
                 color: PujaColors.metroBlue,
               );
@@ -3591,6 +3921,75 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 const SizedBox(width: 5),
                 Text(
                   'Food ($count)',
+                  style: TextStyle(
+                    color: isSelected
+                        ? Colors.white
+                        : (isDark ? Colors.white70 : Colors.black87),
+                    fontSize: 11.5,
+                    fontWeight: isSelected
+                        ? FontWeight.w800
+                        : FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToiletToggleChip(bool isDark) {
+    final isSelected = _showToilets;
+    final count = _uniqueToilets.length;
+    return Padding(
+      padding: const EdgeInsets.only(right: 6.0),
+      child: Material(
+        elevation: isSelected ? 3 : 0,
+        color: isSelected
+            ? const Color(0xFF00695C)
+            : (isDark ? PujaColors.nightSurface : Colors.grey.shade100),
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: isSelected
+                ? Colors.white
+                : const Color(0xFF00695C).withValues(alpha: 0.4),
+            width: isSelected ? 1.4 : 1.0,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            setState(() => _showToilets = !_showToilets);
+            if (_showToilets) {
+              _setContextualBanner(
+                '🚻 Showing $count public toilets & Sulabh complexes on map',
+                icon: Icons.wc_rounded,
+                color: const Color(0xFF00695C),
+              );
+            } else {
+              _clearContextualBanner();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 6,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.wc_rounded,
+                  size: 14,
+                  color: isSelected
+                      ? Colors.white
+                      : const Color(0xFF00695C),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  'Toilets ($count)',
                   style: TextStyle(
                     color: isSelected
                         ? Colors.white
@@ -5206,6 +5605,7 @@ class _ClusteredPandalLayer extends StatelessWidget {
           final isLarge = count > 99;
 
           return Marker(
+            rotate: true,
             point: item.point,
             width: isLarge ? 50 : 44,
             height: isLarge ? 62 : 54,
@@ -5241,6 +5641,7 @@ class _ClusteredPandalLayer extends StatelessWidget {
         }
 
         return Marker(
+          rotate: true,
           point: LatLng(p.lat, p.lng),
           width: isSelected ? 48 : 38,
           height: isSelected ? 60 : 48,

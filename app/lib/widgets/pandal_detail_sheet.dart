@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../config/theme.dart';
 import '../models/pandal.dart';
+import '../models/toilet.dart';
+import '../repositories/supplementary_repository.dart';
 import '../screens/map_screen.dart';
 import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
@@ -20,6 +22,7 @@ class PandalDetailSheet extends StatelessWidget {
   const PandalDetailSheet({super.key, required this.pandal});
 
   final Pandal pandal;
+  static final _supplementaryRepo = SupplementaryRepository();
 
   static void show(BuildContext context, Pandal pandal) {
     showModalBottomSheet(
@@ -516,6 +519,9 @@ class PandalDetailSheet extends StatelessWidget {
                       ),
                     ),
 
+                    // Nearest Public Washrooms (Female & Male)
+                    _buildToiletSection(context, isDark),
+
                     const SizedBox(height: 18),
 
                     // Primary Route Action CTA
@@ -755,6 +761,296 @@ class PandalDetailSheet extends StatelessWidget {
       height: 7,
       thickness: 0.6,
       color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+    );
+  }
+
+  Widget _buildToiletSection(BuildContext context, bool isDark) {
+    return FutureBuilder<PandalToilets?>(
+      future: _supplementaryRepo.getToiletsForPandal(pandal.id),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+
+        final data = snapshot.data!;
+        final male = data.nearestMale;
+        final female = data.nearestFemale;
+
+        if (male == null && female == null) {
+          return const SizedBox.shrink();
+        }
+
+        final isSameFacility = male != null &&
+            female != null &&
+            (male.id == female.id ||
+                (male.name == female.name && male.distM == female.distM));
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(top: 14),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+              width: 0.9,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00897B).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Icon(
+                      Icons.wc_rounded,
+                      size: 16,
+                      color: Color(0xFF00897B),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nearest Public Washrooms',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(13),
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          'KMC & Kolkata Metro Facilities',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(10),
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : Colors.black45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (isSameFacility)
+                _buildCombinedToiletCard(context, male, isDark)
+              else ...[
+                if (female != null)
+                  _buildToiletCard(
+                    context,
+                    entry: female,
+                    genderLabel: 'Female Washroom',
+                    genderColor: const Color(0xFFAD1457),
+                    isDark: isDark,
+                  ),
+                if (male != null && female != null) const SizedBox(height: 8),
+                if (male != null)
+                  _buildToiletCard(
+                    context,
+                    entry: male,
+                    genderLabel: 'Male Washroom',
+                    genderColor: const Color(0xFF1565C0),
+                    isDark: isDark,
+                  ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCombinedToiletCard(
+    BuildContext context,
+    ToiletEntry toilet,
+    bool isDark,
+  ) {
+    final walkMin = (toilet.distM / 75).ceil().clamp(1, 60);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF252A36) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF00897B).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _buildGenderPill('Female', const Color(0xFFAD1457)),
+                    const SizedBox(width: 4),
+                    _buildGenderPill('Male', const Color(0xFF1565C0)),
+                    const SizedBox(width: 4),
+                    if (toilet.fee)
+                      _buildGenderPill('Paid', const Color(0xFFE65100))
+                    else
+                      _buildGenderPill('Free', const Color(0xFF2E7D32)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  toilet.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(12),
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${toilet.distLabel} • ~$walkMin min walk',
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(10),
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              MapScreen.routeToToilet(context, toilet);
+            },
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: const Size(60, 32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              backgroundColor: const Color(0xFF00897B).withValues(alpha: 0.15),
+              foregroundColor: const Color(0xFF00897B),
+            ),
+            icon: const Icon(Icons.directions_walk_rounded, size: 14),
+            label: const Text(
+              'Walk',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToiletCard(
+    BuildContext context, {
+    required ToiletEntry entry,
+    required String genderLabel,
+    required Color genderColor,
+    required bool isDark,
+  }) {
+    final walkMin = (entry.distM / 75).ceil().clamp(1, 60);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF252A36) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: genderColor.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _buildGenderPill(genderLabel, genderColor),
+                    const SizedBox(width: 4),
+                    if (entry.fee)
+                      _buildGenderPill('Paid', const Color(0xFFE65100))
+                    else
+                      _buildGenderPill('Free', const Color(0xFF2E7D32)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  entry.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(12),
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${entry.distLabel} • ~$walkMin min walk',
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(10),
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white60 : Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              MapScreen.routeToToilet(context, entry);
+            },
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: const Size(60, 32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              backgroundColor: genderColor.withValues(alpha: 0.15),
+              foregroundColor: genderColor,
+            ),
+            icon: const Icon(Icons.directions_walk_rounded, size: 14),
+            label: const Text(
+              'Walk',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildGenderPill(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 9.5,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
     );
   }
 }

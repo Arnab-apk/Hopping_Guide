@@ -116,8 +116,8 @@ void main() {
       // Verify entrance animation forward
       await tester.pump(const Duration(milliseconds: 400));
 
-      // Check Bengali banner
-      expect(find.text('শারদীয়া দুর্গোৎসব ২০২৬'), findsOneWidget);
+      // Verify Bengali banner is removed as requested
+      expect(find.text('শারদীয়া দুর্গোৎসব ২০২৬'), findsNothing);
 
       // Check greeting text for Maha Shashthi
       expect(find.textContaining('Shubho Maha Shashthi (Bodhon)'), findsOneWidget);

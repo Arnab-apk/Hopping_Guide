@@ -279,7 +279,7 @@ void main() {
     await pumpMap(tester);
 
     // 3. Verify contextual banner appears with expected text
-    final bannerFinder = find.textContaining('Showing 40+ Kolkata Metro stations on map');
+    final bannerFinder = find.textContaining('Showing 55 Kolkata Metro stations');
     expect(bannerFinder, findsOneWidget);
 
     // 4. Verify banner is physically located below the AppBar (never overlapping title/icons)

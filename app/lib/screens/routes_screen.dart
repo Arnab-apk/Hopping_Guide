@@ -456,7 +456,10 @@ class _RoutesScreenState extends State<RoutesScreen> {
                   height: 44,
                   child: ElevatedButton.icon(
                     onPressed: () => _startCircuit(route, pandalsInRoute),
-                    icon: PujaIcon.shankha(size: 22, color: PujaColors.goldBright),
+                    icon: PujaIcon.shankha(
+                      size: 22,
+                      color: isDark ? PujaColors.goldBright : Theme.of(context).colorScheme.onPrimary,
+                    ),
                     label: const Text(
                       'Start Circuit on Map',
                       style: TextStyle(
@@ -466,8 +469,12 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: PujaColors.crimsonVelvet,
-                      foregroundColor: PujaColors.goldBright,
+                      backgroundColor: isDark
+                          ? PujaColors.crimsonVelvet
+                          : Theme.of(context).colorScheme.primary,
+                      foregroundColor: isDark
+                          ? PujaColors.goldBright
+                          : Theme.of(context).colorScheme.onPrimary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(22),

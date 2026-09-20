@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:kolkata_puja/models/metro_station.dart';
 import 'package:kolkata_puja/models/pandal.dart';
 import 'package:kolkata_puja/utils/constants.dart';
 import 'package:kolkata_puja/services/trail_optimizer.dart';
@@ -121,6 +122,63 @@ void main() {
       // The first stop from start must be the closest one (p_0)
       expect(res.orderedStops.first.id, 'p_0');
       expect(res.orderedStops.last.id, 'p_14');
+    });
+
+    test('Multi-modal optimization: cross-city North to South pandals use Metro when allowMetro is true', () {
+      // Start in North Kolkata (Shyambazar Metro)
+      const start = LatLng(22.5997, 88.3712);
+
+      // Pandal in North Kolkata (Bagbazar Sarbojanin ~500m from Shyambazar)
+      final bagbazar = _createTestPandal(
+        id: 'bagbazar',
+        name: 'Bagbazar Sarbojanin',
+        lat: 22.6025,
+        lng: 88.3680,
+      );
+
+      // Pandal in South Kolkata (Naktala Udayan Sangha ~14.5 km away, right near Gitanjali Metro)
+      final naktala = _createTestPandal(
+        id: 'naktala',
+        name: 'Naktala Udayan Sangha',
+        zone: KolkataZone.southKolkata,
+        lat: 22.4703,
+        lng: 88.3622,
+      );
+
+      // 1. Without metro (walking only)
+      final walkOnly = TrailOptimizer.optimizePandalStops(
+        start: start,
+        stops: [bagbazar, naktala],
+        allowMetro: false,
+      );
+      // Walking 14.5km takes > 200 minutes
+      expect(walkOnly.totalDurationMinutes, greaterThan(180.0));
+      expect(walkOnly.legs.every((l) => l.mode == LegMode.walk), isTrue);
+
+      // 2. With metro enabled
+      final multiModal = TrailOptimizer.optimizePandalStops(
+        start: start,
+        stops: [bagbazar, naktala],
+        allowMetro: true,
+      );
+
+      // Optimizer still visits close Bagbazar first, then South Kolkata Naktala second
+      expect(multiModal.orderedStops.first.id, equals('bagbazar'));
+      expect(multiModal.orderedStops.last.id, equals('naktala'));
+
+      // Total duration is dramatically reduced by taking Blue Line metro (~50 mins instead of 200+ mins)
+      expect(multiModal.totalDurationMinutes, lessThan(90.0));
+      expect(multiModal.totalDurationMinutes, lessThan(walkOnly.totalDurationMinutes));
+
+      // The leg from Bagbazar to Naktala resolves to metro
+      final metroLeg = multiModal.legs.firstWhere((l) => l.mode == LegMode.metro);
+      expect(metroLeg.metroDetail, isNotNull);
+      expect(metroLeg.metroDetail!.boardingStation.line, equals(KolkataMetroLine.blue));
+      expect(metroLeg.metroDetail!.alightingStation.line, equals(KolkataMetroLine.blue));
+      expect(
+        ['masterda-surya-sen', 'gitanjali'],
+        contains(metroLeg.metroDetail!.alightingStation.id),
+      );
     });
   });
 }

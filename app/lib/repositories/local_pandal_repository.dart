@@ -51,6 +51,9 @@ class LocalAssetPandalRepository implements PandalRepository {
   @override
   Future<List<Pandal>> all() => _load();
 
+  /// Convenient alias for warming up and preloading all pandals
+  Future<List<Pandal>> loadAll() => all();
+
   @override
   Future<List<Pandal>> byZone(KolkataZone zone) async {
     final list = await _load();

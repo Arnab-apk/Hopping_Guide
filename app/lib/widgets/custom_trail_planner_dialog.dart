@@ -78,8 +78,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
   KolkataZone? _selectedZoneFilter;
   final TextEditingController _searchController = TextEditingController();
 
-  // Step 3: Generating state
+  // Step 3: Generating state & preferences
   bool _isGenerating = false;
+  bool _allowMetro = false;
 
   // Popular Kolkata Starting Hubs
   static const List<Map<String, dynamic>> _popularHubs = [
@@ -182,6 +183,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         startPos: _selectedLocation,
         startLabel: _selectedLocationLabel,
         selectedPandals: selectedList,
+        allowMetro: _allowMetro,
       );
 
       await CustomHoppingTrailService.instance.startTrail(trail);
@@ -873,6 +875,57 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                 ),
               ),
             ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Multi-modal metro toggle (defaults to false)
+        Material(
+          color: isDark ? const Color(0xFF22232E) : Colors.grey.shade50,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(
+              color: _allowMetro
+                  ? const Color(0xFF1976D2).withValues(alpha: 0.5)
+                  : (isDark ? Colors.white10 : Colors.black12),
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: SwitchListTile(
+            secondary: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1976D2).withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.subway_rounded,
+                color: Color(0xFF1976D2),
+                size: 20,
+              ),
+            ),
+            title: Text(
+              'Allow Metro Between Distant Pandals',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            subtitle: Text(
+              'Suggests metro rides when they\'re meaningfully faster than walking',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                color: isDark ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            value: _allowMetro,
+            activeThumbColor: const Color(0xFF1976D2),
+            onChanged: (v) {
+              HapticFeedback.selectionClick();
+              setState(() => _allowMetro = v);
+            },
           ),
         ),
 

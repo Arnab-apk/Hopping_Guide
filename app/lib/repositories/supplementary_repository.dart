@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/place_category.dart';
+import '../models/toilet.dart';
 
 class Helpline {
   const Helpline({required this.label, required this.number});
@@ -157,5 +158,28 @@ class SupplementaryRepository {
     } catch (_) {
       return [];
     }
+  }
+
+  List<PandalToilets>? _toilets;
+  Map<String, PandalToilets>? _toiletsByPandalId;
+
+  Future<List<PandalToilets>> getToilets() async {
+    if (_toilets != null) return _toilets!;
+    try {
+      final str = await rootBundle.loadString('assets/data/toilets.json');
+      final list = json.decode(str) as List<dynamic>;
+      _toilets = list
+          .map((e) => PandalToilets.fromJson(e as Map<String, dynamic>))
+          .toList();
+      _toiletsByPandalId = {for (final t in _toilets!) t.pandalId: t};
+      return _toilets!;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<PandalToilets?> getToiletsForPandal(String pandalId) async {
+    if (_toiletsByPandalId == null) await getToilets();
+    return _toiletsByPandalId?[pandalId];
   }
 }

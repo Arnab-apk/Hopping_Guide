@@ -1,50 +1,58 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import '../models/preload_state.dart';
 import '../services/auth_service.dart';
 import '../utils/puja_schedule.dart';
 import 'main_navigation_screen.dart';
 
-/// Rich post-login & cold-start greeting splash screen celebrating Durga Puja 2026.
+/// Four day-aware Puja greeting phases tuned to the calendar.
+enum GreetingPhase { countdown, prep, mainPuja, dashami }
+
+/// Resolves the current festival phase based on the Puja day schedule.
+GreetingPhase resolvePhase(PujaDay? day) {
+  if (day == null) return GreetingPhase.countdown; // before Mahalaya or after Puja
+  if (day.name == 'Vijaya Dashami') return GreetingPhase.dashami;
+  final mainPujaNames = {'Maha Shashthi', 'Maha Saptami', 'Maha Ashtami', 'Maha Navami'};
+  if (mainPujaNames.contains(day.name)) return GreetingPhase.mainPuja;
+  return GreetingPhase.prep; // Mahalaya through Panchami
+}
+
+/// Unified Illustrated Greeting Splash Screen celebrating Durga Puja 2026.
 ///
-/// Welcomes users with daily cultural greetings (e.g., "Shubho Maha Shashthi (Bodhon)"),
-/// sacred devotional motifs, and seamless transition to the interactive map.
+/// Features:
+/// - Full-bleed Dhunuchi dancers illustration (`splash_illustration.webp`)
+/// - Uniform honest 50% dark scrim for rock-solid typography contrast
+/// - 4-phase day-aware glowing ember particle layer (`EmberField`)
+/// - Sacred Diya emblem with phase pulse and QA date debug selector
+/// - Live progress status and real `LinearProgressIndicator`
+/// - Glitch-free map handoff coordination
 class GreetingSplashScreen extends StatefulWidget {
   const GreetingSplashScreen({
     super.key,
     this.minDisplayDuration = const Duration(milliseconds: 1800),
     this.onNavigate,
+    this.preloadState,
   });
 
   /// Duration to hold the greeting before auto-navigating to the main map.
   final Duration minDisplayDuration;
 
-  /// Optional navigation callback for unit/widget testing.
+  /// Optional navigation callback for unit/widget testing and coordinator handoff.
   final VoidCallback? onNavigate;
+
+  /// Optional observable preload state driving the real progress bar.
+  final ValueListenable<PreloadState>? preloadState;
 
   @override
   State<GreetingSplashScreen> createState() => _GreetingSplashScreenState();
 }
 
-class _GreetingSplashScreenState extends State<GreetingSplashScreen>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  );
-
-  late final Animation<double> _fade = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeOut,
-  );
-
-  late final Animation<double> _scale = Tween<double>(begin: 0.92, end: 1.0).animate(
-    CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-  );
-
+class _GreetingSplashScreenState extends State<GreetingSplashScreen> {
   Timer? _navTimer;
   bool _hasNavigated = false;
   int _emblemTapCount = 0;
@@ -52,7 +60,6 @@ class _GreetingSplashScreenState extends State<GreetingSplashScreen>
   @override
   void initState() {
     super.initState();
-    _controller.forward();
 
     if (widget.minDisplayDuration > Duration.zero) {
       _navTimer = Timer(widget.minDisplayDuration, () {
@@ -83,7 +90,7 @@ class _GreetingSplashScreenState extends State<GreetingSplashScreen>
     );
   }
 
-  void _onEmblemTap() {
+  void _onGreetingTap() {
     if (kReleaseMode) return;
     _emblemTapCount++;
     if (_emblemTapCount >= 5) {
@@ -183,7 +190,6 @@ class _GreetingSplashScreenState extends State<GreetingSplashScreen>
   @override
   void dispose() {
     _navTimer?.cancel();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -198,206 +204,114 @@ class _GreetingSplashScreenState extends State<GreetingSplashScreen>
     return 'Pujo Hopper';
   }
 
-  TextStyle _getYatraOneStyle({
+  TextStyle _getSamarkanStyle({
     required double fontSize,
     required Color color,
+    FontWeight fontWeight = FontWeight.w600,
+    double letterSpacing = 0.4,
   }) {
-    try {
-      return GoogleFonts.yatraOne(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.4,
-      );
-    } catch (_) {
-      // Offline-resilient fallback
-      return TextStyle(
-        fontFamily: 'Samarkan',
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w600,
-      );
-    }
+    return TextStyle(
+      fontFamily: 'Samarkan',
+      fontSize: fontSize,
+      color: color,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final day = getTodaysPujaDay();
+    final phase = resolvePhase(day);
     final userName = _getUserName();
     final greeting = buildGreeting(day, userName);
+    final subtitle = day != null
+        ? day.description
+        : 'Explore verified pandals, live crowd telemetry, and curated hopping routes.';
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: NeoTokens.bgDark,
+        systemNavigationBarColor: Color(0xFF0E0B0C),
         systemNavigationBarIconBrightness: Brightness.light,
       ),
       child: Scaffold(
-        backgroundColor: NeoTokens.bgDark,
+        backgroundColor: const Color(0xFF0E0B0C),
         body: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: _navigateToMap,
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Subtle radial warmth aura in center
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: const Alignment(0, -0.08),
-                      radius: 0.85,
-                      colors: [
-                        NeoTokens.accentGold.withValues(alpha: 0.12),
-                        const Color(0xFF800020).withValues(alpha: 0.06),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.55, 1.0],
-                    ),
-                  ),
+              // 1. Full-bleed background illustration (three dhunuchi dancers)
+              Image.asset(
+                'assets/images/splash_illustration.webp',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: const Color(0xFF0E0B0C),
                 ),
               ),
 
-              // Main animated greeting card
-              Center(
+              // 2. Uniform 50% dark scrim across the whole image for honest, reliable legibility
+              Container(color: Colors.black.withValues(alpha: 0.50)),
+
+              // 3. Day-phase tuned glowing ember particle layer
+              EmberField(phase: phase),
+
+              // 4. Foreground typography & interactive content
+              SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 28),
-                  child: FadeTransition(
-                    opacity: _fade,
-                    child: ScaleTransition(
-                      scale: _scale,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Sacred Diya / Trishul Emblem (Tap 5x for debug QA menu)
-                          GestureDetector(
-                            onTap: _onEmblemTap,
-                            child: Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xFF1E181A),
-                                border: Border.all(
-                                  color: NeoTokens.accentGold.withValues(alpha: 0.35),
-                                  width: 1.5,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: NeoTokens.accentGold.withValues(alpha: 0.25),
-                                    blurRadius: 28,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: Image.asset(
-                                  'assets/icons/trishul_diya_gold.png',
-                                  width: 46,
-                                  height: 46,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(
-                                    Icons.local_fire_department_rounded,
-                                    color: NeoTokens.accentGold,
-                                    size: 46,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 52),
 
-                          // Bengali Agomoni script badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: NeoTokens.accentGold.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: NeoTokens.accentGold.withValues(alpha: 0.25),
-                              ),
-                            ),
-                            child: const Text(
-                              'শারদীয়া দুর্গোৎসব ২০২৬',
-                              style: TextStyle(
-                                color: NeoTokens.goldBright,
-                                fontSize: 13,
-                                letterSpacing: 0.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                      // Greeting Title (Tap 5x in debug mode for QA Debug Selector)
+                      GestureDetector(
+                        onTap: _onGreetingTap,
+                        child: Text(
+                          greeting,
+                          style: _getSamarkanStyle(
+                            fontSize: 25,
+                            color: NeoTokens.accentGold,
                           ),
-                          const SizedBox(height: 18),
-
-                          // Main Greeting Title (Yatra One font)
-                          Text(
-                            greeting,
-                            style: _getYatraOneStyle(
-                              fontSize: 25,
-                              color: NeoTokens.accentGold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-
-                          // Day description or contextual festival subtext
-                          const SizedBox(height: 12),
-                          if (day != null) ...[
-                            Text(
-                              day.description,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13.5,
-                                height: 1.45,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ] else ...[
-                            const Text(
-                              'Explore verified pandals, live crowd telemetry, and curated hopping routes.',
-                              style: TextStyle(
-                                color: Colors.white60,
-                                fontSize: 13,
-                                height: 1.4,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ],
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              ),
+                      const SizedBox(height: 10),
 
-              // Bottom subtle hint / skip indicator
-              Positioned(
-                bottom: 36,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: FadeTransition(
-                    opacity: _fade,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Entering Kolkata Map',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.45),
-                            fontSize: 12,
-                            letterSpacing: 0.8,
-                          ),
+                      // Subtitle / Cultural Subtext
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13.5,
+                          height: 1.45,
                         ),
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white.withValues(alpha: 0.45),
-                          size: 14,
-                        ),
-                      ],
-                    ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      // Spacer allowing the illustration's hero moment to shine through unobstructed
+                      const Spacer(),
+                      const Spacer(),
+
+                      // Bottom: Status Message + Real Loading Bar or Hint
+                      if (widget.preloadState != null)
+                        ValueListenableBuilder<PreloadState>(
+                          valueListenable: widget.preloadState!,
+                          builder: (context, state, _) {
+                            return _buildLoadingBar(context, state.statusMessage, state.progress);
+                          },
+                        )
+                      else
+                        _buildFallbackBottomHint(),
+
+                      const SizedBox(height: 36),
+                    ],
                   ),
                 ),
               ),
@@ -406,5 +320,196 @@ class _GreetingSplashScreenState extends State<GreetingSplashScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildLoadingBar(BuildContext context, String statusMessage, double progress) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          statusMessage,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: SizedBox(
+            width: 220,
+            child: LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              minHeight: 4,
+              backgroundColor: Colors.white24,
+              color: NeoTokens.accentGold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFallbackBottomHint() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Entering Kolkata Map',
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.45),
+            fontSize: 12,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Icon(
+          Icons.arrow_forward_rounded,
+          color: Colors.white.withValues(alpha: 0.45),
+          size: 14,
+        ),
+      ],
+    );
+  }
+}
+
+/// Day-phase tuned ember particle layer.
+class EmberField extends StatefulWidget {
+  const EmberField({super.key, required this.phase});
+
+  final GreetingPhase phase;
+
+  @override
+  State<EmberField> createState() => _EmberFieldState();
+}
+
+class _EmberFieldState extends State<EmberField> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    );
+    final isTest = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+    if (!isTest) {
+      _controller.repeat();
+    }
+  }
+
+  int get _emberCount => switch (widget.phase) {
+        GreetingPhase.countdown => 6,
+        GreetingPhase.prep => 10,
+        GreetingPhase.mainPuja => 18,
+        GreetingPhase.dashami => 12,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) => CustomPaint(
+        painter: EmberPainter(
+          progress: _controller.value,
+          count: _emberCount,
+          phase: widget.phase,
+        ),
+        size: Size.infinite,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+/// Custom painter for glowing embers drifting upward.
+class EmberPainter extends CustomPainter {
+  EmberPainter({
+    required this.progress,
+    required this.count,
+    required this.phase,
+  });
+
+  final double progress;
+  final int count;
+  final GreetingPhase phase;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    for (int i = 0; i < count; i++) {
+      final seed = i * 1337 + 73;
+      final rng1 = math.sin(seed).abs();
+      final rng2 = math.cos(seed * 2).abs();
+      final rng3 = math.sin(seed * 3).abs();
+
+      final double x = (0.08 + 0.84 * rng1) * size.width +
+          math.sin((progress * 2 * math.pi) + i) * (size.width * 0.03);
+
+      final double speed = switch (phase) {
+        GreetingPhase.countdown => 0.6 + 0.3 * rng2,
+        GreetingPhase.prep => 0.8 + 0.4 * rng2,
+        GreetingPhase.mainPuja => 1.0 + 0.6 * rng2,
+        GreetingPhase.dashami => 0.7 + 0.5 * rng2,
+      };
+
+      final double rawY = (rng2 - progress * speed) % 1.0;
+      final double normalizedY = rawY < 0 ? rawY + 1.0 : rawY;
+      final double y = normalizedY * size.height;
+
+      final double verticalFade = math.sin(normalizedY * math.pi).clamp(0.0, 1.0);
+
+      final double baseAlpha = switch (phase) {
+        GreetingPhase.countdown => 0.28,
+        GreetingPhase.prep => 0.45,
+        GreetingPhase.mainPuja => 0.75,
+        GreetingPhase.dashami => 0.40,
+      };
+
+      final double alpha = (baseAlpha * verticalFade).clamp(0.0, 1.0);
+      if (alpha <= 0.01) continue;
+
+      final double radius = switch (phase) {
+        GreetingPhase.countdown => 1.5 + rng3 * 1.5,
+        GreetingPhase.prep => 1.8 + rng3 * 1.8,
+        GreetingPhase.mainPuja => 2.2 + rng3 * 2.4,
+        GreetingPhase.dashami => 1.8 + rng3 * 2.0,
+      };
+
+      final Color emberColor = switch (phase) {
+        GreetingPhase.dashami => const Color(0xFFFFCC80),
+        GreetingPhase.mainPuja =>
+          rng3 > 0.5 ? const Color(0xFFFFD54F) : const Color(0xFFFF9800),
+        _ => const Color(0xFFFFD54F),
+      };
+
+      if (radius > 2.5 && phase == GreetingPhase.mainPuja) {
+        paint
+          ..color = emberColor.withValues(alpha: alpha * 0.35)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.5);
+        canvas.drawCircle(Offset(x, y), radius * 1.8, paint);
+      }
+
+      paint
+        ..color = emberColor.withValues(alpha: alpha)
+        ..maskFilter = null;
+      canvas.drawCircle(Offset(x, y), radius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant EmberPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.count != count ||
+        oldDelegate.phase != phase;
   }
 }

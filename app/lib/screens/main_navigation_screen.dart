@@ -16,9 +16,14 @@ import 'helplines_screen.dart';
 /// Features ultra-smooth animated tab switching, spring scale micro-interactions,
 /// tactile haptic feedback, and dynamic icon & label scaling.
 class MainNavigationScreen extends StatefulWidget {
-  const MainNavigationScreen({super.key, this.initialIndex = 0});
+  const MainNavigationScreen({
+    super.key,
+    this.initialIndex = 0,
+    this.onMapReady,
+  });
 
   final int initialIndex;
+  final VoidCallback? onMapReady;
 
   /// Global notifier allowing external callers (deep links, notifications) to switch tabs
   static final ValueNotifier<int?> tabSwitchNotifier = ValueNotifier<int?>(null);
@@ -46,9 +51,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       valueListenable: GemKitConfig.isMagicLaneActive,
       builder: (context, useMagicLane, _) {
         if (useMagicLane && GemKitConfig.isConfigured) {
-          return const MapScreenGemKit();
+          return MapScreenGemKit(
+            onMapCreated: (_) => widget.onMapReady?.call(),
+          );
         }
-        return const MapScreen();
+        return MapScreen(
+          onMapReady: widget.onMapReady,
+        );
       },
     ),
     const PandalListScreen(),

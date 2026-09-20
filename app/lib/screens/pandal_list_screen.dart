@@ -9,6 +9,7 @@ import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../models/place.dart';
 import '../repositories/local_pandal_repository.dart';
+import '../repositories/metro_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../services/location_service.dart';
@@ -360,7 +361,9 @@ class _PandalListScreenState extends State<PandalListScreen> {
             child: PandalSearchAutocomplete(
               pandals: _category == PlaceCategory.pandal ? _allPandals : const [],
               foodSpots: _category == PlaceCategory.foodSpot ? _allFoodSpots : const [],
-              metroStations: _category == PlaceCategory.pandal ? null : const [],
+              metroStations: _category == PlaceCategory.pandal
+                  ? MetroRepository.allStations
+                  : const [],
               controller: _searchController,
               userLat: locationService?.lastPosition?.latitude,
               userLng: locationService?.lastPosition?.longitude,
@@ -372,6 +375,11 @@ class _PandalListScreenState extends State<PandalListScreen> {
               },
               onPandalSelected: (pandal) {
                 PandalDetailSheet.show(context, pandal);
+              },
+              onMetroSelected: (station) {
+                // Switch to map tab and center on the metro station
+                MainNavigationScreen.switchToTab(0);
+                MapScreen.centerOnMetroStation(context, station);
               },
               onFoodSpotSelected: (foodSpot) {
                 MapScreen.centerOnFoodSpot(context, foodSpot);
