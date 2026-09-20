@@ -42,33 +42,40 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Deep link for squad invites: https://sharodiya.com/join?code=PUJAXXXX -->
-            <intent-filter android:autoVerify="true">
+            <!-- Deep links for squad invites -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="kolkata-puja-2026.web.app" android:pathPrefix="/join"/>
+                <data android:scheme="https" android:host="kolkata-puja-2026.firebaseapp.com" android:pathPrefix="/join"/>
                 <data android:scheme="https" android:host="sharodiya.com" android:pathPrefix="/join"/>
+                <data android:scheme="http" android:host="kolkata-puja-2026.web.app" android:pathPrefix="/join"/>
             </intent-filter>
-            <!-- Also support custom scheme for direct app links -->
+            <!-- Custom URI schemes for squad invites (pujoparikrama://join, pujo://join) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="pujoparikrama" android:host="join"/>
+                <data android:scheme="pujo" android:host="join"/>
             </intent-filter>
-            <!-- Deep link for pandal sharing: https://sharodiya.com/pandal -->
-            <intent-filter android:autoVerify="true">
+            <!-- Deep links for pandal sharing -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="kolkata-puja-2026.web.app" android:pathPrefix="/pandal"/>
+                <data android:scheme="https" android:host="kolkata-puja-2026.firebaseapp.com" android:pathPrefix="/pandal"/>
                 <data android:scheme="https" android:host="sharodiya.com" android:pathPrefix="/pandal"/>
             </intent-filter>
-            <!-- Also support custom scheme for pandal links -->
+            <!-- Custom URI schemes for pandal details -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="pujoparikrama" android:host="pandal"/>
+                <data android:scheme="pujo" android:host="pandal"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
