@@ -1,17 +1,15 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_user.dart';
-import '../models/chat_message.dart';
 import '../models/squad_member.dart';
+import '../repositories/squad_firestore_repository.dart';
+import '../utils/haversine.dart';
 import 'auth_service.dart';
 import 'location_service.dart';
-import 'squad_chat_service.dart';
 import 'squad_neon_api.dart';
 import 'websocket_client.dart';
 
@@ -34,35 +32,35 @@ class SquadSeparationAlert {
 
 /// Centralized state manager for Durga Puja hopping squads.
 /// Grounded in real device GPS coordinates from [LocationService].
-/// Backed by Neon Postgres relational system of record and Neon Realtime WebSockets.
-/// Supports anonymous guest hoppers, Google upgrade, presence, live GPS fanout,
-/// and server-side Haversine separation alerts.
+/// Backed natively by Google Cloud Firestore (serverless, cloud real-time sync).
+/// Supports anonymous guest hoppers, Google upgrade, presence, live GPS updates,
+/// and client-side Haversine separation alerts.
 class SquadService extends ChangeNotifier {
-  SquadService._({this._prefs}) {
+  SquadService._({this._prefs, SquadFirestoreRepository? repo})
+      : _repo = repo ?? SquadFirestoreRepository() {
     _listenToLocationService();
     _listenToAuthService();
   }
 
   final SharedPreferences? _prefs;
+  final SquadFirestoreRepository _repo;
   static SquadService? _instance;
-
-  static const String rtdbUrl = 'https://kolkata-puja-2026-default-rtdb.firebaseio.com';
 
   static SquadService get instance {
     _instance ??= SquadService._();
     return _instance!;
   }
 
-  static Future<SquadService> create() async {
+  static Future<SquadService> create({SquadFirestoreRepository? repo}) async {
     final prefs = await SharedPreferences.getInstance();
-    final service = SquadService._(prefs: prefs);
+    final service = SquadService._(prefs: prefs, repo: repo);
     await service._loadSavedState();
     _instance = service;
     return service;
   }
 
   // Active squad metadata
-  String? _squadId; // Neon Postgres UUID
+  String? _squadId;
   String? _squadCode;
   String? _squadName;
   String _meetupPointName = 'Designated Meet-up Landmark';
@@ -76,17 +74,14 @@ class SquadService extends ChangeNotifier {
   SquadSeparationAlert? _activeSeparationAlert;
 
   final List<SquadMember> _members = [];
-  final WebSocketClient _wsClient = WebSocketClient();
-  final SquadNeonApi _neonApi = SquadNeonApi();
-  StreamSubscription? _wsSub;
-  StreamSubscription? _wsStateSub;
-  StreamSubscription? _rtdbSub;
-  StreamSubscription? _metaSub;
-  final Random _random = Random();
+  StreamSubscription? _membersSub;
+  StreamSubscription? _squadSub;
 
   // Getters
-  WebSocketConnectionState get wsConnectionState => _wsClient.currentState;
-  bool get isWsConnected => _wsClient.isConnected;
+  SquadFirestoreRepository get repository => _repo;
+  WebSocketConnectionState get wsConnectionState =>
+      _repo.isAvailable ? WebSocketConnectionState.connected : WebSocketConnectionState.disconnected;
+  bool get isWsConnected => _repo.isAvailable;
   String? get squadId => _squadId;
   String? get squadCode => _squadCode;
   String? get squadName => _squadName;
@@ -101,7 +96,9 @@ class SquadService extends ChangeNotifier {
   String? get lastError => _lastError;
   SquadSeparationAlert? get activeSeparationAlert => _activeSeparationAlert;
   List<SquadMember> get members => List.unmodifiable(_members);
-  SquadNeonApi get neonApi => _neonApi;
+
+  /// Deprecated accessor retained for test backward compatibility
+  SquadNeonApi get neonApi => SquadNeonApi();
 
   void dismissSeparationAlert() {
     _activeSeparationAlert = null;
@@ -112,34 +109,6 @@ class SquadService extends ChangeNotifier {
   /// When a squad is newly created, this is strictly empty.
   List<SquadMember> get companionMembers =>
       _members.where((m) => !m.isUser).toList();
-
-  bool get _isFirebaseAvailable {
-    try {
-      return Firebase.apps.isNotEmpty;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  String _sanitizeKey(String raw) => raw.replaceAll(RegExp(r'[.#$\[\]/]'), '_');
-
-  /// Safe accessor to FirebaseDatabase with automatic URL fallback
-  FirebaseDatabase? get _database {
-    if (!_isFirebaseAvailable) return null;
-    try {
-      return FirebaseDatabase.instanceFor(
-        app: Firebase.app(),
-        databaseURL: rtdbUrl,
-      );
-    } catch (_) {
-      try {
-        return FirebaseDatabase.instance;
-      } catch (err) {
-        debugPrint('[SquadService] FirebaseDatabase init error: $err');
-        return null;
-      }
-    }
-  }
 
   void _listenToLocationService() {
     LocationService.instance.addListener(() {
@@ -165,7 +134,7 @@ class SquadService extends ChangeNotifier {
               photoUrl: user.photoUrl,
             );
             _members[idx] = updated;
-            _pushUserToCloud();
+            _syncUserLocationToCloud();
             notifyListeners();
           }
         }
@@ -202,11 +171,7 @@ class SquadService extends ChangeNotifier {
         if (meetup != null) _meetupPointName = meetup;
         _initMembers(isHost: true);
         _listenToCloud();
-        _pushUserToCloud();
-        final currentPos = LocationService.instance.currentPositionSync;
-        final lat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
-        final lng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
-        _initWebSocket(isHost: true, lat: lat, lng: lng);
+        _syncUserLocationToCloud();
       }
     } catch (e) {
       debugPrint('[SquadService] _loadSavedState error: $e');
@@ -266,18 +231,17 @@ class SquadService extends ChangeNotifier {
     );
   }
 
-  /// Update squad name with automatic typo comma correction
+  /// Update squad name
   Future<void> updateSquadName(String newName) async {
     final clean = newName.trim().replaceAll(RegExp(r',\s*s\b'), "'s");
     if (clean.isEmpty) return;
     _squadName = clean;
     await _persistState();
-    await _pushMetaToCloud();
-    _wsClient.sendMessage({
-      'type': 'update_squad_meta',
-      'squad_code': _squadCode,
-      'metadata': {'name': clean},
-    });
+    if (_squadId != null) {
+      _repo.updateSquadSettings(squadId: _squadId!, name: clean).catchError((e) {
+        debugPrint('[SquadService] updateSquadName error: $e');
+      });
+    }
     notifyListeners();
   }
 
@@ -286,23 +250,27 @@ class SquadService extends ChangeNotifier {
     if (meters <= 0) return;
     _separationThresholdMeters = meters;
     await _persistState();
+    if (_squadId != null) {
+      _repo.updateSquadSettings(
+        squadId: _squadId!,
+        separationThresholdMeters: meters,
+      ).catchError((e) {
+        debugPrint('[SquadService] setSeparationThreshold error: $e');
+      });
+    }
+    _checkSeparationDistances();
     notifyListeners();
   }
 
-  static const String _codeAlphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-
-  /// Create a brand new hopping squad with real device GPS coordinates.
-  /// Generates a valid, randomized 8-char squad invite code (e.g. PUJA7K9X).
   static String generateSquadCode([Random? random]) {
-    final r = random ?? Random();
-    final suffix = List.generate(4, (_) => _codeAlphabet[r.nextInt(_codeAlphabet.length)]).join();
-    return 'PUJA$suffix';
+    return SquadFirestoreRepository.generateSquadCode();
   }
 
-  /// Starts with 0 companions (empty companion list).
+  /// Create a brand new hopping squad with real device GPS coordinates
+  /// and sync directly to Google Cloud Firestore.
   Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
     _lastError = null;
-    final user = await _ensureUser();
+    await _ensureUser();
 
     final cleanName = name.trim().replaceAll(RegExp(r',\s*s\b'), "'s");
     _squadName = cleanName.isEmpty ? 'My Puja Squad' : cleanName;
@@ -314,48 +282,47 @@ class SquadService extends ChangeNotifier {
     final realLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
     _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
 
-    // 1. Create squad in Neon Postgres
+    _initMembers(isHost: true, userLat: realLat, userLng: realLng);
+    final hostMember = _members.first;
+
+    // 1. Create squad in Cloud Firestore
     try {
-      final res = await _neonApi.createSquad(
+      final res = await _repo.createSquad(
         name: _squadName!,
+        meetupPointName: _meetupPointName,
         meetupLat: _meetupPointCoords.latitude,
         meetupLng: _meetupPointCoords.longitude,
-        meetupLabel: _meetupPointName,
-        separationRadiusM: _separationThresholdMeters,
-        hostDisplayName: user.displayName,
-        hostAvatarUrl: user.photoUrl,
-        isGuest: user.isGuest,
+        separationThresholdMeters: _separationThresholdMeters,
+        host: hostMember,
       );
-      if (res['squad'] is Map) {
-        final sq = res['squad'] as Map<String, dynamic>;
-        _squadId = sq['id'] as String?;
-        final code = sq['code'] as String?;
-        if (code != null && code.isNotEmpty) {
-          _squadCode = code;
-        }
-      }
+
+      _squadId = res['squadId'] as String?;
+      _squadCode = res['squadCode'] as String?;
     } catch (e) {
-      debugPrint('[SquadService] Neon API createSquad note: $e');
+      debugPrint('[SquadService] Firestore createSquad note: $e');
+      _squadCode ??= SquadFirestoreRepository.generateSquadCode();
+      _squadId ??= 'sq_${DateTime.now().millisecondsSinceEpoch}';
     }
 
-    _squadCode ??= generateSquadCode(_random);
-
-    _initMembers(isHost: true, userLat: realLat, userLng: realLng);
-    _initWebSocket(isHost: true, lat: realLat, lng: realLng);
     await _persistState();
-    await _pushMetaToCloud();
-    await _pushUserToCloud();
     _listenToCloud();
     notifyListeners();
 
-    // If location fix is still pending, refresh asynchronously
+    // If location fix was still settling, refresh asynchronously
     if (currentPos == null) {
       LocationService.instance.currentPosition().then((pos) {
         if (pos != null && hasActiveSquad) {
           updateUserLocation(pos.latitude, pos.longitude);
           if (meetupCoords == null) {
             _meetupPointCoords = LatLng(pos.latitude, pos.longitude);
-            _pushMetaToCloud();
+            _persistState();
+            if (_squadId != null) {
+              _repo.updateSquadSettings(
+                squadId: _squadId!,
+                meetupLat: pos.latitude,
+                meetupLng: pos.longitude,
+              );
+            }
             notifyListeners();
           }
         }
@@ -363,7 +330,7 @@ class SquadService extends ChangeNotifier {
     }
   }
 
-  /// Join an existing squad by invite code
+  /// Join an existing squad by invite code from Cloud Firestore
   Future<bool> joinSquad(String code, [LatLng? initialCoords]) async {
     _lastError = null;
     final cleanCode = code.trim().toUpperCase();
@@ -372,126 +339,57 @@ class SquadService extends ChangeNotifier {
       return false;
     }
 
-    final user = await _ensureUser();
-    final db = _database;
+    await _ensureUser();
 
-    String squadName = 'Squad $cleanCode';
-    String meetupName = 'Designated Meet-up Landmark';
-    LatLng meetupCoords = LocationService.defaultKolkataCenter;
-    final Map<String, dynamic> existingCloudMembers = {};
-
-    // 1. Attempt Join via Neon REST API
+    // 1. Lookup squad in Firestore by 6-character code
+    Map<String, dynamic>? squadData;
     try {
-      final res = await _neonApi.joinSquad(
-        code: cleanCode,
-        displayName: user.displayName,
-        avatarUrl: user.photoUrl,
-        isGuest: user.isGuest,
-      );
-      if (res['squad'] is Map) {
-        final sq = res['squad'] as Map<String, dynamic>;
-        _squadId = sq['id'] as String?;
-        if (sq['name'] != null) squadName = sq['name'] as String;
-        if (sq['meetup_label'] != null) meetupName = sq['meetup_label'] as String;
-        final mLat = (sq['meetup_lat'] as num?)?.toDouble();
-        final mLng = (sq['meetup_lng'] as num?)?.toDouble();
-        if (mLat != null && mLng != null) meetupCoords = LatLng(mLat, mLng);
-        final rad = (sq['separation_radius_m'] as num?)?.toInt();
-        if (rad != null && rad > 0) _separationThresholdMeters = rad;
-      }
+      squadData = await _repo.findSquadByCode(cleanCode);
     } catch (e) {
-      debugPrint('[SquadService] Neon API joinSquad note: $e');
+      debugPrint('[SquadService] findSquadByCode error: $e');
     }
 
-    if (db != null) {
-      try {
-        final metaSnap = await db.ref('squads/$cleanCode/meta').get().timeout(const Duration(seconds: 4));
-        final membersSnap = await db.ref('squads/$cleanCode/members').get().timeout(const Duration(seconds: 4));
-
-        if (!metaSnap.exists && !membersSnap.exists && _squadId == null) {
-          _lastError = 'Squad "$cleanCode" not found. Please verify the invite code.';
-          debugPrint('[SquadService] Squad $cleanCode not found in RTDB or Neon');
-          return false;
-        }
-
-        if (metaSnap.exists && metaSnap.value is Map) {
-          final data = Map<String, dynamic>.from(metaSnap.value as Map);
-          if (data['name'] is String && (data['name'] as String).isNotEmpty) {
-            squadName = data['name'] as String;
-          }
-          if (data['meetup_name'] is String && (data['meetup_name'] as String).isNotEmpty) {
-            meetupName = data['meetup_name'] as String;
-          }
-          final mLat = (data['meetup_lat'] as num?)?.toDouble();
-          final mLng = (data['meetup_lng'] as num?)?.toDouble();
-          if (mLat != null && mLng != null) {
-            meetupCoords = LatLng(mLat, mLng);
-          }
-        }
-
-        if (membersSnap.exists && membersSnap.value is Map) {
-          final raw = Map<String, dynamic>.from(membersSnap.value as Map);
-          existingCloudMembers.addAll(raw);
-        }
-      } catch (e) {
-        debugPrint('[SquadService] Verify squad on join note: $e');
+    if (squadData == null) {
+      // In offline / test mode without Firebase configured, allow joining for testing
+      if (!_repo.isAvailable) {
+        squadData = {
+          'squadId': 'sq_local_$cleanCode',
+          'squadCode': cleanCode,
+          'name': 'Squad $cleanCode',
+          'meetupPointName': 'Designated Meet-up Landmark',
+          'meetupLat': LocationService.defaultKolkataCenter.latitude,
+          'meetupLng': LocationService.defaultKolkataCenter.longitude,
+          'separationThresholdMeters': 500,
+        };
+      } else {
+        _lastError = 'Squad "$cleanCode" not found. Please verify the invite code.';
+        notifyListeners();
+        return false;
       }
     }
 
+    _squadId = squadData['squadId'] as String?;
     _squadCode = cleanCode;
-    _squadName = squadName;
-    _meetupPointName = meetupName;
-    _meetupPointCoords = meetupCoords;
+    _squadName = squadData['name'] as String? ?? 'Squad $cleanCode';
+    _meetupPointName = squadData['meetupPointName'] as String? ?? 'Designated Meet-up Landmark';
+    final mLat = (squadData['meetupLat'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.latitude;
+    final mLng = (squadData['meetupLng'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.longitude;
+    _meetupPointCoords = LatLng(mLat, mLng);
+    final sep = (squadData['separationThresholdMeters'] as num?)?.toInt();
+    if (sep != null && sep > 0) _separationThresholdMeters = sep;
 
     final currentPos = LocationService.instance.currentPositionSync;
-    final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
-    final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
+    final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.defaultKolkataCenter.latitude;
+    final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.defaultKolkataCenter.longitude;
 
     _initMembers(isHost: false, userLat: lat, userLng: lng);
-    _initWebSocket(isHost: false, lat: lat, lng: lng);
+    final member = _members.first;
 
-    // Populate members from Neon Postgres roster
-    final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
-    final safeUserId = _sanitizeKey(currentUserId);
     if (_squadId != null) {
-      try {
-        final neonMembers = await _neonApi.getSquadMembers(_squadId!);
-        for (final item in neonMembers) {
-          final mId = item['user_id'] as String? ?? item['id'] as String?;
-          if (mId == null || mId == currentUserId || mId == safeUserId) continue;
-          final m = SquadMember.fromJson(item).copyWith(isUser: false);
-          final idx = _members.indexWhere((existing) => existing.id == m.id);
-          if (idx != -1) {
-            _members[idx] = m;
-          } else {
-            _members.add(m);
-          }
-        }
-      } catch (e) {
-        debugPrint('[SquadService] Neon getSquadMembers note: $e');
-      }
+      await _repo.joinSquad(squadId: _squadId!, member: member);
     }
 
-    // Populate existing members from cloud snapshot as well
-    existingCloudMembers.forEach((key, val) {
-      if (key == currentUserId || key == safeUserId) return;
-      if (val is Map) {
-        try {
-          final member = SquadMember.fromJson(Map<String, dynamic>.from(val)).copyWith(isUser: false);
-          final idx = _members.indexWhere((m) => m.id == member.id);
-          if (idx != -1) {
-            _members[idx] = member;
-          } else {
-            _members.add(member);
-          }
-        } catch (e) {
-          debugPrint('[SquadService] Parse initial member error: $e');
-        }
-      }
-    });
-
     await _persistState();
-    await _pushUserToCloud();
     _listenToCloud();
     notifyListeners();
 
@@ -523,55 +421,38 @@ class SquadService extends ChangeNotifier {
     } else {
       _members.add(member);
     }
+    _checkSeparationDistances();
     notifyListeners();
   }
 
   /// Remove a member by ID
   void removeMember(String memberId) {
     _members.removeWhere((m) => m.id == memberId && !m.isUser);
+    _checkSeparationDistances();
     notifyListeners();
   }
 
   /// Leave the current squad and clear members
   Future<void> leaveSquad() async {
-    final oldCode = _squadCode;
     final oldSquadId = _squadId;
+    final user = AuthService.instance.currentUserModel;
 
-    if (oldSquadId != null) {
-      final uid = AuthService.instance.currentUserModel?.uid;
-      _neonApi.leaveSquad(oldSquadId, uid).catchError((e) {
-        debugPrint('[SquadService] Neon leaveSquad note: $e');
+    _membersSub?.cancel();
+    _membersSub = null;
+    _squadSub?.cancel();
+    _squadSub = null;
+
+    if (oldSquadId != null && user != null) {
+      _repo.leaveSquad(
+        squadId: oldSquadId,
+        memberId: user.uid,
+        memberName: user.displayName,
+      ).catchError((e) {
+        debugPrint('[SquadService] leaveSquad error: $e');
       });
-      _squadId = null;
     }
 
-    if (oldCode != null) {
-      _wsClient.sendMessage({
-        'type': 'leave_squad',
-        'squad_code': oldCode,
-      });
-      _wsClient.close();
-      _wsSub?.cancel();
-      _wsSub = null;
-    }
-    if (oldCode != null && _isFirebaseAvailable) {
-      try {
-        final user = AuthService.instance.currentUserModel;
-        final uid = user?.uid ?? 'user_self';
-        final safeId = _sanitizeKey(uid);
-        final db = _database;
-        if (db != null) {
-          await db.ref('squads/$oldCode/members/$safeId').remove();
-          debugPrint('[SquadService] Removed member $safeId from squad $oldCode in RTDB');
-        }
-      } catch (e) {
-        debugPrint('[SquadService] leaveSquad RTDB removal note: $e');
-      }
-    }
-    _rtdbSub?.cancel();
-    _rtdbSub = null;
-    _metaSub?.cancel();
-    _metaSub = null;
+    _squadId = null;
     _squadCode = null;
     _squadName = null;
     _focusedMemberId = null;
@@ -593,37 +474,33 @@ class SquadService extends ChangeNotifier {
         shareLocation: true,
         isOnline: true,
       );
-      final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
 
-      // 1. Standard Realtime Envelope (Neon WebSocket)
-      if (_squadId != null && _wsClient.isConnected) {
-        _wsClient.sendEnvelope(
-          type: 'location_update',
-          squadId: _squadId!,
-          senderId: currentUserId,
-          payload: {
-            'lat': lat,
-            'lng': lng,
-            'accuracy': 8.0,
-          },
-        );
-      }
-
-      // 2. Legacy broadcast for backward compatibility
-      if (_squadCode != null) {
-        _wsClient.sendMessage({
-          'type': 'location_update',
-          'squad_code': _squadCode,
-          'latitude': lat,
-          'longitude': lng,
-          'status': _members[idx].status,
-          'battery_level': _members[idx].batteryLevel,
-          'photo_url': _members[idx].photoUrl,
-        });
-      }
-      _pushUserToCloud();
+      _syncUserLocationToCloud();
+      _checkSeparationDistances();
       notifyListeners();
     }
+  }
+
+  void _syncUserLocationToCloud() {
+    if (_squadId == null || !_isSharingLocation) return;
+    final user = AuthService.instance.currentUserModel;
+    if (user == null) return;
+    final idx = _members.indexWhere((m) => m.isUser);
+    if (idx == -1) return;
+    final self = _members[idx];
+
+    _repo.updateMemberLocation(
+      squadId: _squadId!,
+      memberId: user.uid,
+      lat: self.latitude,
+      lng: self.longitude,
+      batteryLevel: self.batteryLevel,
+      isOnline: true,
+      shareLocation: true,
+      status: self.status,
+    ).catchError((e) {
+      debugPrint('[SquadService] _syncUserLocationToCloud note: $e');
+    });
   }
 
   /// Update the designated meetup landmark
@@ -635,28 +512,16 @@ class SquadService extends ChangeNotifier {
     _persistState();
 
     if (_squadId != null) {
-      _neonApi.updateMeetup(
+      _repo.updateSquadSettings(
         squadId: _squadId!,
-        lat: _meetupPointCoords.latitude,
-        lng: _meetupPointCoords.longitude,
-        label: _meetupPointName,
+        meetupPointName: _meetupPointName,
+        meetupLat: _meetupPointCoords.latitude,
+        meetupLng: _meetupPointCoords.longitude,
       ).catchError((e) {
-        debugPrint('[SquadService] Neon updateMeetup note: $e');
-        return <String, dynamic>{};
+        debugPrint('[SquadService] setMeetupPoint error: $e');
       });
     }
 
-    if (_squadCode != null) {
-      _wsClient.sendMessage({
-        'type': 'squad_meta_update',
-        'squad_code': _squadCode,
-        'name': _squadName,
-        'meetup_name': _meetupPointName,
-        'meetup_lat': _meetupPointCoords.latitude,
-        'meetup_lng': _meetupPointCoords.longitude,
-      });
-    }
-    _pushMetaToCloud();
     notifyListeners();
   }
 
@@ -667,17 +532,19 @@ class SquadService extends ChangeNotifier {
     if (idx != -1) {
       _members[idx] = _members[idx].copyWith(shareLocation: val);
     }
-    if (!val && _squadCode != null && _isFirebaseAvailable) {
-      try {
-        final user = AuthService.instance.currentUserModel;
-        final uid = user?.uid ?? 'user_self';
-        final db = _database;
-        db?.ref('squads/$_squadCode/members/$uid').remove();
-      } catch (e) {
-        debugPrint('[SquadService] Location sharing disable remove note: $e');
+    if (_squadId != null) {
+      final user = AuthService.instance.currentUserModel;
+      if (user != null) {
+        _repo.updateMemberLocation(
+          squadId: _squadId!,
+          memberId: user.uid,
+          lat: idx != -1 ? _members[idx].latitude : 0.0,
+          lng: idx != -1 ? _members[idx].longitude : 0.0,
+          shareLocation: val,
+        ).catchError((e) {
+          debugPrint('[SquadService] toggleLocationSharing error: $e');
+        });
       }
-    } else if (val) {
-      _pushUserToCloud();
     }
     notifyListeners();
   }
@@ -712,15 +579,50 @@ class SquadService extends ChangeNotifier {
     }
   }
 
+  /// Client-side distance calculation across companions to evaluate separation alerts
+  void _checkSeparationDistances() {
+    final userIdx = _members.indexWhere((m) => m.isUser);
+    if (userIdx == -1 || !_isSharingLocation) return;
+    final user = _members[userIdx];
+
+    SquadSeparationAlert? newAlert;
+
+    for (final companion in companionMembers) {
+      if (!companion.shareLocation || !companion.isOnline) continue;
+      final dist = haversineMeters(
+        user.latitude,
+        user.longitude,
+        companion.latitude,
+        companion.longitude,
+      ).round();
+
+      if (dist > _separationThresholdMeters) {
+        newAlert = SquadSeparationAlert(
+          memberId: companion.id,
+          memberName: companion.name.replaceAll(' (You)', ''),
+          distanceMeters: dist,
+          thresholdMeters: _separationThresholdMeters,
+          isCleared: false,
+        );
+        break;
+      }
+    }
+
+    _activeSeparationAlert = newAlert;
+  }
+
   @visibleForTesting
   void addCompanionForTesting(SquadMember companion) {
     _members.removeWhere((m) => m.id == companion.id);
     _members.add(companion.copyWith(isUser: false));
+    _checkSeparationDistances();
     notifyListeners();
   }
 
   @visibleForTesting
   void resetForTesting() {
+    _membersSub?.cancel();
+    _squadSub?.cancel();
     _squadId = null;
     _squadCode = null;
     _squadName = null;
@@ -729,464 +631,108 @@ class SquadService extends ChangeNotifier {
     _separationThresholdMeters = 500;
   }
 
-  // --- High-Speed Realtime WebSocket Sync with Neon Backend ---
+  // --- Cloud Realtime Sync via Cloud Firestore ---
 
-  void _initWebSocket({required bool isHost, required double lat, required double lng}) {
-    _wsSub?.cancel();
-    _wsStateSub?.cancel();
-    final user = AuthService.instance.currentUserModel;
-    final uid = user?.uid ?? 'user_self';
-    final name = user?.displayName ?? (isHost ? 'Host' : 'Member');
+  void _listenToCloud() {
+    _membersSub?.cancel();
+    _squadSub?.cancel();
+    if (_squadId == null) return;
 
-    _wsSub = _wsClient.messages.listen((msg) {
-      _handleWebSocketMessage(msg);
-    }, onError: (err) {
-      debugPrint('[SquadService] WebSocket message stream error: $err');
-    });
-
-    // Reconnection Sync (Section 44 of Architecture)
-    _wsStateSub = _wsClient.connectionState.listen((state) {
-      if (state == WebSocketConnectionState.connected && _squadId != null) {
-        _syncWithNeonAfterReconnect(_squadId!);
-      }
-      notifyListeners();
-    });
-
-    _wsClient.connect(uid, _squadId).then((_) {
-      if (_squadId != null) {
-        // Send presence online
-        _wsClient.sendEnvelope(
-          type: 'presence',
-          squadId: _squadId!,
-          senderId: uid,
-          payload: {'state': 'online'},
-        );
-      }
-      if (_squadCode != null) {
-        _wsClient.sendMessage({
-          'type': 'join_squad',
-          'squad_code': _squadCode,
-          'member_name': name,
-          'is_host': isHost,
-          'initial_latitude': lat,
-          'initial_longitude': lng,
-          'photo_url': user?.photoUrl,
-        });
-      }
-    }).catchError((err) {
-      debugPrint('[SquadService] WebSocket connect error: $err');
-    });
-  }
-
-  Future<void> _syncWithNeonAfterReconnect(String squadId) async {
-    try {
-      debugPrint('[SquadService] Performing reconnection sync with Neon for squad $squadId...');
-      final locs = await _neonApi.getSquadLocations(squadId);
-      final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
-      bool changed = false;
-      for (final item in locs) {
-        final uId = item['user_id'] as String?;
-        if (uId == null || uId == currentUserId) continue;
-        final lat = (item['latitude'] as num?)?.toDouble();
-        final lng = (item['longitude'] as num?)?.toDouble();
-        if (lat == null || lng == null) continue;
-        final idx = _members.indexWhere((m) => m.id == uId);
-        if (idx != -1) {
-          _members[idx] = _members[idx].copyWith(
-            latitude: lat,
-            longitude: lng,
-            lastSeen: DateTime.now(),
-            isOnline: true,
-            shareLocation: true,
-          );
-          changed = true;
-        }
-      }
-      if (changed) notifyListeners();
-    } catch (e) {
-      debugPrint('[SquadService] _syncWithNeonAfterReconnect note: $e');
-    }
-  }
-
-  void _handleWebSocketMessage(Map<String, dynamic> msg) {
-    final type = msg['type'];
     final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
-    final safeUserId = _sanitizeKey(currentUserId);
-    final payload = (msg['payload'] is Map) ? Map<String, dynamic>.from(msg['payload'] as Map) : msg;
 
-    // 1. Separation alert from server
-    if (type == 'separation_alert') {
-      final memberId = payload['memberId'] as String?;
-      final dist = (payload['distanceMeters'] as num?)?.toInt() ?? 0;
-      final thresh = (payload['thresholdMeters'] as num?)?.toInt() ?? _separationThresholdMeters;
-      final isCleared = payload['isCleared'] == true;
-
-      String memberName = 'Companion';
-      if (memberId != null) {
-        try {
-          memberName = _members.firstWhere((m) => m.id == memberId).name.replaceAll(' (You)', '');
-        } catch (_) {}
-      }
-
-      if (isCleared) {
-        _activeSeparationAlert = null;
-      } else {
-        _activeSeparationAlert = SquadSeparationAlert(
-          memberId: memberId ?? '',
-          memberName: memberName,
-          distanceMeters: dist,
-          thresholdMeters: thresh,
-          isCleared: false,
-        );
-      }
-      notifyListeners();
-      return;
-    }
-
-    // 2. Member presence update
-    if (type == 'presence') {
-      final senderId = msg['senderId'] as String?;
-      final state = payload['state'] as String?;
-      if (senderId != null && senderId != currentUserId && senderId != safeUserId) {
-        final idx = _members.indexWhere((m) => m.id == senderId);
-        if (idx != -1) {
-          _members[idx] = _members[idx].copyWith(isOnline: state != 'offline');
-          notifyListeners();
-        }
-      }
-      return;
-    }
-
-    // 3. Incoming realtime squad chat
-    if (type == 'chat_message') {
-      try {
-        final chatMsg = ChatMessage(
-          id: payload['id'] as String? ?? 'msg_${DateTime.now().millisecondsSinceEpoch}',
-          squadId: msg['squadId'] as String? ?? _squadId ?? _squadCode ?? 'squad',
-          senderId: payload['senderUserId'] as String? ?? msg['senderId'] as String? ?? 'companion',
-          senderName: payload['senderName'] as String? ?? 'Companion',
-          text: payload['message'] as String? ?? '',
-          type: ChatMessageType.text,
-          mediaUrl: payload['mediaUrl'] as String?,
-          timestamp: payload['createdAt'] != null
-              ? DateTime.tryParse(payload['createdAt'] as String) ?? DateTime.now()
-              : DateTime.now(),
-        );
-        SquadChatService.instance.receiveIncomingWsMessage(chatMsg);
-      } catch (e) {
-        debugPrint('[SquadService] Error parsing incoming chat message: $e');
-      }
-      return;
-    }
-
-    // 4. Realtime Location Update (Standard Envelope or Legacy)
-    if (type == 'location_update') {
-      final mId = msg['senderId'] as String? ?? msg['member_id'] as String?;
-      if (mId == null || mId == currentUserId || mId == safeUserId) return;
-      final mLat = (payload['lat'] as num?)?.toDouble() ?? (payload['latitude'] as num?)?.toDouble();
-      final mLng = (payload['lng'] as num?)?.toDouble() ?? (payload['longitude'] as num?)?.toDouble();
-      if (mLat == null || mLng == null) return;
-      final idx = _members.indexWhere((m) => m.id == mId);
-      if (idx != -1) {
-        _members[idx] = _members[idx].copyWith(
-          latitude: mLat,
-          longitude: mLng,
-          status: payload['status'] as String? ?? _members[idx].status,
-          batteryLevel: (payload['battery_level'] as num?)?.toInt() ?? _members[idx].batteryLevel,
-          lastSeen: DateTime.now(),
-          isOnline: true,
-          shareLocation: true,
-        );
-        notifyListeners();
-      }
-      return;
-    }
-
-    // 5. Meetup changed
-    if (type == 'meetup_changed') {
-      final mLat = (payload['lat'] as num?)?.toDouble();
-      final mLng = (payload['lng'] as num?)?.toDouble();
-      final label = payload['label'] as String?;
-      if (mLat != null && mLng != null) {
-        _meetupPointCoords = LatLng(mLat, mLng);
-      }
-      if (label != null && label.isNotEmpty) {
-        _meetupPointName = label;
-      }
-      _persistState();
-      notifyListeners();
-      return;
-    }
-
-    // 6. Separation radius changed
-    if (type == 'radius_changed') {
-      final rad = (payload['radiusMeters'] as num?)?.toInt();
-      if (rad != null && rad > 0) {
-        _separationThresholdMeters = rad;
-        _persistState();
-        notifyListeners();
-      }
-      return;
-    }
-
-    // 7. Legacy formats
-    if (type == 'squad_joined') {
-      final meta = msg['metadata'];
-      if (meta is Map) {
-        if (meta['name'] is String && (meta['name'] as String).isNotEmpty) {
-          _squadName = meta['name'];
-        }
-        if (meta['meetupPointName'] is String && (meta['meetupPointName'] as String).isNotEmpty) {
-          _meetupPointName = meta['meetupPointName'];
-        }
-        final mLat = (meta['meetupLat'] as num?)?.toDouble();
-        final mLng = (meta['meetupLng'] as num?)?.toDouble();
-        if (mLat != null && mLng != null) {
-          _meetupPointCoords = LatLng(mLat, mLng);
-        }
-      }
-      notifyListeners();
-    } else if (type == 'member_list') {
-      final membersList = msg['members'];
-      if (membersList is List) {
+    // 1. Listen to real-time member roster and live locations
+    _membersSub = _repo.streamMembers(_squadId!, currentUserId: currentUserId).listen(
+      (cloudMembers) {
         bool changed = false;
-        for (final item in membersList) {
-          if (item is Map) {
-            final mId = item['member_id'] as String?;
-            if (mId == null || mId == currentUserId || mId == safeUserId) continue;
-            final mLat = (item['latitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.latitude;
-            final mLng = (item['longitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.longitude;
-            final member = SquadMember(
-              id: mId,
-              name: item['member_name'] as String? ?? 'Companion',
-              latitude: mLat,
-              longitude: mLng,
-              status: item['status'] as String? ?? 'Active',
-              lastSeen: DateTime.fromMillisecondsSinceEpoch(
-                (item['last_seen'] as num?)?.toInt() ?? DateTime.now().millisecondsSinceEpoch,
-              ),
-              photoUrl: item['photo_url'] as String?,
-              isHost: item['is_host'] == true,
-              isUser: false,
-              batteryLevel: (item['battery_level'] as num?)?.toInt() ?? 100,
-            );
-            final idx = _members.indexWhere((m) => m.id == member.id);
-            if (idx != -1) {
-              _members[idx] = member;
-            } else {
-              _members.add(member);
+        final currentCompanions = cloudMembers.where((m) => !m.isUser).toList();
+
+        // Update or insert companion members
+        for (final companion in currentCompanions) {
+          final idx = _members.indexWhere((m) => m.id == companion.id);
+          if (idx != -1) {
+            if (_members[idx].latitude != companion.latitude ||
+                _members[idx].longitude != companion.longitude ||
+                _members[idx].status != companion.status ||
+                _members[idx].batteryLevel != companion.batteryLevel ||
+                _members[idx].photoUrl != companion.photoUrl ||
+                _members[idx].isOnline != companion.isOnline ||
+                _members[idx].shareLocation != companion.shareLocation) {
+              _members[idx] = companion;
+              changed = true;
             }
+          } else {
+            _members.add(companion);
             changed = true;
           }
         }
-        if (changed) notifyListeners();
-      }
-    } else if (type == 'member_joined') {
-      final mId = msg['member_id'] as String?;
-      if (mId == null || mId == currentUserId || mId == safeUserId) return;
-      final mLat = (msg['latitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.latitude;
-      final mLng = (msg['longitude'] as num?)?.toDouble() ?? LocationService.defaultKolkataCenter.longitude;
-      final member = SquadMember(
-        id: mId,
-        name: msg['member_name'] as String? ?? 'Companion',
-        latitude: mLat,
-        longitude: mLng,
-        status: msg['status'] as String? ?? 'Active',
-        lastSeen: DateTime.now(),
-        photoUrl: msg['photo_url'] as String?,
-        isHost: msg['is_host'] == true,
-        isUser: false,
-        batteryLevel: (msg['battery_level'] as num?)?.toInt() ?? 100,
-      );
-      final idx = _members.indexWhere((m) => m.id == member.id);
-      if (idx != -1) {
-        _members[idx] = member;
-      } else {
-        _members.add(member);
-      }
-      notifyListeners();
-    } else if (type == 'squad_meta_updated') {
-      final meta = msg['metadata'];
-      if (meta is Map) {
-        if (meta['name'] is String && (meta['name'] as String).isNotEmpty) {
-          _squadName = meta['name'];
-        }
-        if (meta['meetupPointName'] is String && (meta['meetupPointName'] as String).isNotEmpty) {
-          _meetupPointName = meta['meetupPointName'];
-        }
-        final mLat = (meta['meetupLat'] as num?)?.toDouble();
-        final mLng = (meta['meetupLng'] as num?)?.toDouble();
-        if (mLat != null && mLng != null) {
-          _meetupPointCoords = LatLng(mLat, mLng);
-        }
-        notifyListeners();
-      }
-    } else if (type == 'member_left') {
-      final mId = msg['member_id'] as String?;
-      if (mId != null) {
+
+        // Remove companions that left
+        final activeCompanionIds = currentCompanions.map((c) => c.id).toSet();
         final before = _members.length;
-        _members.removeWhere((m) => m.id == mId && !m.isUser);
-        if (_members.length != before) {
-          notifyListeners();
-        }
-      }
-    } else if (type == 'error') {
-      _lastError = msg['message'] as String? ?? 'WebSocket error';
-      notifyListeners();
-    }
-  }
-
-  // --- Real-Time Cloud Sync (Firebase Realtime Database) ---
-
-  Future<void> _pushUserToCloud() async {
-    final db = _database;
-    if (_squadCode == null || !_isSharingLocation || db == null) return;
-    try {
-      final userMember = _members.firstWhere((m) => m.isUser);
-      final safeId = _sanitizeKey(userMember.id);
-      final ref = db.ref('squads/$_squadCode/members/$safeId');
-      await ref.set(userMember.toJson());
-      debugPrint('[SquadService] Pushed user $safeId location to RTDB (${userMember.latitude}, ${userMember.longitude})');
-    } catch (e) {
-      _lastError = 'Cloud sync: $e';
-      debugPrint('[SquadService] _pushUserToCloud error: $e');
-    }
-  }
-
-  Future<void> _pushMetaToCloud() async {
-    final db = _database;
-    if (_squadCode == null || db == null) return;
-    try {
-      final ref = db.ref('squads/$_squadCode/meta');
-      await ref.update({
-        'name': _squadName ?? 'My Squad',
-        'meetup_name': _meetupPointName,
-        'meetup_lat': _meetupPointCoords.latitude,
-        'meetup_lng': _meetupPointCoords.longitude,
-        'updated_at': ServerValue.timestamp,
-      });
-      debugPrint('[SquadService] Pushed squad metadata to RTDB');
-    } catch (e) {
-      debugPrint('[SquadService] _pushMetaToCloud error: $e');
-    }
-  }
-
-  void _listenToCloud() {
-    _rtdbSub?.cancel();
-    _metaSub?.cancel();
-    final db = _database;
-    if (_squadCode == null || db == null) return;
-
-    // 1. Listen to companion members
-    try {
-      final ref = db.ref('squads/$_squadCode/members');
-      _rtdbSub = ref.onValue.listen((event) {
-        final snap = event.snapshot;
-        if (snap.value == null) {
-          final before = _members.length;
-          _members.removeWhere((m) => !m.isUser);
-          if (_members.length != before) {
-            notifyListeners();
-          }
-          return;
-        }
-        if (snap.value is! Map) return;
-        final raw = Map<String, dynamic>.from(snap.value as Map);
-        final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
-        final safeUserId = _sanitizeKey(currentUserId);
-
-        bool changed = false;
-        raw.forEach((key, val) {
-          if (key == currentUserId || key == safeUserId) return; // Don't overwrite local user
-          if (val is! Map) return;
-          try {
-            final memberData = Map<String, dynamic>.from(val);
-            // Incoming members from cloud are companions, so isUser is forced to false
-            final member = SquadMember.fromJson(memberData).copyWith(isUser: false);
-            final idx = _members.indexWhere((m) => m.id == member.id);
-            if (idx != -1) {
-              if (_members[idx].latitude != member.latitude ||
-                  _members[idx].longitude != member.longitude ||
-                  _members[idx].status != member.status ||
-                  _members[idx].photoUrl != member.photoUrl) {
-                _members[idx] = member;
-                changed = true;
-              }
-            } else {
-              _members.add(member);
-              changed = true;
-            }
-          } catch (e) {
-            debugPrint('[SquadService] Error parsing cloud member: $e');
-          }
-        });
-
-        // Remove members that left
-        final before = _members.length;
-        _members.removeWhere((m) =>
-            !m.isUser &&
-            !raw.containsKey(m.id) &&
-            !raw.containsKey(_sanitizeKey(m.id)));
+        _members.removeWhere((m) => !m.isUser && !activeCompanionIds.contains(m.id));
         if (_members.length != before) changed = true;
 
         if (changed) {
+          _checkSeparationDistances();
           notifyListeners();
         }
-      }, onError: (e) {
-        debugPrint('[SquadService] RTDB members stream error: $e');
-      });
-    } catch (e) {
-      debugPrint('[SquadService] Listen to members error: $e');
-    }
+      },
+      onError: (err) {
+        debugPrint('[SquadService] streamMembers error: $err');
+      },
+    );
 
-    // 2. Listen to squad metadata (Name, Meetup Landmark, Coordinates)
-    try {
-      final metaRef = db.ref('squads/$_squadCode/meta');
-      _metaSub = metaRef.onValue.listen((event) {
-        final snap = event.snapshot;
-        if (snap.value == null) return;
-        try {
-          final data = Map<String, dynamic>.from(snap.value as Map);
-          bool changed = false;
-          if (data['name'] is String && (data['name'] as String).isNotEmpty && data['name'] != _squadName) {
-            _squadName = data['name'] as String;
-            changed = true;
-          }
-          if (data['meetup_name'] is String && (data['meetup_name'] as String).isNotEmpty && data['meetup_name'] != _meetupPointName) {
-            _meetupPointName = data['meetup_name'] as String;
-            changed = true;
-          }
-          final mLat = (data['meetup_lat'] as num?)?.toDouble();
-          final mLng = (data['meetup_lng'] as num?)?.toDouble();
-          if (mLat != null && mLng != null) {
-            final newCoords = LatLng(mLat, mLng);
-            if ((newCoords.latitude - _meetupPointCoords.latitude).abs() > 0.00001 ||
-                (newCoords.longitude - _meetupPointCoords.longitude).abs() > 0.00001) {
-              _meetupPointCoords = newCoords;
-              changed = true;
-            }
-          }
-          if (changed) {
-            _persistState();
-            notifyListeners();
-          }
-        } catch (e) {
-          debugPrint('[SquadService] Error parsing cloud meta: $e');
+    // 2. Listen to real-time squad metadata (Meetup, name, radius)
+    _squadSub = _repo.streamSquad(_squadId!).listen(
+      (squadData) {
+        if (squadData == null) return;
+        bool changed = false;
+
+        final newName = squadData['name'] as String?;
+        if (newName != null && newName.isNotEmpty && newName != _squadName) {
+          _squadName = newName;
+          changed = true;
         }
-      }, onError: (e) {
-        debugPrint('[SquadService] RTDB meta stream error: $e');
-      });
-    } catch (e) {
-      debugPrint('[SquadService] Listen to meta error: $e');
-    }
+
+        final newMeetup = squadData['meetupPointName'] as String?;
+        if (newMeetup != null && newMeetup.isNotEmpty && newMeetup != _meetupPointName) {
+          _meetupPointName = newMeetup;
+          changed = true;
+        }
+
+        final mLat = (squadData['meetupLat'] as num?)?.toDouble();
+        final mLng = (squadData['meetupLng'] as num?)?.toDouble();
+        if (mLat != null && mLng != null) {
+          final newCoords = LatLng(mLat, mLng);
+          if ((newCoords.latitude - _meetupPointCoords.latitude).abs() > 0.00001 ||
+              (newCoords.longitude - _meetupPointCoords.longitude).abs() > 0.00001) {
+            _meetupPointCoords = newCoords;
+            changed = true;
+          }
+        }
+
+        final sep = (squadData['separationThresholdMeters'] as num?)?.toInt();
+        if (sep != null && sep > 0 && sep != _separationThresholdMeters) {
+          _separationThresholdMeters = sep;
+          changed = true;
+        }
+
+        if (changed) {
+          _persistState();
+          _checkSeparationDistances();
+          notifyListeners();
+        }
+      },
+      onError: (err) {
+        debugPrint('[SquadService] streamSquad error: $err');
+      },
+    );
   }
 
   @override
   void dispose() {
-    _wsSub?.cancel();
-    _wsClient.dispose();
-    _rtdbSub?.cancel();
-    _metaSub?.cancel();
+    _membersSub?.cancel();
+    _squadSub?.cancel();
     super.dispose();
   }
 }

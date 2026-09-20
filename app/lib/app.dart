@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'config/theme.dart';
 import 'services/theme_service.dart';
+import 'services/auth_service.dart';
 import 'screens/app_root_coordinator.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
@@ -11,7 +12,6 @@ import 'screens/map_screen.dart';
 import 'screens/pandal_detail_screen.dart';
 import 'screens/pandal_list_screen.dart';
 import 'screens/routes_screen.dart';
-import 'screens/splash_screen.dart';
 import 'screens/welcome_screen.dart';
 
 /// Root application widget supporting Light and Dark modes and deep-link routing.
@@ -23,6 +23,9 @@ class KolkataPujaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeService = context.watch<ThemeService?>();
+    final authService = context.watch<AuthService?>();
+    final isLoggedIn = authService?.isAuthenticated ?? false;
+
     return MaterialApp(
       navigatorKey: navigatorKey,
       title: 'Uma',
@@ -68,8 +71,8 @@ class KolkataPujaApp extends StatelessWidget {
         return null;
       },
       routes: {
-        '/': (context) => const SplashScreen(),
-        '/splash': (context) => const SplashScreen(),
+        '/': (context) => isLoggedIn ? const AppRootCoordinator() : const WelcomeScreen(),
+        '/splash': (context) => isLoggedIn ? const AppRootCoordinator() : const WelcomeScreen(),
         '/greeting': (context) => const AppRootCoordinator(),
         '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const WelcomeScreen(),

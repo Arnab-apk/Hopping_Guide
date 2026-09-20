@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:simplify/simplify.dart';
@@ -116,8 +117,10 @@ class RoutingService {
 
   void _recordFailure() {
     _consecutiveFailures++;
+    // Trip circuit breaker after 3 consecutive failures to avoid
+    // overloading public servers during high-concurrency festival peaks.
     if (_consecutiveFailures >= 3) {
-      _circuitBreakerUntil = DateTime.now().add(const Duration(seconds: 45));
+      _circuitBreakerUntil = DateTime.now().add(const Duration(seconds: 20));
     }
   }
 
@@ -189,7 +192,7 @@ class RoutingService {
           'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
           'Accept': 'application/json',
         },
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -231,14 +234,17 @@ class RoutingService {
             if (_routeCache.length >= 100) _routeCache.clear();
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
+            debugPrint('[RoutingService] ✅ Street route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km → $destinationName');
             return route;
           }
         }
       } else {
+        debugPrint('[RoutingService] ❌ OSRM HTTP ${response.statusCode} for $destinationName');
         _recordFailure();
       }
-    } catch (_) {
+    } catch (e) {
       // Server error, network timeout, or socket exception
+      debugPrint('[RoutingService] ❌ Exception routing to $destinationName: $e');
       _recordFailure();
     }
 
@@ -329,7 +335,7 @@ class RoutingService {
           'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
           'Accept': 'application/json',
         },
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 12));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -369,12 +375,15 @@ class RoutingService {
             if (_routeCache.length >= 100) _routeCache.clear();
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
+            debugPrint('[RoutingService] ✅ Multi-stop route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km for ${waypoints.length} stops');
             return route;
           }
         }
       }
+      debugPrint('[RoutingService] ❌ OSRM HTTP ${response.statusCode} for multi-stop route');
       _recordFailure();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[RoutingService] ❌ Exception for multi-stop route: $e');
       _recordFailure();
     }
 

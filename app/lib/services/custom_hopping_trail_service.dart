@@ -503,15 +503,18 @@ class CustomHoppingTrailService extends ChangeNotifier {
       for (final leg in trail.legs) {
         if (leg.mode == LegMode.walk) {
           try {
+            debugPrint('[TrailService] Routing walk leg: ${leg.from} → ${leg.to}');
             final legRoute = await RoutingService.instance.getWalkingRouteToPoint(
               start: leg.from,
               destination: leg.to,
               destinationName: 'Walk Leg',
             );
+            debugPrint('[TrailService] Walk leg routed: ${legRoute.points.length} pts, isFallback=${legRoute.isFallback}');
             fullPoints.addAll(legRoute.points);
             totalDistanceMeters += legRoute.distanceMeters;
             totalTransitSeconds += legRoute.durationSeconds;
-          } catch (_) {
+          } catch (e) {
+            debugPrint('[TrailService] Walk leg FAILED, using haversine fallback: $e');
             fullPoints.addAll([leg.from, leg.to]);
             final d = haversineMeters(
                   leg.from.latitude,
@@ -625,11 +628,13 @@ class CustomHoppingTrailService extends ChangeNotifier {
     if (waypoints.length < 2) return;
 
     try {
+      debugPrint('[TrailService] Calling multi-stop OSRM route with ${waypoints.length} waypoints');
       final route = await RoutingService.instance.getMultiStopRoute(
         waypoints: waypoints,
         routeTitle: 'Custom Hopping Trail',
       );
 
+      debugPrint('[TrailService] Multi-stop route: ${route.points.length} pts, isFallback=${route.isFallback}, ${(route.distanceMeters/1000).toStringAsFixed(2)} km');
       final distanceKm = double.parse((route.distanceMeters / 1000.0).toStringAsFixed(1));
       final dwellMinutes = trail.stops.length * 15;
       final durationMinutes = ((route.durationSeconds / 60.0) + dwellMinutes).round();
