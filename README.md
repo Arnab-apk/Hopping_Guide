@@ -10,7 +10,7 @@
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Platform](https://img.shields.io/badge/Platform-Android_14%2B_%7C_Web-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Map Engine](https://img.shields.io/badge/Map_Engine-OSM_Raster_%7C_GemKit_3D-FF6F00?style=for-the-badge&logo=openstreetmap&logoColor=white)](https://www.magiclane.com)
-[![Tests](https://img.shields.io/badge/Tests-143%2F143_Passing-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com)
+[![Tests](https://img.shields.io/badge/Tests-143%2F143_Passing-brightgreen?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Code Quality](https://img.shields.io/badge/Analysis-0_Issues-success?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Cost](https://img.shields.io/badge/Infra_Cost-%240_Free_Tier-blueviolet?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com)
 [![License](https://img.shields.io/badge/License-MIT-gold.svg?style=for-the-badge)](./LICENSE)
