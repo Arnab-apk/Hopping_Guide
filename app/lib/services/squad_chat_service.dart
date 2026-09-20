@@ -221,8 +221,14 @@ class SquadChatService {
             .collection('messages')
             .doc(msgId)
             .set(message.toJson());
+
+        firestore.collection('squads').doc(squadId).set({
+          'lastMessage': isVideo ? '🎥 Video shared' : '📷 Photo shared',
+          'lastMessageTime': DateTime.now().millisecondsSinceEpoch,
+        }, SetOptions(merge: true)).catchError((_) {});
       } catch (e) {
-        debugPrint('[SquadChatService] Firestore sendMedia note: $e');
+        debugPrint('[SquadChatService] Firestore sendMedia error: $e');
+        rethrow;
       }
     }
   }

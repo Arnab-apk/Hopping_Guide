@@ -74,6 +74,7 @@ class ChatMessage {
         'type': type.value,
         'text': text,
         'mediaUrl': mediaUrl,
+        'media_url': mediaUrl,
         'thumbnailUrl': thumbnailUrl,
         'timestamp': timestamp.millisecondsSinceEpoch,
       };
@@ -94,11 +95,11 @@ class ChatMessage {
       squadId: json['squadId'] as String? ?? '',
       senderId: json['senderId'] as String? ?? 'unknown',
       senderName: json['senderName'] as String? ?? 'Hopper',
-      senderPhotoUrl: json['senderPhotoUrl'] as String?,
+      senderPhotoUrl: json['senderPhotoUrl'] as String? ?? json['sender_photo_url'] as String?,
       type: ChatMessageType.fromString(json['type'] as String?),
       text: json['text'] as String?,
-      mediaUrl: json['mediaUrl'] as String?,
-      thumbnailUrl: json['thumbnailUrl'] as String?,
+      mediaUrl: json['mediaUrl'] as String? ?? json['media_url'] as String?,
+      thumbnailUrl: json['thumbnailUrl'] as String? ?? json['thumbnail_url'] as String?,
       timestamp: ts,
     );
   }

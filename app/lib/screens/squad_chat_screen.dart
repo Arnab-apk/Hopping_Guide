@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -177,6 +178,28 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     );
   }
 
+  Future<Uint8List> _ensureSafePhotoBytes(Uint8List original) async {
+    // If already compact (<180 KB), it is 100% safe for Firestore and fast network transfer
+    if (original.lengthInBytes <= 180 * 1024) return original;
+    try {
+      final codec = await ui.instantiateImageCodec(
+        original,
+        targetWidth: 600,
+      );
+      final frame = await codec.getNextFrame();
+      final byteData = await frame.image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData != null) {
+        final downsampled = byteData.buffer.asUint8List();
+        if (downsampled.lengthInBytes < original.lengthInBytes) {
+          return downsampled;
+        }
+      }
+    } catch (e) {
+      debugPrint('[SquadChat] Downsampling photo fallback note: $e');
+    }
+    return original;
+  }
+
   Future<void> _pickAndSendPhoto(ImageSource source) async {
     final auth = Provider.of<AuthService>(context, listen: false);
     final user = auth.currentUserModel;
@@ -188,9 +211,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
         source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 75,
+        maxWidth: 640,
+        maxHeight: 640,
+        imageQuality: 50,
       );
 
       if (picked == null) return;
@@ -199,10 +222,16 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         setState(() => _isSending = true);
       }
 
-      final bytes = await picked.readAsBytes();
+      Uint8List bytes = await picked.readAsBytes();
       if (bytes.isEmpty) return;
 
-      final base64String = base64Encode(bytes);
+      bytes = await _ensureSafePhotoBytes(bytes);
+
+      if (bytes.lengthInBytes > 750 * 1024) {
+        throw 'Image is too large (${(bytes.lengthInBytes / 1024).round()} KB). Please select a smaller photo.';
+      }
+
+      final base64String = base64Encode(bytes).replaceAll(RegExp(r'\s+'), '');
       final mediaDataUri = 'data:image/jpeg;base64,$base64String';
 
       await SquadChatService.instance.sendMedia(
@@ -226,7 +255,10 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not share photo: $e')),
+          SnackBar(
+            content: Text('Could not share photo: $e'),
+            backgroundColor: Colors.red.shade800,
+          ),
         );
       }
     } finally {
@@ -237,15 +269,21 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
   }
 
   Widget _buildChatImage(String mediaUrl, {BoxFit fit = BoxFit.cover, double? height, double? width}) {
-    if (mediaUrl.startsWith('data:image') || !mediaUrl.startsWith('http')) {
+    final trimmed = mediaUrl.trim();
+    if (trimmed.startsWith('data:image') || !trimmed.startsWith('http')) {
       try {
-        final cleanBase64 = mediaUrl.contains(',') ? mediaUrl.split(',').last : mediaUrl;
+        String cleanBase64 = trimmed.contains(',') ? trimmed.split(',').last : trimmed;
+        cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+        while (cleanBase64.length % 4 != 0) {
+          cleanBase64 += '=';
+        }
         final bytes = base64Decode(cleanBase64);
         return Image.memory(
           bytes,
           fit: fit,
           height: height,
           width: width,
+          cacheWidth: 800,
           errorBuilder: (c, e, s) => Container(
             height: height ?? 180,
             width: width,
@@ -257,11 +295,19 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         );
       } catch (e) {
         debugPrint('[SquadChat] Error decoding base64 image: $e');
+        return Container(
+          height: height ?? 180,
+          width: width,
+          color: Colors.black12,
+          child: const Center(
+            child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 40),
+          ),
+        );
       }
     }
 
     return CachedNetworkImage(
-      imageUrl: mediaUrl,
+      imageUrl: trimmed,
       height: height,
       width: width,
       fit: fit,
@@ -569,7 +615,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                     ),
 
                   // Photo Display
-                  if (msg.type == ChatMessageType.image && msg.mediaUrl != null) ...[
+                  if (msg.mediaUrl != null &&
+                      msg.mediaUrl!.isNotEmpty &&
+                      (msg.type == ChatMessageType.image || !msg.isVideo)) ...[
                     GestureDetector(
                       onTap: () => _showMediaViewer(context, msg),
                       child: ClipRRect(
