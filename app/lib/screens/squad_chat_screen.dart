@@ -178,6 +178,12 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
   }
 
   Future<void> _pickAndSendPhoto(ImageSource source) async {
+    final auth = Provider.of<AuthService>(context, listen: false);
+    final user = auth.currentUserModel;
+    final senderId = user?.uid ?? 'user_self';
+    final senderName = user?.displayName ?? 'You';
+    final photoUrl = user?.photoUrl;
+
     try {
       final picker = ImagePicker();
       final picked = await picker.pickImage(
@@ -189,19 +195,15 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
       if (picked == null) return;
 
-      setState(() => _isSending = true);
+      if (mounted) {
+        setState(() => _isSending = true);
+      }
 
       final bytes = await picked.readAsBytes();
       if (bytes.isEmpty) return;
 
       final base64String = base64Encode(bytes);
       final mediaDataUri = 'data:image/jpeg;base64,$base64String';
-
-      final auth = Provider.of<AuthService>(context, listen: false);
-      final user = auth.currentUserModel;
-      final senderId = user?.uid ?? 'user_self';
-      final senderName = user?.displayName ?? 'You';
-      final photoUrl = user?.photoUrl;
 
       await SquadChatService.instance.sendMedia(
         widget.squadCode,

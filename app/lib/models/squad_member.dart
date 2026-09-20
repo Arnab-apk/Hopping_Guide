@@ -134,6 +134,7 @@ class SquadMember {
         'share_location': shareLocation,
         'is_online': isOnline,
         'battery': batteryLevel,
+        'batteryLevel': batteryLevel,
         'color': avatarColorHex,
         'last_seen': lastSeen.millisecondsSinceEpoch,
       };
@@ -151,7 +152,10 @@ class SquadMember {
       isUser: json['is_user'] as bool? ?? false,
       shareLocation: json['share_location'] as bool? ?? true,
       isOnline: json['is_online'] as bool? ?? true,
-      batteryLevel: (json['battery'] as num?)?.toInt() ?? 85,
+      batteryLevel: (json['battery'] as num?)?.toInt() ??
+          (json['batteryLevel'] as num?)?.toInt() ??
+          (json['battery_level'] as num?)?.toInt() ??
+          85,
       avatarColorHex: (json['color'] as num?)?.toInt() ?? 0xFFFFB300,
       lastSeen: json['last_seen'] != null
           ? DateTime.fromMillisecondsSinceEpoch(json['last_seen'] as int)

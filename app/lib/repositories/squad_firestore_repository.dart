@@ -226,7 +226,10 @@ class SquadFirestoreRepository {
         'lng': lng,
         'last_seen': DateTime.now().millisecondsSinceEpoch,
       };
-      if (batteryLevel != null) updateData['battery'] = batteryLevel;
+      if (batteryLevel != null) {
+        updateData['battery'] = batteryLevel;
+        updateData['batteryLevel'] = batteryLevel;
+      }
       if (isOnline != null) updateData['is_online'] = isOnline;
       if (shareLocation != null) updateData['share_location'] = shareLocation;
       if (status != null && status.isNotEmpty) updateData['status'] = status;

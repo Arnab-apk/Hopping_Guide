@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +42,7 @@ class SquadService extends ChangeNotifier {
       : _repo = repo ?? SquadFirestoreRepository() {
     _listenToLocationService();
     _listenToAuthService();
+    _listenToBattery();
   }
 
   final SharedPreferences? _prefs;
@@ -72,6 +75,12 @@ class SquadService extends ChangeNotifier {
   String? _focusedMemberId;
   String? _lastError;
   SquadSeparationAlert? _activeSeparationAlert;
+
+  final Battery _battery = Battery();
+  int _currentBatteryLevel = 85;
+  StreamSubscription? _batterySub;
+  Timer? _batteryPollTimer;
+  DateTime? _lastBatteryPoll;
 
   final List<SquadMember> _members = [];
   StreamSubscription? _membersSub;
@@ -140,6 +149,40 @@ class SquadService extends ChangeNotifier {
         }
       }
     });
+  }
+
+  void _listenToBattery() {
+    refreshBatteryLevel();
+
+    // Re-check battery every 30 seconds so percentage stays accurate even without plug state changes
+    _batteryPollTimer?.cancel();
+    _batteryPollTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      refreshBatteryLevel();
+    });
+
+    _batterySub?.cancel();
+    _batterySub = _battery.onBatteryStateChanged.listen((_) {
+      refreshBatteryLevel();
+    });
+  }
+
+  /// Explicitly query the real hardware battery level and broadcast if changed
+  Future<int> refreshBatteryLevel() async {
+    try {
+      final lvl = await _battery.batteryLevel;
+      _currentBatteryLevel = lvl;
+      _lastBatteryPoll = DateTime.now();
+      final idx = _members.indexWhere((m) => m.isUser);
+      if (idx != -1 && _members[idx].batteryLevel != lvl) {
+        _members[idx] = _members[idx].copyWith(batteryLevel: lvl);
+        _syncUserLocationToCloud();
+        notifyListeners();
+      }
+      return lvl;
+    } catch (e) {
+      debugPrint('[SquadService] refreshBatteryLevel note: $e');
+      return _currentBatteryLevel;
+    }
   }
 
   Future<AppUser> _ensureUser() async {
@@ -229,10 +272,20 @@ class SquadService extends ChangeNotifier {
         phoneNumber: user?.phoneNumber,
         isHost: isHost,
         isUser: true,
-        batteryLevel: 95,
+        batteryLevel: _currentBatteryLevel,
         avatarColorHex: 0xFFD32F2F, // Durga crimson
       ),
     );
+
+    // Refresh real battery in background if not already updated
+    _battery.batteryLevel.then((lvl) {
+      _currentBatteryLevel = lvl;
+      final idx = _members.indexWhere((m) => m.isUser);
+      if (idx != -1 && _members[idx].batteryLevel != lvl) {
+        _members[idx] = _members[idx].copyWith(batteryLevel: lvl);
+        notifyListeners();
+      }
+    }).catchError((_) {});
   }
 
   /// Update squad name
@@ -293,6 +346,9 @@ class SquadService extends ChangeNotifier {
     final realLat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
     final realLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
     _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
+    try {
+      _currentBatteryLevel = await _battery.batteryLevel.timeout(const Duration(seconds: 2));
+    } catch (_) {}
 
     _initMembers(isHost: true, userLat: realLat, userLng: realLng);
     final hostMember = _members.first;
@@ -408,6 +464,9 @@ class SquadService extends ChangeNotifier {
 
     final lat = initialCoords?.latitude ?? currentPos?.latitude ?? LocationService.defaultKolkataCenter.latitude;
     final lng = initialCoords?.longitude ?? currentPos?.longitude ?? LocationService.defaultKolkataCenter.longitude;
+    try {
+      _currentBatteryLevel = await _battery.batteryLevel.timeout(const Duration(seconds: 2));
+    } catch (_) {}
 
     _initMembers(isHost: false, userLat: lat, userLng: lng);
     final member = _members.first;
@@ -509,6 +568,11 @@ class SquadService extends ChangeNotifier {
         isOnline: true,
       );
 
+      // Throttled battery check on location ping
+      if (_lastBatteryPoll == null || DateTime.now().difference(_lastBatteryPoll!).inSeconds >= 20) {
+        refreshBatteryLevel();
+      }
+
       _syncUserLocationToCloud();
       _checkSeparationDistances();
       notifyListeners();
@@ -528,7 +592,7 @@ class SquadService extends ChangeNotifier {
       memberId: user.uid,
       lat: self.latitude,
       lng: self.longitude,
-      batteryLevel: self.batteryLevel,
+      batteryLevel: _currentBatteryLevel,
       isOnline: true,
       shareLocation: true,
       status: self.status,
@@ -770,6 +834,8 @@ class SquadService extends ChangeNotifier {
 
   @override
   void dispose() {
+    _batteryPollTimer?.cancel();
+    _batterySub?.cancel();
     _membersSub?.cancel();
     _squadSub?.cancel();
     super.dispose();
