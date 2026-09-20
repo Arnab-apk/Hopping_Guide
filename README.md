@@ -13,7 +13,7 @@
 [![Tests](https://img.shields.io/badge/Tests-143%2F143_Passing-brightgreen?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Code Quality](https://img.shields.io/badge/Analysis-0_Issues-success?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Cost](https://img.shields.io/badge/Infra_Cost-%240_Free_Tier-blueviolet?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com)
-[![License](https://img.shields.io/badge/License-MIT-gold.svg?style=for-the-badge)](./LICENSE)
+[![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](./LICENSE)
 
 <br/>
 
@@ -435,9 +435,9 @@ adb shell am start -W -a android.intent.action.VIEW -d "https://sharodiya.com/pa
 
 ---
 
-## 📜 License & Community
+## 📜 License & Legal Notice
 
-This project is open-source software licensed under the **[MIT License](./LICENSE)**.  
+This software, source code, and associated assets are proprietary and confidential. All rights reserved. See **[LICENSE](./LICENSE)** for terms.  
 Built with devotion, engineering passion, and ❤️ for the millions of pandal-hoppers and festival-lovers across Bengal.
 
 <br/>
