@@ -71,8 +71,8 @@ class KolkataPujaApp extends StatelessWidget {
         return null;
       },
       routes: {
-        '/': (context) => isLoggedIn ? const AppRootCoordinator() : const WelcomeScreen(),
-        '/splash': (context) => isLoggedIn ? const AppRootCoordinator() : const WelcomeScreen(),
+        '/': (context) => const WelcomeScreen(),
+        '/splash': (context) => const AppRootCoordinator(),
         '/greeting': (context) => const AppRootCoordinator(),
         '/welcome': (context) => const WelcomeScreen(),
         '/login': (context) => const WelcomeScreen(),

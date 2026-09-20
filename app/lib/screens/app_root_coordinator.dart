@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/preload_state.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../services/location_service.dart';
+import '../widgets/app_tutorial_dialog.dart';
 import 'greeting_splash_screen.dart';
 import 'main_navigation_screen.dart';
 
@@ -167,6 +168,7 @@ class _AppRootCoordinatorState extends State<AppRootCoordinator> {
               onEnd: () {
                 if (_revealMap && mounted) {
                   setState(() => _fadeComplete = true);
+                  AppTutorialDialog.checkAndShow(context);
                 }
               },
               child: GreetingSplashScreen(

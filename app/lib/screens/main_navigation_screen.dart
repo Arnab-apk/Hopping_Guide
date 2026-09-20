@@ -71,9 +71,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     super.initState();
     _currentIndex = widget.initialIndex;
     MainNavigationScreen.tabSwitchNotifier.addListener(_handleExternalTabSwitch);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppTutorialDialog.checkAndShow(context);
-    });
+    if (widget.onMapReady == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        AppTutorialDialog.checkAndShow(context);
+      });
+    }
   }
 
   void _handleExternalTabSwitch() {

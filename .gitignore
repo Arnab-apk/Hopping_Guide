@@ -35,8 +35,17 @@ MAGIC_LANE_API_KEY
 .DS_Store
 Thumbs.db
 
-# --- Node (seed scripts) ---
+# --- Node (seed scripts & websocket server) ---
 scripts/node_modules/
+server/node_modules/
+server/dist/
 
 # --- Gradle build cache ---
 **/.gradle/
+
+# --- Widget Preview ---
+app/.widget_preview/
+
+# --- Development screenshots (keep assets and Android res) ---
+/*.png
+app/*.png

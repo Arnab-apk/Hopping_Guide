@@ -45,11 +45,8 @@ dependencies:
   firebase_core: ^4.14.0
   firebase_auth: ^6.6.1
   cloud_firestore: ^6.9.0
-  firebase_database: ^12.5.0
-  firebase_messaging: ^16.6.0
   google_sign_in: ^7.2.0
   geolocator: ^14.0.3
-  flutter_background_service: ^5.1.0
   flutter_local_notifications: ^18.0.1
   flutter_tts: ^4.2.0  # Text-to-speech for voice navigation
   http: ^1.6.0
@@ -57,7 +54,6 @@ dependencies:
   url_launcher: ^6.3.2
   provider: ^6.1.5+1
   cached_network_image: ^4.0.0
-  flutter_svg: ^2.3.0
   shared_preferences: ^2.5.5
   google_fonts: ^8.2.1
   rxdart: ^0.28.0
