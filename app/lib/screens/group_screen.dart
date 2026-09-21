@@ -568,82 +568,40 @@ class GroupScreen extends StatelessWidget {
     SquadSeparationAlert alert,
     SquadService squadService,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFEBEE),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.redAccent, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.red.withValues(alpha: 0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 2),
-            child: Icon(Icons.warning_amber_rounded, color: Colors.red, size: 24),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '⚠️ Separation Alert: ${alert.memberName} is straying!',
-                  style: const TextStyle(
-                    color: Color(0xFFC62828),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13.5,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Currently ${alert.distanceMeters}m away from the squad (Threshold: ${alert.thresholdMeters}m). Stay together in festive crowds!',
-                  style: const TextStyle(
-                    color: Color(0xFF424242),
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                      icon: const Icon(Icons.navigation_outlined, size: 16, color: PujaColors.durgaRed),
-                      label: const Text('Locate', style: TextStyle(color: PujaColors.durgaRed, fontSize: 12)),
-                      onPressed: () {
-                        HapticFeedback.selectionClick();
-                        squadService.focusMember(alert.memberId);
-                        MainNavigationScreen.switchTab(context, 0);
-                      },
-                    ),
-                    const SizedBox(width: 6),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                      child: const Text('Dismiss', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                      onPressed: () {
-                        squadService.dismissSeparationAlert();
-                      },
-                    ),
-                  ],
-                ),
-              ],
+    final colorScheme = theme.colorScheme;
+    return Card(
+      color: colorScheme.errorContainer,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Icon(Icons.warning_rounded, color: colorScheme.onErrorContainer, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '${alert.memberName} is ${formatDistance(alert.distanceMeters.toDouble())} away',
+                style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 13),
+              ),
             ),
-          ),
-        ],
+            TextButton(
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                squadService.focusMember(alert.memberId);
+                MainNavigationScreen.switchTab(context, 0);
+              },
+              child: const Text('Locate'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              tooltip: 'Dismiss',
+              onPressed: () => squadService.dismissSeparationAlert(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1352,7 +1310,7 @@ class GroupScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${member.markerStateDot} ${member.status} • $distanceText • ${member.lastSeenText}',
+                  '${member.markerStateDot} ${member.status} • ${member.lastSeenText}',
                   style: TextStyle(
                     fontSize: 11.5,
                     color: isDark ? Colors.white60 : Colors.black54,
@@ -1364,6 +1322,15 @@ class GroupScreen extends StatelessWidget {
             ),
           ),
           Text(
+            distanceText,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white70 : Colors.black54,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
             '🔋${member.batteryLevel}%',
             style: TextStyle(
               fontSize: 11,
@@ -1371,16 +1338,6 @@ class GroupScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 2),
-          // Locate on map button
-          IconButton(
-            icon: const Icon(Icons.navigation_outlined, color: PujaColors.durgaRed, size: 19),
-            tooltip: 'Locate on Map',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              squadService.focusMember(member.id);
-              MainNavigationScreen.switchTab(context, 0);
-            },
-          ),
           // Native dialer Call button
           IconButton(
             icon: const Icon(Icons.phone_rounded, color: Colors.green, size: 19),
@@ -1491,10 +1448,13 @@ class GroupScreen extends StatelessWidget {
                       builder: (context, snapshot) {
                         if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                           final latest = snapshot.data!.first;
-                          String preview = latest.text ?? 'Shared a photo';
-                          if (latest.isVideo) preview = 'Shared a video clip';
+                          final preview = latest.isImage
+                              ? '${latest.senderName} shared a photo'
+                              : latest.isVideo
+                                  ? '${latest.senderName} shared a video'
+                                  : 'New message from ${latest.senderName}';
                           return Text(
-                            '${latest.senderName.split(' ')[0]}: $preview',
+                            preview,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

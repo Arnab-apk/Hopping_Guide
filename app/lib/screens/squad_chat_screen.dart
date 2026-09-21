@@ -44,7 +44,6 @@ class SquadChatScreen extends StatefulWidget {
 class _SquadChatScreenState extends State<SquadChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _filterMediaOnly = false;
   bool _isSending = false;
 
   @override
@@ -93,42 +92,44 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Share Pandal Photo',
+                'Share a Photo',
                 style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   fontSize: 18,
                   color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Text(
-                'Take a live photo with camera or choose from gallery',
+                'Take a photo or choose from your gallery',
                 style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? Colors.white60 : Colors.black54,
+                  fontSize: 13,
+                  color: isDark ? Colors.white70 : Colors.black54,
                 ),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMediaOption(
-                    icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
-                    color: PujaColors.festivalGold,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _pickAndSendPhoto(ImageSource.camera);
-                    },
+                  Expanded(
+                    child: _buildAttachOption(
+                      icon: Icons.camera_alt,
+                      label: 'Camera',
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _pickAndSendPhoto(ImageSource.camera);
+                      },
+                    ),
                   ),
-                  _buildMediaOption(
-                    icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
-                    color: PujaColors.durgaRed,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _pickAndSendPhoto(ImageSource.gallery);
-                    },
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAttachOption(
+                      icon: Icons.photo_library,
+                      label: 'Gallery',
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _pickAndSendPhoto(ImageSource.gallery);
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -140,40 +141,27 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     );
   }
 
-  Widget _buildMediaOption({
+  Widget _buildAttachOption({
     required IconData icon,
     required String label,
-    required Color color,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () {
+    return OutlinedButton(
+      onPressed: () {
         HapticFeedback.selectionClick();
         onTap();
       },
-      child: Container(
-        width: 120,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: PujaColors.festivalGold,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon),
+          const SizedBox(height: 6),
+          Text(label),
+        ],
       ),
     );
   }
@@ -389,57 +377,20 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
           children: [
             Text(
               widget.squadName,
-              style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800),
+              style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             Text(
-              '${squadService.members.length == 1 ? '1 member' : '${squadService.members.length} members'} · Code: ${widget.squadCode}',
+              squadService.members.length == 1 ? '1 member' : '${squadService.members.length} members',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 11,
+                fontSize: 12,
                 color: isDark ? Colors.white60 : Colors.black54,
               ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            tooltip: _filterMediaOnly ? 'Show All Messages' : 'Photos Only',
-            icon: Icon(
-              _filterMediaOnly ? Icons.chat_bubble_outline_rounded : Icons.photo_library_outlined,
-              color: _filterMediaOnly ? PujaColors.festivalGold : null,
-            ),
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _filterMediaOnly = !_filterMediaOnly);
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
-          // Filter indicator banner
-          if (_filterMediaOnly)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: PujaColors.festivalGold.withValues(alpha: 0.15),
-              child: Row(
-                children: [
-                  const Icon(Icons.collections_rounded, size: 16, color: PujaColors.festivalGold),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'Showing Shared Photos Gallery',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => setState(() => _filterMediaOnly = false),
-                    child: const Text('Show All', style: TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
-            ),
-
           // Messages List
           Expanded(
             child: StreamBuilder<List<ChatMessage>>(
@@ -449,10 +400,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                   return const Center(child: CircularProgressIndicator(color: PujaColors.festivalGold));
                 }
 
-                var messages = snapshot.data ?? [];
-                if (_filterMediaOnly) {
-                  messages = messages.where((m) => m.type != ChatMessageType.text).toList();
-                }
+                final messages = snapshot.data ?? [];
 
                 if (messages.isEmpty) {
                   return Center(
@@ -462,14 +410,12 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                         PujaIcon.dhunuchiPriest(size: 54, color: PujaColors.festivalGold),
                         const SizedBox(height: 12),
                         Text(
-                          _filterMediaOnly ? 'No Shared Photos Yet' : 'No Squad Messages Yet',
+                          'No Squad Messages Yet',
                           style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          _filterMediaOnly
-                              ? 'Tap the camera icon below to share the first pandal moment!'
-                              : 'Coordinate your route, crowd updates, and meetup points.',
+                          'Coordinate your route, crowd updates, and meetup points.',
                           style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54),
                         ),
                       ],
@@ -582,8 +528,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isMe
-                    ? PujaColors.durgaRed
-                    : (isDark ? const Color(0xFF262732) : Colors.grey.shade200),
+                    ? PujaColors.festivalGold.withValues(alpha: 0.9)
+                    : Theme.of(context).colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -639,7 +585,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                       msg.text!,
                       style: TextStyle(
                         fontSize: 13.5,
-                        color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                        color: isMe ? Colors.black87 : (isDark ? Colors.white : Colors.black87),
                         height: 1.35,
                       ),
                     ),
@@ -649,7 +595,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                     timeStr,
                     style: TextStyle(
                       fontSize: 10,
-                      color: isMe ? Colors.white70 : (isDark ? Colors.white38 : Colors.black45),
+                      color: isMe ? Colors.black54 : (isDark ? Colors.white38 : Colors.black45),
                     ),
                   ),
                 ],
