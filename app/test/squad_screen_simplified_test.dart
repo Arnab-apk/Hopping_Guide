@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kolkata_puja/models/app_user.dart';
 import 'package:kolkata_puja/models/squad_member.dart';
 import 'package:kolkata_puja/screens/group_screen.dart';
+import 'package:kolkata_puja/screens/squad_settings_screen.dart';
 import 'package:kolkata_puja/services/auth_service.dart';
+import 'package:kolkata_puja/services/location_service.dart';
 import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +15,15 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    LocationService.enableTestMode = true;
+    SquadService.enableTestMode = true;
+    AuthService.instance.setCurrentUserForTesting(AppUser.guest());
+  });
+
+  tearDown(() {
+    LocationService.enableTestMode = false;
+    SquadService.enableTestMode = false;
+    AuthService.instance.setCurrentUserForTesting(null);
   });
 
   Widget createGroupScreenWithSquad(SquadService squadService) {
@@ -26,8 +38,8 @@ void main() {
     );
   }
 
-  group('Simplified Squad Screen (4 Cards) Widget Tests', () {
-    testWidgets('renders exactly 4 consolidated cards for active squad', (tester) async {
+  group('Radical Minimalism Squad Screen & Settings Tests', () {
+    testWidgets('renders only daily-use elements on main squad screen and single invite button', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -35,39 +47,52 @@ void main() {
 
       final squadService = SquadService.instance;
       squadService.resetForTesting();
-      await squadService.createSquad("Arnab's squad", 'Hatibagan Gate');
+      await tester.runAsync(() async {
+        await squadService.createSquad("Arnab's squad", 'Hatibagan Gate');
+      });
+      squadService.cancelTimersForTesting();
 
       await tester.pumpWidget(createGroupScreenWithSquad(squadService));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Header: Chat & Settings action icons with tooltips
+      expect(find.byTooltip('Squad Chat'), findsOneWidget);
+      expect(find.byTooltip('Squad Settings'), findsOneWidget);
+
+      // Verify 3-dot overflow menu is completely removed
+      expect(find.byType(PopupMenuButton<String>), findsNothing);
+      expect(find.byTooltip('Squad Options'), findsNothing);
 
       // Card 1: Squad Identity
       expect(find.text("Arnab's squad"), findsOneWidget);
       expect(find.text('1 member hopping together'), findsOneWidget);
-      expect(find.text('Invite Companions'), findsAtLeastNWidgets(1));
+      // Exactly ONE "Invite Companions" button exists on the entire page
+      expect(find.text('Invite Companions'), findsOneWidget);
+      expect(find.byTooltip('Copy Squad Code'), findsOneWidget);
 
-      // Card 2: Squad Settings
-      expect(find.text('Designated Meet-up Point'), findsOneWidget);
-      expect(find.text('Hatibagan Gate'), findsOneWidget);
+      // Card 2: GPS Sharing Toggle (Kept on main screen)
       expect(find.text('Share Live GPS Location'), findsOneWidget);
-      expect(find.text('Separation Alert Distance'), findsOneWidget);
-      expect(find.textContaining('500 m'), findsOneWidget);
 
       // Card 3: Squad Members
       expect(find.text('Members (1 Host, 0 Others)'), findsOneWidget);
       expect(find.text('HOST'), findsOneWidget);
       expect(find.textContaining('Tap to view Profile'), findsOneWidget);
-      expect(find.text('No companions have joined yet'), findsOneWidget);
+      // Empty state shows guidance message without duplicate button
+      expect(find.text('No companions yet — share your squad code above to get started'), findsOneWidget);
 
       // Card 4: Squad Chat & Media
       expect(find.text('Squad Chat & Media'), findsOneWidget);
       expect(find.text('Open Chat'), findsOneWidget);
 
-      // Verify NO duplicate standalone profile card or redundant top profile button
-      expect(find.byTooltip('My Profile'), findsNothing);
-      expect(find.text('Parikrama Traveler'), findsNothing);
+      // Verify configuration items are NOT cluttering the main screen
+      expect(find.text('Designated Meet-up Point'), findsNothing);
+      expect(find.text('Separation Alert Distance'), findsNothing);
+      expect(find.byIcon(Icons.edit_outlined), findsNothing);
+      expect(find.text('Hopping as Guest Hopper'), findsNothing);
     });
 
-    testWidgets('renders companion rows with Call and Locate buttons when companions join', (tester) async {
+    testWidgets('tapping settings gear opens SquadSettingsScreen with configuration items', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -75,9 +100,46 @@ void main() {
 
       final squadService = SquadService.instance;
       squadService.resetForTesting();
-      await squadService.createSquad("South Kolkata Hoppers", 'Deshapriya Park');
+      await tester.runAsync(() async {
+        await squadService.createSquad("Baghbazar Crawlers", 'Main Gate Entrance');
+      });
+      squadService.cancelTimersForTesting();
 
-      // Inject a companion member using test helper
+      await tester.pumpWidget(createGroupScreenWithSquad(squadService));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Tap settings gear in AppBar
+      await tester.tap(find.byTooltip('Squad Settings'));
+      await tester.pumpAndSettle();
+
+      // Verify SquadSettingsScreen is shown
+      expect(find.byType(SquadSettingsScreen), findsOneWidget);
+      expect(find.text('Squad Settings'), findsOneWidget);
+      expect(find.text('Squad name'), findsOneWidget);
+      expect(find.text('Baghbazar Crawlers'), findsOneWidget);
+      expect(find.text('Designated meet-up point'), findsOneWidget);
+      expect(find.text('Main Gate Entrance'), findsOneWidget);
+      expect(find.text('Separation alert distance'), findsOneWidget);
+      expect(find.text('500 m'), findsOneWidget);
+      expect(find.text('Link Google account'), findsOneWidget);
+      expect(find.text('Leave squad'), findsOneWidget);
+    });
+
+    testWidgets('renders companion rows with Call button and distance when companions join', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final squadService = SquadService.instance;
+      squadService.resetForTesting();
+      await tester.runAsync(() async {
+        await squadService.createSquad("South Kolkata Hoppers", 'Deshapriya Park');
+      });
+      squadService.cancelTimersForTesting();
+
+      // Inject a companion member with phone number
       squadService.addCompanionForTesting(
         SquadMember(
           id: 'companion_rahul',
@@ -94,13 +156,51 @@ void main() {
       );
 
       await tester.pumpWidget(createGroupScreenWithSquad(squadService));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Card 3 header updates to 1 Other
       expect(find.text('Members (1 Host, 1 Others)'), findsOneWidget);
       expect(find.text('Rahul Sen'), findsOneWidget);
       expect(find.byTooltip('Call Companion'), findsOneWidget);
-      expect(find.byTooltip('Locate on Map'), findsOneWidget);
+    });
+
+    testWidgets('hides Call button for companion without phone number', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final squadService = SquadService.instance;
+      squadService.resetForTesting();
+      await tester.runAsync(() async {
+        await squadService.createSquad("North Kolkata Gang", 'Bagbazar Ghat');
+      });
+      squadService.cancelTimersForTesting();
+
+      // Inject a companion member WITHOUT phone number
+      squadService.addCompanionForTesting(
+        SquadMember(
+          id: 'companion_sourav',
+          name: 'Sourav Ganguly',
+          latitude: 22.6000,
+          longitude: 88.3700,
+          status: 'Near idol',
+          isHost: false,
+          isUser: false,
+          batteryLevel: 92,
+          phoneNumber: null,
+          lastSeen: DateTime.now(),
+        ),
+      );
+
+      await tester.pumpWidget(createGroupScreenWithSquad(squadService));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Sourav Ganguly'), findsOneWidget);
+      // No call button since member has no phone number
+      expect(find.byTooltip('Call Companion'), findsNothing);
     });
   });
 }

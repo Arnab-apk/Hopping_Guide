@@ -152,7 +152,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         onTap();
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: PujaColors.festivalGold,
+        foregroundColor: AppColors.chipMuted,
+        side: const BorderSide(color: AppColors.chipMuted, width: 1.2),
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -235,7 +236,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('📸 Photo shared with squad!'),
-            backgroundColor: PujaColors.durgaRed,
+            backgroundColor: AppColors.chipMuted,
             duration: Duration(seconds: 2),
           ),
         );
@@ -397,7 +398,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               stream: SquadChatService.instance.messagesStream(widget.squadCode),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator(color: PujaColors.festivalGold));
+                  return const Center(child: CircularProgressIndicator(color: AppColors.chipMuted));
                 }
 
                 final messages = snapshot.data ?? [];
@@ -407,7 +408,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        PujaIcon.dhunuchiPriest(size: 54, color: PujaColors.festivalGold),
+                        PujaIcon.dhunuchiPriest(size: 54, color: AppColors.chipMuted),
                         const SizedBox(height: 12),
                         Text(
                           'No Squad Messages Yet',
@@ -442,7 +443,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
           if (_isSending)
             const LinearProgressIndicator(
               minHeight: 2,
-              color: PujaColors.festivalGold,
+              color: AppColors.chipMuted,
               backgroundColor: Colors.transparent,
             ),
 
@@ -459,7 +460,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_photo_alternate_rounded, color: PujaColors.festivalGold),
+                    icon: const Icon(Icons.add_photo_alternate_rounded, color: AppColors.chipMuted),
                     tooltip: 'Share Photo',
                     onPressed: _showMediaPicker,
                   ),
@@ -484,7 +485,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                   const SizedBox(width: 6),
                   Container(
                     decoration: const BoxDecoration(
-                      color: PujaColors.durgaRed,
+                      color: AppColors.chipMuted,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -514,10 +515,10 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
           if (!isMe) ...[
             CircleAvatar(
               radius: 14,
-              backgroundColor: PujaColors.festivalGold.withValues(alpha: 0.2),
+              backgroundColor: AppColors.chipMuted.withValues(alpha: 0.2),
               child: Text(
                 msg.senderInitials,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.chipMuted),
               ),
             ),
             const SizedBox(width: 8),
@@ -528,7 +529,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isMe
-                    ? PujaColors.festivalGold.withValues(alpha: 0.9)
+                    ? AppColors.chipMuted
                     : Theme.of(context).colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
@@ -555,7 +556,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? PujaColors.festivalGold : Colors.black87,
+                          color: isDark ? AppColors.accentGold : Colors.black87,
                         ),
                       ),
                     ),
@@ -585,7 +586,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                       msg.text!,
                       style: TextStyle(
                         fontSize: 13.5,
-                        color: isMe ? Colors.black87 : (isDark ? Colors.white : Colors.black87),
+                        color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
                         height: 1.35,
                       ),
                     ),
@@ -595,7 +596,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                     timeStr,
                     style: TextStyle(
                       fontSize: 10,
-                      color: isMe ? Colors.black54 : (isDark ? Colors.white38 : Colors.black45),
+                      color: isMe ? Colors.white70 : (isDark ? Colors.white38 : Colors.black45),
                     ),
                   ),
                 ],

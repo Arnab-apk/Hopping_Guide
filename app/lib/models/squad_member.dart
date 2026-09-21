@@ -46,6 +46,8 @@ class SquadMember {
 
   Color get avatarColor => Color(avatarColorHex);
 
+  bool get hasPhone => phoneNumber != null && phoneNumber!.trim().isNotEmpty;
+
   Duration get ageSinceLastSeen => DateTime.now().difference(lastSeen);
 
   MemberMarkerState get markerState {

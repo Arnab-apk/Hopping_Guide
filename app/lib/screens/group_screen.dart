@@ -8,7 +8,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/theme.dart';
 import '../models/chat_message.dart';
 import '../models/squad_member.dart';
-import '../services/auth_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
 import '../services/websocket_client.dart';
@@ -17,13 +16,16 @@ import '../widgets/puja_icons.dart';
 import '../widgets/user_profile_sheet.dart';
 import 'main_navigation_screen.dart';
 import 'squad_chat_screen.dart';
+import 'squad_settings_screen.dart';
 
-/// Simplified Screen for Durga Puja Hopping Squads.
-/// Consolidated into 4 cohesive cards:
-/// 1. Squad Identity Card (name, code, invite action)
-/// 2. Squad Settings Card (meetup landmark, live GPS toggle, separation threshold)
-/// 3. Squad Members Card (host row with profile link, companion list, dialer call, inline empty state)
-/// 4. Squad Chat & Media Card (live messaging, photo/video sharing entry)
+/// Radically simplified Screen for Durga Puja Hopping Squads.
+/// Follows the restrained, muted rose/mauve and dark maroon palette (`AppColors`).
+/// Main screen focuses strictly on daily-use actions:
+/// 1. Squad Identity (name, code, member count, ONE invite button)
+/// 2. Live GPS Sharing Toggle (single row, safety-critical)
+/// 3. Squad Members (host row, companion rows, minimal empty guidance)
+/// 4. Squad Chat & Media (unmoderated preview, one-tap navigation)
+/// Configuration and settings live exclusively in [SquadSettingsScreen] accessed via the AppBar.
 class GroupScreen extends StatelessWidget {
   const GroupScreen({super.key});
 
@@ -36,8 +38,9 @@ class GroupScreen extends StatelessWidget {
         text: 'Join my Durga Puja Hopping Squad "$name" on Uma App!\n\n'
             '🔑 Squad Code: $code\n'
             '📍 Meet-up Point: ${squadService.meetupPointName}\n\n'
-            '🔗 Tap to auto-join: https://sharodiya.com/join?code=$code\n'
-            '📱 App Link: pujoparikrama://join?code=$code',
+            '🚀 Tap to open & auto-join in Uma:\n'
+            'pujoparikrama://join?code=$code\n\n'
+            '(Or open Uma app -> Hopping Squad -> Enter Code: $code)',
       ),
     );
   }
@@ -76,6 +79,9 @@ class GroupScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.chipMuted,
+            ),
             onPressed: () async {
               final rawName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
               final squadName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
@@ -124,6 +130,9 @@ class GroupScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.chipMuted,
+            ),
             onPressed: () async {
               final code = controller.text.trim().toUpperCase();
               if (code.isNotEmpty) {
@@ -132,7 +141,7 @@ class GroupScreen extends StatelessWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      backgroundColor: success ? const Color(0xFFD32F2F) : Colors.orange.shade800,
+                      backgroundColor: success ? AppColors.chipMuted : AppColors.semanticAlert,
                       content: Text(
                         success
                             ? 'Joined squad $code!'
@@ -144,183 +153,6 @@ class GroupScreen extends StatelessWidget {
               }
             },
             child: const Text('Join'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _leaveGroup(BuildContext context, SquadService squadService) async {
-    final rawName = squadService.squadName ?? 'Squad';
-    final cleanName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Leave Squad?'),
-        content: Text('Are you sure you want to leave "$cleanName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Leave'),
-          ),
-        ],
-      ),
-    );
-    if (confirm == true) {
-      await squadService.leaveSquad();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You left the squad.')),
-        );
-      }
-    }
-  }
-
-  void _showEditSquadNameDialog(BuildContext context, SquadService squadService) {
-    final current = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
-    final controller = TextEditingController(text: current);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Edit Squad Name'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Squad Name',
-            hintText: 'e.g. Bagbazar Pandal Crawlers',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final newName = controller.text.trim();
-              if (newName.isNotEmpty) {
-                squadService.updateSquadName(newName);
-              }
-              Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _setMeetupPoint(BuildContext context, SquadService squadService) {
-    final controller = TextEditingController(text: squadService.meetupPointName);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Set Meet-up Point'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Landmark / Gate',
-            hintText: 'e.g. Under Gariahat Flyover clock',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                squadService.setMeetupPoint(controller.text.trim());
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Meet-up point updated to ${squadService.meetupPointName}')),
-                );
-              }
-            },
-            child: const Text('Update'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSeparationThresholdDialog(BuildContext context, SquadService squadService) {
-    final current = squadService.separationThresholdMeters;
-    showDialog(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('Separation Alert Distance'),
-        children: [100, 250, 500, 1000].map((meters) {
-          final isSelected = current == meters;
-          return ListTile(
-            leading: Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? PujaColors.durgaRed : null,
-            ),
-            title: Text('$meters m ${meters == 500 ? '(Standard)' : ''}'),
-            subtitle: Text(
-              meters <= 250
-                  ? 'High sensitivity — dense pandal crowds'
-                  : meters <= 500
-                      ? 'Standard pandal hopping zone'
-                      : 'Wide area — neighborhood parikrama',
-              style: const TextStyle(fontSize: 12),
-            ),
-            onTap: () {
-              squadService.setSeparationThreshold(meters);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Separation alert threshold set to $meters m')),
-              );
-            },
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  void _triggerSeparationSOS(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.red.shade900,
-        title: Row(
-          children: [
-            PujaIcon.trishulEyes(color: Colors.white, size: 28),
-            const SizedBox(width: 8),
-            const Text('Separation Alert (SOS)', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        content: const Text(
-          'This will send a high-priority push notification and vibration to all squad members '
-          'with your exact current GPS coordinates and designated meet-up point.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.amber),
-            onPressed: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  backgroundColor: Colors.red,
-                  content: Text('🚨 Separation Alert dispatched to squad members!'),
-                  duration: Duration(seconds: 4),
-                ),
-              );
-            },
-            child: const Text('Send Alert Now', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -359,28 +191,56 @@ class GroupScreen extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final squadService = Provider.of<SquadService>(context);
 
+    final squadCode = squadService.squadCode ?? '';
+    final squadName = (squadService.squadName ?? 'Squad Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hopping Squad'),
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            tooltip: 'Squad Options',
-            onSelected: (value) {
-              if (value == 'create') _createGroup(context, squadService);
-              if (value == 'join') _joinGroup(context, squadService);
-              if (value == 'leave') _leaveGroup(context, squadService);
-            },
-            itemBuilder: (ctx) => [
-              const PopupMenuItem(value: 'create', child: Text('Create New Squad')),
-              const PopupMenuItem(value: 'join', child: Text('Join Squad Code')),
-              if (squadService.hasActiveSquad)
-                const PopupMenuItem(
-                  value: 'leave',
-                  child: Text('Leave Current Squad', style: TextStyle(color: Colors.red)),
-                ),
-            ],
-          ),
+          if (squadService.hasActiveSquad) ...[
+            IconButton(
+              icon: StreamBuilder<List<ChatMessage>>(
+                stream: squadCode.isNotEmpty
+                    ? SquadChatService.instance.messagesStream(squadCode)
+                    : null,
+                builder: (context, snapshot) {
+                  final hasMessages = snapshot.hasData && snapshot.data!.isNotEmpty;
+                  return Badge(
+                    isLabelVisible: hasMessages,
+                    backgroundColor: AppColors.chipMuted,
+                    child: const Icon(Icons.chat_bubble_outline),
+                  );
+                },
+              ),
+              tooltip: 'Squad Chat',
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SquadChatScreen(
+                      squadCode: squadCode,
+                      squadName: squadName,
+                    ),
+                  ),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              tooltip: 'Squad Settings',
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const SquadSettingsScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
       body: !squadService.hasActiveSquad
@@ -402,10 +262,10 @@ class GroupScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: PujaColors.durgaRed.withValues(alpha: 0.1),
+                    color: AppColors.chipMuted.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: PujaIcon.dhaki(size: 64, color: PujaColors.durgaRed),
+                  child: PujaIcon.dhaki(size: 64, color: AppColors.chipMuted),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -423,6 +283,10 @@ class GroupScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.chipMuted,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
                     icon: const Icon(Icons.add),
                     label: const Text('Create New Squad'),
                     onPressed: () => _createGroup(context, squadService),
@@ -432,6 +296,11 @@ class GroupScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: AppColors.chipMuted, width: 1.2),
+                      foregroundColor: AppColors.chipMuted,
+                    ),
                     icon: const Icon(Icons.login),
                     label: const Text('Join with Squad Code'),
                     onPressed: () => _joinGroup(context, squadService),
@@ -446,8 +315,6 @@ class GroupScreen extends StatelessWidget {
   }
 
   Widget _buildActiveGroupView(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
-    final authUser = context.watch<AuthService?>()?.currentUserModel ?? AuthService.instance.currentUserModel;
-    final isGuest = authUser?.isGuest ?? false;
     final alert = squadService.activeSeparationAlert;
 
     return ListView(
@@ -457,31 +324,25 @@ class GroupScreen extends StatelessWidget {
         _buildConnectionPill(context, squadService, isDark),
         const SizedBox(height: 12),
 
-        // Separation Alert Banner (if companion is straying)
+        // Separation Alert Banner (only appears when actually triggered)
         if (alert != null) ...[
           _buildSeparationAlertBanner(context, theme, alert, squadService),
           const SizedBox(height: 12),
         ],
 
-        // Guest Upgrade Banner (if anonymous user)
-        if (isGuest) ...[
-          _buildGuestUpgradeBanner(context, theme, isDark),
-          const SizedBox(height: 12),
-        ],
-
-        // Card 1 — Squad Identity
+        // 1. Squad Identity Card (Name, Code, Member Count, ONE Invite Button)
         _buildSquadIdentityCard(context, theme, isDark, squadService),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
 
-        // Card 2 — Squad Settings (merges meetup point, GPS toggle, and separation alert threshold)
-        _buildSquadSettingsCard(context, theme, isDark, squadService),
-        const SizedBox(height: 16),
+        // 2. GPS Sharing Toggle Card (Single row, safety-relevant)
+        _buildGpsSharingCard(context, theme, isDark, squadService),
+        const SizedBox(height: 14),
 
-        // Card 3 — Squad Members (host row + companion rows + inline empty state)
+        // 3. Squad Members Card (Host row, companion list, or minimal guidance text)
         _buildSquadMembersCard(context, theme, isDark, squadService),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
 
-        // Card 4 — Squad Chat & Media
+        // 4. Squad Chat & Media Card (Unmoderated preview)
         _buildSquadChatCard(context, theme, isDark, squadService),
         const SizedBox(height: 24),
       ],
@@ -496,36 +357,36 @@ class GroupScreen extends StatelessWidget {
 
     switch (state) {
       case WebSocketConnectionState.connected:
-        dotColor = const Color(0xFF00E676);
-        statusText = 'Neon Realtime Connected';
-        bgColor = (isDark ? const Color(0xFF1B3820) : const Color(0xFFE8F5E9));
+        dotColor = AppColors.semanticLive;
+        statusText = 'Connected';
+        bgColor = AppColors.semanticLive.withValues(alpha: 0.18);
         break;
       case WebSocketConnectionState.connecting:
-        dotColor = const Color(0xFFFFB300);
-        statusText = 'Connecting to Neon Realtime...';
-        bgColor = (isDark ? const Color(0xFF3E2723) : const Color(0xFFFFF8E1));
+        dotColor = AppColors.accentGold;
+        statusText = 'Connecting...';
+        bgColor = AppColors.accentGold.withValues(alpha: 0.15);
         break;
       case WebSocketConnectionState.reconnecting:
-        dotColor = const Color(0xFFFF9800);
-        statusText = 'Reconnecting to Squad...';
-        bgColor = (isDark ? const Color(0xFF3E2723) : const Color(0xFFFFF3E0));
+        dotColor = AppColors.accentGold;
+        statusText = 'Reconnecting...';
+        bgColor = AppColors.accentGold.withValues(alpha: 0.15);
         break;
       case WebSocketConnectionState.error:
       case WebSocketConnectionState.disconnected:
         dotColor = Colors.grey;
-        statusText = 'Realtime Offline';
-        bgColor = (isDark ? const Color(0xFF262626) : const Color(0xFFF5F5F5));
+        statusText = 'Offline';
+        bgColor = isDark ? const Color(0xFF262626) : const Color(0xFFF5F5F5);
         break;
     }
 
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: dotColor.withValues(alpha: 0.4),
+            color: dotColor.withValues(alpha: 0.35),
             width: 1,
           ),
         ),
@@ -533,21 +394,14 @@ class GroupScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 8,
-              height: 8,
+              width: 7,
+              height: 7,
               decoration: BoxDecoration(
                 color: dotColor,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: dotColor.withValues(alpha: 0.5),
-                    blurRadius: 4,
-                    spreadRadius: 1,
-                  ),
-                ],
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 7),
             Text(
               statusText,
               style: TextStyle(
@@ -568,24 +422,33 @@ class GroupScreen extends StatelessWidget {
     SquadSeparationAlert alert,
     SquadService squadService,
   ) {
-    final colorScheme = theme.colorScheme;
     return Card(
-      color: colorScheme.errorContainer,
+      color: AppColors.semanticAlert.withValues(alpha: 0.15),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: AppColors.semanticAlert, width: 1),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: Row(
           children: [
-            Icon(Icons.warning_rounded, color: colorScheme.onErrorContainer, size: 20),
-            const SizedBox(width: 12),
+            const Icon(Icons.warning_rounded, color: AppColors.semanticAlert, size: 20),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 '${alert.memberName} is ${formatDistance(alert.distanceMeters.toDouble())} away',
-                style: TextStyle(color: colorScheme.onErrorContainer, fontSize: 13),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.semanticAlert,
+                visualDensity: VisualDensity.compact,
+              ),
               onPressed: () {
                 HapticFeedback.selectionClick();
                 squadService.focusMember(alert.memberId);
@@ -596,100 +459,12 @@ class GroupScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.close, size: 18),
               padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
               tooltip: 'Dismiss',
               onPressed: () => squadService.dismissSeparationAlert(),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildGuestUpgradeBanner(
-    BuildContext context,
-    ThemeData theme,
-    bool isDark,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF2C2214) : const Color(0xFFFFF8E1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: PujaColors.festivalGold.withValues(alpha: 0.6),
-          width: 1.2,
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(
-            Icons.shield_outlined,
-            color: PujaColors.festivalGold,
-            size: 24,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Hopping as Guest Hopper',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13.5,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Link your Google account to save your squad and keep your spot across phones without changing your ID.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.white70 : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 32,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: PujaColors.festivalGold,
-                      foregroundColor: Colors.black87,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      elevation: 0,
-                    ),
-                    icon: const Icon(Icons.login, size: 16),
-                    label: const Text('Link Google Account', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    onPressed: () async {
-                      HapticFeedback.mediumImpact();
-                      final scaffoldMessenger = ScaffoldMessenger.of(context);
-                      final res = await AuthService.instance.upgradeGuestToGoogle();
-                      if (res.isSuccess) {
-                        scaffoldMessenger.showSnackBar(
-                          const SnackBar(
-                            content: Text('🎉 Account upgraded to Google! Your squad membership is preserved.'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      } else if (res.isCancelled) {
-                        // User cancelled Google picker, do nothing
-                      } else {
-                        scaffoldMessenger.showSnackBar(
-                          SnackBar(
-                            content: Text(res.errorMessage ?? 'Failed to upgrade account'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -703,13 +478,13 @@ class GroupScreen extends StatelessWidget {
     final code = squadService.squadCode ?? '';
 
     return Card(
-      color: isDark ? PujaColors.nightCard : Colors.white,
-      elevation: 2,
+      color: isDark ? AppColors.cardSurface : Colors.white,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: PujaColors.festivalGold.withValues(alpha: 0.35),
-          width: 1.2,
+          color: isDark ? Colors.white12 : Colors.black12,
+          width: 1,
         ),
       ),
       child: Padding(
@@ -724,29 +499,11 @@ class GroupScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () => _showEditSquadNameDialog(context, squadService),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                displayName,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'serif',
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            const Icon(
-                              Icons.edit_outlined,
-                              size: 16,
-                              color: PujaColors.festivalGold,
-                            ),
-                          ],
+                      Text(
+                        displayName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -760,15 +517,15 @@ class GroupScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Squad Code Pill
+                // Squad Code Pill with subtle gold border
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: PujaColors.crimsonVelvet.withValues(alpha: 0.12),
+                    color: isDark ? const Color(0xFF1E1414) : const Color(0xFFFDF7F7),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.45),
-                      width: 1.2,
+                      color: AppColors.accentGold,
+                      width: 1,
                     ),
                   ),
                   child: Row(
@@ -777,27 +534,26 @@ class GroupScreen extends StatelessWidget {
                       Text(
                         code,
                         style: TextStyle(
-                          color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          letterSpacing: 2,
+                          color: isDark ? AppColors.accentGold : const Color(0xFF5A1E1E),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          letterSpacing: 1.5,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () {
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                        icon: const Icon(Icons.copy_rounded, size: 15),
+                        tooltip: 'Copy Squad Code',
+                        color: isDark ? AppColors.accentGold : const Color(0xFF5A1E1E),
+                        onPressed: () {
                           Clipboard.setData(ClipboardData(text: code));
                           HapticFeedback.lightImpact();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Squad code copied to clipboard!')),
                           );
                         },
-                        child: Icon(
-                          Icons.copy_rounded,
-                          size: 16,
-                          color: isDark ? PujaColors.goldBright : PujaColors.crimsonVelvet,
-                        ),
                       ),
                     ],
                   ),
@@ -805,11 +561,13 @@ class GroupScreen extends StatelessWidget {
               ],
             ),
             const Divider(height: 24),
+            // The ONE Invite Companions button on the page
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(
-                  backgroundColor: PujaColors.durgaRed,
+                  backgroundColor: AppColors.chipMuted,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -830,11 +588,11 @@ class GroupScreen extends StatelessWidget {
     );
   }
 
-  // --- CARD 2: SQUAD SETTINGS (Merges 3 cards: meetup landmark + GPS switch + Separation alert) ---
-  Widget _buildSquadSettingsCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
+  // --- CARD 2: LIVE GPS SHARING (Single Row) ---
+  Widget _buildGpsSharingCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
     return Card(
-      color: isDark ? PujaColors.nightCard : Colors.white,
-      elevation: 2,
+      color: isDark ? AppColors.cardSurface : Colors.white,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
@@ -843,175 +601,55 @@ class GroupScreen extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Column(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
           children: [
-            // Row 1: Meet-up Point
-            InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                HapticFeedback.selectionClick();
-                _setMeetupPoint(context, squadService);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: PujaColors.festivalGold.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: PujaIcon.kalash(color: PujaColors.festivalGold, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Designated Meet-up Point',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: PujaColors.festivalGold,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            squadService.meetupPointName,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13.5,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.edit_outlined, size: 18, color: Colors.grey),
-                  ],
-                ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (squadService.isSharingLocation ? AppColors.semanticLive : Colors.grey)
+                    .withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                squadService.isSharingLocation ? Icons.location_on : Icons.location_off,
+                color: squadService.isSharingLocation ? AppColors.semanticLive : Colors.grey,
+                size: 20,
               ),
             ),
-
-            const Divider(height: 16),
-
-            // Row 2: Live Location Sharing Toggle
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: (squadService.isSharingLocation ? const Color(0xFF00E676) : Colors.grey)
-                          .withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      squadService.isSharingLocation ? Icons.location_on : Icons.location_off,
-                      color: squadService.isSharingLocation ? const Color(0xFF00E676) : Colors.grey,
-                      size: 22,
+                  Text(
+                    'Share Live GPS Location',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Share Live GPS Location',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13.5,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          squadService.isSharingLocation
-                              ? 'Broadcasting live pin to squad'
-                              : 'Live location is paused',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            color: isDark ? Colors.white54 : Colors.black54,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 2),
+                  Text(
+                    squadService.isSharingLocation
+                        ? 'Broadcasting live pin to squad'
+                        : 'Live location is paused',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark ? Colors.white54 : Colors.black54,
                     ),
-                  ),
-                  Switch.adaptive(
-                    value: squadService.isSharingLocation,
-                    activeThumbColor: const Color(0xFF00E676),
-                    activeTrackColor: const Color(0xFF00E676).withValues(alpha: 0.3),
-                    onChanged: (val) {
-                      HapticFeedback.selectionClick();
-                      squadService.toggleLocationSharing(val);
-                    },
                   ),
                 ],
               ),
             ),
-
-            const Divider(height: 16),
-
-            // Row 3: Separation Alert Distance & SOS
-            InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
+            Switch.adaptive(
+              value: squadService.isSharingLocation,
+              activeThumbColor: AppColors.semanticLive,
+              activeTrackColor: AppColors.semanticLive.withValues(alpha: 0.3),
+              onChanged: (val) {
                 HapticFeedback.selectionClick();
-                _showSeparationThresholdDialog(context, squadService);
+                squadService.toggleLocationSharing(val);
               },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: PujaIcon.trishulEyes(color: Colors.red, size: 22),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Separation Alert Distance',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13.5,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Threshold: ${squadService.separationThresholdMeters} m • Tap to configure',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: isDark ? Colors.white54 : Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // SOS trigger button
-                    IconButton(
-                      icon: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 22),
-                      tooltip: 'Send Separation SOS Alert',
-                      onPressed: () {
-                        HapticFeedback.heavyImpact();
-                        _triggerSeparationSOS(context);
-                      },
-                    ),
-                    const Icon(Icons.tune_rounded, size: 18, color: Colors.grey),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -1019,15 +657,15 @@ class GroupScreen extends StatelessWidget {
     );
   }
 
-  // --- CARD 3: SQUAD MEMBERS (Host row + Companion rows + Inline empty state) ---
+  // --- CARD 3: SQUAD MEMBERS (Host row + Companion rows + Minimal Guidance) ---
   Widget _buildSquadMembersCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
     final members = squadService.members;
     final userMember = members.where((m) => m.isUser).firstOrNull;
     final companions = squadService.companionMembers;
 
     return Card(
-      color: isDark ? PujaColors.nightCard : Colors.white,
-      elevation: 2,
+      color: isDark ? AppColors.cardSurface : Colors.white,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
@@ -1078,56 +716,20 @@ class GroupScreen extends StatelessWidget {
             if (userMember != null)
               _buildHostRow(context, userMember, theme, isDark),
 
-            // Companions or Inline Empty State
+            // Companions or Minimal Guidance (NO duplicate Invite button)
             if (companions.isEmpty) ...[
               const Divider(height: 16),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  children: [
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: PujaColors.festivalGold.withValues(alpha: 0.12),
-                        ),
-                        child: PujaIcon.dhaki(
-                          size: 36,
-                          color: PujaColors.festivalGold,
-                        ),
-                      ),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: Text(
+                    'No companions yet — share your squad code above to get started',
+                    style: TextStyle(
+                      color: isDark ? Colors.white60 : Colors.black54,
+                      fontSize: 13,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'No companions have joined yet',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Share squad code "${squadService.squadCode}" to hop together.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.white60 : Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        side: BorderSide(color: PujaColors.festivalGold.withValues(alpha: 0.5)),
-                      ),
-                      icon: PujaIcon.shankha(size: 16, color: PujaColors.festivalGold),
-                      label: const Text('Invite Companions', style: TextStyle(fontSize: 12)),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        _shareInvite(context, squadService);
-                      },
-                    ),
-                  ],
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ] else ...[
@@ -1159,7 +761,7 @@ class GroupScreen extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: PujaColors.festivalGold, width: 2),
+                border: Border.all(color: AppColors.accentGold, width: 1.5),
               ),
               child: ClipOval(
                 child: userMember.photoUrl != null && userMember.photoUrl!.isNotEmpty
@@ -1167,12 +769,12 @@ class GroupScreen extends StatelessWidget {
                         imageUrl: userMember.photoUrl!,
                         fit: BoxFit.cover,
                         errorWidget: (c, u, e) => CircleAvatar(
-                          backgroundColor: PujaColors.durgaRed.withValues(alpha: 0.2),
+                          backgroundColor: AppColors.chipMuted.withValues(alpha: 0.2),
                           child: Text(userMember.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       )
                     : CircleAvatar(
-                        backgroundColor: PujaColors.durgaRed.withValues(alpha: 0.2),
+                        backgroundColor: AppColors.chipMuted.withValues(alpha: 0.2),
                         child: Text(userMember.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
                       ),
               ),
@@ -1196,12 +798,12 @@ class GroupScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: Colors.amber.withValues(alpha: 0.2),
+                          color: AppColors.accentGold.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
                           'HOST',
-                          style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.amber),
+                          style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppColors.accentGold),
                         ),
                       ),
                     ],
@@ -1211,7 +813,7 @@ class GroupScreen extends StatelessWidget {
                     '${userMember.markerStateDot} 0 m (Here) • Tap to view Profile',
                     style: const TextStyle(
                       fontSize: 11.5,
-                      color: PujaColors.festivalGold,
+                      color: AppColors.accentGold,
                     ),
                   ),
                 ],
@@ -1289,7 +891,7 @@ class GroupScreen extends StatelessWidget {
                   width: 10,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: member.isOnline ? const Color(0xFF00E676) : Colors.grey,
+                    color: member.isOnline ? AppColors.semanticLive : Colors.grey,
                     shape: BoxShape.circle,
                     border: Border.all(color: isDark ? const Color(0xFF1E1E1E) : Colors.white, width: 1.5),
                   ),
@@ -1334,19 +936,21 @@ class GroupScreen extends StatelessWidget {
             '🔋${member.batteryLevel}%',
             style: TextStyle(
               fontSize: 11,
-              color: member.batteryLevel < 20 ? Colors.red : (isDark ? Colors.white60 : Colors.black54),
+              color: member.batteryLevel < 20 ? AppColors.semanticAlert : (isDark ? Colors.white60 : Colors.black54),
             ),
           ),
-          const SizedBox(width: 2),
           // Native dialer Call button
-          IconButton(
-            icon: const Icon(Icons.phone_rounded, color: Colors.green, size: 19),
-            tooltip: 'Call Companion',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              _callCompanion(context, member);
-            },
-          ),
+          if (member.hasPhone) ...[
+            const SizedBox(width: 2),
+            IconButton(
+              icon: const Icon(Icons.phone_rounded, color: AppColors.semanticLive, size: 19),
+              tooltip: 'Call Companion',
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                _callCompanion(context, member);
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -1358,13 +962,13 @@ class GroupScreen extends StatelessWidget {
     final squadName = (squadService.squadName ?? 'Squad Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
 
     return Card(
-      color: isDark ? PujaColors.nightCard : Colors.white,
-      elevation: 2,
+      color: isDark ? AppColors.cardSurface : Colors.white,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: PujaColors.durgaRed.withValues(alpha: 0.35),
-          width: 1.2,
+          color: isDark ? Colors.white12 : Colors.black12,
+          width: 1,
         ),
       ),
       child: InkWell(
@@ -1387,24 +991,10 @@ class GroupScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      PujaColors.durgaRed,
-                      PujaColors.crimsonVelvet,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppColors.chipMuted.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: PujaColors.durgaRed.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
-                child: const Icon(Icons.forum_rounded, color: Colors.white, size: 24),
+                child: const Icon(Icons.forum_rounded, color: AppColors.chipMuted, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1428,7 +1018,7 @@ class GroupScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                           decoration: BoxDecoration(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.2),
+                            color: AppColors.semanticLive.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
@@ -1436,13 +1026,14 @@ class GroupScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 9.5,
                               fontWeight: FontWeight.w800,
-                              color: PujaColors.festivalGold,
+                              color: AppColors.semanticLive,
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 3),
+                    // Unmoderated Preview Protection: Generic friendly preview instead of raw unmoderated text
                     StreamBuilder<List<ChatMessage>>(
                       stream: SquadChatService.instance.messagesStream(squadCode),
                       builder: (context, snapshot) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'pandal_theme_tokens.dart';
+export 'app_colors.dart';
 
 /// Design tokens matching the Google Material 3 / Material You aesthetic
 /// adapted for Kolkata Durga Puja. Combines authentic Google tonal surfaces,

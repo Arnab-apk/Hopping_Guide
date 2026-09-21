@@ -46,6 +46,16 @@ void main() {
       expect(extractSquadCode(uri), equals('PUJAX4K9'));
     });
 
+    test('parses route URI received by Flutter route observer: /?code=PUJAUB5P', () {
+      final uri = Uri.parse('/?code=PUJAUB5P');
+      expect(extractSquadCode(uri), equals('PUJAUB5P'));
+    });
+
+    test('parses route URI with join path: /join?code=PUJAUB5P', () {
+      final uri = Uri.parse('/join?code=PUJAUB5P');
+      expect(extractSquadCode(uri), equals('PUJAUB5P'));
+    });
+
     test('parses custom scheme squad invite path: pujoparikrama://join/PUJAB9Z2', () {
       final uri = Uri.parse('pujoparikrama://join/PUJAB9Z2');
       expect(extractSquadCode(uri), equals('PUJAB9Z2'));

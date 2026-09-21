@@ -84,6 +84,12 @@ class AuthService extends ChangeNotifier {
   bool get isGoogleUser =>
       currentUserModel != null && !currentUserModel!.isGuest;
 
+  @visibleForTesting
+  void setCurrentUserForTesting(AppUser? user) {
+    _currentUserModel = user;
+    notifyListeners();
+  }
+
   Future<void> _loadSavedUser() async {
     try {
       final prefs = _prefs ?? await SharedPreferences.getInstance();

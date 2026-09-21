@@ -117,8 +117,22 @@ void _initDeepLinks(SquadService squadService) {
   });
 }
 
+String? _lastHandledUri;
+DateTime? _lastHandledTime;
+
 /// Process incoming deep link URI and execute appropriate flow
 Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
+  final uriString = uri.toString();
+  final now = DateTime.now();
+  if (_lastHandledUri == uriString &&
+      _lastHandledTime != null &&
+      now.difference(_lastHandledTime!).inMilliseconds < 2500) {
+    debugPrint('[DeepLink] Debouncing duplicate trigger within 2.5s: $uri');
+    return;
+  }
+  _lastHandledUri = uriString;
+  _lastHandledTime = now;
+
   debugPrint('[DeepLink] Processing URI: $uri (host: "${uri.host}", path: "${uri.path}")');
 
   // Check 1: Squad Invite Deep Link
@@ -139,17 +153,30 @@ Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
         // Switch tab smoothly on MainNavigationScreen
         MainNavigationScreen.switchToTab(3);
 
-        // Ensure user lands on MainNavigationScreen even if opened from WelcomeScreen
-        nav.pushNamedAndRemoveUntil(
-          '/main',
-          (route) => false,
-          arguments: {'tab': 3},
-        );
+        // Ensure user lands on MainNavigationScreen without resetting it if already there
+        bool isAlreadyOnMain = false;
+        nav.popUntil((route) {
+          if (route.settings.name == '/main' || route.isFirst) {
+            if (route.settings.name == '/main') {
+              isAlreadyOnMain = true;
+            }
+            return true;
+          }
+          return false;
+        });
+
+        if (!isAlreadyOnMain) {
+          nav.pushNamedAndRemoveUntil(
+            '/main',
+            (route) => false,
+            arguments: {'tab': 3},
+          );
+        }
 
         final ctx = nav.context;
         ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
-            backgroundColor: const Color(0xFFD32F2F),
+            backgroundColor: const Color(0xFF8B5A5A),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             content: Row(

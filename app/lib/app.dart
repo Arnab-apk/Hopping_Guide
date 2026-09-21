@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'config/theme.dart';
 import 'services/theme_service.dart';
+import 'services/squad_service.dart';
 import 'screens/app_root_coordinator.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
@@ -12,6 +13,25 @@ import 'screens/pandal_detail_screen.dart';
 import 'screens/pandal_list_screen.dart';
 import 'screens/routes_screen.dart';
 import 'screens/welcome_screen.dart';
+
+/// Helper to extract squad code from route URI formats like:
+/// /?code=PUJAXXXX, /join?code=PUJAXXXX, /join/PUJAXXXX
+String? _extractSquadCodeFromRouteUri(Uri uri) {
+  final codeParam = uri.queryParameters['code'];
+  if (codeParam != null && codeParam.trim().isNotEmpty) {
+    return codeParam.trim().toUpperCase();
+  }
+  final segments = uri.pathSegments;
+  if (segments.isNotEmpty) {
+    if (segments.first.toLowerCase() == 'join' && segments.length > 1) {
+      return segments[1].trim().toUpperCase();
+    }
+    if (uri.host.toLowerCase() == 'join' && segments.length == 1) {
+      return segments.first.trim().toUpperCase();
+    }
+  }
+  return null;
+}
 
 /// Root application widget supporting Light and Dark modes and deep-link routing.
 class KolkataPujaApp extends StatelessWidget {
@@ -40,8 +60,25 @@ class KolkataPujaApp extends StatelessWidget {
         final name = settings.name ?? '';
         final uri = Uri.tryParse(name);
 
-        // Handle /pandal/:id or /pandal?id=:id
         if (uri != null) {
+          // Handle squad invite links: /?code=XYZ, /join?code=XYZ, /join/XYZ
+          final squadCode = _extractSquadCodeFromRouteUri(uri);
+          if (squadCode != null) {
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (ctx) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final squadService = ctx.read<SquadService?>();
+                  if (squadService != null) {
+                    squadService.joinSquadFromDeepLink(squadCode);
+                  }
+                });
+                return const MainNavigationScreen(initialIndex: 3);
+              },
+            );
+          }
+
+          // Handle /pandal/:id or /pandal?id=:id
           if (uri.pathSegments.isNotEmpty && uri.pathSegments.first == 'pandal') {
             final id = uri.pathSegments.length > 1 ? uri.pathSegments[1] : uri.queryParameters['id'];
             return MaterialPageRoute(
@@ -66,6 +103,13 @@ class KolkataPujaApp extends StatelessWidget {
         }
 
         return null;
+      },
+      onUnknownRoute: (settings) {
+        debugPrint('[KolkataPujaApp] Unrecognized route fallback: ${settings.name}');
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MainNavigationScreen(initialIndex: 0),
+        );
       },
       routes: {
         '/': (context) => const WelcomeScreen(),

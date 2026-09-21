@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -48,6 +49,7 @@ class SquadService extends ChangeNotifier {
   final SharedPreferences? _prefs;
   final SquadFirestoreRepository _repo;
   static SquadService? _instance;
+  static bool enableTestMode = false;
 
   static SquadService get instance {
     _instance ??= SquadService._();
@@ -152,6 +154,8 @@ class SquadService extends ChangeNotifier {
   }
 
   void _listenToBattery() {
+    if (enableTestMode) return;
+    if (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST')) return;
     refreshBatteryLevel();
 
     // Re-check battery every 30 seconds so percentage stays accurate even without plug state changes
@@ -161,9 +165,14 @@ class SquadService extends ChangeNotifier {
     });
 
     _batterySub?.cancel();
-    _batterySub = _battery.onBatteryStateChanged.listen((_) {
-      refreshBatteryLevel();
-    });
+    try {
+      _batterySub = _battery.onBatteryStateChanged.listen(
+        (_) => refreshBatteryLevel(),
+        onError: (e) => debugPrint('[SquadService] batteryStateChanged note: $e'),
+      );
+    } catch (e) {
+      debugPrint('[SquadService] onBatteryStateChanged listen note: $e');
+    }
   }
 
   /// Explicitly query the real hardware battery level and broadcast if changed
@@ -721,6 +730,9 @@ class SquadService extends ChangeNotifier {
 
   @visibleForTesting
   void resetForTesting() {
+    enableTestMode = true;
+    _batteryPollTimer?.cancel();
+    _batterySub?.cancel();
     _membersSub?.cancel();
     _squadSub?.cancel();
     _squadId = null;
@@ -729,6 +741,12 @@ class SquadService extends ChangeNotifier {
     _activeSeparationAlert = null;
     _members.clear();
     _separationThresholdMeters = 500;
+  }
+
+  @visibleForTesting
+  void cancelTimersForTesting() {
+    _batteryPollTimer?.cancel();
+    _batterySub?.cancel();
   }
 
   // --- Cloud Realtime Sync via Cloud Firestore ---
