@@ -135,15 +135,15 @@ class PlaceCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.12),
+                          color: AppColors.accentPrimary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           place.type ?? 'Culinary Stop',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFE65100),
+                            color: isDark ? const Color(0xFFE08B8D) : AppColors.accentPrimary,
                           ),
                         ),
                       ),
@@ -219,16 +219,16 @@ class PlaceCard extends StatelessWidget {
                     margin: const EdgeInsets.only(top: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF2E1C12) : const Color(0xFFFFF3E0),
+                      color: AppColors.accentPrimary.withValues(alpha: isDark ? 0.16 : 0.09),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                      border: Border.all(color: AppColors.accentPrimary.withValues(alpha: 0.28)),
                     ),
                     child: Text(
                       '🍲 Must Try: ${place.mustTry}',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? const Color(0xFFFFAB40) : const Color(0xFFD84315),
+                        color: isDark ? const Color(0xFFE08B8D) : AppColors.accentPrimary,
                       ),
                     ),
                   ),
@@ -312,7 +312,7 @@ class PlaceCard extends StatelessWidget {
                         const SizedBox(width: 10),
                         Row(
                           children: [
-                            Icon(Icons.star_rounded, size: context.dynamicIcon(15), color: PujaColors.festivalGold),
+                            Icon(Icons.star_rounded, size: context.dynamicIcon(15), color: AppColors.accentGold),
                             const SizedBox(width: 2),
                             Text(
                               place.rating!.toStringAsFixed(1),
@@ -334,10 +334,10 @@ class PlaceCard extends StatelessWidget {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          icon: const Icon(Icons.map_outlined, size: 14, color: PujaColors.festivalGold),
+                          icon: const Icon(Icons.map_outlined, size: 14, color: AppColors.accentPrimary),
                           label: const Text(
                             'Map',
-                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: PujaColors.festivalGold),
+                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.accentPrimary),
                           ),
                           onPressed: onMapTap ?? onTap,
                         ),

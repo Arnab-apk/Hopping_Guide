@@ -190,7 +190,7 @@ class UserProfileSheet extends StatelessWidget {
 
     final isGuest = authUser?.isGuest ?? true;
     final userName = authUser?.displayName ?? (isGuest ? 'Guest Hopper' : 'Google Hopper');
-    final userEmail = authUser?.email ?? (isGuest ? 'Guest Mode (Offline)' : 'hopper@gmail.com');
+    final userEmail = authUser?.email ?? (isGuest ? 'Guest Account' : 'hopper@gmail.com');
     final photoUrl = authUser?.photoUrl;
 
     return Container(
@@ -515,7 +515,7 @@ class UserProfileSheet extends StatelessWidget {
                             iconColor: PujaColors.durgaRed,
                             title: '${userState?.visitedCount ?? 0}',
                             label: 'Pandals Hopped',
-                            sublabel: 'Out of 387',
+                            sublabel: 'Out of 338',
                           ),
                         ),
                         Container(
@@ -551,7 +551,7 @@ class UserProfileSheet extends StatelessWidget {
                             label: squadService?.hasActiveSquad == true
                                 ? 'In Squad'
                                 : 'No Squad',
-                            sublabel: squadService?.squadCode ?? 'Join one',
+                            sublabel: squadService?.hasActiveSquad == true ? 'Active' : 'Join one',
                           ),
                         ),
                       ],

@@ -81,9 +81,9 @@ void main() {
       // Empty state shows guidance message without duplicate button
       expect(find.text('No companions yet — share your squad code above to get started'), findsOneWidget);
 
-      // Card 4: Squad Chat & Media
+      // Card 4: Squad Chat & Media (tappable card with chevron, no duplicate button)
       expect(find.text('Squad Chat & Media'), findsOneWidget);
-      expect(find.text('Open Chat'), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_right_rounded), findsWidgets);
 
       // Verify configuration items are NOT cluttering the main screen
       expect(find.text('Designated Meet-up Point'), findsNothing);

@@ -1360,7 +1360,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                   userLat: _userLat,
                   userLng: _userLng,
                   isFloatingOnMap: true,
-                  hintText: 'Search 387 pandals, metro, food...',
+                  hintText: 'Search 338 pandals, metro, food...',
                   onPandalSelected: (p) {
                     _mapSearchController.clear();
                     FocusScope.of(context).unfocus();

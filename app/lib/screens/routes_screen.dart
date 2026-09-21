@@ -648,15 +648,19 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHigh,
+                    color: AppColors.accentPrimary.withValues(alpha: isDark ? 0.16 : 0.09),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.accentPrimary.withValues(alpha: 0.25),
+                      width: 1,
+                    ),
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.access_time_filled_rounded,
                         size: 15,
-                        color: colorScheme.primary,
+                        color: AppColors.accentPrimary,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -665,7 +669,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
+                            color: isDark ? const Color(0xFFE08B8D) : AppColors.accentPrimary,
                           ),
                         ),
                       ),

@@ -3608,7 +3608,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     // Numbered stop pins (①, ②, ③...) in resolved visit order
     for (int i = 0; i < trail.stops.length; i++) {
       final stop = trail.stops[i];
-      final stopNum = i + 1;
       final isVisited = trail.visitedPandalIds.contains(stop.id);
       final isCurrent = trail.currentTargetPandal?.id == stop.id;
       final isSelected = _selectedPandal?.id == stop.id;
@@ -3640,7 +3639,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             child: LeafletMarkerPin.pandal(
               isSelected: isSelected || isCurrent,
               isVisited: isVisited,
-              trailIndex: stopNum,
+              trailIndex: i,
               size: (isCurrent || isSelected) ? 46 : 36,
               pulseAnimation: (isCurrent || isSelected) ? _pulseController : null,
             ),
@@ -3741,7 +3740,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     return _buildFilterPill(
       isActive: _showMetroStations,
       isDark: isDark,
-      icon: Icons.subway_outlined,
+      icon: Icons.subway_rounded,
       label: 'Metro',
       onTap: () {
         setState(() => _showMetroStations = !_showMetroStations);
@@ -4013,116 +4012,174 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     HapticFeedback.lightImpact();
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF1B070B) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.black12,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Map Markers Legend',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Understand pins and badges on your Durga Puja parikrama',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isDark ? Colors.white60 : Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildLegendRow(
-                  iconWidget: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: PujaColors.festivalGold,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 1.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      '12',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 11,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.82,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white24 : Colors.black12,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
-                  title: 'Numbered Pandal Pin',
-                  subtitle: 'Pandal sequence on route or list index',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildLegendRow(
-                  iconWidget: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF00E676),
-                      shape: BoxShape.circle,
+                  const SizedBox(height: 16),
+                  Text(
+                    'Map Markers Legend',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black87,
                     ),
-                    child: Center(child: PujaIcon.dhaki(color: Colors.black87, size: 24)),
                   ),
-                  title: 'Live Squad Member',
-                  subtitle: 'Real-time GPS location of active hopping squad friends',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildLegendRow(
-                  iconWidget: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF2979FF),
-                      shape: BoxShape.circle,
+                  const SizedBox(height: 4),
+                  Text(
+                    'Understand pins, badges and landmarks on Kolkata map',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? Colors.white60 : Colors.black54,
                     ),
-                    child: const Center(child: Icon(Icons.subway_rounded, color: Colors.white, size: 18)),
                   ),
-                  title: 'Metro Station',
-                  subtitle: 'Nearest transit hub for easy commute',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 12),
-                _buildLegendRow(
-                  iconWidget: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFF9100),
-                      shape: BoxShape.circle,
+                  const SizedBox(height: 18),
+
+                  // 1. Puja Pandal Pin (Trinayana / Trishul emblem)
+                  _buildLegendRow(
+                    iconWidget: SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin.pandal(size: 28),
                     ),
-                    child: Center(child: PujaIcon.bhogSweets(color: Colors.white, size: 22)),
+                    title: 'Puja Pandal Pin',
+                    subtitle: 'Individual pandal landmark (unclustered browsing mode)',
+                    isDark: isDark,
                   ),
-                  title: 'Food Spot / Street Food',
-                  subtitle: 'Authentic festival food stops and stalls',
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 8),
-              ],
+                  const SizedBox(height: 14),
+
+                  // 2. Pandal Cluster
+                  _buildLegendRow(
+                    iconWidget: const SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin(
+                        category: LeafletPinCategory.cluster,
+                        clusterCount: 12,
+                        size: 28,
+                      ),
+                    ),
+                    title: 'Pandal Cluster (e.g. 12)',
+                    subtitle: 'Multiple pandals in dense vicinity — tap or zoom in to expand',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 3. Route Stop Sequence
+                  _buildLegendRow(
+                    iconWidget: SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin.pandal(
+                        trailIndex: 0,
+                        size: 28,
+                      ),
+                    ),
+                    title: 'Route Stop Sequence (e.g. ①)',
+                    subtitle: 'Numbered stop when navigating an active curated circuit',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 4. Squad Meet-up Landmark (Gold Flag)
+                  _buildLegendRow(
+                    iconWidget: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFD54F),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.flag_rounded, color: Color(0xFF5D4037), size: 18),
+                      ),
+                    ),
+                    title: 'Squad Meet-up Landmark',
+                    subtitle: 'Designated group rendezvous point or circuit start',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 5. Live Squad Member
+                  _buildLegendRow(
+                    iconWidget: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF00E676),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(child: PujaIcon.dhaki(color: Colors.black87, size: 20)),
+                    ),
+                    title: 'Live Squad Member',
+                    subtitle: 'Real-time GPS location of active squad companions',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 6. Metro Station
+                  _buildLegendRow(
+                    iconWidget: SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin.metro(width: 28, height: 38),
+                    ),
+                    title: 'Metro Station',
+                    subtitle: 'Kolkata Metro transit hub for rapid commute between zones',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 7. Food Spot / Street Food
+                  _buildLegendRow(
+                    iconWidget: SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin.restaurant(width: 28, height: 38),
+                    ),
+                    title: 'Food Spot / Street Food',
+                    subtitle: 'Authentic festival food stops, stalls & iconic sweet shops',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 8. Public Toilet / Washroom
+                  _buildLegendRow(
+                    iconWidget: SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin.toilet(width: 24, height: 32),
+                    ),
+                    title: 'Public Toilet / Washroom',
+                    subtitle: 'Sulabh complexes & verified sanitation facilities',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
           ),
         );
@@ -5455,7 +5512,7 @@ class _ClusteredPandalLayer extends StatelessWidget {
             child: LeafletMarkerPin.pandal(
               isSelected: isSelected,
               isVisited: isVisited,
-              trailIndex: trailIndex != -1 ? trailIndex + 1 : null,
+              trailIndex: trailIndex != -1 ? trailIndex : null,
               size: isSelected ? 46 : 36,
               pulseAnimation: isSelected ? pulseController : null,
             ),

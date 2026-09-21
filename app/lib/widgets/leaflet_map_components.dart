@@ -6,7 +6,6 @@ import '../models/food_spot.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
 import '../models/toilet.dart';
-import '../widgets/crowd_badge.dart';
 
 enum LeafletPinCategory {
   pandal,
@@ -857,36 +856,27 @@ class LeafletMapPopup extends StatelessWidget {
 
   Widget _buildCategoryBadge(bool isDark) {
     if (pandal != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-              decoration: BoxDecoration(
-                color: PujaColors.durgaRed.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: PujaColors.durgaRed.withValues(alpha: 0.35),
-                  width: 0.8,
-                ),
-              ),
-              child: Text(
-                pandal!.zoneLabel.toUpperCase(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: PujaColors.durgaRed,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ),
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+        decoration: BoxDecoration(
+          color: PujaColors.durgaRed.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: PujaColors.durgaRed.withValues(alpha: 0.35),
+            width: 0.8,
           ),
-          const SizedBox(width: 6),
-          CrowdBadge(crowdLevel: pandal!.crowdLevel),
-        ],
+        ),
+        child: Text(
+          pandal!.zoneLabel.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: PujaColors.durgaRed,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.3,
+          ),
+        ),
       );
     }
 

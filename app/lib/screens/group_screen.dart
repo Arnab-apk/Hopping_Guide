@@ -1067,23 +1067,10 @@ class GroupScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              FilledButton.tonal(
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  visualDensity: VisualDensity.compact,
-                ),
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => SquadChatScreen(
-                        squadCode: squadCode,
-                        squadName: squadName,
-                      ),
-                    ),
-                  );
-                },
-                child: const Text('Open Chat', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: isDark ? Colors.white38 : Colors.black38,
+                size: 22,
               ),
             ],
           ),

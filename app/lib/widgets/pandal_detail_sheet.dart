@@ -12,7 +12,6 @@ import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
-import 'crowd_badge.dart';
 import 'puja_icons.dart';
 
 /// Minimalist, beautifully proportioned Pandal Detail Sheet.
@@ -136,8 +135,6 @@ class PandalDetailSheet extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        CrowdBadge(crowdLevel: pandal.crowdLevel),
                         const Spacer(),
 
                         // Action Buttons: Favorite, Share, Close

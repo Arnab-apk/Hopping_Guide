@@ -342,9 +342,11 @@ class SquadService extends ChangeNotifier {
     _squadName = cleanName.isEmpty ? 'My Puja Squad' : cleanName;
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Landmark' : meetup.trim();
 
+    final isTest = enableTestMode || (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST'));
+
     // Try to get fresh real GPS coordinate before writing to Firestore
     Position? currentPos = LocationService.instance.currentPositionSync;
-    if (currentPos == null) {
+    if (currentPos == null && !isTest) {
       try {
         currentPos = await LocationService.instance.currentPosition().timeout(const Duration(seconds: 4));
       } catch (e) {
@@ -355,18 +357,22 @@ class SquadService extends ChangeNotifier {
     final realLat = currentPos?.latitude ?? LocationService.instance.currentCoordinates.latitude;
     final realLng = currentPos?.longitude ?? LocationService.instance.currentCoordinates.longitude;
     _meetupPointCoords = meetupCoords ?? LatLng(realLat, realLng);
-    try {
-      _currentBatteryLevel = await _battery.batteryLevel.timeout(const Duration(seconds: 2));
-    } catch (_) {}
+    if (!isTest) {
+      try {
+        _currentBatteryLevel = await _battery.batteryLevel.timeout(const Duration(seconds: 2));
+      } catch (_) {}
+    }
 
     _initMembers(isHost: true, userLat: realLat, userLng: realLng);
     final hostMember = _members.first;
 
     // Start live tracking immediately so GPS updates continuously stream
-    LocationService.instance.startLiveTracking().catchError((e) {
-      debugPrint('[SquadService] startLiveTracking on create error: $e');
-      return false;
-    });
+    if (!isTest) {
+      LocationService.instance.startLiveTracking().catchError((e) {
+        debugPrint('[SquadService] startLiveTracking on create error: $e');
+        return false;
+      });
+    }
 
     // 1. Create squad in Cloud Firestore
     try {
