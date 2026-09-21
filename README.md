@@ -14,11 +14,6 @@
 [![Code Quality](https://img.shields.io/badge/Analysis-0_Issues-success?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![Cost](https://img.shields.io/badge/Infra_Cost-%240_Free_Tier-blueviolet?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com)
 [![License](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](./LICENSE)
-[![Download APK](https://img.shields.io/badge/📲_Download_APK-Google_Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1o6wlGRSId2L26KSuC_RM9CEeP1jsQ9em/view?usp=sharing)
-
-<br/>
-
-### 📲 [⚡ Download & Test Out the Android APK (Google Drive)](https://drive.google.com/file/d/1o6wlGRSId2L26KSuC_RM9CEeP1jsQ9em/view?usp=sharing)
 
 <br/>
 
@@ -27,7 +22,7 @@
 
 ---
 
-**[📲 Test App (APK)](#-test-out-the-app--direct-apk-download) • [✨ Key Highlights](#-key-project-highlights) • [🗺️ Dual Map Engine](#️-1-interactive-dual-map-engine) • [🚶 Pedestrian Routing & TSP](#-2-real-road-following-pedestrian-routing--tsp-optimizer) • [👥 Squad Hub & Calling](#-3-consolidated-4-card-squad-hub--native-calling) • [💬 Squad Chat](#-4-dedicated-squad-chat--media-sharing) • [🚇 Metro Network](#-5-integrated-kolkata-metro-transit-network) • [🍲 Heritage Food](#-6-curated-culinary--street-food-guide) • [🚨 Emergency Safety](#-7-emergency-lifelines--festival-safety) • [🏛️ System Architecture](#️-system-architecture) • [🚀 Getting Started](#-getting-started--developer-guide)**
+**[✨ Key Highlights](#-key-project-highlights) • [🗺️ Dual Map Engine](#️-1-interactive-dual-map-engine) • [🚶 Pedestrian Routing & TSP](#-2-real-road-following-pedestrian-routing--tsp-optimizer) • [👥 Squad Hub & Calling](#-3-consolidated-4-card-squad-hub--native-calling) • [💬 Squad Chat](#-4-dedicated-squad-chat--media-sharing) • [🚇 Metro Network](#-5-integrated-kolkata-metro-transit-network) • [🍲 Heritage Food](#-6-curated-culinary--street-food-guide) • [🚨 Emergency Safety](#-7-emergency-lifelines--festival-safety) • [🏛️ System Architecture](#️-system-architecture) • [🚀 Getting Started](#-getting-started--developer-guide)**
 
 ---
 
@@ -38,31 +33,6 @@
 > [!NOTE]  
 > **Target Launch:** Google Play Store deployment in time for **Durga Puja 2026** (*Mahalaya: October 10, 2026 · Maha Shasthi: October 16, 2026 · Dashami: October 20, 2026*).  
 > **Core Tenet:** **100% Free Tiers ($0 Operating Cost)**, keyless OpenStreetMap raster tiles, on-device Magic Lane GemKit vector maps, zero vendor lock-in, foreground-only privacy protection, and complete offline autonomy.
-
-<br/>
-
----
-
-## 📲 Test Out the App — Direct APK Download
-
-> [!IMPORTANT]
-> **Want to try Uma on your Android phone right now?**  
-> The APK is pre-built and ready to install — no Google Play Store account or developer tools needed.
-
-<div align="center">
-
-### [⬇️ &nbsp; Download Uma APK — Google Drive &nbsp; ⬇️](https://drive.google.com/file/d/1o6wlGRSId2L26KSuC_RM9CEeP1jsQ9em/view?usp=sharing)
-
-</div>
-
-**Installation steps (Android):**
-1. Open the link above on your Android device (or download on PC and transfer via USB).
-2. Tap the downloaded `.apk` file in your notification drawer or Files app.
-3. If prompted, enable **"Install from unknown sources"** for your browser or Files app in Android Settings → Apps → Special app access.
-4. Tap **Install** — done! The app launches immediately in full offline demo mode, no login required.
-
-> [!NOTE]
-> This is a **debug build** intended for testing. All 387 pandals, map, routing, metro, food, and squad chat features are fully functional. Firebase-dependent features (live squad sync) will prompt for sign-in.
 
 <br/>
 
