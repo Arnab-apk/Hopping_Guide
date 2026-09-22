@@ -1,0 +1,74 @@
+name: Uma
+options:
+  bundleIdPrefix: app.uma
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: "NO"
+
+targets:
+  Uma:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: Uma
+    info:
+      path: Uma/Info.plist
+      properties:
+        NSLocationWhenInUseUsageDescription: "To show your location and walking routes on the map."
+        UILaunchScreen:
+          UIColorName: ""
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UIRequiresFullScreen: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes: []
+        CFBundleDisplayName: Uma
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.uma.Uma
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        DEVELOPMENT_ASSET_PATHS: '"Uma/Resources"'
+        GENERATE_INFOPLIST_FILE: "NO"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: DPW6RLZ3RW
+        SWIFT_EMIT_LOC_STRINGS: "YES"
+
+  UmaTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: UmaTests
+    dependencies:
+      - target: Uma
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.uma.UmaTests
+
+schemes:
+  Uma:
+    build:
+      targets:
+        Uma: all
+        UmaTests: [test]
+    test:
+      targets:
+        - UmaTests
+    run:
+      config: Debug
