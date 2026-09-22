@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'config/theme.dart';
 import 'services/theme_service.dart';
 import 'services/squad_service.dart';
+import 'services/auth_service.dart';
 import 'screens/app_root_coordinator.dart';
 import 'screens/group_screen.dart';
 import 'screens/helplines_screen.dart';
@@ -112,7 +113,11 @@ class KolkataPujaApp extends StatelessWidget {
         );
       },
       routes: {
-        '/': (context) => const WelcomeScreen(),
+        '/': (context) {
+          final auth = context.watch<AuthService?>();
+          final loggedIn = auth?.isAuthenticated ?? AuthService.instance.isAuthenticated;
+          return loggedIn ? const AppRootCoordinator() : const WelcomeScreen();
+        },
         '/splash': (context) => const AppRootCoordinator(),
         '/greeting': (context) => const AppRootCoordinator(),
         '/welcome': (context) => const WelcomeScreen(),
