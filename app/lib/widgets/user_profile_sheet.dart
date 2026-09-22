@@ -70,13 +70,13 @@ class UserProfileSheet extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Squad Phone Number'),
+        title: const Text('Group Phone Number'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Visible to your squad companions only for quick native calling during Pujo hopping.',
+              'Visible to your group companions only for quick native calling during Pujo hopping.',
               style: TextStyle(fontSize: 12.5, color: Colors.grey),
             ),
             const SizedBox(height: 12),

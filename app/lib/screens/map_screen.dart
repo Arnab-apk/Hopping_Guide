@@ -2064,7 +2064,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                   child: ClipOval(
                                     child: Builder(
                                       builder: (context) {
-                                        final auth = context.watch<AuthService?>();
+                                        AuthService? auth;
+                                        try {
+                                          auth = context.watch<AuthService>();
+                                        } catch (_) {
+                                          auth = null;
+                                        }
                                         final user = auth?.currentUserModel ??
                                             AuthService.instance.currentUserModel;
                                         final userPhoto = user?.photoUrl;
@@ -4117,13 +4122,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         child: Icon(Icons.flag_rounded, color: Color(0xFF5D4037), size: 18),
                       ),
                     ),
-                    title: 'Squad Meet-up Landmark',
+                    title: 'Group Meet-up Landmark',
                     subtitle: 'Designated group rendezvous point or circuit start',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),
 
-                  // 5. Live Squad Member
+                  // 5. Live Group Member
                   _buildLegendRow(
                     iconWidget: Container(
                       width: 30,
@@ -4134,8 +4139,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       ),
                       child: Center(child: PujaIcon.dhaki(color: Colors.black87, size: 20)),
                     ),
-                    title: 'Live Squad Member',
-                    subtitle: 'Real-time GPS location of active squad companions',
+                    title: 'Live Group Member',
+                    subtitle: 'Real-time GPS location of active group companions',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),
@@ -4350,7 +4355,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Widget _buildSquadStatusChip(bool isDark, SquadService squadService) {
     final companions = squadService.companionMembers;
     final count = companions.length + 1; // You + companions
-    final label = companions.isEmpty ? 'Squad' : 'Squad ($count)';
+    final label = companions.isEmpty ? 'Group' : 'Group ($count)';
 
     return Padding(
       padding: const EdgeInsets.only(right: 6.0),
@@ -4474,7 +4479,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Hopping Squad Active',
+                    'Hopping Group Active',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -4737,7 +4742,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   },
                   icon: const Icon(Icons.groups_rounded, size: 18),
                   label: const Text(
-                    'Open Hopping Squad Hub',
+                    'Open Hopping Group Hub',
                     style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
                   ),
                   style: ElevatedButton.styleFrom(

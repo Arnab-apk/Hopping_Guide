@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,15 +33,15 @@ class GroupScreen extends StatelessWidget {
   void _shareInvite(BuildContext context, SquadService squadService) {
     if (!squadService.hasActiveSquad) return;
     final code = squadService.squadCode;
-    final name = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
+    final name = (squadService.squadName ?? 'My Group').replaceAll(RegExp(r',\s*s\b'), "'s");
     SharePlus.instance.share(
       ShareParams(
-        text: 'Join my Durga Puja Hopping Squad "$name" on Uma App!\n\n'
-            '🔑 Squad Code: $code\n'
+        text: 'Join my Durga Puja Hopping Group "$name" on Uma App!\n\n'
+            '🔑 Group Code: $code\n'
             '📍 Meet-up Point: ${squadService.meetupPointName}\n\n'
             '🚀 Tap to open & auto-join in Uma:\n'
             'pujoparikrama://join?code=$code\n\n'
-            '(Or open Uma app -> Hopping Squad -> Enter Code: $code)',
+            '(Or open Uma app -> Hopping Group -> Enter Code: $code)',
       ),
     );
   }
@@ -48,10 +49,11 @@ class GroupScreen extends StatelessWidget {
   void _createGroup(BuildContext context, SquadService squadService) {
     final nameController = TextEditingController();
     final meetupController = TextEditingController();
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Create Hopping Squad'),
+        title: const Text('Create Hopping Group'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -59,7 +61,7 @@ class GroupScreen extends StatelessWidget {
               controller: nameController,
               autofocus: true,
               decoration: const InputDecoration(
-                labelText: 'Squad Name',
+                labelText: 'Group Name',
                 hintText: 'e.g. Bagbazar Pandal Crawlers',
               ),
             ),
@@ -80,10 +82,11 @@ class GroupScreen extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.chipMuted,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
             ),
             onPressed: () async {
-              final rawName = nameController.text.trim().isEmpty ? 'My Puja Squad' : nameController.text.trim();
+              final rawName = nameController.text.trim().isEmpty ? 'My Puja Group' : nameController.text.trim();
               final squadName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
               final meetup = meetupController.text.trim().isEmpty ? 'Main Entrance Landmark' : meetupController.text.trim();
               Navigator.pop(ctx);
@@ -111,16 +114,17 @@ class GroupScreen extends StatelessWidget {
 
   void _joinGroup(BuildContext context, SquadService squadService) {
     final controller = TextEditingController();
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Join Squad by Code'),
+        title: const Text('Join Group by Code'),
         content: TextField(
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.characters,
           decoration: const InputDecoration(
-            labelText: 'Enter Squad Code',
+            labelText: 'Enter Group Code',
             hintText: 'e.g. PUJAX4K9',
           ),
         ),
@@ -131,7 +135,8 @@ class GroupScreen extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.chipMuted,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
             ),
             onPressed: () async {
               final code = controller.text.trim().toUpperCase();
@@ -141,11 +146,11 @@ class GroupScreen extends StatelessWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      backgroundColor: success ? AppColors.chipMuted : AppColors.semanticAlert,
+                      backgroundColor: success ? theme.colorScheme.primary : AppColors.semanticAlert,
                       content: Text(
                         success
-                            ? 'Joined squad $code!'
-                            : (squadService.lastError ?? 'Failed to join squad $code'),
+                            ? 'Joined group $code!'
+                            : (squadService.lastError ?? 'Failed to join group $code'),
                       ),
                     ),
                   );
@@ -192,11 +197,11 @@ class GroupScreen extends StatelessWidget {
     final squadService = Provider.of<SquadService>(context);
 
     final squadCode = squadService.squadCode ?? '';
-    final squadName = (squadService.squadName ?? 'Squad Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
+    final squadName = (squadService.squadName ?? 'Group Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hopping Squad'),
+        title: const Text('Hopping Group'),
         actions: [
           if (squadService.hasActiveSquad) ...[
             IconButton(
@@ -208,12 +213,12 @@ class GroupScreen extends StatelessWidget {
                   final hasMessages = snapshot.hasData && snapshot.data!.isNotEmpty;
                   return Badge(
                     isLabelVisible: hasMessages,
-                    backgroundColor: AppColors.chipMuted,
+                    backgroundColor: theme.colorScheme.primary,
                     child: const Icon(Icons.chat_bubble_outline),
                   );
                 },
               ),
-              tooltip: 'Squad Chat',
+              tooltip: 'Group Chat',
               onPressed: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(
@@ -229,7 +234,7 @@ class GroupScreen extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.settings_outlined),
-              tooltip: 'Squad Settings',
+              tooltip: 'Group Settings',
               onPressed: () {
                 HapticFeedback.selectionClick();
                 Navigator.push(
@@ -262,10 +267,10 @@ class GroupScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.chipMuted.withValues(alpha: 0.12),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: PujaIcon.dhaki(size: 64, color: AppColors.chipMuted),
+                  child: PujaIcon.dhaki(size: 64, color: theme.colorScheme.primary),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -282,13 +287,25 @@ class GroupScreen extends StatelessWidget {
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.chipMuted,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22),
+                      ),
                     ),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Create New Squad'),
+                    icon: const Icon(Icons.add_rounded),
+                    label: Text(
+                      'Create New Group',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
                     onPressed: () => _createGroup(context, squadService),
                   ),
                 ),
@@ -297,12 +314,22 @@ class GroupScreen extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: AppColors.chipMuted, width: 1.2),
-                      foregroundColor: AppColors.chipMuted,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
+                      foregroundColor: theme.colorScheme.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22),
+                      ),
                     ),
-                    icon: const Icon(Icons.login),
-                    label: const Text('Join with Squad Code'),
+                    icon: const Icon(Icons.login_rounded),
+                    label: Text(
+                      'Join with Group Code',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
                     onPressed: () => _joinGroup(context, squadService),
                   ),
                 ),
@@ -545,13 +572,13 @@ class GroupScreen extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
                         icon: const Icon(Icons.copy_rounded, size: 15),
-                        tooltip: 'Copy Squad Code',
+                        tooltip: 'Copy Group Code',
                         color: isDark ? AppColors.accentGold : const Color(0xFF5A1E1E),
                         onPressed: () {
                           Clipboard.setData(ClipboardData(text: code));
                           HapticFeedback.lightImpact();
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Squad code copied to clipboard!')),
+                            const SnackBar(content: Text('Group code copied to clipboard!')),
                           );
                         },
                       ),
@@ -564,17 +591,21 @@ class GroupScreen extends StatelessWidget {
             // The ONE Invite Companions button on the page
             SizedBox(
               width: double.infinity,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.chipMuted,
-                  foregroundColor: Colors.white,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                icon: PujaIcon.shankha(size: 20, color: Colors.white),
-                label: const Text(
+                icon: PujaIcon.shankha(size: 20, color: theme.colorScheme.onPrimary),
+                label: Text(
                   'Invite Companions',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
                 ),
                 onPressed: () {
                   HapticFeedback.lightImpact();
@@ -632,7 +663,7 @@ class GroupScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     squadService.isSharingLocation
-                        ? 'Broadcasting live pin to squad'
+                        ? 'Broadcasting live pin to group'
                         : 'Live location is paused',
                     style: TextStyle(
                       fontSize: 11.5,
@@ -723,7 +754,7 @@ class GroupScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Center(
                   child: Text(
-                    'No companions yet — share your squad code above to get started',
+                    'No companions yet — share your group code above to get started',
                     style: TextStyle(
                       color: isDark ? Colors.white60 : Colors.black54,
                       fontSize: 13,
@@ -769,13 +800,13 @@ class GroupScreen extends StatelessWidget {
                         imageUrl: userMember.photoUrl!,
                         fit: BoxFit.cover,
                         errorWidget: (c, u, e) => CircleAvatar(
-                          backgroundColor: AppColors.chipMuted.withValues(alpha: 0.2),
-                          child: Text(userMember.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.2),
+                          child: Text(userMember.initials, style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                         ),
                       )
                     : CircleAvatar(
-                        backgroundColor: AppColors.chipMuted.withValues(alpha: 0.2),
-                        child: Text(userMember.initials, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.2),
+                        child: Text(userMember.initials, style: TextStyle(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                       ),
               ),
             ),
@@ -958,8 +989,8 @@ class GroupScreen extends StatelessWidget {
 
   // --- CARD 4: SQUAD CHAT & MEDIA ---
   Widget _buildSquadChatCard(BuildContext context, ThemeData theme, bool isDark, SquadService squadService) {
-    final squadCode = squadService.squadCode ?? 'SQUAD';
-    final squadName = (squadService.squadName ?? 'Squad Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
+    final squadCode = squadService.squadCode ?? 'GROUP';
+    final squadName = (squadService.squadName ?? 'Group Chat').replaceAll(RegExp(r',\s*s\b'), "'s");
 
     return Card(
       color: isDark ? AppColors.cardSurface : Colors.white,
@@ -991,10 +1022,10 @@ class GroupScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.chipMuted.withValues(alpha: 0.15),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.forum_rounded, color: AppColors.chipMuted, size: 24),
+                child: Icon(Icons.forum_rounded, color: theme.colorScheme.primary, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1005,7 +1036,7 @@ class GroupScreen extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            'Squad Chat & Media',
+                            'Group Chat & Media',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: 14.5,

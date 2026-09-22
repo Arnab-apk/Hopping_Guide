@@ -131,28 +131,28 @@ void main() {
     ));
     await pumpMap(tester);
 
-    // 3. Verify compact Squad chip is present in the filter row
-    expect(find.text('Squad'), findsOneWidget);
+    // 3. Verify compact Group chip is present in the filter row
+    expect(find.text('Group'), findsOneWidget);
 
     // 4. Verify the old full-width banner text is NOT permanently occupying a row outside the bottom sheet
     expect(find.text('Waiting for friends...'), findsNothing);
 
-    // 5. Tap the Squad chip -> opens bottom sheet with details
-    await tester.ensureVisible(find.text('Squad'));
-    await tester.tap(find.text('Squad'));
+    // 5. Tap the Group chip -> opens bottom sheet with details
+    await tester.ensureVisible(find.text('Group'));
+    await tester.tap(find.text('Group'));
     await pumpMap(tester, const Duration(milliseconds: 600));
 
     // 6. Verify bottom sheet content
-    expect(find.text('Hopping Squad Active'), findsOneWidget);
+    expect(find.text('Hopping Group Active'), findsOneWidget);
     expect(find.text('INVITE CODE'), findsOneWidget);
     expect(find.text(squadService.squadCode!), findsOneWidget);
     expect(find.text('Waiting for friends...'), findsOneWidget);
-    expect(find.text('Open Hopping Squad Hub'), findsOneWidget);
+    expect(find.text('Open Hopping Group Hub'), findsOneWidget);
 
     // 7. Dismiss bottom sheet
     await tester.tap(find.byIcon(Icons.close_rounded));
     await pumpMap(tester, const Duration(milliseconds: 600));
-    expect(find.text('Hopping Squad Active'), findsNothing);
+    expect(find.text('Hopping Group Active'), findsNothing);
   });
 
   testWidgets('Squad chip displays companion count when companions join',
@@ -188,12 +188,12 @@ void main() {
     ));
     await pumpMap(tester);
 
-    // 2. Chip shows 'Squad (2)' (host + 1 companion)
-    expect(find.text('Squad (2)'), findsOneWidget);
+    // 2. Chip shows 'Group (2)' (host + 1 companion)
+    expect(find.text('Group (2)'), findsOneWidget);
 
     // 3. Tapping chip shows companion in sheet
-    await tester.ensureVisible(find.text('Squad (2)'));
-    await tester.tap(find.text('Squad (2)'));
+    await tester.ensureVisible(find.text('Group (2)'));
+    await tester.tap(find.text('Group (2)'));
     await pumpMap(tester, const Duration(milliseconds: 600));
 
     expect(find.text('Companions Nearby (1)'), findsOneWidget);
@@ -218,9 +218,9 @@ void main() {
     ));
     await pumpMap(tester);
 
-    // 1. Initially, filter row with Regions button and Squad chip is visible
+    // 1. Initially, filter row with Regions button and Group chip is visible
     expect(find.text('Regions'), findsOneWidget);
-    expect(find.text('Squad'), findsOneWidget);
+    expect(find.text('Group'), findsOneWidget);
 
     // 2. Tap on the search autocomplete field
     final searchFieldFinder = find.byType(TextField);
@@ -231,7 +231,7 @@ void main() {
 
     // 3. Gated on _isSearchActive: filter chips row is now completely unmounted!
     expect(find.text('Regions'), findsNothing);
-    expect(find.text('Squad'), findsNothing);
+    expect(find.text('Group'), findsNothing);
 
     // 4. Type text in search field
     await tester.enterText(searchFieldFinder, 'Sreebhumi');
@@ -239,7 +239,7 @@ void main() {
 
     // Filter row remains unmounted while search has text
     expect(find.text('Regions'), findsNothing);
-    expect(find.text('Squad'), findsNothing);
+    expect(find.text('Group'), findsNothing);
 
     // 5. Clear search using the clear button in PandalSearchAutocomplete
     final clearButtonFinder = find.byIcon(Icons.close_rounded);
@@ -249,7 +249,7 @@ void main() {
 
     // 6. Filter row is restored cleanly with no leftover stale state
     expect(find.text('Regions'), findsOneWidget);
-    expect(find.text('Squad'), findsOneWidget);
+    expect(find.text('Group'), findsOneWidget);
   });
 
   testWidgets('Search bar is always visible and contextual banner renders below the header without overlap',

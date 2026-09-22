@@ -114,7 +114,12 @@ class KolkataPujaApp extends StatelessWidget {
       },
       routes: {
         '/': (context) {
-          final auth = context.watch<AuthService?>();
+          AuthService? auth;
+          try {
+            auth = context.watch<AuthService>();
+          } catch (_) {
+            auth = null;
+          }
           final loggedIn = auth?.isAuthenticated ?? AuthService.instance.isAuthenticated;
           return loggedIn ? const AppRootCoordinator() : const WelcomeScreen();
         },

@@ -527,7 +527,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
 
     // 4. Squad collection
     _squadCol = MarkerCollection(
-      name: 'Squad',
+      name: 'Group',
       markerType: MarkerType.point,
     );
     controller.preferences.markers.add(
@@ -2019,7 +2019,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
   Widget _buildSquadStatusChip(bool isDark, SquadService squadService) {
     final companions = squadService.companionMembers;
     final count = companions.length + 1;
-    final label = companions.isEmpty ? 'Squad' : 'Squad ($count)';
+    final label = companions.isEmpty ? 'Group' : 'Group ($count)';
 
     return Material(
       elevation: 1.5,

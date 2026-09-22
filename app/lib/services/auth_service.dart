@@ -34,6 +34,25 @@ class AuthResult {
 class AuthService extends ChangeNotifier {
   AuthService._([this._prefs]) {
     _loadSavedUser();
+    try {
+      _auth?.authStateChanges().listen((fbUser) {
+        if (fbUser != null && (_currentUserModel == null || _currentUserModel!.isGuest)) {
+          final appUser = AppUser(
+            uid: fbUser.uid,
+            displayName: (fbUser.displayName != null && fbUser.displayName!.trim().isNotEmpty)
+                ? fbUser.displayName
+                : (_currentUserModel?.displayName ?? 'Google Hopper'),
+            email: fbUser.email ?? _currentUserModel?.email,
+            photoUrl: fbUser.photoURL ?? _currentUserModel?.photoUrl ?? defaultGoogleAvatar,
+            phoneNumber: fbUser.phoneNumber ?? _currentUserModel?.phoneNumber,
+            isGuest: false,
+          );
+          _currentUserModel = appUser;
+          _saveUser(appUser);
+          notifyListeners();
+        }
+      });
+    } catch (_) {}
   }
 
   static AuthService? _instance;
@@ -45,9 +64,9 @@ class AuthService extends ChangeNotifier {
   static Future<AuthService> create() async {
     final prefs = await SharedPreferences.getInstance();
     final service = AuthService._(prefs);
+    _instance = service;
     await service._loadSavedUser();
     await service._ensureGoogleInitialized();
-    _instance = service;
     return service;
   }
 
@@ -94,9 +113,20 @@ class AuthService extends ChangeNotifier {
     try {
       final prefs = _prefs ?? await SharedPreferences.getInstance();
       final jsonStr = prefs.getString('auth_saved_user');
+      final isLoggedIn = prefs.getBool('user_is_logged_in') ?? false;
       if (jsonStr != null && jsonStr.isNotEmpty) {
         final map = jsonDecode(jsonStr) as Map<String, dynamic>;
-        _currentUserModel = AppUser.fromJson(map);
+        final user = AppUser.fromJson(map);
+        if (user.uid.isNotEmpty) {
+          _currentUserModel = user;
+          debugPrint('AuthService._loadSavedUser: Restored session for ${user.displayName} (${user.email})');
+          notifyListeners();
+          return;
+        }
+      }
+      if (isLoggedIn && _auth?.currentUser != null) {
+        _currentUserModel = AppUser.fromFirebase(_auth!.currentUser);
+        debugPrint('AuthService._loadSavedUser: Restored session from Firebase Auth for ${_currentUserModel?.displayName}');
         notifyListeners();
       }
     } catch (e) {
@@ -109,8 +139,10 @@ class AuthService extends ChangeNotifier {
       final prefs = _prefs ?? await SharedPreferences.getInstance();
       if (user != null) {
         await prefs.setString('auth_saved_user', jsonEncode(user.toJson()));
+        await prefs.setBool('user_is_logged_in', true);
       } else {
         await prefs.remove('auth_saved_user');
+        await prefs.setBool('user_is_logged_in', false);
       }
     } catch (e) {
       debugPrint('AuthService._saveUser note: $e');
@@ -242,7 +274,17 @@ class AuthService extends ChangeNotifier {
           final UserCredential? userCredential =
               await _auth?.signInWithCredential(credential);
           if (userCredential?.user != null) {
-            final appUser = AppUser.fromFirebase(userCredential!.user);
+            final fbUser = userCredential!.user!;
+            final appUser = AppUser(
+              uid: fbUser.uid,
+              displayName: (fbUser.displayName != null && fbUser.displayName!.trim().isNotEmpty)
+                  ? fbUser.displayName
+                  : (googleAccount.displayName ?? 'Google Hopper'),
+              email: fbUser.email ?? googleAccount.email,
+              photoUrl: fbUser.photoURL ?? googleAccount.photoUrl ?? defaultGoogleAvatar,
+              phoneNumber: fbUser.phoneNumber,
+              isGuest: false,
+            );
             _currentUserModel = appUser;
             await _saveUser(appUser);
             notifyListeners();

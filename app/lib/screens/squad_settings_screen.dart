@@ -7,24 +7,25 @@ import '../services/auth_service.dart';
 import '../services/squad_service.dart';
 import '../utils/haversine.dart';
 
-/// Dedicated configuration screen for Durga Puja Hopping Squad settings.
-/// Houses edit squad name, meet-up landmark, separation alert threshold,
-/// guest Google account linking, and leave squad.
+/// Dedicated configuration screen for Durga Puja Hopping Group settings.
+/// Houses edit group name, meet-up landmark, separation alert threshold,
+/// guest Google account linking, and leave group.
 class SquadSettingsScreen extends StatelessWidget {
   const SquadSettingsScreen({super.key});
 
   void _editSquadName(BuildContext context, SquadService squadService) {
-    final current = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
+    final current = (squadService.squadName ?? 'My Group').replaceAll(RegExp(r',\s*s\b'), "'s");
     final controller = TextEditingController(text: current);
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Squad Name'),
+        title: const Text('Edit Group Name'),
         content: TextField(
           controller: controller,
           autofocus: true,
           decoration: const InputDecoration(
-            labelText: 'Squad Name',
+            labelText: 'Group Name',
             hintText: 'e.g. Bagbazar Pandal Crawlers',
           ),
         ),
@@ -35,7 +36,8 @@ class SquadSettingsScreen extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.chipMuted,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
             ),
             onPressed: () {
               final newName = controller.text.trim();
@@ -53,6 +55,7 @@ class SquadSettingsScreen extends StatelessWidget {
 
   void _editMeetupPoint(BuildContext context, SquadService squadService) {
     final controller = TextEditingController(text: squadService.meetupPointName);
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -71,7 +74,8 @@ class SquadSettingsScreen extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: AppColors.chipMuted,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
             ),
             onPressed: () {
               if (controller.text.trim().isNotEmpty) {
@@ -91,6 +95,7 @@ class SquadSettingsScreen extends StatelessWidget {
 
   void _configureAlertDistance(BuildContext context, SquadService squadService) {
     final current = squadService.separationThresholdMeters;
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => SimpleDialog(
@@ -100,7 +105,7 @@ class SquadSettingsScreen extends StatelessWidget {
           return ListTile(
             leading: Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? AppColors.chipMuted : null,
+              color: isSelected ? theme.colorScheme.primary : null,
             ),
             title: Text('$meters m ${meters == 500 ? '(Standard)' : ''}'),
             subtitle: Text(
@@ -131,7 +136,7 @@ class SquadSettingsScreen extends StatelessWidget {
     if (res.isSuccess) {
       scaffoldMessenger.showSnackBar(
         const SnackBar(
-          content: Text('🎉 Account upgraded to Google! Your squad is preserved.'),
+          content: Text('🎉 Account upgraded to Google! Your group is preserved.'),
           backgroundColor: AppColors.semanticLive,
         ),
       );
@@ -146,12 +151,12 @@ class SquadSettingsScreen extends StatelessWidget {
   }
 
   Future<void> _confirmLeaveSquad(BuildContext context, SquadService squadService) async {
-    final rawName = squadService.squadName ?? 'Squad';
+    final rawName = squadService.squadName ?? 'Group';
     final cleanName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Leave Squad?'),
+        title: const Text('Leave Group?'),
         content: Text('Are you sure you want to leave "$cleanName"?'),
         actions: [
           TextButton(
@@ -169,9 +174,9 @@ class SquadSettingsScreen extends StatelessWidget {
     if (confirm == true) {
       await squadService.leaveSquad();
       if (context.mounted) {
-        Navigator.pop(context); // return to main squad screen
+        Navigator.pop(context); // return to main group screen
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You left the squad.')),
+          const SnackBar(content: Text('You left the group.')),
         );
       }
     }
@@ -180,22 +185,28 @@ class SquadSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final squadService = Provider.of<SquadService>(context);
-    final authUser = context.watch<AuthService?>()?.currentUserModel ?? AuthService.instance.currentUserModel;
+    AuthService? auth;
+    try {
+      auth = context.watch<AuthService>();
+    } catch (_) {
+      auth = null;
+    }
+    final authUser = auth?.currentUserModel ?? AuthService.instance.currentUserModel;
     final isGuest = authUser?.isGuest ?? false;
 
-    final squadName = (squadService.squadName ?? 'My Squad').replaceAll(RegExp(r',\s*s\b'), "'s");
+    final squadName = (squadService.squadName ?? 'My Group').replaceAll(RegExp(r',\s*s\b'), "'s");
     final meetupPoint = squadService.meetupPointName;
     final alertDistance = formatDistance(squadService.separationThresholdMeters.toDouble());
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Squad Settings'),
+        title: const Text('Group Settings'),
       ),
       body: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.edit_outlined),
-            title: const Text('Squad name'),
+            title: const Text('Group name'),
             subtitle: Text(squadName),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () {
@@ -230,7 +241,7 @@ class SquadSettingsScreen extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.login, color: AppColors.accentGold),
               title: const Text('Link Google account'),
-              subtitle: const Text('Keep your squad across devices'),
+              subtitle: const Text('Keep your group across devices'),
               trailing: const Icon(Icons.chevron_right, size: 18),
               onTap: () => _linkGoogleAccount(context),
             ),
@@ -239,7 +250,7 @@ class SquadSettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.exit_to_app, color: AppColors.semanticAlert),
             title: const Text(
-              'Leave squad',
+              'Leave group',
               style: TextStyle(
                 color: AppColors.semanticAlert,
                 fontWeight: FontWeight.w600,

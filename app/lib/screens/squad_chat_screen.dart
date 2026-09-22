@@ -234,10 +234,10 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('📸 Photo shared with squad!'),
-            backgroundColor: AppColors.chipMuted,
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: const Text('📸 Photo shared with group!'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -408,10 +408,10 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        PujaIcon.dhunuchiPriest(size: 54, color: AppColors.chipMuted),
+                        PujaIcon.dhunuchiPriest(size: 54, color: Theme.of(context).colorScheme.primary),
                         const SizedBox(height: 12),
                         Text(
-                          'No Squad Messages Yet',
+                          'No Group Messages Yet',
                           style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
@@ -441,9 +441,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
           // Sending loading indicator
           if (_isSending)
-            const LinearProgressIndicator(
+            LinearProgressIndicator(
               minHeight: 2,
-              color: AppColors.chipMuted,
+              color: Theme.of(context).colorScheme.primary,
               backgroundColor: Colors.transparent,
             ),
 
@@ -460,7 +460,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_photo_alternate_rounded, color: AppColors.chipMuted),
+                    icon: Icon(Icons.add_photo_alternate_rounded, color: Theme.of(context).colorScheme.primary),
                     tooltip: 'Share Photo',
                     onPressed: _showMediaPicker,
                   ),
@@ -469,7 +469,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                       controller: _textController,
                       textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
-                        hintText: 'Message squad...',
+                        hintText: 'Message group...',
                         hintStyle: TextStyle(fontSize: 14, color: isDark ? Colors.white38 : Colors.black38),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
@@ -484,8 +484,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                   ),
                   const SizedBox(width: 6),
                   Container(
-                    decoration: const BoxDecoration(
-                      color: AppColors.chipMuted,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(

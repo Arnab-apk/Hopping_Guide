@@ -57,8 +57,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Header: Chat & Settings action icons with tooltips
-      expect(find.byTooltip('Squad Chat'), findsOneWidget);
-      expect(find.byTooltip('Squad Settings'), findsOneWidget);
+      expect(find.byTooltip('Group Chat'), findsOneWidget);
+      expect(find.byTooltip('Group Settings'), findsOneWidget);
 
       // Verify 3-dot overflow menu is completely removed
       expect(find.byType(PopupMenuButton<String>), findsNothing);
@@ -69,7 +69,7 @@ void main() {
       expect(find.text('1 member hopping together'), findsOneWidget);
       // Exactly ONE "Invite Companions" button exists on the entire page
       expect(find.text('Invite Companions'), findsOneWidget);
-      expect(find.byTooltip('Copy Squad Code'), findsOneWidget);
+      expect(find.byTooltip('Copy Group Code'), findsOneWidget);
 
       // Card 2: GPS Sharing Toggle (Kept on main screen)
       expect(find.text('Share Live GPS Location'), findsOneWidget);
@@ -79,10 +79,10 @@ void main() {
       expect(find.text('HOST'), findsOneWidget);
       expect(find.textContaining('Tap to view Profile'), findsOneWidget);
       // Empty state shows guidance message without duplicate button
-      expect(find.text('No companions yet — share your squad code above to get started'), findsOneWidget);
+      expect(find.text('No companions yet — share your group code above to get started'), findsOneWidget);
 
       // Card 4: Squad Chat & Media (tappable card with chevron, no duplicate button)
-      expect(find.text('Squad Chat & Media'), findsOneWidget);
+      expect(find.text('Group Chat & Media'), findsOneWidget);
       expect(find.byIcon(Icons.chevron_right_rounded), findsWidgets);
 
       // Verify configuration items are NOT cluttering the main screen
@@ -110,20 +110,20 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Tap settings gear in AppBar
-      await tester.tap(find.byTooltip('Squad Settings'));
+      await tester.tap(find.byTooltip('Group Settings'));
       await tester.pumpAndSettle();
 
       // Verify SquadSettingsScreen is shown
       expect(find.byType(SquadSettingsScreen), findsOneWidget);
-      expect(find.text('Squad Settings'), findsOneWidget);
-      expect(find.text('Squad name'), findsOneWidget);
+      expect(find.text('Group Settings'), findsOneWidget);
+      expect(find.text('Group name'), findsOneWidget);
       expect(find.text('Baghbazar Crawlers'), findsOneWidget);
       expect(find.text('Designated meet-up point'), findsOneWidget);
       expect(find.text('Main Gate Entrance'), findsOneWidget);
       expect(find.text('Separation alert distance'), findsOneWidget);
       expect(find.text('500 m'), findsOneWidget);
       expect(find.text('Link Google account'), findsOneWidget);
-      expect(find.text('Leave squad'), findsOneWidget);
+      expect(find.text('Leave group'), findsOneWidget);
     });
 
     testWidgets('renders companion rows with Call button and distance when companions join', (tester) async {
@@ -201,6 +201,24 @@ void main() {
       expect(find.text('Sourav Ganguly'), findsOneWidget);
       // No call button since member has no phone number
       expect(find.byTooltip('Call Companion'), findsNothing);
+    });
+
+    testWidgets('renders empty state with Create New Group and Join with Group Code buttons', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final squadService = SquadService.instance;
+      squadService.resetForTesting();
+
+      await tester.pumpWidget(createGroupScreenWithSquad(squadService));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Hopping Group'), findsOneWidget);
+      expect(find.text('Create New Group'), findsOneWidget);
+      expect(find.text('Join with Group Code'), findsOneWidget);
+      expect(find.text('Hop Together, Never Get Lost'), findsOneWidget);
     });
   });
 }

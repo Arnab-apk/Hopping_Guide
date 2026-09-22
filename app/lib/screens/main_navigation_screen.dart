@@ -169,7 +169,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               size: 32,
               color: theme.colorScheme.primary,
             ),
-            label: 'Squads',
+            label: 'Group',
           ),
           NavigationDestination(
             icon: PujaIcon.trishulEyes(

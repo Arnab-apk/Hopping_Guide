@@ -185,7 +185,7 @@ Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    success ? 'Joined Squad $squadCode!' : 'Squad $squadCode ready!',
+                    success ? 'Joined Group $squadCode!' : 'Group $squadCode ready!',
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ),

@@ -44,6 +44,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
+    // If the user has an active session, skip login and forward to main app
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && AuthService.instance.isAuthenticated) {
+        Navigator.of(context).pushReplacementNamed('/greeting');
+      }
+    });
+
     _calculateTime();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _calculateTime());
     PujaDayThemeService.instance.addListener(_onThemeChanged);
