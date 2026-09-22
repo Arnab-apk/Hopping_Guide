@@ -1,0 +1,24 @@
+[
+  {
+    "id": "e1",
+    "name": "Dhunuchi Naach Competition",
+    "type": "Dhunuchi Naach",
+    "coordinates": {
+      "lat": 22.573,
+      "lng": 88.4145
+    },
+    "timing": "8:00 PM - 10:00 PM",
+    "nearbyPandal": "Shreebhumi Sporting Club"
+  },
+  {
+    "id": "e2",
+    "name": "Traditional Dance Program",
+    "type": "Cultural Program",
+    "coordinates": {
+      "lat": 22.519,
+      "lng": 88.3645
+    },
+    "timing": "7:00 PM - 9:00 PM",
+    "nearbyPandal": "Ekdalia Evergreen"
+  }
+]

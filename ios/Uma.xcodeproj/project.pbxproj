@@ -1,0 +1,948 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0142DFE4C31939453B589BB1 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09C7A04E9DF2FF350C8ED98D /* Haversine.swift */; };
+		02E62FDFB4FBCD790C6147D5 /* dhunuchi_priest_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = CF6B37FBC604083E2DFC0CB6 /* dhunuchi_priest_crimson.png */; };
+		06682B017C11B23A2ADDF9B9 /* pandals.json in Resources */ = {isa = PBXBuildFile; fileRef = 745FEA082C4EC57F9D1DFA45 /* pandals.json */; };
+		066B4E5BACE167C81E625B24 /* shankha_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 78A84EA04AA47C577539CFF5 /* shankha_crimson.png */; };
+		0F85C5075D9630D7A6B2E75D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9A7B64B50D76635047831C9 /* Assets.xcassets */; };
+		12A1CD70ED014AA1C892544C /* WalkingRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E832120648A9A1E5C331C5C2 /* WalkingRoute.swift */; };
+		14A9E1BD705EE3E94C4F81B7 /* TrailOptimizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115C0ADE9DA8139E76793EC4 /* TrailOptimizerTests.swift */; };
+		15814AA08FEB4DE6793AB8E4 /* gada_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 800818D3DCBA89463539423C /* gada_crimson.png */; };
+		1684F850C6CC946806530499 /* helplines.json in Resources */ = {isa = PBXBuildFile; fileRef = CD10E8F010A513FFBDFCEC5D /* helplines.json */; };
+		196BFC7D2B2D78650E7EE35F /* trishul_eyes_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 153C2760891CDE09DE37FF72 /* trishul_eyes_crimson.png */; };
+		1CF9317D945A11D8334CB022 /* durga_face_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 62E0C738643C9DE30376FF86 /* durga_face_gold.png */; };
+		1E2C0AF61CAE948A96E4DDAC /* MetroRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314C4785811BBB9ED69FBADB /* MetroRepository.swift */; };
+		202C613CC03A6BF7D613D73C /* AppRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2318735C2B6876F2ECA9603E /* AppRoot.swift */; };
+		20671A4FCEE2E972F6C34458 /* DouglasPeucker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C701D60CEE77050A9FAC27 /* DouglasPeucker.swift */; };
+		2392E703F35C203148DB7A34 /* ashtabhuja_devi_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 7201C0515800C5E46598C04E /* ashtabhuja_devi_gold.png */; };
+		26A1E633BB19989E08A564BD /* HoppingRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06A668E7C23A80F90CE81A0 /* HoppingRoute.swift */; };
+		281E9A9E03EBF5F28701D733 /* durga_sun_trishul_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F5500266041738BDAE9EE4E /* durga_sun_trishul_crimson.png */; };
+		2972206F2F823390CDACA2BA /* PujaIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2487D459377DA3802C97D2B9 /* PujaIcons.swift */; };
+		2B367C1F09BA6997FBCA4961 /* PandalRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57AE63C90CE9F8E492AC3691 /* PandalRepository.swift */; };
+		2B368F1EBFE5DCF4C8446389 /* PandalsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813D56B947911E78226CD2AC /* PandalsListView.swift */; };
+		2C94E4ADF8BC21A000D6927A /* MetroStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A460F00CD1A62FB197927E4 /* MetroStation.swift */; };
+		2FAC76D986936F191BC988C4 /* SquadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325312440661DBCC56E8982A /* SquadService.swift */; };
+		33CB91E109DEF43CF19DACA5 /* HaversineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE5C48A54BB9C2751F37EE2 /* HaversineTests.swift */; };
+		362ADF309D5176E5D77FEDE7 /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6295934639F8E998CB3DFF26 /* ChatMessage.swift */; };
+		36B933D9625A3B2214FFF7C0 /* MapTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C8B00741BD344B15AAA14A /* MapTabView.swift */; };
+		37D1EB30E2BDD1B6EF38AEC7 /* ToiletRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C58F5C939C7F307712BE37 /* ToiletRepository.swift */; };
+		39DF806616C685E15C6C3963 /* SquadChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A587AA1E7A9C9C0256A30 /* SquadChatView.swift */; };
+		3C9F2DCC5262299F79B9DC41 /* PandalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143ED3C6CD7A4094B382B8DB /* PandalDetailView.swift */; };
+		3E0C121F67C72BD491DBE44D /* food_spots.json in Resources */ = {isa = PBXBuildFile; fileRef = E870177625266A9A698DAD61 /* food_spots.json */; };
+		41BD0701223250355876A6A9 /* bhog_sweets_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = F64F2797483441432DE321BB /* bhog_sweets_gold.png */; };
+		425A485C762127FE0DAE1FEE /* shankha.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E9F488FCE39461BA6FD4F0E /* shankha.png */; };
+		44EB8937E17862AE6F52CD18 /* KolkataZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = E401AAA8623C8B1543E15800 /* KolkataZone.swift */; };
+		477CFD0055FC8AD531F94C5A /* PandalCalloutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7E031E311152164D78F4AB /* PandalCalloutView.swift */; };
+		48026B16BE84C847D092A9DE /* PandalAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD21D02B1168A12EC53F705D /* PandalAnnotation.swift */; };
+		48D21C1B114A579AB9B2B91A /* RoutesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3797D2AC593E22CEDF2CEF6A /* RoutesView.swift */; };
+		48F25ED42A033A0DF8F8069A /* PandalSpatialClusterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7036EE2AF15F1855CA860C /* PandalSpatialClusterTests.swift */; };
+		4922727D88C112AE5987BC4E /* TrailOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D9B59B3FF7271BB7916F93 /* TrailOptimizer.swift */; };
+		4A97B1B5A66EA90D9CB88A3D /* ashtabhuja_variant_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = F227F0252AAC6362FE8953CE /* ashtabhuja_variant_crimson.png */; };
+		4D00D293A4DB8507B870F23A /* gada.png in Resources */ = {isa = PBXBuildFile; fileRef = A3F41D9CB28766B9CDE331D6 /* gada.png */; };
+		509419487DBC83354DD6AE1C /* dhunuchi_priest.png in Resources */ = {isa = PBXBuildFile; fileRef = 1906BF7A7B76AD72A1C3F973 /* dhunuchi_priest.png */; };
+		50BF632737C8021B97C6DAD5 /* durga_eyes.png in Resources */ = {isa = PBXBuildFile; fileRef = BC189AF918B3FC011883762F /* durga_eyes.png */; };
+		56A4336CD98B360AE4F07C29 /* dhak_drum_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 433A6B74D12B9E9485761282 /* dhak_drum_gold.png */; };
+		5A0D77D9BFF71D97822716B0 /* Helpline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89A1FA669EBCF2F880D1D16 /* Helpline.swift */; };
+		5B2808CF84FFBE1859808AC5 /* FoodSpotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A00224B96314961EBF8B3 /* FoodSpotRepository.swift */; };
+		5C3A7B421DD63EE18624A45D /* DouglasPeuckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79D439ED2B2EDB366A2873F /* DouglasPeuckerTests.swift */; };
+		5F80CCA8EBE50AEBF2A5FE5E /* durga_face_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 40F89B26EB563519E984CA46 /* durga_face_crimson.png */; };
+		60FF0CC95B65C70856A100CA /* ashtabhuja_variant_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = CF7592CC3C3E21E1C962D731 /* ashtabhuja_variant_gold.png */; };
+		6101AD1806A4B68971FEB447 /* trishul_diya.png in Resources */ = {isa = PBXBuildFile; fileRef = 9806205811F5AEA638F5AFE1 /* trishul_diya.png */; };
+		6136038A156713345538CABA /* durga_face.png in Resources */ = {isa = PBXBuildFile; fileRef = 396BDC8FBB9294C6D5B6BC04 /* durga_face.png */; };
+		61F5A8896A8C41E2F210333E /* FoodSpot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3694A74C7D181CFB3FBEA48 /* FoodSpot.swift */; };
+		6363B82D04D67BCB8890820F /* durga_sun_trishul.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F5ABE1BBA76BAF890B9AC0A /* durga_sun_trishul.png */; };
+		64C0DCEA94DF1FD06C1A26C6 /* dhunuchi_priest_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = EFD752765DBF1F38DC5A28A0 /* dhunuchi_priest_gold.png */; };
+		66788A0C66DCEE92987FA722 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455A1437B28CD5DB0EBAB618 /* AppEnvironment.swift */; };
+		68E579E94BE901923F569B50 /* HelplineRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B305DEC620ECDC0A703DB1 /* HelplineRepository.swift */; };
+		6992B49C2D5A523542F4161F /* kalash.png in Resources */ = {isa = PBXBuildFile; fileRef = 2F48C2B1E7757537B48F7F11 /* kalash.png */; };
+		6BBA0D33EA2F48F34F24F7B6 /* kalash_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 253DA0B609B5293CA68147D4 /* kalash_crimson.png */; };
+		7077B7469B16D8CA2E3CB8EA /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199B96BADE2FFBE0CA32F7E0 /* LiquidGlass.swift */; };
+		778CDD8EC49742856AC36192 /* events.json in Resources */ = {isa = PBXBuildFile; fileRef = B1E9DE18DFB1AC30069AA877 /* events.json */; };
+		78DE0417BD01877AF87D09EB /* dhaki.png in Resources */ = {isa = PBXBuildFile; fileRef = 38244BD1CF365F633C8EAD29 /* dhaki.png */; };
+		7C8DFEF5688CAEAF26371D21 /* toilets.json in Resources */ = {isa = PBXBuildFile; fileRef = 78890156B500053412CE0009 /* toilets.json */; };
+		7E8BCFB7714099CE938E9576 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA93A3B2A1892920539A2479 /* WelcomeView.swift */; };
+		863C1A9483BFF3F953CC5BAC /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E49473B8B5E27A04C2B491 /* ChatService.swift */; };
+		8C62F5A44CD64D72B4217452 /* dhaki_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = AFD2313D261FE0243DFE81F4 /* dhaki_gold.png */; };
+		8D99987DBFCED65B404BF51D /* dhak_drum_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 53EE268306AD681853147D98 /* dhak_drum_crimson.png */; };
+		8F6DB254A03EED482C2F8793 /* durga_eyes_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 4938039EF2B074E7C5218EF5 /* durga_eyes_gold.png */; };
+		90BA7D2D8B3DE84B7B379A59 /* trishul_diya_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 93706E05A4AAF1B75531AF4A /* trishul_diya_gold.png */; };
+		917E50CAC97D5997860E5669 /* durga_eyes_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = E3A3DCDC12BCABE3D977C3F1 /* durga_eyes_crimson.png */; };
+		93890C2216CDB73875C81591 /* durga_sun_trishul_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 602980E6545B9D5AF5FA882F /* durga_sun_trishul_gold.png */; };
+		9397745FC6B5A87576EC2696 /* bhog_sweets.png in Resources */ = {isa = PBXBuildFile; fileRef = 458E5800DC46E6041679CA68 /* bhog_sweets.png */; };
+		9F256807E13E8687553F054E /* RoutingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C4FD0D93EFF01891C94E62 /* RoutingService.swift */; };
+		A15F50A0B70539D8B4D7D490 /* Pandal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2C945DB89A16456074D0CA /* Pandal.swift */; };
+		A171A539700B18A4B3290630 /* LiquidGlassAvailabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 482B6D5B84437ABE809ABF76 /* LiquidGlassAvailabilityTests.swift */; };
+		A7B2E91178B8EDFAAAA36B1F /* shankha_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 646B5F8997AF5EFF6BCD3FF2 /* shankha_gold.png */; };
+		A94A43EE1A6A1C8021E80521 /* trishul_eyes_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = DDF67E2759F89F99827E4632 /* trishul_eyes_gold.png */; };
+		AA98410A17963DFCE1D13C7E /* ashtabhuja_devi.png in Resources */ = {isa = PBXBuildFile; fileRef = 3B6DBC411CFEF7D8F7B537B8 /* ashtabhuja_devi.png */; };
+		AD96A938442B378BFABCFACF /* PandalSpatialCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EFEB1D25CFCCAB96046EB /* PandalSpatialCluster.swift */; };
+		B2EBC9AF4B9CC265969135EA /* MapFloatingControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE963632694CF6C6256391 /* MapFloatingControls.swift */; };
+		B7A8716F2B5B4FF95D188697 /* OmniSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF14099A1C0E740BD8CA8C6A /* OmniSearchService.swift */; };
+		B8C08333213EDCED1AB9C972 /* kalash_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 6CAA97AAFD820FF30F4B60F6 /* kalash_gold.png */; };
+		BD43C05C4B284ADC65EA5CEE /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B558AA6794EA2CFBD58DB3 /* Haptics.swift */; };
+		C0F63557C9F1F10719C62A3E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903A18BC8842EF88CA4E4548 /* Theme.swift */; };
+		C128C6C21BB92E963408A2A2 /* PujaSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654A4E90D66C7E0F9C6DF759 /* PujaSchedule.swift */; };
+		C39059996A2FB22F4E3DEF36 /* ashtabhuja_variant.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BBED3D22032DBE4B22FAC2F /* ashtabhuja_variant.png */; };
+		CB7260C30DE8D34C5F785430 /* UserStateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9022B1C4F0604E686FD1277C /* UserStateService.swift */; };
+		CC41214559F8E1F56285CE61 /* trishul_diya_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = A7BA2A4603F37DEBE6BBF7A0 /* trishul_diya_crimson.png */; };
+		D03175AD34BA6066B9EC5E48 /* PandalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E829CB39507BE843B125FD72 /* PandalCard.swift */; };
+		D1C8E4F6C5F8E398E7C39FE6 /* bhog_sweets_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 1662040FFBFE3C417FA8F989 /* bhog_sweets_crimson.png */; };
+		D694E1D13C66129783245AC7 /* SquadMember.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C924EFE344DD2558ACE4FAD /* SquadMember.swift */; };
+		D89AEAFCC4219B1E1ADB2479 /* ashtabhuja_devi_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = EA54F8DB6F9E96EC4F134C81 /* ashtabhuja_devi_crimson.png */; };
+		DDEAA257A39ED1E716249951 /* safety_first_aid.json in Resources */ = {isa = PBXBuildFile; fileRef = 867914A270CFCCBCF595D37A /* safety_first_aid.json */; };
+		DE5B862DBE7FF4B602EE801F /* SpatialCorridor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CFB108F99222CA07E7A2C6 /* SpatialCorridor.swift */; };
+		E0F4FF94F4B97C09A72E4361 /* gada_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = C8DBD08AD8E8E6B3F9EA6C68 /* gada_gold.png */; };
+		E1FD9B5A575405B7DB013E83 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CAC1CC3F863173277B5A7E /* LocationService.swift */; };
+		E4155FCB7EDD846D05A4C560 /* OmniSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE0472BDC69481048F3565C /* OmniSearchTests.swift */; };
+		E443769A8A2E6CE71EBF3D81 /* dhaki_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 6181BD4E0B3EF5A3CA901AB6 /* dhaki_crimson.png */; };
+		E6CA21EBA92D2589C6941656 /* SquadHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F380E388D0141C770E65251 /* SquadHubView.swift */; };
+		E9DCF913F9F410092F3E1617 /* UmaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E9D342FB9CDBFBFD51D386 /* UmaApp.swift */; };
+		EB5CCF5CC4A02B43AFCD95F6 /* dhak_drum.png in Resources */ = {isa = PBXBuildFile; fileRef = 62C35A21C6A1B72F26430CCA /* dhak_drum.png */; };
+		EB9B96E34A216362ED9DF780 /* MapSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FA1C62F5E1DEE9B5784E54 /* MapSearchBar.swift */; };
+		EC1CAB9D69C4299D6F8903F3 /* Toilet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA8AA0CB7478396D7B80F3D /* Toilet.swift */; };
+		F2FBDA3726EAAED719B10E09 /* trishul_eyes.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F639E2D459FC9EEA7901B92 /* trishul_eyes.png */; };
+		F365E97E0A1D107AB8F57F5F /* HelplinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DB382FF8DF22A921013691 /* HelplinesView.swift */; };
+		F7AA1A8B4F9B6AAF8D278AF5 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C8576B164B3BFF01F3F26FE /* MapView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DCA96ACCDEF9322DD872B0EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 17E99B157F41F906579BFBB1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5532C7F68D9A11DDB67D52C8;
+			remoteInfo = Uma;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		03B305DEC620ECDC0A703DB1 /* HelplineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelplineRepository.swift; sourceTree = "<group>"; };
+		09C7A04E9DF2FF350C8ED98D /* Haversine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haversine.swift; sourceTree = "<group>"; };
+		0AA8AA0CB7478396D7B80F3D /* Toilet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toilet.swift; sourceTree = "<group>"; };
+		0BBED3D22032DBE4B22FAC2F /* ashtabhuja_variant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_variant.png; sourceTree = "<group>"; };
+		0E9F488FCE39461BA6FD4F0E /* shankha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shankha.png; sourceTree = "<group>"; };
+		10CFB108F99222CA07E7A2C6 /* SpatialCorridor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpatialCorridor.swift; sourceTree = "<group>"; };
+		115C0ADE9DA8139E76793EC4 /* TrailOptimizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailOptimizerTests.swift; sourceTree = "<group>"; };
+		143ED3C6CD7A4094B382B8DB /* PandalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalDetailView.swift; sourceTree = "<group>"; };
+		14C701D60CEE77050A9FAC27 /* DouglasPeucker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DouglasPeucker.swift; sourceTree = "<group>"; };
+		153C2760891CDE09DE37FF72 /* trishul_eyes_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_eyes_crimson.png; sourceTree = "<group>"; };
+		1662040FFBFE3C417FA8F989 /* bhog_sweets_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bhog_sweets_crimson.png; sourceTree = "<group>"; };
+		1906BF7A7B76AD72A1C3F973 /* dhunuchi_priest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhunuchi_priest.png; sourceTree = "<group>"; };
+		198A587AA1E7A9C9C0256A30 /* SquadChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadChatView.swift; sourceTree = "<group>"; };
+		199B96BADE2FFBE0CA32F7E0 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
+		1C8576B164B3BFF01F3F26FE /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		1C924EFE344DD2558ACE4FAD /* SquadMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadMember.swift; sourceTree = "<group>"; };
+		1F2C945DB89A16456074D0CA /* Pandal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pandal.swift; sourceTree = "<group>"; };
+		2318735C2B6876F2ECA9603E /* AppRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoot.swift; sourceTree = "<group>"; };
+		2487D459377DA3802C97D2B9 /* PujaIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PujaIcons.swift; sourceTree = "<group>"; };
+		253DA0B609B5293CA68147D4 /* kalash_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kalash_crimson.png; sourceTree = "<group>"; };
+		2F48C2B1E7757537B48F7F11 /* kalash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kalash.png; sourceTree = "<group>"; };
+		314C4785811BBB9ED69FBADB /* MetroRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroRepository.swift; sourceTree = "<group>"; };
+		325312440661DBCC56E8982A /* SquadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadService.swift; sourceTree = "<group>"; };
+		3797D2AC593E22CEDF2CEF6A /* RoutesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutesView.swift; sourceTree = "<group>"; };
+		38244BD1CF365F633C8EAD29 /* dhaki.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhaki.png; sourceTree = "<group>"; };
+		396BDC8FBB9294C6D5B6BC04 /* durga_face.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_face.png; sourceTree = "<group>"; };
+		3B101BB86EF4A37A0211DFBD /* Uma.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Uma.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B6DBC411CFEF7D8F7B537B8 /* ashtabhuja_devi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_devi.png; sourceTree = "<group>"; };
+		3E7036EE2AF15F1855CA860C /* PandalSpatialClusterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalSpatialClusterTests.swift; sourceTree = "<group>"; };
+		40F89B26EB563519E984CA46 /* durga_face_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_face_crimson.png; sourceTree = "<group>"; };
+		433A6B74D12B9E9485761282 /* dhak_drum_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhak_drum_gold.png; sourceTree = "<group>"; };
+		446A00224B96314961EBF8B3 /* FoodSpotRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodSpotRepository.swift; sourceTree = "<group>"; };
+		455A1437B28CD5DB0EBAB618 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		458E5800DC46E6041679CA68 /* bhog_sweets.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bhog_sweets.png; sourceTree = "<group>"; };
+		45CAC1CC3F863173277B5A7E /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		482B6D5B84437ABE809ABF76 /* LiquidGlassAvailabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassAvailabilityTests.swift; sourceTree = "<group>"; };
+		4938039EF2B074E7C5218EF5 /* durga_eyes_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_eyes_gold.png; sourceTree = "<group>"; };
+		53EE268306AD681853147D98 /* dhak_drum_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhak_drum_crimson.png; sourceTree = "<group>"; };
+		57AE63C90CE9F8E492AC3691 /* PandalRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalRepository.swift; sourceTree = "<group>"; };
+		59DB382FF8DF22A921013691 /* HelplinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelplinesView.swift; sourceTree = "<group>"; };
+		5F5500266041738BDAE9EE4E /* durga_sun_trishul_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_sun_trishul_crimson.png; sourceTree = "<group>"; };
+		5FE0472BDC69481048F3565C /* OmniSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniSearchTests.swift; sourceTree = "<group>"; };
+		602980E6545B9D5AF5FA882F /* durga_sun_trishul_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_sun_trishul_gold.png; sourceTree = "<group>"; };
+		6181BD4E0B3EF5A3CA901AB6 /* dhaki_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhaki_crimson.png; sourceTree = "<group>"; };
+		61D9B59B3FF7271BB7916F93 /* TrailOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailOptimizer.swift; sourceTree = "<group>"; };
+		6295934639F8E998CB3DFF26 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		62C35A21C6A1B72F26430CCA /* dhak_drum.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhak_drum.png; sourceTree = "<group>"; };
+		62C4FD0D93EFF01891C94E62 /* RoutingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingService.swift; sourceTree = "<group>"; };
+		62E0C738643C9DE30376FF86 /* durga_face_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_face_gold.png; sourceTree = "<group>"; };
+		646B5F8997AF5EFF6BCD3FF2 /* shankha_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shankha_gold.png; sourceTree = "<group>"; };
+		654A4E90D66C7E0F9C6DF759 /* PujaSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PujaSchedule.swift; sourceTree = "<group>"; };
+		65E9D342FB9CDBFBFD51D386 /* UmaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UmaApp.swift; sourceTree = "<group>"; };
+		6CAA97AAFD820FF30F4B60F6 /* kalash_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kalash_gold.png; sourceTree = "<group>"; };
+		6F380E388D0141C770E65251 /* SquadHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadHubView.swift; sourceTree = "<group>"; };
+		7201C0515800C5E46598C04E /* ashtabhuja_devi_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_devi_gold.png; sourceTree = "<group>"; };
+		745FEA082C4EC57F9D1DFA45 /* pandals.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = pandals.json; sourceTree = "<group>"; };
+		78890156B500053412CE0009 /* toilets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = toilets.json; sourceTree = "<group>"; };
+		78A84EA04AA47C577539CFF5 /* shankha_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shankha_crimson.png; sourceTree = "<group>"; };
+		800818D3DCBA89463539423C /* gada_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gada_crimson.png; sourceTree = "<group>"; };
+		813D56B947911E78226CD2AC /* PandalsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalsListView.swift; sourceTree = "<group>"; };
+		867914A270CFCCBCF595D37A /* safety_first_aid.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = safety_first_aid.json; sourceTree = "<group>"; };
+		8F5ABE1BBA76BAF890B9AC0A /* durga_sun_trishul.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_sun_trishul.png; sourceTree = "<group>"; };
+		8F639E2D459FC9EEA7901B92 /* trishul_eyes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_eyes.png; sourceTree = "<group>"; };
+		8F7E031E311152164D78F4AB /* PandalCalloutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalCalloutView.swift; sourceTree = "<group>"; };
+		8FE5C48A54BB9C2751F37EE2 /* HaversineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HaversineTests.swift; sourceTree = "<group>"; };
+		9022B1C4F0604E686FD1277C /* UserStateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserStateService.swift; sourceTree = "<group>"; };
+		903A18BC8842EF88CA4E4548 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		93706E05A4AAF1B75531AF4A /* trishul_diya_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_diya_gold.png; sourceTree = "<group>"; };
+		96FA1C62F5E1DEE9B5784E54 /* MapSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchBar.swift; sourceTree = "<group>"; };
+		9806205811F5AEA638F5AFE1 /* trishul_diya.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_diya.png; sourceTree = "<group>"; };
+		9A460F00CD1A62FB197927E4 /* MetroStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroStation.swift; sourceTree = "<group>"; };
+		9F0C8558D620AB0CC6978FAE /* UmaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = UmaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2E49473B8B5E27A04C2B491 /* ChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
+		A3F41D9CB28766B9CDE331D6 /* gada.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gada.png; sourceTree = "<group>"; };
+		A7BA2A4603F37DEBE6BBF7A0 /* trishul_diya_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_diya_crimson.png; sourceTree = "<group>"; };
+		A89A1FA669EBCF2F880D1D16 /* Helpline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpline.swift; sourceTree = "<group>"; };
+		AFD2313D261FE0243DFE81F4 /* dhaki_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhaki_gold.png; sourceTree = "<group>"; };
+		B0EECFF2B82DDFFD91135DB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B1E9DE18DFB1AC30069AA877 /* events.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = events.json; sourceTree = "<group>"; };
+		BBFE963632694CF6C6256391 /* MapFloatingControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFloatingControls.swift; sourceTree = "<group>"; };
+		BC189AF918B3FC011883762F /* durga_eyes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_eyes.png; sourceTree = "<group>"; };
+		BD21D02B1168A12EC53F705D /* PandalAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalAnnotation.swift; sourceTree = "<group>"; };
+		C8DBD08AD8E8E6B3F9EA6C68 /* gada_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gada_gold.png; sourceTree = "<group>"; };
+		CA93A3B2A1892920539A2479 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		CD10E8F010A513FFBDFCEC5D /* helplines.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = helplines.json; sourceTree = "<group>"; };
+		CF6B37FBC604083E2DFC0CB6 /* dhunuchi_priest_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhunuchi_priest_crimson.png; sourceTree = "<group>"; };
+		CF7592CC3C3E21E1C962D731 /* ashtabhuja_variant_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_variant_gold.png; sourceTree = "<group>"; };
+		D3694A74C7D181CFB3FBEA48 /* FoodSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodSpot.swift; sourceTree = "<group>"; };
+		DDF67E2759F89F99827E4632 /* trishul_eyes_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_eyes_gold.png; sourceTree = "<group>"; };
+		E06A668E7C23A80F90CE81A0 /* HoppingRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoppingRoute.swift; sourceTree = "<group>"; };
+		E3A3DCDC12BCABE3D977C3F1 /* durga_eyes_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_eyes_crimson.png; sourceTree = "<group>"; };
+		E401AAA8623C8B1543E15800 /* KolkataZone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KolkataZone.swift; sourceTree = "<group>"; };
+		E79D439ED2B2EDB366A2873F /* DouglasPeuckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DouglasPeuckerTests.swift; sourceTree = "<group>"; };
+		E829CB39507BE843B125FD72 /* PandalCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalCard.swift; sourceTree = "<group>"; };
+		E832120648A9A1E5C331C5C2 /* WalkingRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkingRoute.swift; sourceTree = "<group>"; };
+		E870177625266A9A698DAD61 /* food_spots.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = food_spots.json; sourceTree = "<group>"; };
+		E9A7B64B50D76635047831C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EA54F8DB6F9E96EC4F134C81 /* ashtabhuja_devi_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_devi_crimson.png; sourceTree = "<group>"; };
+		EF14099A1C0E740BD8CA8C6A /* OmniSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniSearchService.swift; sourceTree = "<group>"; };
+		EF6EFEB1D25CFCCAB96046EB /* PandalSpatialCluster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalSpatialCluster.swift; sourceTree = "<group>"; };
+		EFD752765DBF1F38DC5A28A0 /* dhunuchi_priest_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhunuchi_priest_gold.png; sourceTree = "<group>"; };
+		F1C8B00741BD344B15AAA14A /* MapTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTabView.swift; sourceTree = "<group>"; };
+		F227F0252AAC6362FE8953CE /* ashtabhuja_variant_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_variant_crimson.png; sourceTree = "<group>"; };
+		F64F2797483441432DE321BB /* bhog_sweets_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bhog_sweets_gold.png; sourceTree = "<group>"; };
+		F6C58F5C939C7F307712BE37 /* ToiletRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToiletRepository.swift; sourceTree = "<group>"; };
+		F7B558AA6794EA2CFBD58DB3 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0F284EA286F8CF25306DAF80 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				BBFE963632694CF6C6256391 /* MapFloatingControls.swift */,
+				96FA1C62F5E1DEE9B5784E54 /* MapSearchBar.swift */,
+				F1C8B00741BD344B15AAA14A /* MapTabView.swift */,
+				1C8576B164B3BFF01F3F26FE /* MapView.swift */,
+				BD21D02B1168A12EC53F705D /* PandalAnnotation.swift */,
+				8F7E031E311152164D78F4AB /* PandalCalloutView.swift */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		1873C27208FA0B90E4696506 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				14C701D60CEE77050A9FAC27 /* DouglasPeucker.swift */,
+				09C7A04E9DF2FF350C8ED98D /* Haversine.swift */,
+				EF6EFEB1D25CFCCAB96046EB /* PandalSpatialCluster.swift */,
+				654A4E90D66C7E0F9C6DF759 /* PujaSchedule.swift */,
+				10CFB108F99222CA07E7A2C6 /* SpatialCorridor.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		259CE243D1A6650DC580C2D0 /* Pandals */ = {
+			isa = PBXGroup;
+			children = (
+				E829CB39507BE843B125FD72 /* PandalCard.swift */,
+				143ED3C6CD7A4094B382B8DB /* PandalDetailView.swift */,
+				813D56B947911E78226CD2AC /* PandalsListView.swift */,
+			);
+			path = Pandals;
+			sourceTree = "<group>";
+		};
+		2664788A94AA0A97DC8D47DC = {
+			isa = PBXGroup;
+			children = (
+				692F44CD9433A5D19E6EC1D8 /* Uma */,
+				CB4EDE6615237C4017C04B0B /* UmaTests */,
+				70F153EA2A06DAD4E41E5507 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4CEE662C622837FA0C88A35D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6295934639F8E998CB3DFF26 /* ChatMessage.swift */,
+				D3694A74C7D181CFB3FBEA48 /* FoodSpot.swift */,
+				A89A1FA669EBCF2F880D1D16 /* Helpline.swift */,
+				E06A668E7C23A80F90CE81A0 /* HoppingRoute.swift */,
+				E401AAA8623C8B1543E15800 /* KolkataZone.swift */,
+				9A460F00CD1A62FB197927E4 /* MetroStation.swift */,
+				1F2C945DB89A16456074D0CA /* Pandal.swift */,
+				1C924EFE344DD2558ACE4FAD /* SquadMember.swift */,
+				0AA8AA0CB7478396D7B80F3D /* Toilet.swift */,
+				E832120648A9A1E5C331C5C2 /* WalkingRoute.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		5C01865A6165485145F2A14E /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				CA93A3B2A1892920539A2479 /* WelcomeView.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
+		6098A64EAD01065BCC1D90A8 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				446A00224B96314961EBF8B3 /* FoodSpotRepository.swift */,
+				03B305DEC620ECDC0A703DB1 /* HelplineRepository.swift */,
+				314C4785811BBB9ED69FBADB /* MetroRepository.swift */,
+				57AE63C90CE9F8E492AC3691 /* PandalRepository.swift */,
+				F6C58F5C939C7F307712BE37 /* ToiletRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		6564C33B18D4B741209A9B3B /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				F7B558AA6794EA2CFBD58DB3 /* Haptics.swift */,
+				199B96BADE2FFBE0CA32F7E0 /* LiquidGlass.swift */,
+				2487D459377DA3802C97D2B9 /* PujaIcons.swift */,
+				903A18BC8842EF88CA4E4548 /* Theme.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		692F44CD9433A5D19E6EC1D8 /* Uma */ = {
+			isa = PBXGroup;
+			children = (
+				8290200D7B82E3021DAF4AB3 /* App */,
+				6564C33B18D4B741209A9B3B /* DesignSystem */,
+				F406B1CBE54ECD28891443DC /* Features */,
+				4CEE662C622837FA0C88A35D /* Models */,
+				6098A64EAD01065BCC1D90A8 /* Repositories */,
+				B3FEEB9FE6D922801C8982A1 /* Resources */,
+				A4F1F41865E5B6CBDFE5C07B /* Services */,
+				1873C27208FA0B90E4696506 /* Utils */,
+				E9A7B64B50D76635047831C9 /* Assets.xcassets */,
+				B0EECFF2B82DDFFD91135DB1 /* Info.plist */,
+			);
+			path = Uma;
+			sourceTree = "<group>";
+		};
+		70F153EA2A06DAD4E41E5507 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3B101BB86EF4A37A0211DFBD /* Uma.app */,
+				9F0C8558D620AB0CC6978FAE /* UmaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7C0A824DB9CFD95D3BFC44E6 /* Helplines */ = {
+			isa = PBXGroup;
+			children = (
+				59DB382FF8DF22A921013691 /* HelplinesView.swift */,
+			);
+			path = Helplines;
+			sourceTree = "<group>";
+		};
+		8290200D7B82E3021DAF4AB3 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				455A1437B28CD5DB0EBAB618 /* AppEnvironment.swift */,
+				2318735C2B6876F2ECA9603E /* AppRoot.swift */,
+				65E9D342FB9CDBFBFD51D386 /* UmaApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A4F1F41865E5B6CBDFE5C07B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A2E49473B8B5E27A04C2B491 /* ChatService.swift */,
+				45CAC1CC3F863173277B5A7E /* LocationService.swift */,
+				EF14099A1C0E740BD8CA8C6A /* OmniSearchService.swift */,
+				62C4FD0D93EFF01891C94E62 /* RoutingService.swift */,
+				325312440661DBCC56E8982A /* SquadService.swift */,
+				61D9B59B3FF7271BB7916F93 /* TrailOptimizer.swift */,
+				9022B1C4F0604E686FD1277C /* UserStateService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B3FEEB9FE6D922801C8982A1 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DC5178EC54CD4EB3C4B610C0 /* Icons */,
+				B1E9DE18DFB1AC30069AA877 /* events.json */,
+				E870177625266A9A698DAD61 /* food_spots.json */,
+				CD10E8F010A513FFBDFCEC5D /* helplines.json */,
+				745FEA082C4EC57F9D1DFA45 /* pandals.json */,
+				867914A270CFCCBCF595D37A /* safety_first_aid.json */,
+				78890156B500053412CE0009 /* toilets.json */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B4847745FF152E84C047E78D /* Routes */ = {
+			isa = PBXGroup;
+			children = (
+				3797D2AC593E22CEDF2CEF6A /* RoutesView.swift */,
+			);
+			path = Routes;
+			sourceTree = "<group>";
+		};
+		CB4EDE6615237C4017C04B0B /* UmaTests */ = {
+			isa = PBXGroup;
+			children = (
+				E79D439ED2B2EDB366A2873F /* DouglasPeuckerTests.swift */,
+				8FE5C48A54BB9C2751F37EE2 /* HaversineTests.swift */,
+				482B6D5B84437ABE809ABF76 /* LiquidGlassAvailabilityTests.swift */,
+				5FE0472BDC69481048F3565C /* OmniSearchTests.swift */,
+				3E7036EE2AF15F1855CA860C /* PandalSpatialClusterTests.swift */,
+				115C0ADE9DA8139E76793EC4 /* TrailOptimizerTests.swift */,
+			);
+			path = UmaTests;
+			sourceTree = "<group>";
+		};
+		D457AAB11FFB2FEF1BB73F09 /* Squad */ = {
+			isa = PBXGroup;
+			children = (
+				198A587AA1E7A9C9C0256A30 /* SquadChatView.swift */,
+				6F380E388D0141C770E65251 /* SquadHubView.swift */,
+			);
+			path = Squad;
+			sourceTree = "<group>";
+		};
+		DC5178EC54CD4EB3C4B610C0 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				EA54F8DB6F9E96EC4F134C81 /* ashtabhuja_devi_crimson.png */,
+				7201C0515800C5E46598C04E /* ashtabhuja_devi_gold.png */,
+				3B6DBC411CFEF7D8F7B537B8 /* ashtabhuja_devi.png */,
+				F227F0252AAC6362FE8953CE /* ashtabhuja_variant_crimson.png */,
+				CF7592CC3C3E21E1C962D731 /* ashtabhuja_variant_gold.png */,
+				0BBED3D22032DBE4B22FAC2F /* ashtabhuja_variant.png */,
+				1662040FFBFE3C417FA8F989 /* bhog_sweets_crimson.png */,
+				F64F2797483441432DE321BB /* bhog_sweets_gold.png */,
+				458E5800DC46E6041679CA68 /* bhog_sweets.png */,
+				53EE268306AD681853147D98 /* dhak_drum_crimson.png */,
+				433A6B74D12B9E9485761282 /* dhak_drum_gold.png */,
+				62C35A21C6A1B72F26430CCA /* dhak_drum.png */,
+				6181BD4E0B3EF5A3CA901AB6 /* dhaki_crimson.png */,
+				AFD2313D261FE0243DFE81F4 /* dhaki_gold.png */,
+				38244BD1CF365F633C8EAD29 /* dhaki.png */,
+				CF6B37FBC604083E2DFC0CB6 /* dhunuchi_priest_crimson.png */,
+				EFD752765DBF1F38DC5A28A0 /* dhunuchi_priest_gold.png */,
+				1906BF7A7B76AD72A1C3F973 /* dhunuchi_priest.png */,
+				E3A3DCDC12BCABE3D977C3F1 /* durga_eyes_crimson.png */,
+				4938039EF2B074E7C5218EF5 /* durga_eyes_gold.png */,
+				BC189AF918B3FC011883762F /* durga_eyes.png */,
+				40F89B26EB563519E984CA46 /* durga_face_crimson.png */,
+				62E0C738643C9DE30376FF86 /* durga_face_gold.png */,
+				396BDC8FBB9294C6D5B6BC04 /* durga_face.png */,
+				5F5500266041738BDAE9EE4E /* durga_sun_trishul_crimson.png */,
+				602980E6545B9D5AF5FA882F /* durga_sun_trishul_gold.png */,
+				8F5ABE1BBA76BAF890B9AC0A /* durga_sun_trishul.png */,
+				800818D3DCBA89463539423C /* gada_crimson.png */,
+				C8DBD08AD8E8E6B3F9EA6C68 /* gada_gold.png */,
+				A3F41D9CB28766B9CDE331D6 /* gada.png */,
+				253DA0B609B5293CA68147D4 /* kalash_crimson.png */,
+				6CAA97AAFD820FF30F4B60F6 /* kalash_gold.png */,
+				2F48C2B1E7757537B48F7F11 /* kalash.png */,
+				78A84EA04AA47C577539CFF5 /* shankha_crimson.png */,
+				646B5F8997AF5EFF6BCD3FF2 /* shankha_gold.png */,
+				0E9F488FCE39461BA6FD4F0E /* shankha.png */,
+				A7BA2A4603F37DEBE6BBF7A0 /* trishul_diya_crimson.png */,
+				93706E05A4AAF1B75531AF4A /* trishul_diya_gold.png */,
+				9806205811F5AEA638F5AFE1 /* trishul_diya.png */,
+				153C2760891CDE09DE37FF72 /* trishul_eyes_crimson.png */,
+				DDF67E2759F89F99827E4632 /* trishul_eyes_gold.png */,
+				8F639E2D459FC9EEA7901B92 /* trishul_eyes.png */,
+			);
+			path = Icons;
+			sourceTree = "<group>";
+		};
+		F406B1CBE54ECD28891443DC /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				7C0A824DB9CFD95D3BFC44E6 /* Helplines */,
+				0F284EA286F8CF25306DAF80 /* Map */,
+				259CE243D1A6650DC580C2D0 /* Pandals */,
+				B4847745FF152E84C047E78D /* Routes */,
+				FF6313B40B9C597A4A6645C3 /* Settings */,
+				D457AAB11FFB2FEF1BB73F09 /* Squad */,
+				5C01865A6165485145F2A14E /* Welcome */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		FF6313B40B9C597A4A6645C3 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5532C7F68D9A11DDB67D52C8 /* Uma */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11964AF05980B6D3A0C150F9 /* Build configuration list for PBXNativeTarget "Uma" */;
+			buildPhases = (
+				099B7E88029F953436FCC1C0 /* Sources */,
+				44BEFEF3D22335AD5BECB5FE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Uma;
+			packageProductDependencies = (
+			);
+			productName = Uma;
+			productReference = 3B101BB86EF4A37A0211DFBD /* Uma.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B5ADED512C3EC957683FB78E /* UmaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5937FAD6249FDF00CB7F54BB /* Build configuration list for PBXNativeTarget "UmaTests" */;
+			buildPhases = (
+				31784D290823A1E5C5E05A16 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3B478AFC766B55F46002E5A8 /* PBXTargetDependency */,
+			);
+			name = UmaTests;
+			packageProductDependencies = (
+			);
+			productName = UmaTests;
+			productReference = 9F0C8558D620AB0CC6978FAE /* UmaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		17E99B157F41F906579BFBB1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					5532C7F68D9A11DDB67D52C8 = {
+						DevelopmentTeam = DPW6RLZ3RW;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = D2D81BD3918B19F2022956F0 /* Build configuration list for PBXProject "Uma" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2664788A94AA0A97DC8D47DC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 70F153EA2A06DAD4E41E5507 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5532C7F68D9A11DDB67D52C8 /* Uma */,
+				B5ADED512C3EC957683FB78E /* UmaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		44BEFEF3D22335AD5BECB5FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0F85C5075D9630D7A6B2E75D /* Assets.xcassets in Resources */,
+				AA98410A17963DFCE1D13C7E /* ashtabhuja_devi.png in Resources */,
+				D89AEAFCC4219B1E1ADB2479 /* ashtabhuja_devi_crimson.png in Resources */,
+				2392E703F35C203148DB7A34 /* ashtabhuja_devi_gold.png in Resources */,
+				C39059996A2FB22F4E3DEF36 /* ashtabhuja_variant.png in Resources */,
+				4A97B1B5A66EA90D9CB88A3D /* ashtabhuja_variant_crimson.png in Resources */,
+				60FF0CC95B65C70856A100CA /* ashtabhuja_variant_gold.png in Resources */,
+				9397745FC6B5A87576EC2696 /* bhog_sweets.png in Resources */,
+				D1C8E4F6C5F8E398E7C39FE6 /* bhog_sweets_crimson.png in Resources */,
+				41BD0701223250355876A6A9 /* bhog_sweets_gold.png in Resources */,
+				EB5CCF5CC4A02B43AFCD95F6 /* dhak_drum.png in Resources */,
+				8D99987DBFCED65B404BF51D /* dhak_drum_crimson.png in Resources */,
+				56A4336CD98B360AE4F07C29 /* dhak_drum_gold.png in Resources */,
+				78DE0417BD01877AF87D09EB /* dhaki.png in Resources */,
+				E443769A8A2E6CE71EBF3D81 /* dhaki_crimson.png in Resources */,
+				8C62F5A44CD64D72B4217452 /* dhaki_gold.png in Resources */,
+				509419487DBC83354DD6AE1C /* dhunuchi_priest.png in Resources */,
+				02E62FDFB4FBCD790C6147D5 /* dhunuchi_priest_crimson.png in Resources */,
+				64C0DCEA94DF1FD06C1A26C6 /* dhunuchi_priest_gold.png in Resources */,
+				50BF632737C8021B97C6DAD5 /* durga_eyes.png in Resources */,
+				917E50CAC97D5997860E5669 /* durga_eyes_crimson.png in Resources */,
+				8F6DB254A03EED482C2F8793 /* durga_eyes_gold.png in Resources */,
+				6136038A156713345538CABA /* durga_face.png in Resources */,
+				5F80CCA8EBE50AEBF2A5FE5E /* durga_face_crimson.png in Resources */,
+				1CF9317D945A11D8334CB022 /* durga_face_gold.png in Resources */,
+				6363B82D04D67BCB8890820F /* durga_sun_trishul.png in Resources */,
+				281E9A9E03EBF5F28701D733 /* durga_sun_trishul_crimson.png in Resources */,
+				93890C2216CDB73875C81591 /* durga_sun_trishul_gold.png in Resources */,
+				778CDD8EC49742856AC36192 /* events.json in Resources */,
+				3E0C121F67C72BD491DBE44D /* food_spots.json in Resources */,
+				4D00D293A4DB8507B870F23A /* gada.png in Resources */,
+				15814AA08FEB4DE6793AB8E4 /* gada_crimson.png in Resources */,
+				E0F4FF94F4B97C09A72E4361 /* gada_gold.png in Resources */,
+				1684F850C6CC946806530499 /* helplines.json in Resources */,
+				6992B49C2D5A523542F4161F /* kalash.png in Resources */,
+				6BBA0D33EA2F48F34F24F7B6 /* kalash_crimson.png in Resources */,
+				B8C08333213EDCED1AB9C972 /* kalash_gold.png in Resources */,
+				06682B017C11B23A2ADDF9B9 /* pandals.json in Resources */,
+				DDEAA257A39ED1E716249951 /* safety_first_aid.json in Resources */,
+				425A485C762127FE0DAE1FEE /* shankha.png in Resources */,
+				066B4E5BACE167C81E625B24 /* shankha_crimson.png in Resources */,
+				A7B2E91178B8EDFAAAA36B1F /* shankha_gold.png in Resources */,
+				7C8DFEF5688CAEAF26371D21 /* toilets.json in Resources */,
+				6101AD1806A4B68971FEB447 /* trishul_diya.png in Resources */,
+				CC41214559F8E1F56285CE61 /* trishul_diya_crimson.png in Resources */,
+				90BA7D2D8B3DE84B7B379A59 /* trishul_diya_gold.png in Resources */,
+				F2FBDA3726EAAED719B10E09 /* trishul_eyes.png in Resources */,
+				196BFC7D2B2D78650E7EE35F /* trishul_eyes_crimson.png in Resources */,
+				A94A43EE1A6A1C8021E80521 /* trishul_eyes_gold.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		099B7E88029F953436FCC1C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66788A0C66DCEE92987FA722 /* AppEnvironment.swift in Sources */,
+				202C613CC03A6BF7D613D73C /* AppRoot.swift in Sources */,
+				362ADF309D5176E5D77FEDE7 /* ChatMessage.swift in Sources */,
+				863C1A9483BFF3F953CC5BAC /* ChatService.swift in Sources */,
+				20671A4FCEE2E972F6C34458 /* DouglasPeucker.swift in Sources */,
+				61F5A8896A8C41E2F210333E /* FoodSpot.swift in Sources */,
+				5B2808CF84FFBE1859808AC5 /* FoodSpotRepository.swift in Sources */,
+				BD43C05C4B284ADC65EA5CEE /* Haptics.swift in Sources */,
+				0142DFE4C31939453B589BB1 /* Haversine.swift in Sources */,
+				5A0D77D9BFF71D97822716B0 /* Helpline.swift in Sources */,
+				68E579E94BE901923F569B50 /* HelplineRepository.swift in Sources */,
+				F365E97E0A1D107AB8F57F5F /* HelplinesView.swift in Sources */,
+				26A1E633BB19989E08A564BD /* HoppingRoute.swift in Sources */,
+				44EB8937E17862AE6F52CD18 /* KolkataZone.swift in Sources */,
+				7077B7469B16D8CA2E3CB8EA /* LiquidGlass.swift in Sources */,
+				E1FD9B5A575405B7DB013E83 /* LocationService.swift in Sources */,
+				B2EBC9AF4B9CC265969135EA /* MapFloatingControls.swift in Sources */,
+				EB9B96E34A216362ED9DF780 /* MapSearchBar.swift in Sources */,
+				36B933D9625A3B2214FFF7C0 /* MapTabView.swift in Sources */,
+				F7AA1A8B4F9B6AAF8D278AF5 /* MapView.swift in Sources */,
+				1E2C0AF61CAE948A96E4DDAC /* MetroRepository.swift in Sources */,
+				2C94E4ADF8BC21A000D6927A /* MetroStation.swift in Sources */,
+				B7A8716F2B5B4FF95D188697 /* OmniSearchService.swift in Sources */,
+				A15F50A0B70539D8B4D7D490 /* Pandal.swift in Sources */,
+				48026B16BE84C847D092A9DE /* PandalAnnotation.swift in Sources */,
+				477CFD0055FC8AD531F94C5A /* PandalCalloutView.swift in Sources */,
+				D03175AD34BA6066B9EC5E48 /* PandalCard.swift in Sources */,
+				3C9F2DCC5262299F79B9DC41 /* PandalDetailView.swift in Sources */,
+				2B367C1F09BA6997FBCA4961 /* PandalRepository.swift in Sources */,
+				AD96A938442B378BFABCFACF /* PandalSpatialCluster.swift in Sources */,
+				2B368F1EBFE5DCF4C8446389 /* PandalsListView.swift in Sources */,
+				2972206F2F823390CDACA2BA /* PujaIcons.swift in Sources */,
+				C128C6C21BB92E963408A2A2 /* PujaSchedule.swift in Sources */,
+				48D21C1B114A579AB9B2B91A /* RoutesView.swift in Sources */,
+				9F256807E13E8687553F054E /* RoutingService.swift in Sources */,
+				DE5B862DBE7FF4B602EE801F /* SpatialCorridor.swift in Sources */,
+				39DF806616C685E15C6C3963 /* SquadChatView.swift in Sources */,
+				E6CA21EBA92D2589C6941656 /* SquadHubView.swift in Sources */,
+				D694E1D13C66129783245AC7 /* SquadMember.swift in Sources */,
+				2FAC76D986936F191BC988C4 /* SquadService.swift in Sources */,
+				C0F63557C9F1F10719C62A3E /* Theme.swift in Sources */,
+				EC1CAB9D69C4299D6F8903F3 /* Toilet.swift in Sources */,
+				37D1EB30E2BDD1B6EF38AEC7 /* ToiletRepository.swift in Sources */,
+				4922727D88C112AE5987BC4E /* TrailOptimizer.swift in Sources */,
+				E9DCF913F9F410092F3E1617 /* UmaApp.swift in Sources */,
+				CB7260C30DE8D34C5F785430 /* UserStateService.swift in Sources */,
+				12A1CD70ED014AA1C892544C /* WalkingRoute.swift in Sources */,
+				7E8BCFB7714099CE938E9576 /* WelcomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		31784D290823A1E5C5E05A16 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5C3A7B421DD63EE18624A45D /* DouglasPeuckerTests.swift in Sources */,
+				33CB91E109DEF43CF19DACA5 /* HaversineTests.swift in Sources */,
+				A171A539700B18A4B3290630 /* LiquidGlassAvailabilityTests.swift in Sources */,
+				E4155FCB7EDD846D05A4C560 /* OmniSearchTests.swift in Sources */,
+				48F25ED42A033A0DF8F8069A /* PandalSpatialClusterTests.swift in Sources */,
+				14A9E1BD705EE3E94C4F81B7 /* TrailOptimizerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3B478AFC766B55F46002E5A8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5532C7F68D9A11DDB67D52C8 /* Uma */;
+			targetProxy = DCA96ACCDEF9322DD872B0EB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		310715DD2C43977D9C33F3BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.uma.UmaTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Uma.app/Uma";
+			};
+			name = Release;
+		};
+		780B1C9812C01E25D8399773 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"Uma/Resources\"";
+				DEVELOPMENT_TEAM = DPW6RLZ3RW;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Uma/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.uma.Uma;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		96902127FD3042388C64A678 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"Uma/Resources\"";
+				DEVELOPMENT_TEAM = DPW6RLZ3RW;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Uma/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.uma.Uma;
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		D19F03B77B00BD692CD04E07 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.uma.UmaTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Uma.app/Uma";
+			};
+			name = Debug;
+		};
+		F0853DE0787D3284293D2788 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		FE1910D1DD3840A46AA96D8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		11964AF05980B6D3A0C150F9 /* Build configuration list for PBXNativeTarget "Uma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96902127FD3042388C64A678 /* Debug */,
+				780B1C9812C01E25D8399773 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5937FAD6249FDF00CB7F54BB /* Build configuration list for PBXNativeTarget "UmaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D19F03B77B00BD692CD04E07 /* Debug */,
+				310715DD2C43977D9C33F3BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D2D81BD3918B19F2022956F0 /* Build configuration list for PBXProject "Uma" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F0853DE0787D3284293D2788 /* Debug */,
+				FE1910D1DD3840A46AA96D8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 17E99B157F41F906579BFBB1 /* Project object */;
+}

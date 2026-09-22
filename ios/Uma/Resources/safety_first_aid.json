@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Heat Exhaustion",
+    "content": [
+      "Move to a cooler place",
+      "Drink water or electrolyte drinks",
+      "Rest and avoid strenuous activity"
+    ]
+  },
+  {
+    "title": "Fainting",
+    "content": [
+      "Lay the person down",
+      "Elevate legs if possible",
+      "Ensure fresh air and loosen tight clothing"
+    ]
+  },
+  {
+    "title": "Minor Burns",
+    "content": [
+      "Cool the burn with running water",
+      "Cover with sterile, non-adhesive bandage",
+      "Avoid applying creams or ice directly"
+    ]
+  }
+]
