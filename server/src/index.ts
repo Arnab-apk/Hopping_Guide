@@ -2,6 +2,9 @@ import http from 'http';
 import { URL } from 'url';
 import { WebSocketServer, WebSocket } from 'ws';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
+import admin, { App, initializeApp, getApp, getApps, cert, applicationDefault } from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { SquadManager } from './squad-manager';
 import * as db from './db';
 import {
@@ -19,6 +22,118 @@ const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 
 const manager = new SquadManager();
+
+// --- Firebase Admin SDK Initialization ---
+let firebaseApp: App | null = null;
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    // Initialize from service account JSON (production)
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    firebaseApp = initializeApp({
+      credential: cert(serviceAccount),
+    });
+    console.log('[Server] Firebase Admin SDK initialized with service account');
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    // Initialize from file path (Cloud Run, Cloud Functions, etc.)
+    firebaseApp = initializeApp({
+      credential: applicationDefault(),
+    });
+    console.log('[Server] Firebase Admin SDK initialized with ADC');
+  } else {
+    // Initialize without credentials (emulator / local dev)
+    firebaseApp = initializeApp({ projectId: process.env.FIREBASE_PROJECT_ID || 'demo-project' });
+    console.log('[Server] Firebase Admin SDK initialized in emulator mode');
+  }
+} catch (err: any) {
+  console.error('[Server] Failed to initialize Firebase Admin SDK:', err.message);
+  firebaseApp = null;
+}
+
+const authInstance = firebaseApp ? getAuth(firebaseApp) : null;
+
+// Simple in-memory Firebase token cache (validated tokens only)
+const firebaseTokenCache = new Map<string, { uid: string; expires: number }>();
+
+async function verifyFirebaseToken(token: string): Promise<string | null> {
+  // Check cache first
+  const cached = firebaseTokenCache.get(token);
+  if (cached && cached.expires > Date.now()) {
+    return cached.uid;
+  }
+
+  if (!authInstance) {
+    console.warn('[Server] Firebase Admin SDK not available, token verification skipped');
+    return null;
+  }
+
+  try {
+    const decoded = await authInstance.verifyIdToken(token, true); // checkRevoked = true
+    const uid = decoded.uid;
+    firebaseTokenCache.set(token, { uid, expires: Date.now() + 3600000 }); // 1 hour cache
+    return uid;
+  } catch (err: any) {
+    console.warn('[Server] Invalid Firebase ID token:', err.code || err.message);
+    return null;
+  }
+}
+
+function extractUserId(req: http.IncomingMessage): string {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    // This will be async in real implementation; for sync compat, return token as fallback
+    return token;
+  }
+  const customHeader = req.headers['x-user-id'];
+  if (customHeader && typeof customHeader === 'string') {
+    return customHeader.trim();
+  }
+  return `guest_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+async function extractUserIdAsync(req: http.IncomingMessage): Promise<string> {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    const uid = await verifyFirebaseToken(token);
+    if (uid) return uid;
+  }
+  const customHeader = req.headers['x-user-id'];
+  if (customHeader && typeof customHeader === 'string') {
+    return customHeader.trim();
+  }
+  return `guest_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+// --- Security: Rate Limiting & Helmet-style headers ---
+// Simple in-memory rate limiter (per IP)
+const httpRateLimiter = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 100; // 100 requests per minute per IP
+
+function checkHttpRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = httpRateLimiter.get(ip);
+  if (!entry || now > entry.resetTime) {
+    httpRateLimiter.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+  entry.count++;
+  return true;
+}
+
+// Clean up old rate limit entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of httpRateLimiter.entries()) {
+    if (now > entry.resetTime) {
+      httpRateLimiter.delete(ip);
+    }
+  }
+}, 300000); // every 5 minutes
 
 // Helper to parse JSON body
 function parseBody(req: http.IncomingMessage): Promise<any> {
@@ -49,36 +164,34 @@ function parseBody(req: http.IncomingMessage): Promise<any> {
 function sendHttpJson(res: http.ServerResponse, statusCode: number, data: any): void {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || 'https://sharodiya.com',
     'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-user-id',
   });
   res.end(JSON.stringify(data));
 }
 
-function extractUserId(req: http.IncomingMessage): string {
-  const customHeader = req.headers['x-user-id'];
-  if (customHeader && typeof customHeader === 'string') {
-    return customHeader.trim();
-  }
-  const authHeader = req.headers['authorization'];
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7).trim();
-    // In production with Firebase Admin SDK, verifyIdToken(token) yields uid.
-    // For mobile client identity, pass token/uid cleanly.
-    return token;
-  }
-  return `guest_${Math.random().toString(36).substring(2, 9)}`;
-}
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 // HTTP Server (Health, Stats & Neon REST API)
 // ------------------------------------------------------------------------------
 const server = http.createServer(async (req, res) => {
+  // Rate limiting
+  const ip = req.socket.remoteAddress || 'unknown';
+  if (!checkHttpRateLimit(ip)) {
+    res.writeHead(429, {
+      'Content-Type': 'application/json',
+      'Retry-After': '60',
+    });
+    res.end(JSON.stringify({ error: { code: 'RATE_LIMITED', message: 'Too many requests, please slow down' } }));
+    return;
+  }
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || 'https://sharodiya.com',
       'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-user-id',
     });
@@ -120,7 +233,7 @@ const server = http.createServer(async (req, res) => {
     // POST /api/squads (Create Squad)
     if (pathname === '/api/squads' && method === 'POST') {
       const body = await parseBody(req);
-      const userId = body.hostUserId || extractUserId(req);
+      const userId = body.hostUserId || await extractUserIdAsync(req);
       const result = await db.createSquad({
         name: body.name || 'Hopping Squad',
         hostUserId: userId,
@@ -139,7 +252,7 @@ const server = http.createServer(async (req, res) => {
     // POST /api/squads/join (Join Squad by code)
     if (pathname === '/api/squads/join' && method === 'POST') {
       const body = await parseBody(req);
-      const userId = body.userId || extractUserId(req);
+      const userId = body.userId || await extractUserIdAsync(req);
       const code = (body.code || '').trim().toUpperCase();
       if (!code) {
         sendHttpJson(res, 400, { error: { code: 'INVALID_CODE', message: 'Squad code is required' } });
@@ -214,7 +327,7 @@ const server = http.createServer(async (req, res) => {
     if (leaveMatch && method === 'POST') {
       const id = leaveMatch[1];
       const body = await parseBody(req);
-      const userId = body.userId || extractUserId(req);
+      const userId = body.userId || await extractUserIdAsync(req);
       await db.leaveSquad(id, userId);
       sendHttpJson(res, 200, { success: true });
       return;
@@ -225,7 +338,7 @@ const server = http.createServer(async (req, res) => {
     if (meetupMatch && method === 'PATCH') {
       const id = meetupMatch[1];
       const body = await parseBody(req);
-      const hostUserId = body.hostUserId || extractUserId(req);
+      const hostUserId = body.hostUserId || await extractUserIdAsync(req);
       const squad = await db.updateMeetup(id, hostUserId, {
         lat: body.lat,
         lng: body.lng,
@@ -249,7 +362,7 @@ const server = http.createServer(async (req, res) => {
     if (settingsMatch && method === 'PATCH') {
       const id = settingsMatch[1];
       const body = await parseBody(req);
-      const hostUserId = body.hostUserId || extractUserId(req);
+      const hostUserId = body.hostUserId || await extractUserIdAsync(req);
       const squad = await db.updateSettings(id, hostUserId, {
         name: body.name,
         separationRadiusM: body.separationRadiusM,
@@ -282,7 +395,7 @@ const server = http.createServer(async (req, res) => {
     if (messagesMatch && method === 'POST') {
       const id = messagesMatch[1];
       const body = await parseBody(req);
-      const userId = body.senderUserId || extractUserId(req);
+      const userId = body.senderUserId || await extractUserIdAsync(req);
       const saved = await db.saveMessage({
         squadId: id,
         senderUserId: userId,
@@ -334,6 +447,12 @@ server.on('upgrade', (request, socket, head) => {
   const token = parsed.searchParams.get('token') || parsed.searchParams.get('userId');
   const squadId = parsed.searchParams.get('squadId') || '';
   const userId = token ? token.trim() : `guest_${Math.random().toString(36).substring(2, 9)}`;
+
+  if (!squadId) {
+    socket.write('HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\n\r\n{"error":"squadId required"}');
+    socket.destroy();
+    return;
+  }
 
   wss.handleUpgrade(request, socket, head, (ws) => {
     wss.emit('connection', ws, request, userId, squadId);
@@ -428,3 +547,5 @@ function shutdown(signal: string) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+

@@ -42,12 +42,13 @@ else {
 }
 // ------------------------------------------------------------------------------
 // Cryptographically secure squad code generator
-// Format: PUJA-XXXX (avoiding ambiguous characters 0, O, 1, I, L)
+// Format: PUJAXXXX (8 chars total, avoiding ambiguous characters 0, O, 1, I, L)
+// Matches Flutter app expectation: PUJA + 4 alphanumeric chars
 // ------------------------------------------------------------------------------
 const SAFE_CHARS = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
 function generateSquadCode() {
     const bytes = crypto_1.default.randomBytes(4);
-    let code = 'PUJA-';
+    let code = 'PUJA';
     for (let i = 0; i < 4; i++) {
         code += SAFE_CHARS[bytes[i] % SAFE_CHARS.length];
     }

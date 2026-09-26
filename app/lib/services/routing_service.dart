@@ -102,7 +102,9 @@ class RoutingService {
   final http.Client _client;
 
   /// High-concurrency route cache to eliminate redundant public API requests
+  /// Max 200 entries with LRU eviction to prevent memory leak
   final Map<String, ({WalkingRoute route, DateTime timestamp})> _routeCache = {};
+  static const int _maxCacheSize = 200;
   int _consecutiveFailures = 0;
   DateTime? _circuitBreakerUntil;
 
@@ -113,6 +115,15 @@ class RoutingService {
   void resetCircuitBreaker() {
     _consecutiveFailures = 0;
     _circuitBreakerUntil = null;
+  }
+
+  /// Auto-reset circuit breaker after cooldown period
+  void _maybeResetCircuitBreaker() {
+    if (_circuitBreakerUntil != null && DateTime.now().isAfter(_circuitBreakerUntil!)) {
+      _consecutiveFailures = 0;
+      _circuitBreakerUntil = null;
+      debugPrint('[RoutingService] 🔄 Circuit breaker auto-reset after cooldown');
+    }
   }
 
   void _recordFailure() {
@@ -149,9 +160,9 @@ class RoutingService {
     final destLng = destination.longitude;
     final destLat = destination.latitude;
 
-    // 1. High-concurrency spatial quantization cache check (~100m grid)
+    // 1. High-concurrency spatial quantization cache check (~10m grid)
     final cacheKey =
-        '${startLat.toStringAsFixed(3)},${startLng.toStringAsFixed(3)}->${destLat.toStringAsFixed(3)},${destLng.toStringAsFixed(3)}';
+        '${startLat.toStringAsFixed(4)},${startLng.toStringAsFixed(4)}->${destLat.toStringAsFixed(4)},${destLng.toStringAsFixed(4)}';
 
     final cached = _routeCache[cacheKey];
     if (cached != null &&
@@ -169,6 +180,7 @@ class RoutingService {
 
     // 2. Circuit Breaker check: If public OSRM is rate-limiting or down, skip network
     final now = DateTime.now();
+    _maybeResetCircuitBreaker();
     if (_circuitBreakerUntil != null && now.isBefore(_circuitBreakerUntil!)) {
       return _buildGeodesicFallback(
         start: start,
@@ -231,7 +243,20 @@ class RoutingService {
             // Save to LRU cache and reset circuit breaker
             _consecutiveFailures = 0;
             _circuitBreakerUntil = null;
-            if (_routeCache.length >= 100) _routeCache.clear();
+            if (_routeCache.length >= _maxCacheSize) {
+              // LRU eviction: remove oldest entry
+              String? oldestKey;
+              DateTime? oldestTime;
+              for (final entry in _routeCache.entries) {
+                if (oldestTime == null || entry.value.timestamp.isBefore(oldestTime)) {
+                  oldestTime = entry.value.timestamp;
+                  oldestKey = entry.key;
+                }
+              }
+              if (oldestKey != null) {
+                _routeCache.remove(oldestKey);
+              }
+            }
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
             debugPrint('[RoutingService] ✅ Street route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km → $destinationName');

@@ -85,8 +85,8 @@ async function runNeonSquadTests() {
     const squadId = squad.id;
     console.log(`✓ Squad created with ID: ${squadId} and Code: ${squadCode}`);
 
-    // Verify squad code format: PUJA-XXXX (avoiding ambiguous chars 0, O, 1, I, L)
-    if (!squadCode.match(/^PUJA-[2-9A-HJ-NP-Z]{4}$/)) {
+    // Verify squad code format: PUJAXXXX (8 chars total, avoiding ambiguous chars 0, O, 1, I, L)
+    if (!squadCode.match(/^PUJA[2-9A-HJ-NP-Z]{4}$/)) {
       throw new Error(`Squad code format invalid: ${squadCode}`);
     }
     console.log('✓ Cryptographic squad code verified:', squadCode);

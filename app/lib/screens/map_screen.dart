@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'package:flutter_tts/flutter_tts.dart';
 import '../config/app_config.dart';
 import '../config/theme.dart';
 import '../models/app_user.dart';
@@ -25,6 +26,7 @@ import '../repositories/supplementary_repository.dart';
 import '../services/auth_service.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
+import '../services/position_interpolator.dart';
 import '../services/routing_service.dart';
 import '../services/squad_service.dart';
 import '../services/theme_service.dart';
@@ -233,6 +235,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   bool _followUser = false;
   double _mapRotation = 0.0;
   String? _lastFramedTrailId;
+  late final PositionInterpolator _positionInterpolator;
+
+  // Turn-by-turn Navigation State
+  bool _isNavigating = false;
+  WalkingRoute? _navigationRoute;
+  int _currentStepIndex = 0;
+  Timer? _navigationInstructionTimer;
+  FlutterTts? _tts;
+  bool _ttsInitialized = false;
 
   // Trail Polyline Memoization Cache (prevents frame drops and blank tile lag on GPS updates)
   List<Polyline>? _cachedTrailCorePolylines;
@@ -397,6 +408,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _positionInterpolator = PositionInterpolator();
     _mapSearchController = TextEditingController();
     _mapSearchFocusNode = FocusNode();
     _mapSearchFocusNode.addListener(_handleSearchFocusOrTextChange);
@@ -437,6 +449,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
     _loadData();
     _startContinuousTracking();
+    _initTts();
+  }
+
+  Future<void> _initTts() async {
+    _tts = FlutterTts();
+    await _tts!.setLanguage('en-IN');
+    await _tts!.setSpeechRate(0.5);
+    await _tts!.setVolume(1.0);
+    await _tts!.setPitch(1.0);
+    _ttsInitialized = true;
+    debugPrint('[MapScreen] TTS initialized');
   }
 
   @override
@@ -461,6 +484,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _cameraMoveController?.dispose();
     _cameraMoveController = null;
     _pulseController.dispose();
+    _positionInterpolator.dispose();
+    _navigationInstructionTimer?.cancel();
+    _tts?.stop();
+    _tts = null;
     super.dispose();
   }
 
@@ -634,6 +661,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       onLocationChanged: (pos) {
         if (!mounted) return;
         setState(() => _userPosition = pos);
+        _positionInterpolator.updatePosition(LatLng(pos.latitude, pos.longitude));
         SquadService.instance.updateUserLocation(pos.latitude, pos.longitude);
         if (_followUser) {
           _animatedMapMove(
@@ -643,8 +671,80 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 : _mapController.camera.zoom,
           );
         }
+        // Check for turn-by-turn navigation updates
+        if (_isNavigating && _navigationRoute != null) {
+          _checkNavigationProgress(pos.latitude, pos.longitude);
+        }
       },
     );
+  }
+
+  /// Speak a navigation instruction
+  Future<void> _speakInstruction(String instruction) async {
+    if (!_ttsInitialized || _tts == null) return;
+    try {
+      await _tts!.speak(instruction);
+    } catch (e) {
+      debugPrint('[MapScreen] TTS error: $e');
+    }
+  }
+
+  /// Stop turn-by-turn navigation
+  Future<void> _stopNavigation() async {
+    _isNavigating = false;
+    _navigationRoute = null;
+    _currentStepIndex = 0;
+    _navigationInstructionTimer?.cancel();
+    _navigationInstructionTimer = null;
+
+    await _speakInstruction('Navigation stopped.');
+
+    _showStatusPill(
+      'Navigation stopped',
+      icon: Icons.stop_rounded,
+    );
+
+    setState(() {});
+  }
+
+  /// Check navigation progress and speak next instruction when needed
+  void _checkNavigationProgress(double lat, double lng) {
+    if (_navigationRoute == null || _currentStepIndex >= _navigationRoute!.points.length) return;
+
+    final currentPoint = _navigationRoute!.points[_currentStepIndex];
+    final distanceToNext = Geolocator.distanceBetween(
+      lat,
+      lng,
+      currentPoint.latitude,
+      currentPoint.longitude,
+    );
+
+    // If within 15m of next waypoint, advance to next step
+    if (distanceToNext < 15.0) {
+      _currentStepIndex++;
+
+      // If reached destination
+      if (_currentStepIndex >= _navigationRoute!.points.length) {
+        _speakInstruction('You have arrived at ${_navigationRoute!.destinationTitle}.');
+        _stopNavigation();
+        return;
+      }
+
+      // Speak next direction (simplified - just distance to next point)
+      final nextPoint = _navigationRoute!.points[_currentStepIndex];
+      final dist = Geolocator.distanceBetween(
+        lat,
+        lng,
+        nextPoint.latitude,
+        nextPoint.longitude,
+      );
+
+      if (dist < 50) {
+        _speakInstruction('Continue straight for ${dist.round()} meters.');
+      } else if (dist < 200) {
+        _speakInstruction('In ${dist.round()} meters, continue toward ${_navigationRoute!.destinationTitle}.');
+      }
+    }
   }
 
   Future<void> _tryGetLocation() async {

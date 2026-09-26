@@ -22,6 +22,9 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.7",
+    "express-rate-limit": "^7.1.5",
+    "firebase-admin": "^14.5.0",
+    "helmet": "^7.1.0",
     "ioredis": "^5.4.2",
     "pg": "^8.23.0",
     "uuid": "^14.0.2",

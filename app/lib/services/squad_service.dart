@@ -50,6 +50,7 @@ class SquadService extends ChangeNotifier {
   final SquadFirestoreRepository _repo;
   static SquadService? _instance;
   static bool enableTestMode = false;
+  bool _locationTrackingStarted = false; // Guard against duplicate startLiveTracking calls
 
   static SquadService get instance {
     _instance ??= SquadService._();
@@ -224,10 +225,13 @@ class SquadService extends ChangeNotifier {
         _initMembers(isHost: true);
         _listenToCloud();
         _syncUserLocationToCloud();
-        LocationService.instance.startLiveTracking().catchError((e) {
-          debugPrint('[SquadService] startLiveTracking on load error: $e');
-          return false;
-        });
+        if (!_locationTrackingStarted) {
+          _locationTrackingStarted = true;
+          LocationService.instance.startLiveTracking().catchError((e) {
+            debugPrint('[SquadService] startLiveTracking on load error: $e');
+            return false;
+          });
+        }
       }
     } catch (e) {
       debugPrint('[SquadService] _loadSavedState error: $e');
@@ -367,7 +371,8 @@ class SquadService extends ChangeNotifier {
     final hostMember = _members.first;
 
     // Start live tracking immediately so GPS updates continuously stream
-    if (!isTest) {
+    if (!_locationTrackingStarted && !isTest) {
+      _locationTrackingStarted = true;
       LocationService.instance.startLiveTracking().catchError((e) {
         debugPrint('[SquadService] startLiveTracking on create error: $e');
         return false;
@@ -487,10 +492,13 @@ class SquadService extends ChangeNotifier {
     final member = _members.first;
 
     // Start live tracking immediately so GPS updates continuously stream
-    LocationService.instance.startLiveTracking().catchError((e) {
-      debugPrint('[SquadService] startLiveTracking on join error: $e');
-      return false;
-    });
+    if (!_locationTrackingStarted) {
+      _locationTrackingStarted = true;
+      LocationService.instance.startLiveTracking().catchError((e) {
+        debugPrint('[SquadService] startLiveTracking on join error: $e');
+        return false;
+      });
+    }
 
     if (_squadId != null) {
       await _repo.joinSquad(squadId: _squadId!, member: member);
@@ -565,6 +573,7 @@ class SquadService extends ChangeNotifier {
     _squadName = null;
     _focusedMemberId = null;
     _activeSeparationAlert = null;
+    _locationTrackingStarted = false; // Reset tracking flag
     _members.clear();
     await _persistState();
     notifyListeners();

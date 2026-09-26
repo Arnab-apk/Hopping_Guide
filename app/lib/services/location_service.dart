@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 
 /// Real device location and continuous distance tracking service
 class LocationService extends ChangeNotifier {
@@ -14,11 +15,17 @@ class LocationService extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   StreamSubscription<Position>? _positionStreamSub;
+  StreamSubscription<CompassEvent>? _compassStreamSub;
   bool _isPaused = false;
   DateTime? _lastBroadcastTime;
   static bool enableTestMode = false;
   bool _isTestLiveTracking = false;
   void Function(Position)? _testLocationCallback;
+
+  // Heading fusion: GPS heading (when moving > 5 km/h) + compass (when slow/stationary)
+  double? _lastCompassHeading;
+  DateTime? _lastCompassUpdate;
+  double? _fusedHeading;
 
   void emitTestPosition(Position pos) {
     _currentPosition = pos;
@@ -32,7 +39,9 @@ class LocationService extends ChangeNotifier {
   String? get error => _error;
   bool get isLiveTracking => _positionStreamSub != null || _isTestLiveTracking;
   bool get isPaused => _isPaused;
-  double? get currentHeading => _currentPosition?.heading;
+  double? get currentHeading => _fusedHeading ?? _currentPosition?.heading;
+  double? get rawGpsHeading => _currentPosition?.heading;
+  double? get compassHeading => _lastCompassHeading;
   double? get currentAccuracy => _currentPosition?.accuracy;
 
   /// Async getter for location compatibility
@@ -145,6 +154,7 @@ class LocationService extends ChangeNotifier {
           _lastBroadcastTime = now;
           _currentPosition = position;
           _error = null;
+          _updateFusedHeading(); // Update fused heading with new GPS data
           notifyListeners();
           onLocationChanged?.call(position);
         },
@@ -154,12 +164,63 @@ class LocationService extends ChangeNotifier {
         },
       );
 
+      // Start compass stream for heading fusion
+      await _startCompassStream();
+
       notifyListeners();
       return true;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
       return false;
+    }
+  }
+
+  /// Starts compass stream for heading fusion (when GPS heading is unreliable)
+  Future<void> _startCompassStream() async {
+    if (_compassStreamSub != null) return;
+    try {
+      _compassStreamSub = FlutterCompass.events?.listen((event) {
+        if (event.heading != null && !event.heading!.isNaN) {
+          _lastCompassHeading = event.heading;
+          _lastCompassUpdate = DateTime.now();
+          _updateFusedHeading();
+        }
+      });
+    } catch (e) {
+      debugPrint('[LocationService] Compass stream error: $e');
+    }
+  }
+
+  void _updateFusedHeading() {
+    final gpsHeading = _currentPosition?.heading;
+    final compassHeading = _lastCompassHeading;
+    final now = DateTime.now();
+
+    // Use GPS heading when:
+    // 1. GPS heading is available AND
+    // 2. Speed > 1.5 m/s (~5.4 km/h) OR GPS accuracy < 20m
+    // Otherwise use compass heading
+    double? fused;
+    if (gpsHeading != null && !gpsHeading.isNaN) {
+      final speed = _currentPosition?.speed ?? 0;
+      final accuracy = _currentPosition?.accuracy ?? 999;
+      if (speed > 1.5 || accuracy < 20) {
+        fused = gpsHeading;
+      }
+    }
+
+    // Fall back to compass if GPS not reliable
+    if (fused == null && compassHeading != null && !compassHeading.isNaN) {
+      final compassAge = now.difference(_lastCompassUpdate ?? now).inSeconds;
+      if (compassAge < 5) { // Compass reading is fresh
+        fused = compassHeading;
+      }
+    }
+
+    if (fused != null && fused != _fusedHeading) {
+      _fusedHeading = fused;
+      notifyListeners();
     }
   }
 
@@ -171,6 +232,8 @@ class LocationService extends ChangeNotifier {
     }
     _positionStreamSub?.cancel();
     _positionStreamSub = null;
+    _compassStreamSub?.cancel();
+    _compassStreamSub = null;
     notifyListeners();
   }
 

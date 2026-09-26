@@ -126,8 +126,8 @@ Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
   final now = DateTime.now();
   if (_lastHandledUri == uriString &&
       _lastHandledTime != null &&
-      now.difference(_lastHandledTime!).inMilliseconds < 2500) {
-    debugPrint('[DeepLink] Debouncing duplicate trigger within 2.5s: $uri');
+      now.difference(_lastHandledTime!).inMilliseconds < 500) {
+    debugPrint('[DeepLink] Debouncing duplicate trigger within 500ms: $uri');
     return;
   }
   _lastHandledUri = uriString;

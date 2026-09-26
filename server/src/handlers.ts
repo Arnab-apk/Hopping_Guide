@@ -425,8 +425,8 @@ function handleLegacyJoinSquad(
   manager: SquadManager
 ): void {
   const code = (msg.squad_code || '').trim().toUpperCase();
-  if (!code.match(/^PUJA[A-Z0-9]{4}$/)) {
-    sendError(ws, 'INVALID_CODE', 'Squad code must follow format PUJA####');
+  if (!code.match(/^PUJA[2-9A-HJ-NP-Z]{4}$/)) {
+    sendError(ws, 'INVALID_CODE', 'Squad code must follow format PUJAXXXX (e.g. PUJAX4K9)');
     return;
   }
 
