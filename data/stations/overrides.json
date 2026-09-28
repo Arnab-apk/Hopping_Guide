@@ -1,0 +1,290 @@
+{
+  "HWH": {
+    "name": "Howrah Junction",
+    "name_bn": "হাওড়া জংশন",
+    "code": "HWH",
+    "kind": "rail",
+    "network": "Eastern Railway / South Eastern Railway",
+    "lines": ["Howrah Main Line", "South Eastern Main Line", "Howrah-Bardhaman Chord"]
+  },
+  "SDAH": {
+    "name": "Sealdah",
+    "name_bn": "শিয়ালদহ",
+    "code": "SDAH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah North", "Sealdah South", "Sealdah Main"]
+  },
+  "KOAA": {
+    "name": "Kolkata (Chitpur)",
+    "name_bn": "কলকাতা টার্মিনাল (চিৎপুর)",
+    "code": "KOAA",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Eastern Railway Main"]
+  },
+  "SRC": {
+    "name": "Santragachi Junction",
+    "name_bn": "সাঁতরাগাছি জংশন",
+    "code": "SRC",
+    "kind": "rail",
+    "network": "South Eastern Railway",
+    "lines": ["South Eastern Main Line"]
+  },
+  "SHM": {
+    "name": "Shalimar",
+    "name_bn": "শালিমার",
+    "code": "SHM",
+    "kind": "rail",
+    "network": "South Eastern Railway",
+    "lines": ["South Eastern Railway"]
+  },
+  "DDJ": {
+    "name": "Dum Dum Junction",
+    "name_bn": "দমদম জংশন",
+    "code": "DDJ",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main", "Circular Railway"]
+  },
+  "BNXR": {
+    "name": "Bidhan Nagar Road",
+    "name_bn": "বিধাননগর রোড",
+    "code": "BNXR",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main", "Sealdah North"]
+  },
+  "BLN": {
+    "name": "Ballygunge Junction",
+    "name_bn": "বালিগঞ্জ জংশন",
+    "code": "BLN",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South", "Circular Railway"]
+  },
+  "MJT": {
+    "name": "Majerhat",
+    "name_bn": "মাঝেরহাট",
+    "code": "MJT",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South", "Circular Railway"]
+  },
+  "BBR": {
+    "name": "Bagbazar",
+    "name_bn": "বাগবাজার",
+    "code": "BBR",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "SOLA": {
+    "name": "Sovabazar Ahiritola",
+    "name_bn": "শোভাবাজার আহিরীটোলা",
+    "code": "SOLA",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "BZB": {
+    "name": "Burrabazar",
+    "name_bn": "বড়বাজার",
+    "code": "BZB",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "BBDB": {
+    "name": "B.B.D. Bag",
+    "name_bn": "বিবাদী বাগ",
+    "code": "BBDB",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "EDG": {
+    "name": "Eden Gardens",
+    "name_bn": "ইডেন গার্ডেন্স",
+    "code": "EDG",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "PPGT": {
+    "name": "Princep Ghat",
+    "name_bn": "প্রিন্সেপ ঘাট",
+    "code": "PPGT",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "NACC": {
+    "name": "New Alipore",
+    "name_bn": "নিউ আলিপুর",
+    "code": "NACC",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "TLG": {
+    "name": "Tollygunge",
+    "name_bn": "টালিগঞ্জ",
+    "code": "TLG",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "LKF": {
+    "name": "Lake Gardens",
+    "name_bn": "লেক গার্ডেন্স",
+    "code": "LKF",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Circular Railway"]
+  },
+  "DHK": {
+    "name": "Dhakuria",
+    "name_bn": "ঢাকুরিয়া",
+    "code": "DHK",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "JDP": {
+    "name": "Jadavpur",
+    "name_bn": "যাদবপুর",
+    "code": "JDP",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "BGJT": {
+    "name": "Baghajatin",
+    "name_bn": "বাঘাযতীন",
+    "code": "BGJT",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "GIA": {
+    "name": "Garia",
+    "name_bn": "গড়িয়া",
+    "code": "GIA",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "SPR": {
+    "name": "Sonarpur Junction",
+    "name_bn": "সোনারপুর জংশন",
+    "code": "SPR",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "BRP": {
+    "name": "Baruipur Junction",
+    "name_bn": "বারুইপুর জংশন",
+    "code": "BRP",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "BLH": {
+    "name": "Belgharia",
+    "name_bn": "বেলঘরিয়া",
+    "code": "BLH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main"]
+  },
+  "AGP": {
+    "name": "Agarpara",
+    "name_bn": "আগরপাড়া",
+    "code": "AGP",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main"]
+  },
+  "SEP": {
+    "name": "Sodepur",
+    "name_bn": "সোদেপুর",
+    "code": "SEP",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main"]
+  },
+  "KDH": {
+    "name": "Khardaha",
+    "name_bn": "খড়দহ",
+    "code": "KDH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main"]
+  },
+  "BP": {
+    "name": "Barrackpore",
+    "name_bn": "ব্যারাকপুর",
+    "code": "BP",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main"]
+  },
+  "NH": {
+    "name": "Naihati Junction",
+    "name_bn": "নৈহাটি জংশন",
+    "code": "NH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah Main"]
+  },
+  "LLH": {
+    "name": "Liluah",
+    "name_bn": "লিলুয়া",
+    "code": "LLH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah Main Line"]
+  },
+  "BEQ": {
+    "name": "Belur",
+    "name_bn": "বেলুড়",
+    "code": "BEQ",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah Main Line"]
+  },
+  "BLY": {
+    "name": "Bally",
+    "name_bn": "বালী",
+    "code": "BLY",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah Main Line"]
+  },
+  "UPA": {
+    "name": "Uttarpara",
+    "name_bn": "উত্তরপাড়া",
+    "code": "UPA",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah Main Line"]
+  },
+  "SRP": {
+    "name": "Serampore",
+    "name_bn": "শ্রীরামপুর",
+    "code": "SRP",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah Main Line"]
+  },
+  "BDC": {
+    "name": "Bandel Junction",
+    "name_bn": "ব্যান্ডেল জংশন",
+    "code": "BDC",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah Main Line"]
+  }
+}

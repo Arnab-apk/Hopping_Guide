@@ -765,4 +765,13 @@ class CustomHoppingTrailService extends ChangeNotifier {
       remainingMinutes: trail.remainingEstimatedMinutes,
     );
   }
+
+  @override
+  void dispose() {
+    if (_locationListener != null) {
+      LocationService.instance.removeListener(_locationListener!);
+      _locationListener = null;
+    }
+    super.dispose();
+  }
 }

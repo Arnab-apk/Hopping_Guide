@@ -44,6 +44,9 @@ import '../widgets/durga_face_icon.dart';
 import '../widgets/puja_icons.dart';
 import '../widgets/user_profile_sheet.dart';
 import '../widgets/leaflet_map_components.dart';
+import '../models/station.dart';
+import '../repositories/station_repository.dart';
+import '../widgets/station_detail_sheet.dart';
 import 'main_navigation_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -184,6 +187,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   SquadMember? _selectedSquadMember;
   FoodSpot? _selectedFoodSpot;
   MetroStation? _selectedMetroStation;
+  Station? _selectedStation;
   ToiletEntry? _selectedToilet;
   Position? _userPosition;
 
@@ -450,6 +454,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _loadData();
     _startContinuousTracking();
     _initTts();
+    // Listen to heading changes for real-time compass arrow updates
+    LocationService.instance.addListener(_onHeadingChanged);
+  }
+
+  void _onHeadingChanged() {
+    if (mounted) {
+      setState(() {}); // Rebuild to update compass arrow
+    }
   }
 
   Future<void> _initTts() async {
@@ -473,13 +485,16 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _onPendingToiletAction,
     );
     _statusOverlayTimer?.cancel();
+    _contextualTimer?.cancel();
+    _contextualTimer = null;
     _statusOverlayEntry?.remove();
     _statusOverlayEntry = null;
     _mapSearchFocusNode.removeListener(_handleSearchFocusOrTextChange);
     _mapSearchController.removeListener(_handleSearchFocusOrTextChange);
     _mapSearchFocusNode.dispose();
     _mapSearchController.dispose();
-    LocationService.instance.stopLiveTracking();
+    LocationService.instance.removeListener(_onHeadingChanged);
+    LocationService.instance.stopLiveTracking(callbackKey: this);
     _cameraMoveController?.stop();
     _cameraMoveController?.dispose();
     _cameraMoveController = null;
@@ -644,6 +659,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _repo.all(),
       _suppRepo.getFoodSpots(),
       _suppRepo.getToilets(),
+      StationRepository.instance.load(),
     ]);
 
     if (!mounted) return;
@@ -658,6 +674,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   void _startContinuousTracking() {
     LocationService.instance.startLiveTracking(
+      callbackKey: this,
       onLocationChanged: (pos) {
         if (!mounted) return;
         setState(() => _userPosition = pos);
@@ -921,26 +938,35 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _followUser = false;
     });
 
-    final route = await RoutingService.instance.getWalkingRouteToPoint(
-      start: start,
-      destination: dest,
-      destinationName: station.name,
-    );
+    try {
+      final route = await RoutingService.instance.getWalkingRouteToPoint(
+        start: start,
+        destination: dest,
+        destinationName: station.name,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _highlightedRoute = route;
-      _isCalculatingRoute = false;
-    });
+      setState(() {
+        _highlightedRoute = route;
+        _isCalculatingRoute = false;
+      });
 
-    if (route.points.isNotEmpty) {
-      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: bounds,
-          padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-        ),
+      if (route.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCalculatingRoute = false);
+      _showStatusPill(
+        'Could not calculate path to ${station.name}',
+        icon: Icons.warning_amber_rounded,
       );
     }
   }
@@ -980,27 +1006,36 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       );
     }
 
-    final route = await RoutingService.instance.getWalkingRouteToPoint(
-      start: start,
-      destination: dest,
-      destinationName: pandal.name,
-      targetPandal: pandal,
-    );
+    try {
+      final route = await RoutingService.instance.getWalkingRouteToPoint(
+        start: start,
+        destination: dest,
+        destinationName: pandal.name,
+        targetPandal: pandal,
+      );
 
-    if (!mounted) return;
-    setState(() {
-      _highlightedRoute = route;
-      _isCalculatingRoute = false;
-    });
+      if (!mounted) return;
+      setState(() {
+        _highlightedRoute = route;
+        _isCalculatingRoute = false;
+      });
 
-    // Fit camera to display both user and pandal walking corridor
-    if (route.points.isNotEmpty) {
-      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: bounds,
-          padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-        ),
+      // Fit camera to display both user and pandal walking corridor
+      if (route.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCalculatingRoute = false);
+      _showStatusPill(
+        'Could not calculate path to ${pandal.name}',
+        icon: Icons.warning_amber_rounded,
       );
     }
   }
@@ -1106,31 +1141,40 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _selectedPandal = null;
     });
 
-    final route = await RoutingService.instance.getWalkingRouteToPoint(
-      start: start,
-      destination: dest,
-      destinationName: member.name,
-    );
+    try {
+      final route = await RoutingService.instance.getWalkingRouteToPoint(
+        start: start,
+        destination: dest,
+        destinationName: member.name,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _highlightedRoute = route;
-      _isCalculatingRoute = false;
-    });
+      setState(() {
+        _highlightedRoute = route;
+        _isCalculatingRoute = false;
+      });
 
-    if (route.points.isNotEmpty) {
-      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: bounds,
-          padding: const EdgeInsets.only(
-            top: 140,
-            bottom: 220,
-            left: 60,
-            right: 60,
+      if (route.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.only(
+              top: 140,
+              bottom: 220,
+              left: 60,
+              right: 60,
+            ),
           ),
-        ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCalculatingRoute = false);
+      _showStatusPill(
+        'Could not calculate path to ${member.name}',
+        icon: Icons.warning_amber_rounded,
       );
     }
   }
@@ -1169,34 +1213,43 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _showFoodSpots = true;
     });
 
-    final route = await RoutingService.instance.getWalkingRouteToPoint(
-      start: start,
-      destination: dest,
-      destinationName: spot.name,
-    );
+    try {
+      final route = await RoutingService.instance.getWalkingRouteToPoint(
+        start: start,
+        destination: dest,
+        destinationName: spot.name,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _highlightedRoute = route;
-      _isCalculatingRoute = false;
-    });
+      setState(() {
+        _highlightedRoute = route;
+        _isCalculatingRoute = false;
+      });
 
-    if (route.points.isNotEmpty) {
-      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: bounds,
-          padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-        ),
+      if (route.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
+          ),
+        );
+      }
+
+      _showStatusPill(
+        '🚶 Path to ${spot.name} (${route.formattedDistance} · ${route.formattedDuration})',
+        icon: Icons.restaurant_rounded,
+        color: Colors.orange.shade800,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCalculatingRoute = false);
+      _showStatusPill(
+        'Could not calculate path to ${spot.name}',
+        icon: Icons.warning_amber_rounded,
       );
     }
-
-    _showStatusPill(
-      '🚶 Path to ${spot.name} (${route.formattedDistance} · ${route.formattedDuration})',
-      icon: Icons.restaurant_rounded,
-      color: Colors.orange.shade800,
-    );
   }
 
   Future<void> _highlightRouteToToilet(ToiletEntry toilet) async {
@@ -1234,34 +1287,43 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       _showToilets = true;
     });
 
-    final route = await RoutingService.instance.getWalkingRouteToPoint(
-      start: start,
-      destination: dest,
-      destinationName: toilet.displayName,
-    );
+    try {
+      final route = await RoutingService.instance.getWalkingRouteToPoint(
+        start: start,
+        destination: dest,
+        destinationName: toilet.displayName,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _highlightedRoute = route;
-      _isCalculatingRoute = false;
-    });
+      setState(() {
+        _highlightedRoute = route;
+        _isCalculatingRoute = false;
+      });
 
-    if (route.points.isNotEmpty) {
-      final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: bounds,
-          padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-        ),
+      if (route.points.isNotEmpty) {
+        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: bounds,
+            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
+          ),
+        );
+      }
+
+      _showStatusPill(
+        '🚶 Path to ${toilet.displayName} (${route.formattedDistance} · ${route.formattedDuration})',
+        icon: Icons.wc_rounded,
+        color: const Color(0xFF00695C),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isCalculatingRoute = false);
+      _showStatusPill(
+        'Could not calculate path to ${toilet.displayName}',
+        icon: Icons.warning_amber_rounded,
       );
     }
-
-    _showStatusPill(
-      '🚶 Path to ${toilet.displayName} (${route.formattedDistance} · ${route.formattedDuration})',
-      icon: Icons.wc_rounded,
-      color: const Color(0xFF00695C),
-    );
   }
 
   void _clearRoute() {
@@ -1525,12 +1587,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 if (_selectedPandal != null ||
                     _selectedSquadMember != null ||
                     _selectedFoodSpot != null ||
-                    _selectedMetroStation != null) {
+                    _selectedMetroStation != null ||
+                    _selectedStation != null) {
                   setState(() {
                     _selectedPandal = null;
                     _selectedSquadMember = null;
                     _selectedFoodSpot = null;
                     _selectedMetroStation = null;
+                    _selectedStation = null;
                   });
                 }
               },
@@ -1716,13 +1780,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               if (_showMetroStations && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
-                    markers: MetroRepository.allStations.map((stn) {
-                      final isStationSelected = _selectedMetroStation?.id == stn.id;
-                      final isRailway = stn.name.toLowerCase().contains('railway');
-                      final lineColor = isRailway ? PujaColors.railwayPurple : stn.line.color;
+                    markers: (StationRepository.instance.all.isNotEmpty
+                            ? StationRepository.instance.all
+                            : MetroRepository.allStations.map((stn) => Station(
+                                  id: stn.id,
+                                  name: stn.name,
+                                  nameBn: stn.nameBn,
+                                  code: stn.code,
+                                  kind: stn.name.toLowerCase().contains('railway') ? 'rail' : 'metro',
+                                  lat: stn.latitude,
+                                  lon: stn.longitude,
+                                )))
+                        .map((stn) {
+                      final isStationSelected = _selectedStation?.id == stn.id;
+                      final isRailway = stn.isRail;
+                      final lineColor = isRailway ? PujaColors.railwayPurple : const Color(0xFF00897B);
                       return Marker(
                         rotate: true,
-                        point: LatLng(stn.latitude, stn.longitude),
+                        point: LatLng(stn.lat, stn.lon),
                         width: isStationSelected ? 44 : 34,
                         height: isStationSelected ? 56 : 44,
                         alignment: Alignment.topCenter,
@@ -1731,16 +1806,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           onTap: () {
                             HapticFeedback.selectionClick();
                             setState(() {
-                              _selectedMetroStation = stn;
+                              _selectedStation = stn;
+                              _selectedMetroStation = null;
                               _selectedPandal = null;
                               _selectedFoodSpot = null;
                               _highlightedRoute = null;
                             });
                             _animatedMapMove(
-                              LatLng(stn.latitude, stn.longitude),
+                              LatLng(stn.lat, stn.lon),
                               _mapController.camera.zoom < 15.0
                                   ? 15.0
                                   : _mapController.camera.zoom,
+                            );
+                            StationDetailSheet.show(
+                              context,
+                              station: stn,
+                              onRouteToPandal: (pandal) {
+                                _highlightRouteTo(pandal);
+                              },
                             );
                           },
                           child: LeafletMarkerPin.metro(
@@ -1833,7 +1916,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
 
               // Designated Squad Meet-up Landmark Flag Marker (Enlarged)
-              if (squadService.hasActiveSquad && squadService.showSquadOnMap && !isTrailActive)
+              if (squadService.hasActiveSquad && squadService.showSquadOnMap && (!isTrailActive || squadService.isHoppingActive))
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: [
@@ -1911,7 +1994,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
 
               // Live Squad Members MarkerLayer (Stable Glowing DP - Enlarged)
-              if (squadService.hasActiveSquad && squadService.showSquadOnMap && !isTrailActive)
+              if (squadService.hasActiveSquad && squadService.showSquadOnMap && (!isTrailActive || squadService.isHoppingActive))
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: squadService.companionMembers.map((member) {
@@ -2083,10 +2166,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 _selectedMetroStation!.longitude,
                               );
                               isNavigatingToTarget = true;
-                            } else if (_userPosition != null &&
-                                _userPosition!.heading > 0 &&
-                                _userPosition!.heading <= 360) {
-                              arrowBearing = _userPosition!.heading;
+                            } else {
+                              // Use fused heading (GPS + compass) from LocationService
+                              // Works when stationary (compass) and moving (GPS)
+                              final fusedHeading = LocationService.instance.currentHeading;
+                              if (fusedHeading != null) {
+                                arrowBearing = fusedHeading;
+                              }
                             }
 
                             return Stack(
@@ -3327,6 +3413,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         : '${remainingDistKm.toStringAsFixed(1)} km';
 
     final target = trail.currentTargetPandal;
+    final squadService = Provider.of<SquadService>(context);
+    final isSquadHopping = squadService.isHoppingActive;
 
     // Check if user is remotely located from the current target pandal (> 2.5 km)
     final userLoc = _effectiveUserLocation;
@@ -3341,26 +3429,26 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: PujaColors.festivalGold.withValues(alpha: 0.18),
+            color: (isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold).withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: PujaColors.festivalGold.withValues(alpha: 0.6),
+              color: (isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold).withValues(alpha: 0.6),
               width: 1,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.route_rounded,
+              Icon(
+                isSquadHopping ? Icons.groups_rounded : Icons.route_rounded,
                 size: 14,
-                color: PujaColors.festivalGold,
+                color: isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold,
               ),
               const SizedBox(width: 4),
               Text(
-                'TRAIL',
+                isSquadHopping ? 'SQUAD HOPPING' : 'TRAIL',
                 style: GoogleFonts.plusJakartaSans(
-                  color: PujaColors.festivalGold,
+                  color: isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
@@ -3445,6 +3533,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             onPressed: () {
               HapticFeedback.lightImpact();
               trailService.recordAutoVisit(target);
+              if (squadService.isHoppingActive) {
+                squadService.advanceToNextPandalStop();
+              }
               _showStatusPill(
                 '✓ Visited ${target.name}!',
                 icon: Icons.check_circle_rounded,
@@ -3461,6 +3552,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             onTap: () {
               HapticFeedback.selectionClick();
               trailService.endTrail();
+              if (squadService.isHoppingActive) {
+                squadService.endSquadHopping();
+              }
               _lastFramedTrailId = null;
               _cachedTrailCorePolylines = null;
               _cachedTrailCoreKey = null;
@@ -3778,15 +3872,41 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 width: 36,
                 height: 46,
                 alignment: Alignment.topCenter,
-                child: Tooltip(
-                  message: '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
-                  child: LeafletMarkerPin(
-                    category: LeafletPinCategory.custom,
-                    pinColor: isInterchange ? const Color(0xFFE65100) : stn.line.color,
-                    customIcon: isInterchange
-                        ? Icons.transfer_within_a_station_rounded
-                        : Icons.subway_rounded,
-                    size: 32,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() {
+                      _selectedMetroStation = stn;
+                      _selectedPandal = null;
+                      _selectedSquadMember = null;
+                      _selectedFoodSpot = null;
+                      _selectedToilet = null;
+                    });
+                    _animatedMapMove(
+                      stn.toLatLng(),
+                      _mapController.camera.zoom < 16.0
+                          ? 16.0
+                          : _mapController.camera.zoom,
+                    );
+                    _showStatusPill(
+                      '${isInterchange ? "🔄 Interchange" : "🚇 Metro"}: ${stn.name} (${stn.line.label})',
+                      icon: isInterchange
+                          ? Icons.transfer_within_a_station_rounded
+                          : Icons.subway_rounded,
+                      color: stn.line.color,
+                    );
+                  },
+                  child: Tooltip(
+                    message: '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
+                    child: LeafletMarkerPin(
+                      category: LeafletPinCategory.custom,
+                      pinColor: isInterchange ? const Color(0xFFE65100) : stn.line.color,
+                      customIcon: isInterchange
+                          ? Icons.transfer_within_a_station_rounded
+                          : Icons.subway_rounded,
+                      size: 32,
+                    ),
                   ),
                 ),
               ),
@@ -3851,7 +3971,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         setState(() => _showMetroStations = !_showMetroStations);
         if (_showMetroStations) {
           _setContextualBanner(
-            '🚇 Showing 55 Kolkata Metro stations across 5 lines on map',
+            '🚇 Showing 55 Kolkata Metro stations & Railway terminals across Kolkata',
             icon: Icons.subway_rounded,
             color: PujaColors.metroBlue,
           );

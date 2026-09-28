@@ -77,17 +77,44 @@ class LocationService extends ChangeNotifier {
   }
 
   /// Starts real-time continuous GPS tracking stream with high accuracy and smart throttling
+  /// Uses reference counting to support multiple simultaneous consumers.
+  int _trackingRefCount = 0;
+  final Map<Object, void Function(Position)> _locationListeners = {};
+
+  void addLocationCallback(Object key, void Function(Position) callback) {
+    _locationListeners[key] = callback;
+    if (_currentPosition != null) {
+      try {
+        callback(_currentPosition!);
+      } catch (_) {}
+    }
+  }
+
+  void removeLocationCallback(Object key) {
+    _locationListeners.remove(key);
+  }
+
   Future<bool> startLiveTracking({
+    Object? callbackKey,
     void Function(Position)? onLocationChanged,
     Duration throttleInterval = const Duration(milliseconds: 1500),
   }) async {
+    _trackingRefCount++;
+    if (callbackKey != null && onLocationChanged != null) {
+      _locationListeners[callbackKey] = onLocationChanged;
+    }
     if (enableTestMode) {
       _isTestLiveTracking = true;
       _testLocationCallback = onLocationChanged;
       notifyListeners();
       return true;
     }
-    if (_positionStreamSub != null) return true;
+    if (_positionStreamSub != null) {
+      if (_currentPosition != null && onLocationChanged != null) {
+        onLocationChanged(_currentPosition!);
+      }
+      return true;
+    }
     _isPaused = false;
 
     try {
@@ -123,7 +150,11 @@ class LocationService extends ChangeNotifier {
       ).then((pos) {
         _currentPosition = pos;
         notifyListeners();
-        onLocationChanged?.call(pos);
+        for (final cb in _locationListeners.values.toList()) {
+          try {
+            cb(pos);
+          } catch (_) {}
+        }
       }).catchError((_) {});
 
       _positionStreamSub = Geolocator.getPositionStream(
@@ -156,7 +187,11 @@ class LocationService extends ChangeNotifier {
           _error = null;
           _updateFusedHeading(); // Update fused heading with new GPS data
           notifyListeners();
-          onLocationChanged?.call(position);
+          for (final cb in _locationListeners.values.toList()) {
+            try {
+              cb(position);
+            } catch (_) {}
+          }
         },
         onError: (err) {
           _error = err.toString();
@@ -225,15 +260,26 @@ class LocationService extends ChangeNotifier {
   }
 
   /// Stops continuous live GPS stream
-  void stopLiveTracking() {
-    if (enableTestMode) {
-      _isTestLiveTracking = false;
-      _testLocationCallback = null;
+  /// Uses reference counting - only actually stops when all consumers have called stop.
+  void stopLiveTracking({Object? callbackKey}) {
+    if (callbackKey != null) {
+      _locationListeners.remove(callbackKey);
     }
-    _positionStreamSub?.cancel();
-    _positionStreamSub = null;
-    _compassStreamSub?.cancel();
-    _compassStreamSub = null;
+    _trackingRefCount = (_trackingRefCount - 1).clamp(0, 100);
+    
+    // Only actually stop the GPS stream when no more consumers
+    if (_trackingRefCount == 0) {
+      if (enableTestMode) {
+        _isTestLiveTracking = false;
+        _testLocationCallback = null;
+      }
+      _positionStreamSub?.cancel();
+      _positionStreamSub = null;
+      _compassStreamSub?.cancel();
+      _compassStreamSub = null;
+      // Note: We don't clear _locationListeners here to preserve callbacks
+      // for components that may still need the last known position
+    }
     notifyListeners();
   }
 

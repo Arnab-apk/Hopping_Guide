@@ -46,6 +46,7 @@ const squad_manager_1 = require("./squad-manager");
 const db = __importStar(require("./db"));
 const handlers_1 = require("./handlers");
 const uuid_1 = require("uuid");
+const routes_1 = require("./chat/routes");
 dotenv_1.default.config();
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -238,6 +239,15 @@ const server = http_1.default.createServer(async (req, res) => {
                 ...manager.getStats(),
                 timestamp: Date.now(),
             });
+            return;
+        }
+        // --------------------------------------------------------------------------
+        // REST API: UMA Grounded Route Assistant Chatbot
+        // --------------------------------------------------------------------------
+        if ((pathname === '/chat' || pathname === '/api/chat') && method === 'POST') {
+            const body = await parseBody(req);
+            const { status, data } = await (0, routes_1.handleChatRequest)(body);
+            sendHttpJson(res, status, data);
             return;
         }
         // --------------------------------------------------------------------------

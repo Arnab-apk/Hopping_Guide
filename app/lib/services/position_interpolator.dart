@@ -50,14 +50,17 @@ class PositionInterpolator extends ChangeNotifier {
       return;
     }
 
-    // If we're very close to the last update (< 500ms), just update target
-    if (_lastUpdateTime != null && now.difference(_lastUpdateTime!) < const Duration(milliseconds: 500)) {
+    final currentPos = currentInterpolatedPosition ?? _lastKnownPosition!;
+    final dist = const Distance().as(LengthUnit.Meter, currentPos, newPosition);
+    if (_lastUpdateTime != null &&
+        now.difference(_lastUpdateTime!) < const Duration(milliseconds: 250) &&
+        dist < 1.0) {
       _targetPosition = newPosition;
       return;
     }
 
     // Start interpolation from current displayed position to new position
-    _animationStartPosition = currentInterpolatedPosition ?? _lastKnownPosition;
+    _animationStartPosition = currentPos;
     _animationStartTime = now;
     _targetPosition = newPosition;
     _lastKnownPosition = newPosition;

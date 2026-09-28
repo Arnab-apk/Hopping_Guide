@@ -29,11 +29,33 @@ This directory documents the canonical schema for Durga Puja pandals, supplement
 | `nearest_metro_list` | `string[]` | No | List of nearby metro stations | `["Shyambazar (Blue)"]` |
 | `nearest_railway` | `string?` | No | Nearest suburban or circular train station | `"Kolkata Station (Circular)"` |
 | `nearest_railway_list` | `string[]` | No | List of nearby railway stations | `["Kolkata Station (Circular)"]` |
+| `nearest_stations` | `object[]` | No | Precomputed top 3 nearest stations with walking distance in metres (`id`, `name`, `code`, `kind`, `distance_m`) | `[{"id":"stn_howrah","name":"Howrah Junction","code":"HWH","kind":"rail","distance_m":850}]` |
 | `special_features` | `string[]` | No | Special amenities (e.g. VIP line, wheelchair access) | `[]` |
 
 ---
 
-## 2. Supplementary Collections
+## 2. Station Document Schema (`data/schema/station.schema.json` / `data/stations/stations.geojson`)
+
+Canonical GeoJSON schema for suburban rail terminals, suburban halts, circular railway, and Kolkata Metro stations.
+
+### Field Definitions
+
+| Field | Type | Required | Description | Sample Value |
+|---|---|---|---|---|
+| `id` | `string` | Yes | Unique station identifier slug | `"stn_howrah"` / `"stn_m_shyambazar"` |
+| `name` | `string` | Yes | Official English station display name | `"Howrah Junction"` |
+| `name_bn` | `string?` | No | Bengali script name | `"হাওড়া জংশন"` |
+| `code` | `string?` | No | IRCTC or Metro station code | `"HWH"`, `"SDAH"` |
+| `kind` | `string` | Yes | Transit mode enum (`"rail"`, `"metro"`) | `"rail"` |
+| `lat` | `number` (double) | Yes | Latitude in WGS84 | `22.5839` |
+| `lon` | `number` (double) | Yes | Longitude in WGS84 | `88.3426` |
+| `network` | `string?` | No | Rail operator / transit authority | `"Eastern Railway"` |
+| `lines` | `string[]` | No | Lines or corridors serving the station | `["Howrah Main Line"]` |
+| `entrances` | `object[]` | No | Geo-tagged entry and exit gates | `[]` |
+
+---
+
+## 3. Supplementary Collections
 
 ### A. Food & Bhog Spots (`food_spots` collection / `data/food_spots.json`)
 - `id`: `string` (`"f1"`, `"f2"`, ...)
@@ -60,11 +82,14 @@ This directory documents the canonical schema for Durga Puja pandals, supplement
 
 ---
 
-## 3. Data Files in Repository
+## 4. Data Files in Repository
 
-- `data/pandals.json`: 105 normalized pandals in JSON format.
-- `data/pandals.csv`: 105 normalized pandals in CSV format for spreadsheet editing or legacy tools.
-- `data/schema/pandal.schema.json`: JSON Schema (Draft 2020-12) definition.
+- `data/stations/stations.geojson`: 206 normalized railway & metro stations in canonical GeoJSON format.
+- `data/stations/overrides.json`: Manual overrides for bilingual station names, codes, and networks.
+- `data/schema/station.schema.json`: JSON Schema (Draft 2020-12) definition for stations.
+- `data/pandals.json`: 387 normalized pandals in JSON format with precomputed `nearest_stations`.
+- `data/pandals.csv`: Normalized pandals in CSV format for spreadsheet editing or legacy tools.
+- `data/schema/pandal.schema.json`: JSON Schema (Draft 2020-12) definition for pandals.
 - `data/scraped_pujoplanner_raw.json`: Raw scraped data dump from pujoplanner.com.
 - `data/food_spots.json`: Food and bhog locations.
 - `data/events.json`: Cultural celebrations and competitions.

@@ -42,4 +42,5 @@ npm run seed             # write pandals into Firestore (needs FIREBASE_PROJECT_
 - Do NOT commit `google-services.json`, `GoogleService-Info.plist`,
   `firebase_options.dart`, service-account JSONs, or `.env`.
 - Foreground-only location sharing (no `ACCESS_BACKGROUND_LOCATION`) to avoid
-  the Play Store background-location review — see architecture doc section 6.
+  the Play Store background-location review — see [SYSTEM_ARCHITECTURE.md](docs/architecture/SYSTEM_ARCHITECTURE.md) section 6.
+

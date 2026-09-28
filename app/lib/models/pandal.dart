@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utils/constants.dart';
 import 'place.dart';
+import 'station.dart';
 
 /// Firestore collection: `pandals`
 /// Matches the application schema (architecture doc section 3 and data/schema/):
@@ -28,6 +29,7 @@ class Pandal {
     this.nearestRailwayList = const [],
     this.transport = const [],
     this.specialFeatures = const [],
+    this.nearestStations = const [],
   });
 
   final String id;
@@ -49,6 +51,7 @@ class Pandal {
   final List<String> nearestRailwayList;
   final List<String> transport;
   final List<String> specialFeatures;
+  final List<NearestStationInfo> nearestStations;
 
   double get latitude => lat;
   double get longitude => lng;
@@ -84,6 +87,7 @@ class Pandal {
       nearestRailwayList: _parseStringList(d['nearest_railway_list'] ?? d['nearestRailway']),
       transport: _parseStringList(d['transport']),
       specialFeatures: _parseStringList(d['special_features'] ?? d['specialFeatures']),
+      nearestStations: _parseNearestStations(d['nearest_stations']),
     );
   }
 
@@ -106,7 +110,18 @@ class Pandal {
         'nearest_railway_list': nearestRailwayList,
         'transport': transport,
         'special_features': specialFeatures,
+        'nearest_stations': nearestStations.map((s) => s.toMap()).toList(),
       };
+
+  static List<NearestStationInfo> _parseNearestStations(dynamic raw) {
+    if (raw is List) {
+      return raw
+          .whereType<Map<String, dynamic>>()
+          .map((m) => NearestStationInfo.fromMap(m))
+          .toList();
+    }
+    return const [];
+  }
 
   static KolkataZone _parseZone(String? raw) {
     if (raw == null) return KolkataZone.centralKolkata;

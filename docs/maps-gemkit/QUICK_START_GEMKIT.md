@@ -164,11 +164,11 @@ flutter clean && flutter pub get
 → Verify API token is set correctly
 
 ## 📚 Documentation
-
-- **Full Integration Guide**: `MAGIC_LANE_INTEGRATION.md`
-- **Status & Progress**: `GEMKIT_INTEGRATION_STATUS.md`
-- **Configuration Reference**: `app/lib/config/gemkit_config.dart`
-- **Example Map Screen**: `app/lib/screens/map_screen_gemkit.dart`
+ 
+- **Full Integration Guide**: [`MAGIC_LANE_INTEGRATION.md`](./MAGIC_LANE_INTEGRATION.md)
+- **Status & Progress**: [`GEMKIT_INTEGRATION_STATUS.md`](./GEMKIT_INTEGRATION_STATUS.md)
+- **Configuration Reference**: [`app/lib/config/gemkit_config.dart`](../../app/lib/config/gemkit_config.dart)
+- **Example Map Screen**: [`app/lib/screens/map_screen_gemkit.dart`](../../app/lib/screens/map_screen_gemkit.dart)
 
 ## 📞 Get Help
 

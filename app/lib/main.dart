@@ -1,7 +1,11 @@
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+// Web-only import for deep link handling (using modern package:web approach)
+import 'package:web/web.dart' as web;
 
 import 'app.dart';
 import 'config/gemkit_config.dart';
@@ -91,30 +95,65 @@ void main() async {
 /// Supports:
 /// - pujoparikrama://join?code=PUJAXXXX
 /// - pujoparikrama://join/PUJAXXXX
+/// - https://kolkata-puja-2026.web.app/join?code=PUJAXXXX
 /// - https://sharodiya.com/join?code=PUJAXXXX
 /// - https://sharodiya.com/join/PUJAXXXX
 /// - pujoparikrama://pandal?id=X
 /// - https://sharodiya.com/pandal/X
 void _initDeepLinks(SquadService squadService) {
-  final appLinks = AppLinks();
+  // Handle deep links on mobile platforms via app_links package
+  if (!kIsWeb) {
+    final appLinks = AppLinks();
 
-  // Handle initial link if app was opened via deep link (cold start)
-  appLinks.getInitialLink().then((uri) {
-    if (uri != null) {
-      debugPrint('[DeepLink] Initial cold-start URI: $uri');
+    // Handle initial link if app was opened via deep link (cold start)
+    appLinks.getInitialLink().then((uri) {
+      if (uri != null) {
+        debugPrint('[DeepLink] Initial cold-start URI: $uri');
+        _handleDeepLink(uri, squadService);
+      }
+    }).catchError((e) {
+      debugPrint('[DeepLink] Initial link error: $e');
+    });
+
+    // Handle incoming links while app is running (hot start / foreground stream)
+    appLinks.uriLinkStream.listen((uri) {
+      debugPrint('[DeepLink] Foreground stream URI: $uri');
       _handleDeepLink(uri, squadService);
-    }
-  }).catchError((e) {
-    debugPrint('[DeepLink] Initial link error: $e');
-  });
+    }, onError: (e) {
+      debugPrint('[DeepLink] Stream error: $e');
+    });
+  } else {
+    // Web platform: Handle deep links via window.location
+    _initWebDeepLinks(squadService);
+  }
+}
 
-  // Handle incoming links while app is running (hot start / foreground stream)
-  appLinks.uriLinkStream.listen((uri) {
-    debugPrint('[DeepLink] Foreground stream URI: $uri');
-    _handleDeepLink(uri, squadService);
-  }, onError: (e) {
-    debugPrint('[DeepLink] Stream error: $e');
+/// Initialize deep link handling for web platform
+void _initWebDeepLinks(SquadService squadService) {
+  // Check initial URL on page load
+  final initialUri = Uri.parse(web.window.location.href);
+  if (_isDeepLinkUri(initialUri)) {
+    debugPrint('[DeepLink] Web initial URI: $initialUri');
+    _handleDeepLink(initialUri, squadService);
+    // Clean up URL to prevent re-processing on refresh
+    web.window.history.replaceState(null, '', web.window.location.pathname);
+  }
+
+  // Listen for URL changes (for SPA navigation)
+  web.window.onPopState.listen((_) {
+    final uri = Uri.parse(web.window.location.href);
+    if (_isDeepLinkUri(uri)) {
+      debugPrint('[DeepLink] Web popstate URI: $uri');
+      _handleDeepLink(uri, squadService);
+      web.window.history.replaceState(null, '', web.window.location.pathname);
+    }
   });
+}
+
+/// Check if URI is a deep link we should handle
+bool _isDeepLinkUri(Uri uri) {
+  final path = uri.path.toLowerCase();
+  return path.startsWith('/join') || path.startsWith('/pandal');
 }
 
 String? _lastHandledUri;

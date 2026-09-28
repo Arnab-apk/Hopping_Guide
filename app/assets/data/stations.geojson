@@ -1,0 +1,5041 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "stn_252584717",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2907626,
+          22.6779609
+        ]
+      },
+      "properties": {
+        "id": "stn_252584717",
+        "name": "Dankuni",
+        "name_bn": null,
+        "code": "DKAE",
+        "kind": "rail",
+        "lat": 22.6779609,
+        "lon": 88.2907626,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_252584722",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3711047,
+          22.5679661
+        ]
+      },
+      "properties": {
+        "id": "stn_252584722",
+        "name": "Sealdah",
+        "name_bn": "শিয়ালদহ",
+        "code": "SDAH",
+        "kind": "rail",
+        "lat": 22.5679661,
+        "lon": 88.3711047,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah North",
+          "Sealdah South",
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_310988176",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3745843,
+          22.7411261
+        ]
+      },
+      "properties": {
+        "id": "stn_310988176",
+        "name": "Titagarh",
+        "name_bn": null,
+        "code": "TGH",
+        "kind": "rail",
+        "lat": 22.7411261,
+        "lon": 88.3745843,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_310988205",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3801893,
+          22.8285164
+        ]
+      },
+      "properties": {
+        "id": "stn_310988205",
+        "name": "Shyamnagar",
+        "name_bn": null,
+        "code": "SNR",
+        "kind": "rail",
+        "lat": 22.8285164,
+        "lon": 88.3801893,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_310992938",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2636731,
+          22.8046405
+        ]
+      },
+      "properties": {
+        "id": "stn_310992938",
+        "name": "Nasibpur",
+        "name_bn": null,
+        "code": "NSF",
+        "kind": "rail",
+        "lat": 22.8046405,
+        "lon": 88.2636731,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_310993110",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3411458,
+          22.6670459
+        ]
+      },
+      "properties": {
+        "id": "stn_310993110",
+        "name": "Uttarpara",
+        "name_bn": "উত্তরপাড়া",
+        "code": "UPA",
+        "kind": "rail",
+        "lat": 22.6670459,
+        "lon": 88.3411458,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_310996032",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5083659,
+          22.7226496
+        ]
+      },
+      "properties": {
+        "id": "stn_310996032",
+        "name": "Kazipara",
+        "name_bn": null,
+        "code": "KZPR",
+        "kind": "rail",
+        "lat": 22.7226496,
+        "lon": 88.5083659,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_310996044",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5648945,
+          22.6859708
+        ]
+      },
+      "properties": {
+        "id": "stn_310996044",
+        "name": "Bahira Kalibari",
+        "name_bn": null,
+        "code": "BHKA",
+        "kind": "rail",
+        "lat": 22.6859708,
+        "lon": 88.5648945,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_600756813",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2830722,
+          22.5846995
+        ]
+      },
+      "properties": {
+        "id": "stn_600756813",
+        "name": "Santragachi Junction",
+        "name_bn": "সাঁতরাগাছি জংশন",
+        "code": "SRC",
+        "kind": "rail",
+        "lat": 22.5846995,
+        "lon": 88.2830722,
+        "network": "South Eastern Railway",
+        "operator": "SER",
+        "lines": [
+          "South Eastern Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_651800191",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3866708,
+          22.4827391
+        ]
+      },
+      "properties": {
+        "id": "stn_651800191",
+        "name": "Baghajatin",
+        "name_bn": "বাঘাযতীন",
+        "code": "BGJT",
+        "kind": "rail",
+        "lat": 22.4827391,
+        "lon": 88.3866708,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_651805730",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3719778,
+          22.5193414
+        ]
+      },
+      "properties": {
+        "id": "stn_651805730",
+        "name": "Ballygunge Junction",
+        "name_bn": "বালিগঞ্জ জংশন",
+        "code": "BLN",
+        "kind": "rail",
+        "lat": 22.5193414,
+        "lon": 88.3719778,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South",
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_663839267",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3637563,
+          22.6538476
+        ]
+      },
+      "properties": {
+        "id": "stn_663839267",
+        "name": "Dakshineshwar",
+        "name_bn": "দক্ষিণেশ্বর মেট্রো",
+        "code": "DAKE",
+        "kind": "rail",
+        "lat": 22.6538476,
+        "lon": 88.3637563,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664455551",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3084038,
+          22.5979973
+        ]
+      },
+      "properties": {
+        "id": "stn_664455551",
+        "name": "Dashnagar",
+        "name_bn": null,
+        "code": "DSNR",
+        "kind": "rail",
+        "lat": 22.5979973,
+        "lon": 88.3084038,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664455694",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2966655,
+          22.5886606
+        ]
+      },
+      "properties": {
+        "id": "stn_664455694",
+        "name": "Ramrajatala",
+        "name_bn": null,
+        "code": "RMJ",
+        "kind": "rail",
+        "lat": 22.5886606,
+        "lon": 88.2966655,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664459003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3383079,
+          22.7545791
+        ]
+      },
+      "properties": {
+        "id": "stn_664459003",
+        "name": "Serampore",
+        "name_bn": "শ্রীরামপুর",
+        "code": "SRP",
+        "kind": "rail",
+        "lat": 22.7545791,
+        "lon": 88.3383079,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664467737",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3403033,
+          22.6550647
+        ]
+      },
+      "properties": {
+        "id": "stn_664467737",
+        "name": "Bally",
+        "name_bn": "বালী",
+        "code": "BLY",
+        "kind": "rail",
+        "lat": 22.6550647,
+        "lon": 88.3403033,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664468000",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3394035,
+          22.6209027
+        ]
+      },
+      "properties": {
+        "id": "stn_664468000",
+        "name": "Liluah",
+        "name_bn": "লিলুয়া",
+        "code": "LLH",
+        "kind": "rail",
+        "lat": 22.6209027,
+        "lon": 88.3394035,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664468001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3398223,
+          22.6357323
+        ]
+      },
+      "properties": {
+        "id": "stn_664468001",
+        "name": "Belur",
+        "name_bn": "বেলুড়",
+        "code": "BEQ",
+        "kind": "rail",
+        "lat": 22.6357323,
+        "lon": 88.3398223,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664468968",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3417989,
+          22.6836507
+        ]
+      },
+      "properties": {
+        "id": "stn_664468968",
+        "name": "Hind Motor",
+        "name_bn": "হিন্দমোটর",
+        "code": "HMZ",
+        "kind": "rail",
+        "lat": 22.6836507,
+        "lon": 88.3417989,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664469183",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3425107,
+          22.70126
+        ]
+      },
+      "properties": {
+        "id": "stn_664469183",
+        "name": "Konnagar",
+        "name_bn": "কোন্নগর",
+        "code": "KOG",
+        "kind": "rail",
+        "lat": 22.70126,
+        "lon": 88.3425107,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664469184",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3434353,
+          22.7247059
+        ]
+      },
+      "properties": {
+        "id": "stn_664469184",
+        "name": "Rishra",
+        "name_bn": "রিষড়া",
+        "code": "RIS",
+        "kind": "rail",
+        "lat": 22.7247059,
+        "lon": 88.3434353,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_664469613",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2290714,
+          22.814569
+        ]
+      },
+      "properties": {
+        "id": "stn_664469613",
+        "name": "Singur",
+        "name_bn": null,
+        "code": "SIU",
+        "kind": "rail",
+        "lat": 22.814569,
+        "lon": 88.2290714,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_665115034",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1632882,
+          22.5025222
+        ]
+      },
+      "properties": {
+        "id": "stn_665115034",
+        "name": "Bauria",
+        "name_bn": null,
+        "code": "BVA",
+        "kind": "rail",
+        "lat": 22.5025222,
+        "lon": 88.1632882,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_665115542",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1860611,
+          22.529101
+        ]
+      },
+      "properties": {
+        "id": "stn_665115542",
+        "name": "Nalpur",
+        "name_bn": null,
+        "code": "NALR",
+        "kind": "rail",
+        "lat": 22.529101,
+        "lon": 88.1860611,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_665115614",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1995212,
+          22.5478712
+        ]
+      },
+      "properties": {
+        "id": "stn_665115614",
+        "name": "Abada",
+        "name_bn": null,
+        "code": "ABB",
+        "kind": "rail",
+        "lat": 22.5478712,
+        "lon": 88.1995212,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_665115755",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2104459,
+          22.5623444
+        ]
+      },
+      "properties": {
+        "id": "stn_665115755",
+        "name": "Sankrail",
+        "name_bn": null,
+        "code": "SEL",
+        "kind": "rail",
+        "lat": 22.5623444,
+        "lon": 88.2104459,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1074604649",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3314074,
+          22.5565925
+        ]
+      },
+      "properties": {
+        "id": "stn_1074604649",
+        "name": "Princep Ghat",
+        "name_bn": "প্রিন্সেপ ঘাট",
+        "code": "PPGT",
+        "kind": "rail",
+        "lat": 22.5565925,
+        "lon": 88.3314074,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1074604698",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3788583,
+          22.6534856
+        ]
+      },
+      "properties": {
+        "id": "stn_1074604698",
+        "name": "Baranagar Road",
+        "name_bn": "বরাহনগর মেট্রো",
+        "code": "BARN",
+        "kind": "rail",
+        "lat": 22.6534856,
+        "lon": 88.3788583,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1074606326",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4120228,
+          22.6364899
+        ]
+      },
+      "properties": {
+        "id": "stn_1074606326",
+        "name": "Dum Dum Cantonment",
+        "name_bn": "দমদম ক্যান্টনমেন্ট",
+        "code": "DDC",
+        "kind": "rail",
+        "lat": 22.6364899,
+        "lon": 88.4120228,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1175349049",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2047303,
+          22.8216769
+        ]
+      },
+      "properties": {
+        "id": "stn_1175349049",
+        "name": "Kamarkundu",
+        "name_bn": null,
+        "code": "KQU",
+        "kind": "rail",
+        "lat": 22.8216769,
+        "lon": 88.2047303,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1177499034",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3549336,
+          22.5975289
+        ]
+      },
+      "properties": {
+        "id": "stn_1177499034",
+        "name": "Sovabazar Ahiritola",
+        "name_bn": "শোভাবাজার আহিরীটোলা",
+        "code": "SOLA",
+        "kind": "rail",
+        "lat": 22.5975289,
+        "lon": 88.3549336,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1187083591",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3383211,
+          22.5639153
+        ]
+      },
+      "properties": {
+        "id": "stn_1187083591",
+        "name": "Eden Gardens",
+        "name_bn": "ইডেন গার্ডেন্স",
+        "code": "EDG",
+        "kind": "rail",
+        "lat": 22.5639153,
+        "lon": 88.3383211,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1187133856",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3466282,
+          22.5768421
+        ]
+      },
+      "properties": {
+        "id": "stn_1187133856",
+        "name": "B.B.D. Bag",
+        "name_bn": "বিবাদী বাগ",
+        "code": "BBDB",
+        "kind": "rail",
+        "lat": 22.5768421,
+        "lon": 88.3466282,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1274128857",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3738814,
+          22.5407799
+        ]
+      },
+      "properties": {
+        "id": "stn_1274128857",
+        "name": "Park Circus",
+        "name_bn": "পার্ক সার্কাস",
+        "code": "PQS",
+        "kind": "rail",
+        "lat": 22.5407799,
+        "lon": 88.3738814,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1341614569",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3711314,
+          22.5091067
+        ]
+      },
+      "properties": {
+        "id": "stn_1341614569",
+        "name": "Dhakuria",
+        "name_bn": "ঢাকুরিয়া",
+        "code": "DHK",
+        "kind": "rail",
+        "lat": 22.5091067,
+        "lon": 88.3711314,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1420381909",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2661126,
+          22.6221236
+        ]
+      },
+      "properties": {
+        "id": "stn_1420381909",
+        "name": "Dansi",
+        "name_bn": null,
+        "code": "DNI",
+        "kind": "rail",
+        "lat": 22.6221236,
+        "lon": 88.2661126,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1420381922",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2521723,
+          22.6275266
+        ]
+      },
+      "properties": {
+        "id": "stn_1420381922",
+        "name": "Jhaluarbar",
+        "name_bn": null,
+        "code": "JLBR",
+        "kind": "rail",
+        "lat": 22.6275266,
+        "lon": 88.2521723,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1420381931",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.221501,
+          22.6360129
+        ]
+      },
+      "properties": {
+        "id": "stn_1420381931",
+        "name": "Domjur Road",
+        "name_bn": null,
+        "code": "DMJR",
+        "kind": "rail",
+        "lat": 22.6360129,
+        "lon": 88.221501,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1420381935",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2095491,
+          22.6431635
+        ]
+      },
+      "properties": {
+        "id": "stn_1420381935",
+        "name": "Domjur",
+        "name_bn": null,
+        "code": "DJR",
+        "kind": "rail",
+        "lat": 22.6431635,
+        "lon": 88.2095491,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1483066764",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3739103,
+          22.7998264
+        ]
+      },
+      "properties": {
+        "id": "stn_1483066764",
+        "name": "Ichhapur",
+        "name_bn": null,
+        "code": "IP",
+        "kind": "rail",
+        "lat": 22.7998264,
+        "lon": 88.3739103,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1499489039",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2560296,
+          22.5802652
+        ]
+      },
+      "properties": {
+        "id": "stn_1499489039",
+        "name": "Mourigram",
+        "name_bn": null,
+        "code": "MRGM",
+        "kind": "rail",
+        "lat": 22.5802652,
+        "lon": 88.2560296,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1616546521",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3702748,
+          22.7826288
+        ]
+      },
+      "properties": {
+        "id": "stn_1616546521",
+        "name": "Palta",
+        "name_bn": null,
+        "code": "PTF",
+        "kind": "rail",
+        "lat": 22.7826288,
+        "lon": 88.3702748,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1620918714",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2811686,
+          22.7985261
+        ]
+      },
+      "properties": {
+        "id": "stn_1620918714",
+        "name": "Diara",
+        "name_bn": null,
+        "code": "DEH",
+        "kind": "rail",
+        "lat": 22.7985261,
+        "lon": 88.2811686,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1672312834",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3471304,
+          22.847312
+        ]
+      },
+      "properties": {
+        "id": "stn_1672312834",
+        "name": "Mankundu",
+        "name_bn": null,
+        "code": "MUU",
+        "kind": "rail",
+        "lat": 22.847312,
+        "lon": 88.3471304,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1691412915",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3822968,
+          22.6996398
+        ]
+      },
+      "properties": {
+        "id": "stn_1691412915",
+        "name": "Sodepur",
+        "name_bn": "সোদেপুর",
+        "code": "SEP",
+        "kind": "rail",
+        "lat": 22.6996398,
+        "lon": 88.3822968,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1691423701",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3777096,
+          22.7248499
+        ]
+      },
+      "properties": {
+        "id": "stn_1691423701",
+        "name": "Khardaha",
+        "name_bn": "খড়দহ",
+        "code": "KDH",
+        "kind": "rail",
+        "lat": 22.7248499,
+        "lon": 88.3777096,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1765884856",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4837829,
+          22.7241945
+        ]
+      },
+      "properties": {
+        "id": "stn_1765884856",
+        "name": "Barasat Junction",
+        "name_bn": null,
+        "code": "BT",
+        "kind": "rail",
+        "lat": 22.7241945,
+        "lon": 88.4837829,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1765884993",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3892144,
+          22.6613608
+        ]
+      },
+      "properties": {
+        "id": "stn_1765884993",
+        "name": "Belgharia",
+        "name_bn": "বেলঘরিয়া",
+        "code": "BLH",
+        "kind": "rail",
+        "lat": 22.6613608,
+        "lon": 88.3892144,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1765885549",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3283582,
+          22.7748045
+        ]
+      },
+      "properties": {
+        "id": "stn_1765885549",
+        "name": "Seoraphuli Jn",
+        "name_bn": null,
+        "code": "SHE",
+        "kind": "rail",
+        "lat": 22.7748045,
+        "lon": 88.3283582,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1765897125",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3317725,
+          22.7949104
+        ]
+      },
+      "properties": {
+        "id": "stn_1765897125",
+        "name": "Baidyabati",
+        "name_bn": null,
+        "code": "BBAE",
+        "kind": "rail",
+        "lat": 22.7949104,
+        "lon": 88.3317725,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1765897140",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3414937,
+          22.8282019
+        ]
+      },
+      "properties": {
+        "id": "stn_1765897140",
+        "name": "Bhadreshwar",
+        "name_bn": null,
+        "code": "BHR",
+        "kind": "rail",
+        "lat": 22.8282019,
+        "lon": 88.3414937,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1865813382",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5188879,
+          22.3873131
+        ]
+      },
+      "properties": {
+        "id": "stn_1865813382",
+        "name": "Piali",
+        "name_bn": null,
+        "code": "PLF",
+        "kind": "rail",
+        "lat": 22.3873131,
+        "lon": 88.5188879,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_1935597017",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3853645,
+          22.6828782
+        ]
+      },
+      "properties": {
+        "id": "stn_1935597017",
+        "name": "Agarpara",
+        "name_bn": "আগরপাড়া",
+        "code": "AGP",
+        "kind": "rail",
+        "lat": 22.6828782,
+        "lon": 88.3853645,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2323761292",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3909641,
+          22.5912601
+        ]
+      },
+      "properties": {
+        "id": "stn_2323761292",
+        "name": "Bidhan Nagar Road",
+        "name_bn": "বিধাননগর রোড",
+        "code": "BNXR",
+        "kind": "rail",
+        "lat": 22.5912601,
+        "lon": 88.3909641,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main",
+          "Sealdah North"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2337700691",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4312776,
+          22.3663286
+        ]
+      },
+      "properties": {
+        "id": "stn_2337700691",
+        "name": "Baruipur Junction",
+        "name_bn": "বারুইপুর জংশন",
+        "code": "BRP",
+        "kind": "rail",
+        "lat": 22.3663286,
+        "lon": 88.4312776,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2339753229",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4055149,
+          22.4656393
+        ]
+      },
+      "properties": {
+        "id": "stn_2339753229",
+        "name": "Garia",
+        "name_bn": "গড়িয়া",
+        "code": "GIA",
+        "kind": "rail",
+        "lat": 22.4656393,
+        "lon": 88.4055149,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2339803458",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4341636,
+          22.4131817
+        ]
+      },
+      "properties": {
+        "id": "stn_2339803458",
+        "name": "Subhas Gram",
+        "name_bn": "সুভাষ গ্রাম",
+        "code": "SBGR",
+        "kind": "rail",
+        "lat": 22.4131817,
+        "lon": 88.4341636,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2339804364",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4331223,
+          22.3965862
+        ]
+      },
+      "properties": {
+        "id": "stn_2339804364",
+        "name": "Mallikpur",
+        "name_bn": "মল্লিকপুর",
+        "code": "MAK",
+        "kind": "rail",
+        "lat": 22.3965862,
+        "lon": 88.4331223,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2364759364",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4505893,
+          22.3295398
+        ]
+      },
+      "properties": {
+        "id": "stn_2364759364",
+        "name": "Krishna Mohan",
+        "name_bn": "কৃষ্ণ মোহন",
+        "code": "KRXM",
+        "kind": "rail",
+        "lat": 22.3295398,
+        "lon": 88.4505893,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2364768081",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4349016,
+          22.3471565
+        ]
+      },
+      "properties": {
+        "id": "stn_2364768081",
+        "name": "Shasan Road",
+        "name_bn": "শাসন রোড",
+        "code": "SSRD",
+        "kind": "rail",
+        "lat": 22.3471565,
+        "lon": 88.4349016,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2364769605",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4603013,
+          22.3159388
+        ]
+      },
+      "properties": {
+        "id": "stn_2364769605",
+        "name": "Dhapdhapi",
+        "name_bn": "ধপধপি",
+        "code": "DPDP",
+        "kind": "rail",
+        "lat": 22.3159388,
+        "lon": 88.4603013,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2365704683",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4540125,
+          22.4246986
+        ]
+      },
+      "properties": {
+        "id": "stn_2365704683",
+        "name": "Bidyadharpur",
+        "name_bn": null,
+        "code": "BDYP",
+        "kind": "rail",
+        "lat": 22.4246986,
+        "lon": 88.4540125,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2365711966",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4760309,
+          22.412052
+        ]
+      },
+      "properties": {
+        "id": "stn_2365711966",
+        "name": "Kalikapur",
+        "name_bn": null,
+        "code": "KLKR",
+        "kind": "rail",
+        "lat": 22.412052,
+        "lon": 88.4760309,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2365714186",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4936425,
+          22.4018828
+        ]
+      },
+      "properties": {
+        "id": "stn_2365714186",
+        "name": "Champahati",
+        "name_bn": null,
+        "code": "CHT",
+        "kind": "rail",
+        "lat": 22.4018828,
+        "lon": 88.4936425,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2365741229",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5527713,
+          22.3679011
+        ]
+      },
+      "properties": {
+        "id": "stn_2365741229",
+        "name": "Ghutiari Sharif",
+        "name_bn": null,
+        "code": "GOF",
+        "kind": "rail",
+        "lat": 22.3679011,
+        "lon": 88.5527713,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2378503814",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4192153,
+          22.6504966
+        ]
+      },
+      "properties": {
+        "id": "stn_2378503814",
+        "name": "Durganagar",
+        "name_bn": null,
+        "code": "DGNR",
+        "kind": "rail",
+        "lat": 22.6504966,
+        "lon": 88.4192153,
+        "network": "Indian Railways",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2378510543",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4274959,
+          22.6643198
+        ]
+      },
+      "properties": {
+        "id": "stn_2378510543",
+        "name": "Birati",
+        "name_bn": null,
+        "code": "BBT",
+        "kind": "rail",
+        "lat": 22.6643198,
+        "lon": 88.4274959,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2378514765",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4349544,
+          22.676678
+        ]
+      },
+      "properties": {
+        "id": "stn_2378514765",
+        "name": "Bisharpara Kodalia",
+        "name_bn": null,
+        "code": "BRPK",
+        "kind": "rail",
+        "lat": 22.676678,
+        "lon": 88.4349544,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2378518670",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.444617,
+          22.6867642
+        ]
+      },
+      "properties": {
+        "id": "stn_2378518670",
+        "name": "Barrackpore",
+        "name_bn": "ব্যারাকপুর",
+        "code": "BP",
+        "kind": "rail",
+        "lat": 22.6867642,
+        "lon": 88.444617,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2378546217",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4530183,
+          22.6947839
+        ]
+      },
+      "properties": {
+        "id": "stn_2378546217",
+        "name": "Madhyamgram",
+        "name_bn": null,
+        "code": "MMG",
+        "kind": "rail",
+        "lat": 22.6947839,
+        "lon": 88.4530183,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2378547439",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4699989,
+          22.7109969
+        ]
+      },
+      "properties": {
+        "id": "stn_2378547439",
+        "name": "Hridaypur",
+        "name_bn": null,
+        "code": "HHR",
+        "kind": "rail",
+        "lat": 22.7109969,
+        "lon": 88.4699989,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2430734474",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1948585,
+          22.4928895
+        ]
+      },
+      "properties": {
+        "id": "stn_2430734474",
+        "name": "Komagata Maru Budge Budge",
+        "name_bn": "বজবজ",
+        "code": "BGB",
+        "kind": "rail",
+        "lat": 22.4928895,
+        "lon": 88.1948585,
+        "network": "Indian Railways",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2430737240",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2233537,
+          22.5002134
+        ]
+      },
+      "properties": {
+        "id": "stn_2430737240",
+        "name": "Nangi",
+        "name_bn": null,
+        "code": "NAI",
+        "kind": "rail",
+        "lat": 22.5002134,
+        "lon": 88.2233537,
+        "network": "Indian Railways",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2430738645",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2492787,
+          22.5147366
+        ]
+      },
+      "properties": {
+        "id": "stn_2430738645",
+        "name": "Akra",
+        "name_bn": null,
+        "code": "AKRA",
+        "kind": "rail",
+        "lat": 22.5147366,
+        "lon": 88.2492787,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2430763548",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2710655,
+          22.5240566
+        ]
+      },
+      "properties": {
+        "id": "stn_2430763548",
+        "name": "Santoshpur",
+        "name_bn": null,
+        "code": "SSP",
+        "kind": "rail",
+        "lat": 22.5240566,
+        "lon": 88.2710655,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2430771841",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3011366,
+          22.5179206
+        ]
+      },
+      "properties": {
+        "id": "stn_2430771841",
+        "name": "Brace Bridge",
+        "name_bn": "ব্রেস ব্রিজ",
+        "code": "BRJ",
+        "kind": "rail",
+        "lat": 22.5179206,
+        "lon": 88.3011366,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_2506658189",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3057431,
+          22.5682566
+        ]
+      },
+      "properties": {
+        "id": "stn_2506658189",
+        "name": "Padmapukur",
+        "name_bn": null,
+        "code": "PDPK",
+        "kind": "rail",
+        "lat": 22.5682566,
+        "lon": 88.3057431,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3320346690",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5823002,
+          22.6818162
+        ]
+      },
+      "properties": {
+        "id": "stn_3320346690",
+        "name": "Sondalia",
+        "name_bn": null,
+        "code": "SXC",
+        "kind": "rail",
+        "lat": 22.6818162,
+        "lon": 88.5823002,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3321321335",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3428112,
+          22.5828709
+        ]
+      },
+      "properties": {
+        "id": "stn_3321321335",
+        "name": "Howrah Junction",
+        "name_bn": "হাওড়া জংশন",
+        "code": "HWH",
+        "kind": "rail",
+        "lat": 22.5828709,
+        "lon": 88.3428112,
+        "network": "Eastern Railway / South Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line",
+          "South Eastern Main Line",
+          "Howrah-Bardhaman Chord"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3322735363",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3153898,
+          22.5551538
+        ]
+      },
+      "properties": {
+        "id": "stn_3322735363",
+        "name": "Shalimar",
+        "name_bn": "শালিমার",
+        "code": "SHM",
+        "kind": "rail",
+        "lat": 22.5551538,
+        "lon": 88.3153898,
+        "network": "South Eastern Railway",
+        "operator": "SER",
+        "lines": [
+          "South Eastern Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3704174675",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2394462,
+          22.5757025
+        ]
+      },
+      "properties": {
+        "id": "stn_3704174675",
+        "name": "Andul",
+        "name_bn": null,
+        "code": "ADL",
+        "kind": "rail",
+        "lat": 22.5757025,
+        "lon": 88.2394462,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3706024736",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2968751,
+          22.6184662
+        ]
+      },
+      "properties": {
+        "id": "stn_3706024736",
+        "name": "Kona",
+        "name_bn": null,
+        "code": "KONA",
+        "kind": "rail",
+        "lat": 22.6184662,
+        "lon": 88.2968751,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3706067006",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2366824,
+          22.6286882
+        ]
+      },
+      "properties": {
+        "id": "stn_3706067006",
+        "name": "Makardaha",
+        "name_bn": null,
+        "code": "MDC",
+        "kind": "rail",
+        "lat": 22.6286882,
+        "lon": 88.2366824,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3706129904",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1824997,
+          22.6560704
+        ]
+      },
+      "properties": {
+        "id": "stn_3706129904",
+        "name": "Dakshinbar",
+        "name_bn": null,
+        "code": "DKB",
+        "kind": "rail",
+        "lat": 22.6560704,
+        "lon": 88.1824997,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3818719563",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2551099,
+          22.7384088
+        ]
+      },
+      "properties": {
+        "id": "stn_3818719563",
+        "name": "Begampur",
+        "name_bn": null,
+        "code": "BPAE",
+        "kind": "rail",
+        "lat": 22.7384088,
+        "lon": 88.2551099,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3818727733",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2370465,
+          22.7668969
+        ]
+      },
+      "properties": {
+        "id": "stn_3818727733",
+        "name": "Baruipara",
+        "name_bn": null,
+        "code": "BRPA",
+        "kind": "rail",
+        "lat": 22.7668969,
+        "lon": 88.2370465,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3818730980",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2224446,
+          22.7908021
+        ]
+      },
+      "properties": {
+        "id": "stn_3818730980",
+        "name": "Mirzapur Bankipur",
+        "name_bn": null,
+        "code": "MBE",
+        "kind": "rail",
+        "lat": 22.7908021,
+        "lon": 88.2224446,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3818732494",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2116836,
+          22.8080526
+        ]
+      },
+      "properties": {
+        "id": "stn_3818732494",
+        "name": "Balarambati",
+        "name_bn": null,
+        "code": "BLAE",
+        "kind": "rail",
+        "lat": 22.8080526,
+        "lon": 88.2116836,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3818741199",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1927305,
+          22.8454482
+        ]
+      },
+      "properties": {
+        "id": "stn_3818741199",
+        "name": "Madhu Sudanpur",
+        "name_bn": null,
+        "code": "MDSE",
+        "kind": "rail",
+        "lat": 22.8454482,
+        "lon": 88.1927305,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3846421890",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2775579,
+          22.5954208
+        ]
+      },
+      "properties": {
+        "id": "stn_3846421890",
+        "name": "Banka Nayabaz",
+        "name_bn": null,
+        "code": "BKNM",
+        "kind": "rail",
+        "lat": 22.5954208,
+        "lon": 88.2775579,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3860624901",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.324035,
+          22.598577
+        ]
+      },
+      "properties": {
+        "id": "stn_3860624901",
+        "name": "Tikiapara",
+        "name_bn": null,
+        "code": "TPKR",
+        "kind": "rail",
+        "lat": 22.598577,
+        "lon": 88.324035,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_3884538872",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.534992,
+          22.7046413
+        ]
+      },
+      "properties": {
+        "id": "stn_3884538872",
+        "name": "Karea Kadambagachhi",
+        "name_bn": null,
+        "code": "KBGH",
+        "kind": "rail",
+        "lat": 22.7046413,
+        "lon": 88.534992,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_4284367432",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3158211,
+          22.5376181
+        ]
+      },
+      "properties": {
+        "id": "stn_4284367432",
+        "name": "Khidirpur",
+        "name_bn": null,
+        "code": "KIRP",
+        "kind": "rail",
+        "lat": 22.5376181,
+        "lon": 88.3158211,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_4359528390",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.1668229,
+          22.8304705
+        ]
+      },
+      "properties": {
+        "id": "stn_4359528390",
+        "name": "Nalikul",
+        "name_bn": null,
+        "code": "NKL",
+        "kind": "rail",
+        "lat": 22.8304705,
+        "lon": 88.1668229,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5244225850",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3784257,
+          22.6063508
+        ]
+      },
+      "properties": {
+        "id": "stn_5244225850",
+        "name": "Tala",
+        "name_bn": null,
+        "code": "TALA",
+        "kind": "rail",
+        "lat": 22.6063508,
+        "lon": 88.3784257,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5253354261",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3850451,
+          22.5741753
+        ]
+      },
+      "properties": {
+        "id": "stn_5253354261",
+        "name": "Sir Gurudas Banerjee Halt",
+        "name_bn": null,
+        "code": "SGBA",
+        "kind": "rail",
+        "lat": 22.5741753,
+        "lon": 88.3850451,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421528426",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3587427,
+          22.5724857
+        ]
+      },
+      "properties": {
+        "id": "stn_5421528426",
+        "name": "Central",
+        "name_bn": "সেন্ট্রাল",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5724857,
+        "lon": 88.3587427,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421528503",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3501171,
+          22.5551591
+        ]
+      },
+      "properties": {
+        "id": "stn_5421528503",
+        "name": "Park Street",
+        "name_bn": "পার্ক স্ট্রীট",
+        "code": "KPSK",
+        "kind": "metro",
+        "lat": 22.5551591,
+        "lon": 88.3501171,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421533465",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3804604,
+          22.4642505
+        ]
+      },
+      "properties": {
+        "id": "stn_5421533465",
+        "name": "Kavi Nazrul",
+        "name_bn": "কবি নজরুল",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4642505,
+        "lon": 88.3804604,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421533466",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3915408,
+          22.4659847
+        ]
+      },
+      "properties": {
+        "id": "stn_5421533466",
+        "name": "Shahid Khudiram",
+        "name_bn": "শহিদ ক্ষুদিরাম",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4659847,
+        "lon": 88.3915408,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421533467",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.397961,
+          22.4721697
+        ]
+      },
+      "properties": {
+        "id": "stn_5421533467",
+        "name": "Kavi Subhash (Blue Line)",
+        "name_bn": "কবি সুভাষ",
+        "code": "KKVS",
+        "kind": "metro",
+        "lat": 22.4721697,
+        "lon": 88.397961,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421533468",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3460002,
+          22.4809928
+        ]
+      },
+      "properties": {
+        "id": "stn_5421533468",
+        "name": "Netaji",
+        "name_bn": "নেতাজি",
+        "code": "KNTJ",
+        "kind": "metro",
+        "lat": 22.4809928,
+        "lon": 88.3460002,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421536497",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3450879,
+          22.4947692
+        ]
+      },
+      "properties": {
+        "id": "stn_5421536497",
+        "name": "Mahanayak Uttam Kumar",
+        "name_bn": "মহানায়ক উত্তমকুমার",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4947692,
+        "lon": 88.3450879,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421537963",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3928973,
+          22.6211141
+        ]
+      },
+      "properties": {
+        "id": "stn_5421537963",
+        "name": "Dum Dum Junction",
+        "name_bn": "দমদম জংশন",
+        "code": "DDJ",
+        "kind": "rail",
+        "lat": 22.6211141,
+        "lon": 88.3928973,
+        "network": "Eastern Railway",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "Sealdah Main",
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421538365",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3454936,
+          22.5072216
+        ]
+      },
+      "properties": {
+        "id": "stn_5421538365",
+        "name": "Rabindra Sarobar",
+        "name_bn": "রবীন্দ্র সরোবর",
+        "code": "KRSO",
+        "kind": "metro",
+        "lat": 22.5072216,
+        "lon": 88.3454936,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421539684",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3458448,
+          22.5168752
+        ]
+      },
+      "properties": {
+        "id": "stn_5421539684",
+        "name": "Kalighat",
+        "name_bn": "কালীঘাট",
+        "code": "KKGH",
+        "kind": "metro",
+        "lat": 22.5168752,
+        "lon": 88.3458448,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421540159",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3464729,
+          22.5241535
+        ]
+      },
+      "properties": {
+        "id": "stn_5421540159",
+        "name": "Jatin Das Park",
+        "name_bn": "যতীন দাস পার্ক",
+        "code": "KJPK",
+        "kind": "metro",
+        "lat": 22.5241535,
+        "lon": 88.3464729,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421541284",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3459269,
+          22.5331821
+        ]
+      },
+      "properties": {
+        "id": "stn_5421541284",
+        "name": "Netaji Bhavan",
+        "name_bn": "নেতাজি ভবন",
+        "code": "KNBN",
+        "kind": "metro",
+        "lat": 22.5331821,
+        "lon": 88.3459269,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421542551",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3473493,
+          22.5414899
+        ]
+      },
+      "properties": {
+        "id": "stn_5421542551",
+        "name": "Rabindra Sadan",
+        "name_bn": "রবীন্দ্র সদন",
+        "code": "KRSD",
+        "kind": "metro",
+        "lat": 22.5414899,
+        "lon": 88.3473493,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421543288",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3487883,
+          22.5494672
+        ]
+      },
+      "properties": {
+        "id": "stn_5421543288",
+        "name": "Maidan",
+        "name_bn": "ময়দান",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5494672,
+        "lon": 88.3487883,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421543316",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3541581,
+          22.5670118
+        ]
+      },
+      "properties": {
+        "id": "stn_5421543316",
+        "name": "Chandni Chowk",
+        "name_bn": "চাঁদনি চক",
+        "code": "KCWC",
+        "kind": "metro",
+        "lat": 22.5670118,
+        "lon": 88.3541581,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421545051",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3512099,
+          22.5636143
+        ]
+      },
+      "properties": {
+        "id": "stn_5421545051",
+        "name": "Esplanade (Line 1)",
+        "name_bn": "এসপ্ল্যানেড",
+        "code": "KESP",
+        "kind": "metro",
+        "lat": 22.5636143,
+        "lon": 88.3512099,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421545390",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3613271,
+          22.5809206
+        ]
+      },
+      "properties": {
+        "id": "stn_5421545390",
+        "name": "Mahatma Gandhi Road",
+        "name_bn": "মহাত্মা গান্ধী রোড",
+        "code": "KMHR",
+        "kind": "metro",
+        "lat": 22.5809206,
+        "lon": 88.3613271,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421546475",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3629415,
+          22.5871445
+        ]
+      },
+      "properties": {
+        "id": "stn_5421546475",
+        "name": "Girish Park",
+        "name_bn": "গিরিশ পার্ক",
+        "code": "KGPK",
+        "kind": "metro",
+        "lat": 22.5871445,
+        "lon": 88.3629415,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421546940",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3651996,
+          22.595881
+        ]
+      },
+      "properties": {
+        "id": "stn_5421546940",
+        "name": "Shobhabazar Sutanuti",
+        "name_bn": "শোভাবাজার সুতানুটি",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.595881,
+        "lon": 88.3651996,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421546974",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3724974,
+          22.601335
+        ]
+      },
+      "properties": {
+        "id": "stn_5421546974",
+        "name": "Shyambazar",
+        "name_bn": "শ্যামবাজার",
+        "code": "KSYM",
+        "kind": "metro",
+        "lat": 22.601335,
+        "lon": 88.3724974,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421548359",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3863913,
+          22.6059241
+        ]
+      },
+      "properties": {
+        "id": "stn_5421548359",
+        "name": "Belgachia",
+        "name_bn": "বেলগাছিয়া",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.6059241,
+        "lon": 88.3863913,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5421551283",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3941343,
+          22.6398418
+        ]
+      },
+      "properties": {
+        "id": "stn_5421551283",
+        "name": "Noapara",
+        "name_bn": "নোয়াপাড়া",
+        "code": "KNAP",
+        "kind": "metro",
+        "lat": 22.6398418,
+        "lon": 88.3941343,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5768054688",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.374971,
+          22.4950517
+        ]
+      },
+      "properties": {
+        "id": "stn_5768054688",
+        "name": "Jadavpur",
+        "name_bn": "যাদবপুর",
+        "code": "JDP",
+        "kind": "rail",
+        "lat": 22.4950517,
+        "lon": 88.374971,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5768054702",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3977506,
+          22.4726577
+        ]
+      },
+      "properties": {
+        "id": "stn_5768054702",
+        "name": "Garia",
+        "name_bn": "গড়িয়া",
+        "code": "GIA",
+        "kind": "rail",
+        "lat": 22.4726577,
+        "lon": 88.3977506,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5768054791",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5347717,
+          22.3783007
+        ]
+      },
+      "properties": {
+        "id": "stn_5768054791",
+        "name": "Gourdaha Halt",
+        "name_bn": null,
+        "code": "GQD",
+        "kind": "rail",
+        "lat": 22.3783007,
+        "lon": 88.5347717,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_5873264670",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4184898,
+          22.4539009
+        ]
+      },
+      "properties": {
+        "id": "stn_5873264670",
+        "name": "Narendrapur",
+        "name_bn": "নরেন্দ্রপুর",
+        "code": "NRPR",
+        "kind": "rail",
+        "lat": 22.4539009,
+        "lon": 88.4184898,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6186215071",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3167075,
+          22.5259855
+        ]
+      },
+      "properties": {
+        "id": "stn_6186215071",
+        "name": "Remount Road",
+        "name_bn": null,
+        "code": "RMTR",
+        "kind": "rail",
+        "lat": 22.5259855,
+        "lon": 88.3167075,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6186215510",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3221307,
+          22.5190536
+        ]
+      },
+      "properties": {
+        "id": "stn_6186215510",
+        "name": "Majerhat",
+        "name_bn": "মাঝেরহাট",
+        "code": "MJT",
+        "kind": "rail",
+        "lat": 22.5190536,
+        "lon": 88.3221307,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South",
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6814083487",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3054766,
+          22.6327475
+        ]
+      },
+      "properties": {
+        "id": "stn_6814083487",
+        "name": "Bhattanagar",
+        "name_bn": null,
+        "code": "BTNG",
+        "kind": "rail",
+        "lat": 22.6327475,
+        "lon": 88.3054766,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6954276376",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3170788,
+          22.6612335
+        ]
+      },
+      "properties": {
+        "id": "stn_6954276376",
+        "name": "Belanagar",
+        "name_bn": null,
+        "code": "BZL",
+        "kind": "rail",
+        "lat": 22.6612335,
+        "lon": 88.3170788,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6954347302",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2653001,
+          22.7214367
+        ]
+      },
+      "properties": {
+        "id": "stn_6954347302",
+        "name": "Janai Road",
+        "name_bn": null,
+        "code": "JOX",
+        "kind": "rail",
+        "lat": 22.7214367,
+        "lon": 88.2653001,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6955697629",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3354264,
+          22.5105326
+        ]
+      },
+      "properties": {
+        "id": "stn_6955697629",
+        "name": "New Alipore",
+        "name_bn": "নিউ আলিপুর",
+        "code": "NACC",
+        "kind": "rail",
+        "lat": 22.5105326,
+        "lon": 88.3354264,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6955697644",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3477217,
+          22.5077549
+        ]
+      },
+      "properties": {
+        "id": "stn_6955697644",
+        "name": "Tollygunge",
+        "name_bn": "টালিগঞ্জ",
+        "code": "TLG",
+        "kind": "rail",
+        "lat": 22.5077549,
+        "lon": 88.3477217,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_6955697648",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3533289,
+          22.5080547
+        ]
+      },
+      "properties": {
+        "id": "stn_6955697648",
+        "name": "Lake Gardens",
+        "name_bn": "লেক গার্ডেন্স",
+        "code": "LKF",
+        "kind": "rail",
+        "lat": 22.5080547,
+        "lon": 88.3533289,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7630431371",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3710985,
+          22.7603363
+        ]
+      },
+      "properties": {
+        "id": "stn_7630431371",
+        "name": "Barrackpore",
+        "name_bn": "ব্যারাকপুর",
+        "code": "BP",
+        "kind": "rail",
+        "lat": 22.7603363,
+        "lon": 88.3710985,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7630434398",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3841474,
+          22.6012775
+        ]
+      },
+      "properties": {
+        "id": "stn_7630434398",
+        "name": "Kolkata (Chitpur)",
+        "name_bn": "কলকাতা টার্মিনাল (চিৎপুর)",
+        "code": "KOAA",
+        "kind": "rail",
+        "lat": 22.6012775,
+        "lon": 88.3841474,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Eastern Railway Main"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7717075781",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3479091,
+          22.6524304
+        ]
+      },
+      "properties": {
+        "id": "stn_7717075781",
+        "name": "Bally",
+        "name_bn": "বালী",
+        "code": "BLY",
+        "kind": "rail",
+        "lat": 22.6524304,
+        "lon": 88.3479091,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7717383980",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2793898,
+          22.6961161
+        ]
+      },
+      "properties": {
+        "id": "stn_7717383980",
+        "name": "Gobra",
+        "name_bn": null,
+        "code": "GBRA",
+        "kind": "rail",
+        "lat": 22.6961161,
+        "lon": 88.2793898,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7944684393",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4212209,
+          22.5733404
+        ]
+      },
+      "properties": {
+        "id": "stn_7944684393",
+        "name": "Nalban Metro Station",
+        "name_bn": null,
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5733404,
+        "lon": 88.4212209,
+        "network": "Kolkata Metro",
+        "operator": null,
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140059",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4215312,
+          22.58638
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140059",
+        "name": "Karunamoyee",
+        "name_bn": "করুণাময়ী",
+        "code": "KESA",
+        "kind": "metro",
+        "lat": 22.58638,
+        "lon": 88.4215312,
+        "network": "Kolkata Metro",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140060",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4156247,
+          22.5904737
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140060",
+        "name": "Central Park",
+        "name_bn": "সেন্ট্রাল পার্ক",
+        "code": "CPSA",
+        "kind": "metro",
+        "lat": 22.5904737,
+        "lon": 88.4156247,
+        "network": "Kolkata Metro",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140063",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4078908,
+          22.5870993
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140063",
+        "name": "City Centre",
+        "name_bn": "সিটি সেন্টার",
+        "code": "CCSC",
+        "kind": "metro",
+        "lat": 22.5870993,
+        "lon": 88.4078908,
+        "network": "Kolkata Metro",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140066",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4012962,
+          22.5800666
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140066",
+        "name": "Bengal Chemical",
+        "name_bn": "বেঙ্গল কেমিক্যালস",
+        "code": "BCSD",
+        "kind": "metro",
+        "lat": 22.5800666,
+        "lon": 88.4012962,
+        "network": "Kolkata Metro",
+        "operator": null,
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140069",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4030891,
+          22.5731115
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140069",
+        "name": "Salt Lake Stadium",
+        "name_bn": "সল্ট লেক স্টেডিয়াম",
+        "code": "SSSA",
+        "kind": "metro",
+        "lat": 22.5731115,
+        "lon": 88.4030891,
+        "network": "Kolkata Metro",
+        "operator": null,
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140072",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3902408,
+          22.5721268
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140072",
+        "name": "Phoolbagan",
+        "name_bn": "ফুলবাগান",
+        "code": "PBGB",
+        "kind": "metro",
+        "lat": 22.5721268,
+        "lon": 88.3902408,
+        "network": "Kolkata Metro",
+        "operator": null,
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_7976140073",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4290872,
+          22.5809434
+        ]
+      },
+      "properties": {
+        "id": "stn_7976140073",
+        "name": "Salt Lake Sector V",
+        "name_bn": "সল্টলেক সেক্টর V",
+        "code": "SVSA",
+        "kind": "metro",
+        "lat": 22.5809434,
+        "lon": 88.4290872,
+        "network": "Kolkata Metro",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8468061286",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5747278,
+          22.3507555
+        ]
+      },
+      "properties": {
+        "id": "stn_8468061286",
+        "name": "Betberia Ghola",
+        "name_bn": null,
+        "code": "BTPG",
+        "kind": "rail",
+        "lat": 22.3507555,
+        "lon": 88.5747278,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8475640176",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3805962,
+          22.6530765
+        ]
+      },
+      "properties": {
+        "id": "stn_8475640176",
+        "name": "Baranagar",
+        "name_bn": "বরাহনগর",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.6530765,
+        "lon": 88.3805962,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8507085275",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3385375,
+          22.6523276
+        ]
+      },
+      "properties": {
+        "id": "stn_8507085275",
+        "name": "Bally",
+        "name_bn": "বালী",
+        "code": "BLY",
+        "kind": "rail",
+        "lat": 22.6523276,
+        "lon": 88.3385375,
+        "network": "Eastern Railway",
+        "operator": "Eastern Railway",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8994137056",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5722344,
+          22.7897513
+        ]
+      },
+      "properties": {
+        "id": "stn_8994137056",
+        "name": "Bira",
+        "name_bn": null,
+        "code": "BZRA",
+        "kind": "rail",
+        "lat": 22.7897513,
+        "lon": 88.5722344,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999697038",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3952451,
+          22.6065505
+        ]
+      },
+      "properties": {
+        "id": "stn_8999697038",
+        "name": "Patipukur",
+        "name_bn": null,
+        "code": "PTKR",
+        "kind": "rail",
+        "lat": 22.6065505,
+        "lon": 88.3952451,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999697060",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.5099763,
+          22.749007
+        ]
+      },
+      "properties": {
+        "id": "stn_8999697060",
+        "name": "Bamangachi",
+        "name_bn": "বামনগাছি",
+        "code": "BMG",
+        "kind": "rail",
+        "lat": 22.749007,
+        "lon": 88.5099763,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999697061",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3213135,
+          22.6529137
+        ]
+      },
+      "properties": {
+        "id": "stn_8999697061",
+        "name": "Rajchandrapur",
+        "name_bn": null,
+        "code": "RCD",
+        "kind": "rail",
+        "lat": 22.6529137,
+        "lon": 88.3213135,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999697105",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.414597,
+          22.343456
+        ]
+      },
+      "properties": {
+        "id": "stn_8999697105",
+        "name": "Kalyanpur",
+        "name_bn": null,
+        "code": "KYP",
+        "kind": "rail",
+        "lat": 22.343456,
+        "lon": 88.414597,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999700624",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3997483,
+          22.3093549
+        ]
+      },
+      "properties": {
+        "id": "stn_8999700624",
+        "name": "Hotar",
+        "name_bn": null,
+        "code": "HT",
+        "kind": "rail",
+        "lat": 22.3093549,
+        "lon": 88.3997483,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999700636",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.406271,
+          22.3258194
+        ]
+      },
+      "properties": {
+        "id": "stn_8999700636",
+        "name": "Dakshin Durgapur",
+        "name_bn": null,
+        "code": "DKDP",
+        "kind": "rail",
+        "lat": 22.3258194,
+        "lon": 88.406271,
+        "network": "IR",
+        "operator": "ER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_8999700675",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.334688,
+          22.5900953
+        ]
+      },
+      "properties": {
+        "id": "stn_8999700675",
+        "name": "Howrah Goods",
+        "name_bn": null,
+        "code": "HWHG",
+        "kind": "rail",
+        "lat": 22.5900953,
+        "lon": 88.334688,
+        "network": "IR",
+        "operator": "SER",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_9001302716",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3511761,
+          22.590157
+        ]
+      },
+      "properties": {
+        "id": "stn_9001302716",
+        "name": "Burrabazar",
+        "name_bn": "বড়বাজার",
+        "code": "BZB",
+        "kind": "rail",
+        "lat": 22.590157,
+        "lon": 88.3511761,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_9321290815",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3173872,
+          22.4987585
+        ]
+      },
+      "properties": {
+        "id": "stn_9321290815",
+        "name": "Behala Bazar",
+        "name_bn": "বেহালা বাজার",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4987585,
+        "lon": 88.3173872,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_9321292345",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3133794,
+          22.4873548
+        ]
+      },
+      "properties": {
+        "id": "stn_9321292345",
+        "name": "Behala Chowrasta",
+        "name_bn": "বেহালা চৌরাস্তা",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4873548,
+        "lon": 88.3133794,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_10146620696",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4303414,
+          22.443192
+        ]
+      },
+      "properties": {
+        "id": "stn_10146620696",
+        "name": "Sonarpur Junction",
+        "name_bn": "সোনারপুর জংশন",
+        "code": "SPR",
+        "kind": "rail",
+        "lat": 22.443192,
+        "lon": 88.4303414,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Sealdah South"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_10296539469",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3075322,
+          22.4643677
+        ]
+      },
+      "properties": {
+        "id": "stn_10296539469",
+        "name": "Thakurpukur",
+        "name_bn": "ঠাকুরপুকুর",
+        "code": "KTKP",
+        "kind": "metro",
+        "lat": 22.4643677,
+        "lon": 88.3075322,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_10296539474",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3099593,
+          22.4748533
+        ]
+      },
+      "properties": {
+        "id": "stn_10296539474",
+        "name": "Sakher Bazar",
+        "name_bn": "সখের বাজার",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4748533,
+        "lon": 88.3099593,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_10296539476",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3203842,
+          22.5076863
+        ]
+      },
+      "properties": {
+        "id": "stn_10296539476",
+        "name": "Taratala",
+        "name_bn": "তারাতলা",
+        "code": "KTRT",
+        "kind": "metro",
+        "lat": 22.5076863,
+        "lon": 88.3203842,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_10296539478",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3018236,
+          22.452347
+        ]
+      },
+      "properties": {
+        "id": "stn_10296539478",
+        "name": "Joka",
+        "name_bn": "জোকা",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.452347,
+        "lon": 88.3018236,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11447425091",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4014276,
+          22.5148514
+        ]
+      },
+      "properties": {
+        "id": "stn_11447425091",
+        "name": "Hemanta Mukhopadhyay",
+        "name_bn": "হেমন্ত মুখোপাধ্যায়",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5148514,
+        "lon": 88.4014276,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11447425092",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4009957,
+          22.5053017
+        ]
+      },
+      "properties": {
+        "id": "stn_11447425092",
+        "name": "Kavi Sukanta",
+        "name_bn": "কবি সুকান্ত",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5053017,
+        "lon": 88.4009957,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11447425095",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.398449,
+          22.4956263
+        ]
+      },
+      "properties": {
+        "id": "stn_11447425095",
+        "name": "Jyotirindra Nandi",
+        "name_bn": "জ্যোতিরিন্দ্র নন্দী",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4956263,
+        "lon": 88.398449,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11447425096",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3926447,
+          22.4846775
+        ]
+      },
+      "properties": {
+        "id": "stn_11447425096",
+        "name": "Satyajit Ray",
+        "name_bn": "সত্যজিৎ রায়",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.4846775,
+        "lon": 88.3926447,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11584548979",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3505828,
+          22.6313023
+        ]
+      },
+      "properties": {
+        "id": "stn_11584548979",
+        "name": "Belur",
+        "name_bn": "বেলুড়",
+        "code": "BEQ",
+        "kind": "rail",
+        "lat": 22.6313023,
+        "lon": 88.3505828,
+        "network": "Eastern Railway",
+        "operator": "ER",
+        "lines": [
+          "Howrah Main Line"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11699268223",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3505275,
+          22.5720777
+        ]
+      },
+      "properties": {
+        "id": "stn_11699268223",
+        "name": "Mahakaran",
+        "name_bn": "মহাকরণ",
+        "code": "MKNA",
+        "kind": "metro",
+        "lat": 22.5720777,
+        "lon": 88.3505275,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11699268224",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3403452,
+          22.5833648
+        ]
+      },
+      "properties": {
+        "id": "stn_11699268224",
+        "name": "Howrah Junction",
+        "name_bn": "হাওড়া জংশন",
+        "code": "HWH",
+        "kind": "rail",
+        "lat": 22.5833648,
+        "lon": 88.3403452,
+        "network": "Eastern Railway / South Eastern Railway",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "Howrah Main Line",
+          "South Eastern Main Line",
+          "Howrah-Bardhaman Chord"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11699268225",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3339983,
+          22.5838585
+        ]
+      },
+      "properties": {
+        "id": "stn_11699268225",
+        "name": "Howrah Maidan",
+        "name_bn": "হাওড়া ময়দান",
+        "code": "HWMM",
+        "kind": "metro",
+        "lat": 22.5838585,
+        "lon": 88.3339983,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_11699268226",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3236555,
+          22.5191466
+        ]
+      },
+      "properties": {
+        "id": "stn_11699268226",
+        "name": "Majerhat",
+        "name_bn": "মাঝেরহাট",
+        "code": "MJT",
+        "kind": "rail",
+        "lat": 22.5191466,
+        "lon": 88.3236555,
+        "network": "Eastern Railway",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "Sealdah South",
+          "Circular Railway"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_13088458999",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4039852,
+          22.5507084
+        ]
+      },
+      "properties": {
+        "id": "stn_13088458999",
+        "name": "Beleghata",
+        "name_bn": "বেলেঘাটা",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5507084,
+        "lon": 88.4039852,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_13088485701",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3992762,
+          22.5438072
+        ]
+      },
+      "properties": {
+        "id": "stn_13088485701",
+        "name": "Barun Sengupta",
+        "name_bn": "বরুণ সেনগুপ্ত",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5438072,
+        "lon": 88.3992762,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_13088485704",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3964191,
+          22.5329995
+        ]
+      },
+      "properties": {
+        "id": "stn_13088485704",
+        "name": "Ritwik Ghatak",
+        "name_bn": "ঋত্বিক ঘটক",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5329995,
+        "lon": 88.3964191,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_13088485707",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3962331,
+          22.5246847
+        ]
+      },
+      "properties": {
+        "id": "stn_13088485707",
+        "name": "VIP Bazar",
+        "name_bn": "ভি আই পি বাজার",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.5246847,
+        "lon": 88.3962331,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_13088491840",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4373029,
+          22.6473058
+        ]
+      },
+      "properties": {
+        "id": "stn_13088491840",
+        "name": "Jai Hind",
+        "name_bn": "জয় হিন্দ",
+        "code": null,
+        "kind": "metro",
+        "lat": 22.6473058,
+        "lon": 88.4373029,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_13088491871",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4297701,
+          22.6392646
+        ]
+      },
+      "properties": {
+        "id": "stn_13088491871",
+        "name": "Jessore Road",
+        "name_bn": "যশোহর রোড",
+        "code": "KJRO",
+        "kind": "metro",
+        "lat": 22.6392646,
+        "lon": 88.4297701,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_naihati",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4239,
+          22.8953
+        ]
+      },
+      "properties": {
+        "id": "stn_naihati",
+        "name": "Naihati Junction",
+        "name_bn": "নৈহাটি জংশন",
+        "code": "NH",
+        "kind": "rail",
+        "lat": 22.8953,
+        "lon": 88.4239,
+        "network": "Eastern Railway",
+        "lines": [
+          "Sealdah Main"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_bagbazar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3611,
+          22.6041
+        ]
+      },
+      "properties": {
+        "id": "stn_bagbazar",
+        "name": "Bagbazar",
+        "name_bn": "বাগবাজার",
+        "code": "BBR",
+        "kind": "rail",
+        "lat": 22.6041,
+        "lon": 88.3611,
+        "network": "Eastern Railway",
+        "lines": [
+          "Circular Railway"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_bandel",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3769,
+          22.9239
+        ]
+      },
+      "properties": {
+        "id": "stn_bandel",
+        "name": "Bandel Junction",
+        "name_bn": "ব্যান্ডেল জংশন",
+        "code": "BDC",
+        "kind": "rail",
+        "lat": 22.9239,
+        "lon": 88.3769,
+        "network": "Eastern Railway",
+        "lines": [
+          "Howrah Main Line"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_belgachia",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3842,
+          22.6075
+        ]
+      },
+      "properties": {
+        "id": "stn_m_belgachia",
+        "name": "Belgachia Metro",
+        "name_bn": "বেলগাছিয়া মেট্রো",
+        "code": "KBEL",
+        "kind": "metro",
+        "lat": 22.6075,
+        "lon": 88.3842,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_shobhabazar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3686,
+          22.5936
+        ]
+      },
+      "properties": {
+        "id": "stn_m_shobhabazar",
+        "name": "Shobhabazar Sutanuti Metro",
+        "name_bn": "শোভাবাজার সুতানুটি মেট্রো",
+        "code": "KSOB",
+        "kind": "metro",
+        "lat": 22.5936,
+        "lon": 88.3686,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_mg_road",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3608,
+          22.5786
+        ]
+      },
+      "properties": {
+        "id": "stn_m_mg_road",
+        "name": "Mahatma Gandhi Road Metro",
+        "name_bn": "মহাত্মা গান্ধী রোড মেট্রো",
+        "code": "KMGR",
+        "kind": "metro",
+        "lat": 22.5786,
+        "lon": 88.3608,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_central",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3567,
+          22.5703
+        ]
+      },
+      "properties": {
+        "id": "stn_m_central",
+        "name": "Central Metro",
+        "name_bn": "সেন্ট্রাল মেট্রো",
+        "code": "KCEN",
+        "kind": "metro",
+        "lat": 22.5703,
+        "lon": 88.3567,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_chandni_chowk",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3533,
+          22.5647
+        ]
+      },
+      "properties": {
+        "id": "stn_m_chandni_chowk",
+        "name": "Chandni Chowk Metro",
+        "name_bn": "চাঁদনী চক মেট্রো",
+        "code": "KCHC",
+        "kind": "metro",
+        "lat": 22.5647,
+        "lon": 88.3533,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_maidan",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3494,
+          22.5456
+        ]
+      },
+      "properties": {
+        "id": "stn_m_maidan",
+        "name": "Maidan Metro",
+        "name_bn": "ময়দান মেট্রো",
+        "code": "KMDN",
+        "kind": "metro",
+        "lat": 22.5456,
+        "lon": 88.3494,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_netaji_bhavan",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3453,
+          22.5303
+        ]
+      },
+      "properties": {
+        "id": "stn_m_netaji_bhavan",
+        "name": "Netaji Bhavan Metro",
+        "name_bn": "নেতাজি ভবন মেট্রো",
+        "code": "KBHV",
+        "kind": "metro",
+        "lat": 22.5303,
+        "lon": 88.3453,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_jatin_das_park",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3458,
+          22.5217
+        ]
+      },
+      "properties": {
+        "id": "stn_m_jatin_das_park",
+        "name": "Jatin Das Park Metro",
+        "name_bn": "যতীন দাস পার্ক মেট্রো",
+        "code": "KJDP",
+        "kind": "metro",
+        "lat": 22.5217,
+        "lon": 88.3458,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_mahanayak_uttankumar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3453,
+          22.4975
+        ]
+      },
+      "properties": {
+        "id": "stn_m_mahanayak_uttankumar",
+        "name": "Tollygunge",
+        "name_bn": "টালিগঞ্জ",
+        "code": "TLG",
+        "kind": "rail",
+        "lat": 22.4975,
+        "lon": 88.3453,
+        "network": "Eastern Railway",
+        "lines": [
+          "Circular Railway"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_netaji",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3475,
+          22.4842
+        ]
+      },
+      "properties": {
+        "id": "stn_m_netaji",
+        "name": "Netaji (Kudghat) Metro",
+        "name_bn": "নেতাজি মেট্রো",
+        "code": "KNET",
+        "kind": "metro",
+        "lat": 22.4842,
+        "lon": 88.3475,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_masterda_surya_sen",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3547,
+          22.4744
+        ]
+      },
+      "properties": {
+        "id": "stn_m_masterda_surya_sen",
+        "name": "Masterda Surya Sen (Bansdroni) Metro",
+        "name_bn": "মাস্টারদা সূর্য সেন মেট্রো",
+        "code": "KMDS",
+        "kind": "metro",
+        "lat": 22.4744,
+        "lon": 88.3547,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_gitanjali",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3653,
+          22.4681
+        ]
+      },
+      "properties": {
+        "id": "stn_m_gitanjali",
+        "name": "Gitanjali (Naktala) Metro",
+        "name_bn": "গীতাঞ্জলি মেট্রো",
+        "code": "KGTN",
+        "kind": "metro",
+        "lat": 22.4681,
+        "lon": 88.3653,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_kavi_nazrul",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3756,
+          22.4628
+        ]
+      },
+      "properties": {
+        "id": "stn_m_kavi_nazrul",
+        "name": "Garia",
+        "name_bn": "গড়িয়া",
+        "code": "GIA",
+        "kind": "rail",
+        "lat": 22.4628,
+        "lon": 88.3756,
+        "network": "Eastern Railway",
+        "lines": [
+          "Sealdah South"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_shahid_khudiram",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3847,
+          22.4578
+        ]
+      },
+      "properties": {
+        "id": "stn_m_shahid_khudiram",
+        "name": "Shahid Khudiram Metro",
+        "name_bn": "শহীদ ক্ষুদিরাম মেট্রো",
+        "code": "KSKD",
+        "kind": "metro",
+        "lat": 22.4578,
+        "lon": 88.3847,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Blue Line (Line 1)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_kavi_subhash",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3975,
+          22.4575
+        ]
+      },
+      "properties": {
+        "id": "stn_m_kavi_subhash",
+        "name": "Garia",
+        "name_bn": "গড়িয়া",
+        "code": "GIA",
+        "kind": "rail",
+        "lat": 22.4575,
+        "lon": 88.3975,
+        "network": "Eastern Railway",
+        "lines": [
+          "Sealdah South"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_howrah_maidan",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3283,
+          22.5847
+        ]
+      },
+      "properties": {
+        "id": "stn_m_howrah_maidan",
+        "name": "Howrah Maidan Metro",
+        "name_bn": "হাওড়া ময়দান মেট্রো",
+        "code": "KHWM",
+        "kind": "metro",
+        "lat": 22.5847,
+        "lon": 88.3283,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_phoolbagan",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3906,
+          22.5683
+        ]
+      },
+      "properties": {
+        "id": "stn_m_phoolbagan",
+        "name": "Phoolbagan Metro",
+        "name_bn": "ফুলবাগান মেট্রো",
+        "code": "KPBG",
+        "kind": "metro",
+        "lat": 22.5683,
+        "lon": 88.3906,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_salt_lake_stadium",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4061,
+          22.5703
+        ]
+      },
+      "properties": {
+        "id": "stn_m_salt_lake_stadium",
+        "name": "Salt Lake Stadium Metro",
+        "name_bn": "সল্টলেক স্টেডিয়াম মেট্রো",
+        "code": "KSLS",
+        "kind": "metro",
+        "lat": 22.5703,
+        "lon": 88.4061,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_bengal_chemical",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4069,
+          22.5786
+        ]
+      },
+      "properties": {
+        "id": "stn_m_bengal_chemical",
+        "name": "Bengal Chemical Metro",
+        "name_bn": "বেঙ্গল কেমিক্যাল মেট্রো",
+        "code": "KBCH",
+        "kind": "metro",
+        "lat": 22.5786,
+        "lon": 88.4069,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_central_park",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4161,
+          22.5875
+        ]
+      },
+      "properties": {
+        "id": "stn_m_central_park",
+        "name": "Central Park Metro",
+        "name_bn": "সেন্ট্রাল পার্ক মেট্রো",
+        "code": "KCPK",
+        "kind": "metro",
+        "lat": 22.5875,
+        "lon": 88.4161,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_karunamoyee",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4239,
+          22.5847
+        ]
+      },
+      "properties": {
+        "id": "stn_m_karunamoyee",
+        "name": "Karunamoyee Metro",
+        "name_bn": "করুণাময়ী মেট্রো",
+        "code": "KKMY",
+        "kind": "metro",
+        "lat": 22.5847,
+        "lon": 88.4239,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_sector_v",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4325,
+          22.5808
+        ]
+      },
+      "properties": {
+        "id": "stn_m_sector_v",
+        "name": "Salt Lake Sector V Metro",
+        "name_bn": "সল্টলেক সেক্টর ৫ মেট্রো",
+        "code": "KSEC",
+        "kind": "metro",
+        "lat": 22.5808,
+        "lon": 88.4325,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Green Line (Line 2)",
+          "Orange Line (Line 6)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_joka",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.2917,
+          22.4497
+        ]
+      },
+      "properties": {
+        "id": "stn_m_joka",
+        "name": "Joka Metro",
+        "name_bn": "জোকা মেট্রো",
+        "code": "KJOK",
+        "kind": "metro",
+        "lat": 22.4497,
+        "lon": 88.2917,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Purple Line (Line 3)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_thakurpukur",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3006,
+          22.4636
+        ]
+      },
+      "properties": {
+        "id": "stn_m_thakurpukur",
+        "name": "Thakurpukur Metro",
+        "name_bn": "ঠাকুরপুকুর মেট্রো",
+        "code": "KTHP",
+        "kind": "metro",
+        "lat": 22.4636,
+        "lon": 88.3006,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Purple Line (Line 3)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_sakherbazar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3089,
+          22.4789
+        ]
+      },
+      "properties": {
+        "id": "stn_m_sakherbazar",
+        "name": "Sakherbazar Metro",
+        "name_bn": "সখেরবাজার মেট্রো",
+        "code": "KSKB",
+        "kind": "metro",
+        "lat": 22.4789,
+        "lon": 88.3089,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Purple Line (Line 3)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_behala_chowrasta",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3136,
+          22.4925
+        ]
+      },
+      "properties": {
+        "id": "stn_m_behala_chowrasta",
+        "name": "Behala Chowrasta Metro",
+        "name_bn": "বেহালা চৌরাস্তা মেট্রো",
+        "code": "KBHC",
+        "kind": "metro",
+        "lat": 22.4925,
+        "lon": 88.3136,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Purple Line (Line 3)"
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_behala_bazar",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.3181,
+          22.5028
+        ]
+      },
+      "properties": {
+        "id": "stn_m_behala_bazar",
+        "name": "Behala Bazar Metro",
+        "name_bn": "বেহালা বাজার মেট্রো",
+        "code": "KBHZ",
+        "kind": "metro",
+        "lat": 22.5028,
+        "lon": 88.3181,
+        "network": "Kolkata Metro",
+        "lines": [
+          "Purple Line (Line 3)"
+        ]
+      }
+    }
+  ]
+}

@@ -61,6 +61,9 @@ class SquadFirestoreRepository {
       'meetupLng': meetupLng,
       'separationThresholdMeters': separationThresholdMeters,
       'membersUid': [host.id],
+      'chosenPandals': <Map<String, dynamic>>[],
+      'isHoppingActive': false,
+      'activeStopIndex': 0,
       'lastMessage': 'Squad created. Welcome to Durga Puja hopping!',
       'lastMessageTime': DateTime.now().millisecondsSinceEpoch,
       'createdAt': FieldValue.serverTimestamp(),
@@ -274,6 +277,30 @@ class SquadFirestoreRepository {
       }
     } catch (e) {
       debugPrint('[SquadFirestoreRepository] updateSquadSettings error: $e');
+    }
+  }
+
+  /// Update squad pandal plan & live hopping state across all members
+  Future<void> updateSquadPlan({
+    required String squadId,
+    required List<Map<String, dynamic>> chosenPandals,
+    bool? isHoppingActive,
+    int? activeStopIndex,
+  }) async {
+    final fs = _firestore;
+    if (fs == null) return;
+
+    try {
+      final updates = <String, dynamic>{
+        'chosenPandals': chosenPandals,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      if (isHoppingActive != null) updates['isHoppingActive'] = isHoppingActive;
+      if (activeStopIndex != null) updates['activeStopIndex'] = activeStopIndex;
+
+      await fs.collection('squads').doc(squadId).update(updates);
+    } catch (e) {
+      debugPrint('[SquadFirestoreRepository] updateSquadPlan error: $e');
     }
   }
 

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Station",
+  "type": "object",
+  "required": ["id", "name", "kind", "lat", "lon"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique station identifier, e.g. stn_hwh or stn_12345"
+    },
+    "name": {
+      "type": "string",
+      "description": "Station English display name, e.g. Howrah Junction"
+    },
+    "name_bn": {
+      "type": ["string", "null"],
+      "description": "Bengali script station name, e.g. হাওড়া জংশন"
+    },
+    "code": {
+      "type": ["string", "null"],
+      "description": "Indian Railways station code or Metro code, e.g. HWH, SDAH"
+    },
+    "kind": {
+      "enum": ["rail", "metro"],
+      "description": "Transit category: suburban/long-distance rail vs urban subway"
+    },
+    "lat": {
+      "type": "number",
+      "minimum": -90,
+      "maximum": 90,
+      "description": "Latitude coordinate in WGS84"
+    },
+    "lon": {
+      "type": "number",
+      "minimum": -180,
+      "maximum": 180,
+      "description": "Longitude coordinate in WGS84"
+    },
+    "network": {
+      "type": ["string", "null"],
+      "description": "Operating network, e.g. Eastern Railway, South Eastern Railway, Kolkata Metro"
+    },
+    "lines": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Suburban divisions or metro line identifiers"
+    },
+    "entrances": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Geo-tagged entrances and gate locations"
+    }
+  }
+}

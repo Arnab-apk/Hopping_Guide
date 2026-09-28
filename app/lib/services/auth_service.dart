@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -151,6 +152,10 @@ class AuthService extends ChangeNotifier {
 
   Future<void> _ensureGoogleInitialized() async {
     if (_isGoogleInitialized) return;
+    if (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST')) {
+      _isGoogleInitialized = true;
+      return;
+    }
     try {
       const webClientId = String.fromEnvironment(
         'GOOGLE_WEB_CLIENT_ID',
@@ -193,7 +198,27 @@ class AuthService extends ChangeNotifier {
       debugPrint('AuthService.signInAsGuest anonymous Auth fallback: $e');
     }
 
-    final guestUser = AppUser.guest();
+    AppUser guestUser;
+    try {
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      final existingGuestUid = prefs.getString('persisted_guest_uid');
+      guestUser = (existingGuestUid != null && existingGuestUid.isNotEmpty)
+          ? AppUser(
+              uid: existingGuestUid,
+              displayName: _currentUserModel?.displayName ?? 'Guest Pujo Hopper',
+              email: null,
+              photoUrl: _currentUserModel?.photoUrl,
+              isGuest: true,
+            )
+          : AppUser.guest();
+      if (existingGuestUid == null || existingGuestUid.isEmpty) {
+        await prefs.setString('persisted_guest_uid', guestUser.uid);
+      }
+    } catch (e) {
+      debugPrint('AuthService.signInAsGuest SharedPreferences note: $e');
+      guestUser = _currentUserModel ?? AppUser.guest();
+    }
+
     _currentUserModel = guestUser;
     await _saveUser(guestUser);
     notifyListeners();

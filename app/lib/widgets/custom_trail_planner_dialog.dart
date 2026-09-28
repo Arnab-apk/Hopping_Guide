@@ -6,9 +6,11 @@ import 'package:latlong2/latlong.dart';
 import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../repositories/local_pandal_repository.dart';
+import '../repositories/station_repository.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
 import '../utils/constants.dart';
+import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 
 enum _BuilderStep {
@@ -92,9 +94,25 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
     {'name': 'Dum Dum Park / Lake Town', 'lat': 22.6072, 'lng': 88.4068},
   ];
 
+  // Popular Railway & Metro Stations (Arrive by train flow)
+  static const List<Map<String, dynamic>> _popularStations = [
+    {'name': 'Howrah Junction (HWH)', 'code': 'HWH', 'kind': 'rail', 'lat': 22.5839, 'lng': 88.3426},
+    {'name': 'Sealdah (SDAH)', 'code': 'SDAH', 'kind': 'rail', 'lat': 22.5674, 'lng': 88.3718},
+    {'name': 'Kolkata Chitpur (KOAA)', 'code': 'KOAA', 'kind': 'rail', 'lat': 22.6027, 'lng': 88.3768},
+    {'name': 'Santragachi (SRC)', 'code': 'SRC', 'kind': 'rail', 'lat': 22.5807, 'lng': 88.2818},
+    {'name': 'Shalimar (SHM)', 'code': 'SHM', 'kind': 'rail', 'lat': 22.5567, 'lng': 88.3242},
+    {'name': 'Dum Dum Junction (DDJ)', 'code': 'DDJ', 'kind': 'rail', 'lat': 22.6219, 'lng': 88.3934},
+    {'name': 'Bidhan Nagar Road (BNXR)', 'code': 'BNXR', 'kind': 'rail', 'lat': 22.5936, 'lng': 88.3912},
+    {'name': 'Ballygunge Junction (BLN)', 'code': 'BLN', 'kind': 'rail', 'lat': 22.5222, 'lng': 88.3689},
+    {'name': 'Shyambazar Metro', 'code': 'KSYM', 'kind': 'metro', 'lat': 22.6017, 'lng': 88.3711},
+    {'name': 'Esplanade Metro', 'code': 'KESP', 'kind': 'metro', 'lat': 22.5628, 'lng': 88.3517},
+    {'name': 'Kalighat Metro', 'code': 'KKGH', 'kind': 'metro', 'lat': 22.5153, 'lng': 88.3458},
+  ];
+
   @override
   void initState() {
     super.initState();
+    StationRepository.instance.load();
     final livePos = LocationService.instance.currentPositionSync;
     if (widget.initialLocation != null) {
       _selectedLocation = widget.initialLocation!;
@@ -139,7 +157,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
   }
 
   List<Pandal> get _filteredPandals {
-    return _allPandals.where((p) {
+    final list = _allPandals.where((p) {
       if (_selectedZoneFilter != null && p.zone != _selectedZoneFilter) {
         return false;
       }
@@ -152,6 +170,15 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
       }
       return true;
     }).toList();
+
+    // Sort pandals by proximity to chosen starting location/station
+    list.sort((a, b) {
+      final da = haversineMeters(_selectedLocation.latitude, _selectedLocation.longitude, a.lat, a.lng);
+      final db = haversineMeters(_selectedLocation.latitude, _selectedLocation.longitude, b.lat, b.lng);
+      return da.compareTo(db);
+    });
+
+    return list;
   }
 
   List<Pandal> get _selectedPandalsList {
@@ -540,6 +567,117 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                               ? PujaColors.durgaRed
                               : (isDark ? Colors.white : Colors.black87),
                         ),
+                      ),
+                    ),
+                    if (isSelected)
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: PujaColors.durgaRed,
+                        size: 20,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            const Icon(Icons.train_rounded, size: 16, color: PujaColors.festivalGold),
+            const SizedBox(width: 8),
+            Text(
+              'Arrive by Train or Metro:',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Start your hopping trail directly from a terminal or suburban station',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11.5,
+            color: isDark ? Colors.white54 : Colors.black45,
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        ...List.generate(_popularStations.length, (idx) {
+          final stn = _popularStations[idx];
+          final isSelected = !_useLiveGps && _selectedLocationLabel == stn['name'];
+          final isMetro = stn['kind'] == 'metro';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  _useLiveGps = false;
+                  _selectedLocation = LatLng(
+                    stn['lat'] as double,
+                    stn['lng'] as double,
+                  );
+                  _selectedLocationLabel = stn['name'] as String;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? PujaColors.durgaRed.withValues(alpha: isDark ? 0.18 : 0.08)
+                      : (isDark ? const Color(0xFF22232E) : Colors.grey.shade50),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: isSelected
+                        ? PujaColors.durgaRed
+                        : (isDark ? Colors.white10 : Colors.black12),
+                    width: isSelected ? 1.8 : 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: (isMetro ? const Color(0xFF00897B) : const Color(0xFF1E88E5)).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        isMetro ? Icons.subway_rounded : Icons.train_rounded,
+                        size: 18,
+                        color: isMetro ? const Color(0xFF00897B) : const Color(0xFF1E88E5),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            stn['name'] as String,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13.5,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              color: isSelected
+                                  ? PujaColors.durgaRed
+                                  : (isDark ? Colors.white : Colors.black87),
+                            ),
+                          ),
+                          if (stn['code'] != null)
+                            Text(
+                              isMetro ? 'Kolkata Metro Line' : 'Indian Railways Station Code: ${stn['code']}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                color: isDark ? Colors.white54 : Colors.black45,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     if (isSelected)

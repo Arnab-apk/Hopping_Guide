@@ -18,11 +18,11 @@
 <br/>
 
 **The quintessential, high-performance companion engineered for the world's largest open-air art festival.**  
-*387 Verified Pandals · 41 Kolkata Metro Stations · 66 Curated Food Spots · Real Road-Following Pedestrian Routing · Held-Karp Circuit Optimizer · 4-Card Squad Hub · One-Tap Native Calling · In-App Squad Chat & Media · 1-Touch Emergency Lifelines · Zero-Battery-Drain Architecture*
+*387 Verified Pandals · 41 Kolkata Metro Stations · 66 Curated Food Spots · Real Road-Following Pedestrian Routing · Held-Karp Circuit Optimizer · 4-Card Squad Hub · One-Tap Native Calling · In-App Squad Chat & Media · 1-Touch Emergency Lifelines · **Google Maps-Level Live Tracking** · **Real-Time ETA & Pace Metrics** · **Route Deviation Auto-Recalculation** · **Crowd Density Heatmap** · **Smart Notifications** · Zero-Battery-Drain Architecture*
 
 ---
 
-**[✨ Key Highlights](#-key-project-highlights) • [🗺️ Dual Map Engine](#️-1-interactive-dual-map-engine) • [🚶 Pedestrian Routing & TSP](#-2-real-road-following-pedestrian-routing--tsp-optimizer) • [👥 Squad Hub & Calling](#-3-consolidated-4-card-squad-hub--native-calling) • [💬 Squad Chat](#-4-dedicated-squad-chat--media-sharing) • [🚇 Metro Network](#-5-integrated-kolkata-metro-transit-network) • [🍲 Heritage Food](#-6-curated-culinary--street-food-guide) • [🚨 Emergency Safety](#-7-emergency-lifelines--festival-safety) • [🏛️ System Architecture](#️-system-architecture) • [🚀 Getting Started](#-getting-started--developer-guide)**
+**[✨ Key Highlights](#-key-project-highlights) • [🗺️ Dual Map Engine](#️-1-interactive-dual-map-engine) • [🚶 Pedestrian Routing & TSP](#-2-real-road-following-pedestrian-routing--tsp-optimizer) • [👥 Squad Hub & Calling](#-3-consolidated-4-card-squad-hub--native-calling) • [💬 Squad Chat](#-4-dedicated-squad-chat--media-sharing) • [🚇 Metro Network](#-5-integrated-kolkata-metro-transit-network) • [🍲 Heritage Food](#-6-curated-culinary--street-food-guide) • [🗺️ Live Tracking & Smart Nav](#-8-google-maps-level-live-tracking--smart-navigation) • [🚨 Emergency Safety](#-9-emergency-lifelines--festival-safety) • [🏛️ System Architecture](#️-system-architecture) • [📚 Docs Hub](docs/README.md) • [🚀 Getting Started](#-getting-started--developer-guide)**
 
 ---
 
@@ -54,6 +54,10 @@
 | 🔗 **Universal Deep Links** | **App Links & Schemes** | Custom schemes (`pujoparikrama://join`, `pujo://join`) & HTTPS App Links (`sharodiya.com/join`, `/pandal/`) with instant invite handling. |
 | 🎨 **Divine Visual Identity** | **Festive Material 3** | Animated *Chokkhu Daan* eye-opening welcome splash, OLED night surface (`#0E0B0C`), Crimson Velvet (`#800020`), and Festival Gold (`#FFD700`). |
 | 🚨 **Emergency Lifelines** | **1-Touch Calling** | One-tap native dialer integration for Kolkata Police (100), Ambulance (102), Fire (101), Women Helpline (1091), Traffic, and Disaster Control. |
+| 🗺️ **Live Tracking Engine** | **Google Maps-Level** | Real-time speed, pace (min/km), ETA, distance traveled, route deviation detection, auto-recalculation, arrival detection — all at 2Hz from live GPS. |
+| 🎯 **Crowd Density Heatmap** | **Peer-to-Peer 5-Level** | Squad member proximity visualization (None/Low/Medium/High/Very High) with radial gradient overlay; auto-updates every 30s in active squad. |
+| 🔔 **Smart Notifications** | **Native Alerts** | Arrival celebration, route deviation warnings, squad separation alerts (250m/500m/1km), low battery (≤20%) — time-sensitive iOS interruptions. |
+| 🗺️ **Enhanced Map Controls** | **Maps-Style UI** | MapTypeSelector (4 types + 3 toggles), 3-mode MyLocationButton, LiveRouteProgressHUD bottom sheet, PaceIndicator toolbar widget. |
 | 🧪 **Test & Code Health** | **143 / 143 Passing** | Static analysis: **0 warnings / 0 errors**, 143 automated unit, widget, and integration test assertions across 32 comprehensive suites. |
 
 <br/>
@@ -74,6 +78,13 @@
  • GemKit 3D Vector      • In-Layout Banners     • Two-Segment Styling   • 250m/500m/1km Alerts  • Kolkata Police (100)
  • 387 Verified Pandals  • Phonetic Matching     • Held-Karp Optimizer   • 1-Tap Native Calling  • Ambulance & Fire
  • 41 Metro Stations     • Auto-Unmounting Chips • Unified Time/Distance • Squad Chat & Media    • Offline Protocols
+                                                         │
+         ┌───────────────────────┬───────────────────────┼───────────────────────┬───────────────────────┐
+         │                       │                       │                       │                       │
+ 🗺️ Live Tracking        🎯 Crowd Density       🔔 Smart Alerts        🗺️ Enhanced Controls
+ • Real-Time Pace/ETA    • 5-Level Heatmap      • Arrival/Deviation     • MapTypeSelector (4)
+ • Deviation Auto-Recalc • Peer-to-Peer Sync    • Separation/Battery    • MyLocation (3-mode)
+ • Arrival Celebration   • Auto 30s Updates     • Time-Sensitive iOS    • Progress HUD + Pace
 ```
 
 <br/>
@@ -179,7 +190,21 @@
 
 <br/>
 
-### 🚨 8. Emergency Lifelines & Festival Safety
+### 🗺️ 8. Google Maps-Level Live Tracking & Smart Navigation
+* **LiveTrackingEngine (`LiveTrackingEngine`):** Industrial-grade real-time walking metrics engine computing current speed, average pace (min/km), distance traveled, ETA to destination, bearing to next waypoint, and route deviation — all updated at 2Hz from live GPS stream.
+* **Dynamic ETA & Pace Display:** Live updating ETA recalculated from actual walking speed (not static 4.5 km/h assumption); pace displayed in min/km format matching Google Maps.
+* **Route Deviation Auto-Recalculation:** Detects off-route deviations >25m; after 3 consecutive deviations, silently recalculates route from current position via OSRM with cached fallback.
+* **Arrival Detection & Celebration:** 30m arrival threshold triggers haptic feedback, celebration animation, and HUD auto-dismiss — matches Google Maps arrival experience.
+* **Crowd Density Heatmap (`CrowdDensityLayer`):** Real-time peer-to-peer crowd density from squad members; 5-level scale (None → Very High) with radial gradient visualization centered on each reporting member.
+* **SmartNotificationService:** Native Android/iOS notifications for arrival, route deviation, squad separation (>500m/1km thresholds), and low battery (≤20%) — time-sensitive iOS interruptions for critical alerts.
+* **Enhanced Map Controls:**
+  - **MapTypeSelector:** Expandable dropdown for Default/Satellite/Terrain/Hybrid + Traffic/Crowd/3D toggles
+  - **MyLocationButton:** 3-mode cycle (Center Once → Follow → Follow+Compass) with pulsing ring animation and long-press mode sheet
+  - **LiveRouteProgressHUD:** Google Maps-style bottom sheet with pace/speed/progress bar, Share ETA, Preview Route, Stop actions
+  - **PaceIndicator:** Real-time pace in floating toolbar with animated running/walking icon transition
+* **Squad Crowd Intelligence:** Automatic crowd density reporting every 30s when in active squad; density levels propagate to all squad members' maps for collective situational awareness.
+
+### 🚨 9. Emergency Lifelines & Festival Safety
 * **1-Touch Native Emergency Calling:** Instant phone dialer launch via `url_launcher` for Kolkata's essential public safety services:
   * 🚓 **Kolkata Police Control Room:** `100` / `033-2214-3230`
   * 🚑 **Ambulance Services:** `102`
@@ -320,7 +345,12 @@ puja_proj/
 │   │   └── widgets/                        # Autocomplete HUD, custom dialogs, detail modal sheets
 │   └── test/                               # 32 Automated test suites (143/143 assertions passing)
 ├── data/                                   # Source datasets & CSV audit spreadsheets
-├── docs/                                   # Technical specs, GemKit integration guides, and reports
+├── docs/                                   # Central Engineering Documentation Hub
+│   ├── README.md                           # Master Documentation Directory & Navigation Map
+│   ├── architecture/                       # System architecture, tech stack & $0 build plan
+│   ├── features/                           # Google Maps live tracking, nav specs & test audits
+│   ├── maps-gemkit/                        # Magic Lane GemKit C++ 3D vector map engine
+│   └── maintenance/                        # Codebase audits, critical fixes & debt tracker
 ├── scripts/
 │   ├── scrape_pujoplanner.js               # Autonomous scraper for live pandal metadata
 │   └── seed_pandals.js                     # Cloud Firestore data population script
@@ -328,6 +358,23 @@ puja_proj/
 ├── PRIVACY.md                              # Foreground-only location & privacy charter
 └── README.md                               # Project showcase and master documentation
 ```
+
+<br/>
+
+---
+
+## 📚 Technical Documentation Hub
+
+All software, architecture, and systems engineering documentation is cataloged under the [`docs/`](docs/README.md) hub:
+
+| Category | Focus & Scope | Core Documents |
+|:---|:---|:---|
+| **🏛️ [Architecture](docs/architecture/)** | System Design & Build Plan | [`SYSTEM_ARCHITECTURE.md`](docs/architecture/SYSTEM_ARCHITECTURE.md) |
+| **🚀 [Features & Tracking](docs/features/)** | Navigation & Verification | [`ENHANCED_FEATURES_IMPLEMENTATION.md`](docs/features/ENHANCED_FEATURES_IMPLEMENTATION.md) · [`IMPLEMENTATION_COMPLETE.md`](docs/features/IMPLEMENTATION_COMPLETE.md) |
+| **🗺️ [Map Engines](docs/maps-gemkit/)** | Magic Lane & GemKit 3D | [`MAGIC_LANE_INTEGRATION.md`](docs/maps-gemkit/MAGIC_LANE_INTEGRATION.md) · [`QUICK_START_GEMKIT.md`](docs/maps-gemkit/QUICK_START_GEMKIT.md) · [`GEMKIT_STATUS.md`](docs/maps-gemkit/GEMKIT_INTEGRATION_STATUS.md) |
+| **🛠️ [Maintenance & Audits](docs/maintenance/)** | Code Audits & Fixes | [`CODEBASE_ANALYSIS_REPORT.md`](docs/maintenance/CODEBASE_ANALYSIS_REPORT.md) · [`FIXES_APPLIED.md`](docs/maintenance/FIXES_APPLIED.md) · [`KNOWN_GAPS.md`](docs/maintenance/KNOWN_GAPS.md) |
+
+👉 *Visit the [**Master Documentation Portal (`docs/README.md`)**](docs/README.md) for full interactive taxonomy and role-based reading guides.*
 
 <br/>
 
@@ -427,7 +474,17 @@ adb shell am start -W -a android.intent.action.VIEW -d "https://sharodiya.com/pa
   - Native one-tap phone dialing (`tel:`) for companions
   - Universal deep links (`pujoparikrama://join`, `https://sharodiya.com/join`)
   - Dedicated Squad Chat with real-time stream, Cloudinary media sharing, and offline fallback
-- [ ] **Phase 7: Google Play Store Release**
+- [x] **Phase 7: Google Maps-Level Live Tracking & Smart Navigation**
+  - **LiveTrackingEngine**: Real-time walking metrics (current speed, pace min/km, ETA, distance traveled)
+  - **Route Deviation Detection**: Auto-recalculation after 3 consecutive off-route deviations (25m threshold)
+  - **Arrival Detection**: 30m threshold with celebration notification and HUD auto-dismiss
+  - **Crowd Density Heatmap**: Peer-to-peer squad member proximity visualization (5-level density scale)
+  - **SmartNotificationService**: Arrival, separation, battery, and deviation alerts via native notifications
+  - **Enhanced Map Controls**: MapTypeSelector (Default/Satellite/Terrain/Hybrid + Traffic/Crowd/3D toggles)
+  - **MyLocationButton**: 3-mode cycle (Center Once → Follow → Follow+Compass) with pulse animation
+  - **LiveRouteProgressHUD**: Google Maps-style bottom sheet with pace/speed/progress, Share ETA, Preview Route
+  - **PaceIndicator**: Real-time pace display in floating toolbar with animated moving indicator
+- [ ] **Phase 8: Google Play Store Release**
   - Production Firebase project binding and final store assets
   - Public launch for Durga Puja 2026
 

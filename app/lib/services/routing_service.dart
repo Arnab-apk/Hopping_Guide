@@ -243,20 +243,7 @@ class RoutingService {
             // Save to LRU cache and reset circuit breaker
             _consecutiveFailures = 0;
             _circuitBreakerUntil = null;
-            if (_routeCache.length >= _maxCacheSize) {
-              // LRU eviction: remove oldest entry
-              String? oldestKey;
-              DateTime? oldestTime;
-              for (final entry in _routeCache.entries) {
-                if (oldestTime == null || entry.value.timestamp.isBefore(oldestTime)) {
-                  oldestTime = entry.value.timestamp;
-                  oldestKey = entry.key;
-                }
-              }
-              if (oldestKey != null) {
-                _routeCache.remove(oldestKey);
-              }
-            }
+            _evictOldestCacheEntryIfNeeded();
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
             debugPrint('[RoutingService] ✅ Street route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km → $destinationName');
@@ -310,6 +297,22 @@ class RoutingService {
     );
   }
 
+  void _evictOldestCacheEntryIfNeeded() {
+    if (_routeCache.length >= _maxCacheSize) {
+      String? oldestKey;
+      DateTime? oldestTime;
+      for (final entry in _routeCache.entries) {
+        if (oldestTime == null || entry.value.timestamp.isBefore(oldestTime)) {
+          oldestTime = entry.value.timestamp;
+          oldestKey = entry.key;
+        }
+      }
+      if (oldestKey != null) {
+        _routeCache.remove(oldestKey);
+      }
+    }
+  }
+
   /// Fetches a walking route through an ordered sequence of waypoints (e.g. for custom pandal hopping trails).
   /// Utilizes multi-stop OSRM pedestrian routing with Douglas-Peucker simplification,
   /// spatial caching, and offline geodesic fallback.
@@ -340,6 +343,7 @@ class RoutingService {
 
     // 2. Circuit Breaker check
     final now = DateTime.now();
+    _maybeResetCircuitBreaker();
     if (_circuitBreakerUntil != null && now.isBefore(_circuitBreakerUntil!)) {
       return _buildMultiStopGeodesicFallback(waypoints, routeTitle);
     }
@@ -350,7 +354,7 @@ class RoutingService {
         .join(';');
 
     final url = Uri.parse(
-      'https://router.project-osrm.org/route/v1/foot/$coordsParam?overview=full&geometries=geojson',
+      'https://router.project-osrm.org/trip/v1/foot/$coordsParam?roundtrip=false&source=first&destination=last&geometries=geojson',
     );
 
     try {
@@ -364,7 +368,7 @@ class RoutingService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final routes = data['routes'] as List?;
+        final routes = (data['trips'] ?? data['routes']) as List?;
         if (routes != null && routes.isNotEmpty) {
           final route0 = routes[0] as Map<String, dynamic>;
           final geometry = route0['geometry'] as Map<String, dynamic>?;
@@ -397,7 +401,7 @@ class RoutingService {
 
             _consecutiveFailures = 0;
             _circuitBreakerUntil = null;
-            if (_routeCache.length >= 100) _routeCache.clear();
+            _evictOldestCacheEntryIfNeeded();
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
             debugPrint('[RoutingService] ✅ Multi-stop route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km for ${waypoints.length} stops');

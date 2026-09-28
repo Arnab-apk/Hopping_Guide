@@ -18,6 +18,7 @@ import '../config/theme.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
 import '../models/squad_member.dart';
+import '../models/trail_leg.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/metro_repository.dart';
 import '../repositories/pandal_repository.dart';
@@ -108,6 +109,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
   MarkerCollection? _foodCol;
   MarkerCollection? _squadCol;
   MarkerCollection? _userLocationCol;
+  MarkerCollection? _trailMetroCol; // Metro stations used in active trail legs
 
   // Data
   List<Pandal> _pandals = [];
@@ -129,6 +131,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
   MetroStation? _selectedMetroStation;
   FoodSpot? _selectedFoodSpot;
   SquadMember? _selectedSquadMember;
+  MetroStation? _selectedTrailMetroStation; // Metro station from trail leg tap
 
   // Navigation & Routing state
   bool _isNavigating = false;
@@ -550,6 +553,19 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
         imageSize: 9.0,
       ),
     );
+
+    // 6. Trail Metro Stations collection (for metro legs in active trail)
+    _trailMetroCol = MarkerCollection(
+      name: 'TrailMetro',
+      markerType: MarkerType.point,
+    );
+    controller.preferences.markers.add(
+      _trailMetroCol!,
+      settings: MarkerCollectionRenderSettings(
+        image: _metroIcon,
+        imageSize: 8.0,
+      ),
+    );
   }
 
   List<Pandal> get _visiblePandals {
@@ -626,6 +642,36 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
     col.add(marker);
   }
 
+  void _updateTrailMetroMarkers(ActiveCustomTrail trail) {
+    final col = _trailMetroCol;
+    if (col == null) return;
+    col.clear();
+    if (!trail.hasMetroLegs) return;
+
+    final addedStationIds = <String>{};
+    for (final leg in trail.legs) {
+      if (leg.mode == LegMode.metro && leg.metroDetail != null) {
+        final detail = leg.metroDetail!;
+        final stationsToMark = <MetroStation>[
+          detail.boardingStation,
+          if (detail.requiresInterchange && detail.interchangeStation != null)
+            detail.interchangeStation!,
+          detail.alightingStation,
+        ];
+
+        for (final stn in stationsToMark) {
+          if (addedStationIds.contains(stn.id)) continue;
+          addedStationIds.add(stn.id);
+
+          final marker = Marker()
+            ..name = 'trail_metro_${stn.id}'
+            ..setCoordinates([Coordinates.fromLatLong(stn.latitude, stn.longitude)]);
+          col.add(marker);
+        }
+      }
+    }
+  }
+
   void _refreshMapMarkers() {
     final controller = _mapController;
     if (controller == null) return;
@@ -687,6 +733,50 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
       }
     }
 
+    // 2b. Check for Trail Metro Stations (from active trail with metro legs)
+    final trailService = Provider.of<CustomHoppingTrailService>(context, listen: false);
+    if (trailService.hasActiveTrail && trailService.activeTrail!.hasMetroLegs) {
+      MetroStation? nearestTrailMetro;
+      double minTrailMetroDist = 70.0;
+      for (final leg in trailService.activeTrail!.legs) {
+        if (leg.mode == LegMode.metro && leg.metroDetail != null) {
+          final detail = leg.metroDetail!;
+          final stationsToCheck = <MetroStation>[
+            detail.boardingStation,
+            if (detail.requiresInterchange && detail.interchangeStation != null)
+              detail.interchangeStation!,
+            detail.alightingStation,
+          ];
+          for (final stn in stationsToCheck) {
+            final d = haversineMeters(tapLat, tapLng, stn.latitude, stn.longitude);
+            if (d < minTrailMetroDist) {
+              minTrailMetroDist = d;
+              nearestTrailMetro = stn;
+            }
+          }
+        }
+      }
+      if (nearestTrailMetro != null) {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _selectedTrailMetroStation = nearestTrailMetro;
+          _selectedPandal = null;
+          _selectedFoodSpot = null;
+          _selectedSquadMember = null;
+        });
+        _centerOn(nearestTrailMetro.latitude, nearestTrailMetro.longitude, zoom: 16);
+        final isInterchange = trailService.activeTrail!.legs
+            .where((l) => l.mode == LegMode.metro && l.metroDetail != null)
+            .any((l) => l.metroDetail?.interchangeStation?.id == nearestTrailMetro?.id);
+        _showStatusPill(
+          '${isInterchange ? "🔄 Interchange" : "🚇 Metro"}: ${nearestTrailMetro.name} (${nearestTrailMetro.line.label})',
+          icon: isInterchange ? Icons.transfer_within_a_station_rounded : Icons.subway_rounded,
+          color: nearestTrailMetro.line.color,
+        );
+        return;
+      }
+    }
+
     // 3. Check for Food Spots (within ~70 meters)
     if (_showFood) {
       FoodSpot? nearestFood;
@@ -704,6 +794,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
           _selectedFoodSpot = nearestFood;
           _selectedPandal = null;
           _selectedMetroStation = null;
+          _selectedTrailMetroStation = null;
           _selectedSquadMember = null;
         });
         _centerOn(nearestFood.lat, nearestFood.lng, zoom: 16);
@@ -715,11 +806,13 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
     // Tap on empty space: clear selections
     if (_selectedPandal != null ||
         _selectedMetroStation != null ||
+        _selectedTrailMetroStation != null ||
         _selectedFoodSpot != null ||
         _selectedSquadMember != null) {
       setState(() {
         _selectedPandal = null;
         _selectedMetroStation = null;
+        _selectedTrailMetroStation = null;
         _selectedFoodSpot = null;
         _selectedSquadMember = null;
       });
@@ -881,6 +974,8 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
     if (!_isNavigating) {
       _mapController?.preferences.routes.clear();
     }
+    // Clear trail metro markers
+    _trailMetroCol?.clear();
     if (mounted) setState(() {});
   }
 
@@ -912,6 +1007,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
     }
 
     if (trail.hasMetroLegs) {
+      _updateTrailMetroMarkers(trail);
       CustomHoppingTrailService.instance.calculateAndApplyRoadRoute(trail);
       return;
     }
@@ -1445,7 +1541,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
             ),
 
           // 5. Selected Metro / Food Spot Quick Card
-          if (_selectedMetroStation != null)
+          if (_selectedMetroStation != null || _selectedTrailMetroStation != null)
             Positioned(
               bottom: 80,
               left: 16,
@@ -2495,7 +2591,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
   }
 
   Widget _buildMetroCard(bool isDark) {
-    final m = _selectedMetroStation!;
+    final m = _selectedMetroStation ?? _selectedTrailMetroStation!;
     return Card(
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

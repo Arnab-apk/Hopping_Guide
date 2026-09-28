@@ -31,11 +31,20 @@
 - Live location is ephemeral and removed when you stop sharing / disconnect.
 - You can leave a group at any time to stop sharing with its members.
 
-## Third parties
+## Third parties and Open Data Attribution
 
 - Firebase (Google) for authentication, database, and messaging.
-- OpenStreetMap contributors for map tiles.
+- Google AI (Gemini API) for processing route assistant queries. Only anonymized landmark names and transit facts are passed; user account info, names, phone numbers, and precise GPS telemetry are **never** shared.
+- OpenStreetMap contributors for map tiles and railway/metro station geometry (© OpenStreetMap contributors, licensed under the Open Database License [ODbL](https://www.openstreetmap.org/copyright)).
+- Wikidata contributors for railway station codes and Bengali name translations (Creative Commons CC0 1.0 Universal Public Domain).
 - OpenRouteService for optional walking directions (P1).
+
+## AI Assistant Privacy & Data Safety
+
+The in-app UMA Route Assistant queries are processed with strict privacy grounding:
+- Personal identifiers, user profile IDs, and exact live GPS coordinates are scrubbed prior to any AI model inference.
+- Road closures and blockage facts provided to the assistant are restricted to official police notifications and verified enumerated status reports.
+- Users can access route advice via deterministic offline templates without invoking third-party AI services.
 
 ## Contact
 

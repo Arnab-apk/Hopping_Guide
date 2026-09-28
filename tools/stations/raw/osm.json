@@ -1,0 +1,3401 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-06-01T08:52:28Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 252584717,
+      "lat": 22.6779609,
+      "lon": 88.2907626,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Dankuni",
+        "name:hi": "डांकुनी",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DKAE",
+        "wikidata": "Q15212753",
+        "wikipedia": "en:Dankuni Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 252584722,
+      "lat": 22.5679661,
+      "lon": 88.3711047,
+      "tags": {
+        "addr:city": "Kolkata",
+        "air_conditioning": "yes",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "is_in": "Kolkata,West Bengal,India",
+        "is_in:city": "Kolkata",
+        "is_in:country": "India",
+        "is_in:country_code": "IN",
+        "is_in:state": "West Bengal",
+        "name": "Sealdah",
+        "name:bn": "শিয়ালদহ",
+        "name:en": "Sealdah",
+        "name:hi": "सियालदाह",
+        "network": "IR",
+        "operator": "ER",
+        "owner": "Indian Railways",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SDAH",
+        "train": "yes",
+        "wheelchair": "yes",
+        "wikidata": "Q3347406",
+        "wikipedia": "en:Sealdah railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 310988176,
+      "lat": 22.7411261,
+      "lon": 88.3745843,
+      "tags": {
+        "IR:zone": "ER",
+        "name": "Titagarh",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "TGH",
+        "wikidata": "Q56280776",
+        "wikipedia": "en:Titagarh railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 310988205,
+      "lat": 22.8285164,
+      "lon": 88.3801893,
+      "tags": {
+        "name": "Shyamnagar",
+        "name:hi": "श्यामनगर",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "SNR",
+        "source": "indiarailinfo.com",
+        "wikidata": "Q56280798",
+        "wikipedia": "en:Shyamnagar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 310992938,
+      "lat": 22.8046405,
+      "lon": 88.2636731,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Nasibpur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NSF",
+        "wheelchair": "limited",
+        "wikidata": "Q60062017",
+        "wikipedia": "en:Nasibpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 310993110,
+      "lat": 22.6670459,
+      "lon": 88.3411458,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "air_conditioning": "no",
+        "baby_feeding": "no",
+        "internet_access": "no",
+        "name": "Uttarpara",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "UPA",
+        "wheelchair": "limited",
+        "wikidata": "Q59915178",
+        "wikipedia": "en:Uttarpara railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 310996032,
+      "lat": 22.7226496,
+      "lon": 88.5083659,
+      "tags": {
+        "name": "Kazipara",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KZPR",
+        "wikidata": "Q56278576",
+        "wikimedia_commons": "File:Kazipara_railway_station.jpg",
+        "wikipedia": "en:Kazipara railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 310996044,
+      "lat": 22.6859708,
+      "lon": 88.5648945,
+      "tags": {
+        "name": "Bahira Kalibari",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "BHKA",
+        "wikidata": "Q56278578",
+        "wikipedia": "en:Bahira Kalibari railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 600756813,
+      "lat": 22.5846995,
+      "lon": 88.2830722,
+      "tags": {
+        "internet_access": "no",
+        "name": "Santragachi Junction",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SRC",
+        "train": "yes",
+        "wikidata": "Q7420706",
+        "wikipedia": "en:Santragachi Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 651800191,
+      "lat": 22.4827391,
+      "lon": 88.3866708,
+      "tags": {
+        "name": "Baghajatin",
+        "name:bn": "বাঘাযতীন",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BGJT",
+        "train": "yes",
+        "wikidata": "Q57237402",
+        "wikipedia": "en:Baghajatin railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 651805730,
+      "lat": 22.5193414,
+      "lon": 88.3719778,
+      "tags": {
+        "name": "Ballygunge Junction",
+        "name:bn": "বালিগঞ্জ জংশন",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BLN",
+        "train": "yes",
+        "wheelchair": "no",
+        "wikidata": "Q55639257",
+        "wikipedia": "en:Ballygunge Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 663839267,
+      "lat": 22.6538476,
+      "lon": 88.3637563,
+      "tags": {
+        "name": "Dakshineshwar",
+        "name:hi": "दक्षिणेश्वर",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DAKE",
+        "train": "yes",
+        "wikidata": "Q31292630",
+        "wikipedia": "en:Dakshineswar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664455551,
+      "lat": 22.5979973,
+      "lon": 88.3084038,
+      "tags": {
+        "internet_access": "no",
+        "name": "Dashnagar",
+        "name:hi": "ढासनगर",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DSNR",
+        "train": "yes",
+        "wikidata": "Q59171425",
+        "wikipedia": "en:Dasnagar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664455694,
+      "lat": 22.5886606,
+      "lon": 88.2966655,
+      "tags": {
+        "internet_access": "no",
+        "name": "Ramrajatala",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "RMJ",
+        "train": "yes",
+        "wikidata": "Q59858375",
+        "wikipedia": "en:Ramrajatala railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664459003,
+      "lat": 22.7545791,
+      "lon": 88.3383079,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-2",
+        "IR:zone": "ER",
+        "name": "Serampore",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SRP",
+        "train": "yes",
+        "wheelchair": "no",
+        "wikidata": "Q24636477",
+        "wikipedia": "en:Shrirampur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664467737,
+      "lat": 22.6550647,
+      "lon": 88.3403033,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Bally",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BLY",
+        "wikidata": "Q25549108",
+        "wikipedia": "en:Bally railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664468000,
+      "lat": 22.6209027,
+      "lon": 88.3394035,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Liluah",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "LLH",
+        "wikidata": "Q15242355",
+        "wikipedia": "en:Liluah railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664468001,
+      "lat": 22.6357323,
+      "lon": 88.3398223,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Belur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BEQ",
+        "wheelchair": "no",
+        "wikidata": "Q19882285",
+        "wikipedia": "en:Belur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664468968,
+      "lat": 22.6836507,
+      "lon": 88.3417989,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Hind Motor",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "HMZ",
+        "wheelchair": "no",
+        "wikidata": "Q31296524",
+        "wikipedia": "en:Hind Motor railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664469183,
+      "lat": 22.70126,
+      "lon": 88.3425107,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-2",
+        "IR:zone": "ER",
+        "name": "Konnagar",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KOG",
+        "wheelchair": "yes",
+        "wikidata": "Q59915126",
+        "wikipedia": "en:Konnagar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664469184,
+      "lat": 22.7247059,
+      "lon": 88.3434353,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-2",
+        "IR:zone": "ER",
+        "name": "Rishra",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "RIS",
+        "train": "yes",
+        "wikidata": "Q59915071",
+        "wikipedia": "en:Rishra railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 664469613,
+      "lat": 22.814569,
+      "lon": 88.2290714,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Singur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SIU",
+        "wheelchair": "limited",
+        "wikidata": "Q60062022"
+      }
+    },
+    {
+      "type": "node",
+      "id": 665115034,
+      "lat": 22.5025222,
+      "lon": 88.1632882,
+      "tags": {
+        "internet_access": "no",
+        "name": "Bauria",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BVA",
+        "wikidata": "Q25549235",
+        "wikipedia": "en:Bauria railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 665115542,
+      "lat": 22.529101,
+      "lon": 88.1860611,
+      "tags": {
+        "internet_access": "no",
+        "name": "Nalpur",
+        "name:en": "Nalpur",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NALR",
+        "train": "yes",
+        "wikidata": "Q59857893",
+        "wikipedia": "en:Nalpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 665115614,
+      "lat": 22.5478712,
+      "lon": 88.1995212,
+      "tags": {
+        "internet_access": "no",
+        "name": "Abada",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "ABB",
+        "train": "yes",
+        "wikidata": "Q4663195",
+        "wikipedia": "en:Abada railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 665115755,
+      "lat": 22.5623444,
+      "lon": 88.2104459,
+      "tags": {
+        "internet_access": "no",
+        "name": "Sankrail",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SEL",
+        "train": "yes",
+        "wikidata": "Q59858007",
+        "wikipedia": "en:Sankrail railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1074604649,
+      "lat": 22.5565925,
+      "lon": 88.3314074,
+      "tags": {
+        "name": "Prinsep Ghat",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "PPGT",
+        "wikidata": "Q56277831"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1074604698,
+      "lat": 22.6534856,
+      "lon": 88.3788583,
+      "tags": {
+        "name": "Baranagar Road",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BARN",
+        "train": "yes",
+        "wikidata": "Q25549176",
+        "wikipedia": "en:Baranagar Road railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1074606326,
+      "lat": 22.6364899,
+      "lon": 88.4120228,
+      "tags": {
+        "name": "Dum Dum Cantonment",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DDC",
+        "train": "yes",
+        "wikidata": "Q31294236",
+        "wikimedia_commons": "Category:Dum Dum Cantonment railway station",
+        "wikipedia": "en:Dum Dum Cantonment railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1175349049,
+      "lat": 22.8216769,
+      "lon": 88.2047303,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Kamarkundu",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KQU",
+        "wheelchair": "yes",
+        "wikidata": "Q6356056",
+        "wikipedia": "en:Kamarkundu railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1177499034,
+      "lat": 22.5975289,
+      "lon": 88.3549336,
+      "tags": {
+        "name": "Sovabazar Ahiritola",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SOLA",
+        "wikidata": "Q56277826",
+        "wikipedia": "en:Sovabazar Ahiritola railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1187083591,
+      "lat": 22.5639153,
+      "lon": 88.3383211,
+      "tags": {
+        "name": "Eden Gardens",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "EDG",
+        "wikidata": "Q5336850",
+        "wikipedia": "en:Eden Gardens railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1187133856,
+      "lat": 22.5768421,
+      "lon": 88.3466282,
+      "tags": {
+        "name": "BBD Bagh",
+        "name:en": "BBD Bagh",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BBDB",
+        "wikidata": "Q25549498"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1274128857,
+      "lat": 22.5407799,
+      "lon": 88.3738814,
+      "tags": {
+        "name": "Park Circus",
+        "name:bn": "পার্ক সার্কাস",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "PQS",
+        "train": "yes",
+        "wheelchair": "no",
+        "wikidata": "Q56278569",
+        "wikipedia": "en:Park Circus railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1341614569,
+      "lat": 22.5091067,
+      "lon": 88.3711314,
+      "tags": {
+        "addr:postcode": "700031",
+        "addr:street": "Sarat Ghosh Garden Road",
+        "check_date:wheelchair": "2025-11-12",
+        "internet_access": "no",
+        "name": "Dhakuria",
+        "name:bn": "ঢাকুরিয়া",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DHK",
+        "train": "yes",
+        "wheelchair": "no",
+        "wikidata": "Q57237359",
+        "wikipedia": "en:Dhakuria railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1420381909,
+      "lat": 22.6221236,
+      "lon": 88.2661126,
+      "tags": {
+        "internet_access": "no",
+        "name": "Dansi",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "DNI",
+        "train": "yes",
+        "wikidata": "Q60061835"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1420381922,
+      "lat": 22.6275266,
+      "lon": 88.2521723,
+      "tags": {
+        "internet_access": "no",
+        "name": "Jhaluarbar",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "JLBR",
+        "train": "yes",
+        "wikidata": "Q60061842"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1420381931,
+      "lat": 22.6360129,
+      "lon": 88.221501,
+      "tags": {
+        "internet_access": "no",
+        "name": "Domjur Road",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "DMJR",
+        "train": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1420381935,
+      "lat": 22.6431635,
+      "lon": 88.2095491,
+      "tags": {
+        "internet_access": "no",
+        "name": "Domjur",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DJR",
+        "train": "yes",
+        "wikidata": "Q60061860",
+        "wikipedia": "en:Domjur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1483066764,
+      "lat": 22.7998264,
+      "lon": 88.3739103,
+      "tags": {
+        "int_name": "Ichapur Rail Station",
+        "name": "Ichhapur",
+        "network": "IR",
+        "operator": "ER",
+        "platforms": "4",
+        "railway": "station",
+        "ref": "IP",
+        "wheelchair": "limited",
+        "wikidata": "Q56280784",
+        "wikipedia": "en:Ichhapur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1499489039,
+      "lat": 22.5802652,
+      "lon": 88.2560296,
+      "tags": {
+        "internet_access": "no",
+        "name": "Mourigram",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MRGM",
+        "train": "yes",
+        "wikidata": "Q59858179",
+        "wikipedia": "en:Mourigram railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1616546521,
+      "lat": 22.7826288,
+      "lon": 88.3702748,
+      "tags": {
+        "name": "Palta",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "PTF",
+        "wikidata": "Q56280781",
+        "wikipedia": "en:Palta railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1620918714,
+      "lat": 22.7985261,
+      "lon": 88.2811686,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Diara",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DEH",
+        "wheelchair": "no",
+        "wikidata": "Q60061959"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1672312834,
+      "lat": 22.847312,
+      "lon": 88.3471304,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Mankundu",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MUU",
+        "wikidata": "Q59914568",
+        "wikipedia": "en:Mankundu railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1691412915,
+      "lat": 22.6996398,
+      "lon": 88.3822968,
+      "tags": {
+        "name": "Sodpur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SEP",
+        "wikidata": "Q56280762",
+        "wikipedia": "en:Sodpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1691423701,
+      "lat": 22.7248499,
+      "lon": 88.3777096,
+      "tags": {
+        "name": "Khardaha",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KDH",
+        "wheelchair": "limited",
+        "wikidata": "Q56280768",
+        "wikipedia": "en:Khardaha railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1765884856,
+      "lat": 22.7241945,
+      "lon": 88.4837829,
+      "tags": {
+        "name": "Barasat Junction",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BT",
+        "wikidata": "Q4858453",
+        "wikimedia_commons": "Category:Barasat Junction railway station",
+        "wikipedia": "en:Barasat Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1765884993,
+      "lat": 22.6613608,
+      "lon": 88.3892144,
+      "tags": {
+        "name": "Belgharia",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BLH",
+        "wheelchair": "limited"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1765885549,
+      "lat": 22.7748045,
+      "lon": 88.3283582,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-2",
+        "IR:zone": "ER",
+        "name": "Seoraphuli Jn",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SHE",
+        "wheelchair": "no",
+        "wikidata": "Q15277154",
+        "wikipedia": "en:Seoraphuli Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1765897125,
+      "lat": 22.7949104,
+      "lon": 88.3317725,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "addr:district": "Hooghly",
+        "name": "Baidyabati",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BBAE",
+        "wikidata": "Q59914699",
+        "wikipedia": "en:Baidyabati railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1765897140,
+      "lat": 22.8282019,
+      "lon": 88.3414937,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Bhadreshwar",
+        "name:hi": "भद्रेश्वर",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BHR",
+        "wikidata": "Q59914672",
+        "wikipedia": "en:Bhadreshwar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1865813382,
+      "lat": 22.3873131,
+      "lon": 88.5188879,
+      "tags": {
+        "name": "Piali",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "PLF",
+        "wikidata": "Q60165337",
+        "wikipedia": "en:Piali railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1935597017,
+      "lat": 22.6828782,
+      "lon": 88.3853645,
+      "tags": {
+        "name": "Agarpara",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "AGP",
+        "wikidata": "Q15178296",
+        "wikipedia": "en:Agarpara"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2323761292,
+      "lat": 22.5912601,
+      "lon": 88.3909641,
+      "tags": {
+        "name": "Bidhannagar Road",
+        "name:bn": "বিধাননগর রোড",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BNXR",
+        "website": "https://er.indianrailways.gov.in/",
+        "wheelchair": "no",
+        "wikidata": "Q4904158",
+        "wikipedia": "en:Bidhannagar Road railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2337700691,
+      "lat": 22.3663286,
+      "lon": 88.4312776,
+      "tags": {
+        "name": "Baruipur Junction",
+        "name:bn": "বারুইপুর জংশন",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BRP",
+        "train": "yes",
+        "wikidata": "Q55639272",
+        "wikipedia": "en:Baruipur Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2339753229,
+      "lat": 22.4656393,
+      "lon": 88.4055149,
+      "tags": {
+        "name": "Garia",
+        "name:bn": "গড়িয়া",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "GIA",
+        "train": "yes",
+        "wikidata": "Q5523277",
+        "wikipedia": "en:Garia railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2339803458,
+      "lat": 22.4131817,
+      "lon": 88.4341636,
+      "tags": {
+        "name": "Subhas Gram",
+        "name:bn": "সুভাষ গ্রাম",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SBGR",
+        "train": "yes",
+        "wheelchair": "no",
+        "wikidata": "Q57233766",
+        "wikipedia": "en:Subhashgram railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2339804364,
+      "lat": 22.3965862,
+      "lon": 88.4331223,
+      "tags": {
+        "name": "Mallikpur",
+        "name:bn": "মল্লিকপুর",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MAK",
+        "train": "yes",
+        "wikidata": "Q57233743",
+        "wikipedia": "en:Mallikpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2364759364,
+      "lat": 22.3295398,
+      "lon": 88.4505893,
+      "tags": {
+        "name": "Krishna Mohan",
+        "name:bn": "কৃষ্ণ মোহন",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KRXM",
+        "train": "yes",
+        "wikidata": "Q60164928",
+        "wikipedia": "en:Krishna Mohan railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2364768081,
+      "lat": 22.3471565,
+      "lon": 88.4349016,
+      "tags": {
+        "name": "Shasan Road",
+        "name:bn": "শাসন রোড",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SSRD",
+        "train": "yes",
+        "wikidata": "Q60164923"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2364769605,
+      "lat": 22.3159388,
+      "lon": 88.4603013,
+      "tags": {
+        "name": "Dhapdhapi",
+        "name:bn": "ধপধপি",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DPDP",
+        "train": "yes",
+        "wikidata": "Q60164929"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2365704683,
+      "lat": 22.4246986,
+      "lon": 88.4540125,
+      "tags": {
+        "name": "Bidyadharpur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BDYP",
+        "wikidata": "Q60165222"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2365711966,
+      "lat": 22.412052,
+      "lon": 88.4760309,
+      "tags": {
+        "name": "Kalikapur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KLKR",
+        "wikidata": "Q60165294"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2365714186,
+      "lat": 22.4018828,
+      "lon": 88.4936425,
+      "tags": {
+        "name": "Champahati",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "CHT",
+        "wikidata": "Q60165319"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2365741229,
+      "lat": 22.3679011,
+      "lon": 88.5527713,
+      "tags": {
+        "name": "Ghutiari Sharif",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "GOF",
+        "wikidata": "Q60165380"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2378503814,
+      "lat": 22.6504966,
+      "lon": 88.4192153,
+      "tags": {
+        "name": "Durganagar",
+        "name:hi": "दुर्गानगर",
+        "network": "Indian Railways",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "DGNR",
+        "wikidata": "Q55610150",
+        "wikipedia": "en:Durganagar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2378510543,
+      "lat": 22.6643198,
+      "lon": 88.4274959,
+      "tags": {
+        "name": "Birati",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BBT",
+        "wikidata": "Q25549495",
+        "wikimedia_commons": "Category:Birati railway station",
+        "wikipedia": "en:Birati railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2378514765,
+      "lat": 22.676678,
+      "lon": 88.4349544,
+      "tags": {
+        "name": "Bisharpara Kodalia",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BRPK",
+        "wikidata": "Q25549506",
+        "wikipedia": "en:Bisharpara Kodaliya railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2378518670,
+      "lat": 22.6867642,
+      "lon": 88.444617,
+      "tags": {
+        "name": "New Barrackpore",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NBE",
+        "wikidata": "Q55888217",
+        "wikipedia": "en:New Barrackpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2378546217,
+      "lat": 22.6947839,
+      "lon": 88.4530183,
+      "tags": {
+        "name": "Madhyamgram",
+        "name:hi": "मध्यमग्राम",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MMG",
+        "wikidata": "Q6727641",
+        "wikipedia": "en:Madhyamgram railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2378547439,
+      "lat": 22.7109969,
+      "lon": 88.4699989,
+      "tags": {
+        "addr:city": "Barasat",
+        "addr:postcode": "700127",
+        "addr:street": "Hridaypur Station Road",
+        "ele": "11.17",
+        "name": "Hridaypur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "HHR",
+        "wikidata": "Q5923664",
+        "wikipedia": "en:Hridaypur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2430734474,
+      "lat": 22.4928895,
+      "lon": 88.1948585,
+      "tags": {
+        "addr:city": "Budge Budge",
+        "name": "Komagata Maru Budge Budge",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BGB",
+        "wikidata": "Q25549499",
+        "wikipedia": "en:Budge Budge railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2430737240,
+      "lat": 22.5002134,
+      "lon": 88.2233537,
+      "tags": {
+        "name": "Nangi",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NAI",
+        "wikidata": "Q57232636",
+        "wikipedia": "en:Nangi railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2430738645,
+      "lat": 22.5147366,
+      "lon": 88.2492787,
+      "tags": {
+        "name": "Akra",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "AKRA",
+        "wikidata": "Q57232129",
+        "wikipedia": "en:Akra railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2430763548,
+      "lat": 22.5240566,
+      "lon": 88.2710655,
+      "tags": {
+        "name": "Santoshpur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SSP",
+        "wikidata": "Q57206023",
+        "wikipedia": "en:Santoshpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2430771841,
+      "lat": 22.5179206,
+      "lon": 88.3011366,
+      "tags": {
+        "name": "Brace Bridge",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BRJ",
+        "wikidata": "Q57205979",
+        "wikipedia": "en:Brace Bridge railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 2506658189,
+      "lat": 22.5682566,
+      "lon": 88.3057431,
+      "tags": {
+        "internet_access": "no",
+        "name": "Padmapukur",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "PDPK",
+        "train": "yes",
+        "wikidata": "Q59863052"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3320346690,
+      "lat": 22.6818162,
+      "lon": 88.5823002,
+      "tags": {
+        "name": "Sondalia",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SXC",
+        "train": "yes",
+        "wikidata": "Q56278580",
+        "wikipedia": "en:Sondalia railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3321321335,
+      "lat": 22.5828709,
+      "lon": 88.3428112,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "NSG-1",
+        "IR:zone": "ER",
+        "name": "Howrah Junction",
+        "name:ja": "ハウラー",
+        "name:zh": "豪拉火车站",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "HWH",
+        "train": "yes",
+        "wheelchair": "yes",
+        "wikidata": "Q986105",
+        "wikipedia": "en:Howrah Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3322735363,
+      "lat": 22.5551538,
+      "lon": 88.3153898,
+      "tags": {
+        "internet_access": "wlan",
+        "name": "Shalimar",
+        "name:zh": "舍利默尔站",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SHM",
+        "train": "yes",
+        "wikidata": "Q7487222",
+        "wikipedia": "en:Shalimar railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3704174675,
+      "lat": 22.5757025,
+      "lon": 88.2394462,
+      "tags": {
+        "internet_access": "no",
+        "name": "Andul",
+        "name:en": "Andul",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "ADL",
+        "train": "yes",
+        "wikidata": "Q59858133",
+        "wikipedia": "en:Andul railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3706024736,
+      "lat": 22.6184662,
+      "lon": 88.2968751,
+      "tags": {
+        "internet_access": "no",
+        "name": "Kona",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "KONA",
+        "train": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3706067006,
+      "lat": 22.6286882,
+      "lon": 88.2366824,
+      "tags": {
+        "internet_access": "no",
+        "name": "Makardaha",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "MDC",
+        "train": "yes",
+        "wikidata": "Q60061852"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3706129904,
+      "lat": 22.6560704,
+      "lon": 88.1824997,
+      "tags": {
+        "internet_access": "no",
+        "name": "Dakshinbar",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "halt",
+        "railway": "halt",
+        "ref": "DKB",
+        "train": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3818719563,
+      "lat": 22.7384088,
+      "lon": 88.2551099,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Begampur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BPAE",
+        "wikidata": "Q59918094",
+        "wikipedia": "en:Begampur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3818727733,
+      "lat": 22.7668969,
+      "lon": 88.2370465,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "addr:city": "Baruipara",
+        "addr:postcode": "712306",
+        "addr:street": "31 Number Road",
+        "name": "Baruipara",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BRPA",
+        "wikidata": "Q24041441",
+        "wikipedia": "en:Baruipara railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3818730980,
+      "lat": 22.7908021,
+      "lon": 88.2224446,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Mirzapur Bankipur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MBE",
+        "wikidata": "Q24952552",
+        "wikipedia": "en:Mirzapur-Bankipur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3818732494,
+      "lat": 22.8080526,
+      "lon": 88.2116836,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Balarambati",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BLAE",
+        "wikidata": "Q24882950",
+        "wikipedia": "en:Balarambati railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3818741199,
+      "lat": 22.8454482,
+      "lon": 88.1927305,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Madhu Sudanpur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MDSE",
+        "wikidata": "Q59917509"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3846421890,
+      "lat": 22.5954208,
+      "lon": 88.2775579,
+      "tags": {
+        "name": "Banka Nayabaz",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BKNM",
+        "train": "yes",
+        "wikidata": "Q60061779",
+        "wikipedia": "en:Bankra Nayabaz railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3860624901,
+      "lat": 22.598577,
+      "lon": 88.324035,
+      "tags": {
+        "internet_access": "no",
+        "name": "Tikiapara",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "TPKR",
+        "train": "yes",
+        "wikidata": "Q16901643",
+        "wikipedia": "en:Tikiapara railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 3884538872,
+      "lat": 22.7046413,
+      "lon": 88.534992,
+      "tags": {
+        "name": "Karea Kadambagachhi",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KBGH",
+        "wikidata": "Q56278574",
+        "wikipedia": "en:Karea Kadambagachhi railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4284367432,
+      "lat": 22.5376181,
+      "lon": 88.3158211,
+      "tags": {
+        "name": "Khidirpur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KIRP",
+        "wikidata": "Q56277834"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4359528390,
+      "lat": 22.8304705,
+      "lon": 88.1668229,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Nalikul",
+        "name:en": "Nalikul",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NKL",
+        "wikidata": "Q60062351",
+        "wikipedia": "en:Nalikul railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5244225850,
+      "lat": 22.6063508,
+      "lon": 88.3784257,
+      "tags": {
+        "name": "Tala",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "TALA",
+        "wikidata": "Q56277052",
+        "wikipedia": "en:Tala railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5253354261,
+      "lat": 22.5741753,
+      "lon": 88.3850451,
+      "tags": {
+        "name": "Sir Gurudas Banerjee Halt",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SGBA",
+        "wikidata": "Q56278572",
+        "wikipedia": "en:Sir Gurudas Banerjee Halt railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421528426,
+      "lat": 22.5724857,
+      "lon": 88.3587427,
+      "tags": {
+        "name": "Central",
+        "name:bn": "সেন্ট্রাল",
+        "name:en": "Central",
+        "name:hi": "सेंट्रल",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q5061425",
+        "wikipedia": "en:Central metro station (Kolkata)"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421528503,
+      "lat": 22.5551591,
+      "lon": 88.3501171,
+      "tags": {
+        "name": "Park Street",
+        "name:bn": "পার্ক স্ট্রীট",
+        "name:hi": "पार्क स्ट्रीट",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KPSK",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q7138060",
+        "wikipedia": "en:Park Street metro station (Kolkata)"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421533465,
+      "lat": 22.4642505,
+      "lon": 88.3804604,
+      "tags": {
+        "name": "Kavi Nazrul",
+        "name:bn": "কবি নজরুল",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6379214",
+        "wikipedia": "en:Kavi Nazrul metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421533466,
+      "lat": 22.4659847,
+      "lon": 88.3915408,
+      "tags": {
+        "name": "Shahid Khudiram",
+        "name:bn": "শহিদ ক্ষুদিরাম",
+        "name:hi": "शहीद खुदीराम",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q7461685",
+        "wikipedia": "en:Shahid Khudiram metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421533467,
+      "lat": 22.4721697,
+      "lon": 88.397961,
+      "tags": {
+        "alt_name": "New Garia",
+        "name": "Kavi Subhash (Blue Line)",
+        "name:bn": "কবি সুভাষ",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KKVS",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6379216",
+        "wikipedia": "en:Kavi Subhash metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421533468,
+      "lat": 22.4809928,
+      "lon": 88.3460002,
+      "tags": {
+        "name": "Netaji",
+        "name:bn": "নেতাজি",
+        "name:hi": "नेताजी",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KNTJ",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6998636",
+        "wikipedia": "en:Netaji metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421536497,
+      "lat": 22.4947692,
+      "lon": 88.3450879,
+      "tags": {
+        "name": "Mahanayak Uttam Kumar",
+        "name:bn": "মহানায়ক উত্তমকুমার",
+        "name:hi": "महानायक उत्तम कुमार",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6733119",
+        "wikipedia": "en:Mahanayak Uttam Kumar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421537963,
+      "lat": 22.6211141,
+      "lon": 88.3928973,
+      "tags": {
+        "name": "Dum Dum",
+        "name:bn": "দমদম",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wheelchair": "limited",
+        "wikidata": "Q5313576",
+        "wikipedia": "en:Dum Dum metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421538365,
+      "lat": 22.5072216,
+      "lon": 88.3454936,
+      "tags": {
+        "name": "Rabindra Sarobar",
+        "name:bn": "রবীন্দ্র সরোবর",
+        "name:hi": "रविन्द्र सरोवर",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q7278757",
+        "wikipedia": "en:Rabindra Sarobar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421539684,
+      "lat": 22.5168752,
+      "lon": 88.3458448,
+      "tags": {
+        "name": "Kalighat",
+        "name:bn": "কালীঘাট",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q15041932",
+        "wikipedia": "en:Kalighat metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421540159,
+      "lat": 22.5241535,
+      "lon": 88.3464729,
+      "tags": {
+        "name": "Jatin Das Park",
+        "name:bn": "যতীন দাস পার্ক",
+        "name:hi": "जतिन दास पार्क",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KJPK",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6164578",
+        "wikipedia": "en:Jatin Das Park metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421541284,
+      "lat": 22.5331821,
+      "lon": 88.3459269,
+      "tags": {
+        "name": "Netaji Bhavan",
+        "name:bn": "নেতাজি ভবন",
+        "name:hi": "नेताजी भवन",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KNBN",
+        "station": "subway",
+        "subway": "yes",
+        "wheelchair": "limited",
+        "wikidata": "Q6998599",
+        "wikipedia": "en:Netaji Bhavan metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421542551,
+      "lat": 22.5414899,
+      "lon": 88.3473493,
+      "tags": {
+        "name": "Rabindra Sadan",
+        "name:bn": "রবীন্দ্র সদন",
+        "name:hi": "रविंद्र सदन",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KRSD",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q7278756",
+        "wikipedia": "en:Rabindra Sadan metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421543288,
+      "lat": 22.5494672,
+      "lon": 88.3487883,
+      "tags": {
+        "name": "Maidan",
+        "name:bn": "ময়দান",
+        "name:hi": "मैदान",
+        "name:ur": "مَیدَان",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6735340",
+        "wikipedia": "en:Maidan metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421543316,
+      "lat": 22.5670118,
+      "lon": 88.3541581,
+      "tags": {
+        "addr:city": "चाँदनी चौक",
+        "name": "Chandni Chowk",
+        "name:bn": "চাঁদনি চক",
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KCWC",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q5071229",
+        "wikipedia": "en:Chandni Chowk metro station (Kolkata)"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421545051,
+      "lat": 22.5636143,
+      "lon": 88.3512099,
+      "tags": {
+        "name": "Esplanade (Line 1)",
+        "name:bn": "এসপ্ল্যানেড",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q5399030",
+        "wikipedia": "en:Esplanade metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421545390,
+      "lat": 22.5809206,
+      "lon": 88.3613271,
+      "tags": {
+        "name": "Mahatma Gandhi Road",
+        "name:bn": "মহাত্মা গান্ধী রোড",
+        "name:hi": "महात्मा गांधी रोड",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KMHR",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6733523",
+        "wikipedia": "en:Mahatma Gandhi Road metro station (Kolkata)"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421546475,
+      "lat": 22.5871445,
+      "lon": 88.3629415,
+      "tags": {
+        "name": "Girish Park",
+        "name:bn": "গিরিশ পার্ক",
+        "name:hi": "गिरीश पार्क",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KGPK",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q5564298",
+        "wikipedia": "en:Girish Park metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421546940,
+      "lat": 22.595881,
+      "lon": 88.3651996,
+      "tags": {
+        "name": "Shobhabazar Sutanuti",
+        "name:bn": "শোভাবাজার সুতানুটি",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q7499796",
+        "wikipedia": "en:Sovabazar Sutanuti metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421546974,
+      "lat": 22.601335,
+      "lon": 88.3724974,
+      "tags": {
+        "name": "Shyambazar",
+        "name:bn": "শ্যামবাজার",
+        "name:hi": "श्याम बाज़ार",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q7505976",
+        "wikipedia": "en:Shyambazar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421548359,
+      "lat": 22.6059241,
+      "lon": 88.3863913,
+      "tags": {
+        "name": "Belgachia",
+        "name:bn": "বেলগাছিয়া",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "official_name": "Theism Belgachia",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q4882396",
+        "wikipedia": "en:Belgachia metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5421551283,
+      "lat": 22.6398418,
+      "lon": 88.3941343,
+      "tags": {
+        "name": "Noapara",
+        "name:bn": "নোয়াপাড়া",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q14942939",
+        "wikipedia": "en:Noapara metro station and depot"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5587888046,
+      "lat": 22.5673793,
+      "lon": 88.3710192,
+      "tags": {
+        "addr:city": "Kolkata",
+        "air_conditioning": "yes",
+        "internet_access": "yes",
+        "internet_access:fee": "no",
+        "name": "Sealdah",
+        "name:bn": "শিয়ালদহ",
+        "name:en": "Sealdah",
+        "name:hi": "सियालदाह",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SDAH",
+        "train": "yes",
+        "wheelchair": "yes",
+        "wikidata": "Q3347406",
+        "wikipedia": "en:Sealdah railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5768054688,
+      "lat": 22.4950517,
+      "lon": 88.374971,
+      "tags": {
+        "name": "Jadavpur",
+        "name:bn": "যাদবপুর",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "JDP",
+        "train": "yes",
+        "wheelchair": "yes",
+        "wikidata": "Q55614817",
+        "wikipedia": "en:Jadavpur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5768054702,
+      "lat": 22.4726577,
+      "lon": 88.3977506,
+      "tags": {
+        "name": "New Garia",
+        "name:bn": "নিউ গড়িয়া",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NGRI",
+        "train": "yes",
+        "wikidata": "Q24947850",
+        "wikipedia": "en:New Garia railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5768054791,
+      "lat": 22.3783007,
+      "lon": 88.5347717,
+      "tags": {
+        "name": "Gourdaha Halt",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "GQD",
+        "wikidata": "Q58814864"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5873264670,
+      "lat": 22.4539009,
+      "lon": 88.4184898,
+      "tags": {
+        "name": "Narendrapur",
+        "name:bn": "নরেন্দ্রপুর",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NRPR",
+        "train": "yes",
+        "wikidata": "Q57237461",
+        "wikipedia": "en:Narendrapur railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6186215071,
+      "lat": 22.5259855,
+      "lon": 88.3167075,
+      "tags": {
+        "name": "Remount Road",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "RMTR",
+        "wikidata": "Q56277835"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6186215510,
+      "lat": 22.5190536,
+      "lon": 88.3221307,
+      "tags": {
+        "IR:zone": "ER",
+        "is_in": "Kolkata",
+        "name": "Majherhat",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MJT",
+        "wikidata": "Q20718005",
+        "wikipedia": "en:Majerhat railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6814083487,
+      "lat": 22.6327475,
+      "lon": 88.3054766,
+      "tags": {
+        "internet_access": "no",
+        "name": "Bhattanagar",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BTNG",
+        "train": "yes",
+        "wikidata": "Q60061831",
+        "wikipedia": "en:Kona railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6954276376,
+      "lat": 22.6612335,
+      "lon": 88.3170788,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Belanagar",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BZL",
+        "wikidata": "Q59215453"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6954347302,
+      "lat": 22.7214367,
+      "lon": 88.2653001,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Janai Road",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "JOX",
+        "wikidata": "Q17058689",
+        "wikipedia": "en:Janai Road railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6955697629,
+      "lat": 22.5105326,
+      "lon": 88.3354264,
+      "tags": {
+        "name": "New Alipore",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "NACC",
+        "wikidata": "Q7005286",
+        "wikipedia": "en:New Alipore"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6955697644,
+      "lat": 22.5077549,
+      "lon": 88.3477217,
+      "tags": {
+        "name": "Tollygunge",
+        "name:bn": "টালিগঞ্জ",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "TLG",
+        "website": "https://er.indianrailways.gov.in/",
+        "wikidata": "Q56278562",
+        "wikipedia": "en:Tollygunge railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6955697648,
+      "lat": 22.5080547,
+      "lon": 88.3533289,
+      "tags": {
+        "name": "Lake Gardens",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "LKF",
+        "wikidata": "Q56278563"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7630431371,
+      "lat": 22.7603363,
+      "lon": 88.3710985,
+      "tags": {
+        "alt_name:hi": "बैरकपुर",
+        "name": "Barrackpore",
+        "name:hi": "बैरैकपुर",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "BP",
+        "wikidata": "Q24884069",
+        "wikipedia": "en:Barrackpore railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7630434398,
+      "lat": 22.6012775,
+      "lon": 88.3841474,
+      "tags": {
+        "name": "Kolkata",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KOAA",
+        "wikidata": "Q6427323",
+        "wikipedia": "en:Kolkata railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7717075781,
+      "lat": 22.6524304,
+      "lon": 88.3479091,
+      "tags": {
+        "name": "Bally Ghat",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BLYG",
+        "wikidata": "Q59213813",
+        "wikipedia": "en:Bally Ghat railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7717383980,
+      "lat": 22.6961161,
+      "lon": 88.2793898,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "SG-3",
+        "IR:zone": "ER",
+        "name": "Gobra",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "GBRA",
+        "wikidata": "Q59918205",
+        "wikipedia": "en:Gobra railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7944684393,
+      "lat": 22.5733404,
+      "lon": 88.4212209,
+      "tags": {
+        "name": "Nalban Metro Station",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140059,
+      "lat": 22.58638,
+      "lon": 88.4215312,
+      "tags": {
+        "name": "Karunamoyee",
+        "name:bn": "করুণাময়ী",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KESA",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q62019524",
+        "wikipedia": "en:Karunamoyee metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140060,
+      "lat": 22.5904737,
+      "lon": 88.4156247,
+      "tags": {
+        "name": "Central Park",
+        "name:bn": "সেন্ট্রাল পার্ক",
+        "name:hi": "सेंट्रल पार्क",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "CPSA",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632539",
+        "wikipedia": "en:Central Park metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140063,
+      "lat": 22.5870993,
+      "lon": 88.4078908,
+      "tags": {
+        "name": "City Centre",
+        "name:bn": "সিটি সেন্টার",
+        "name:hi": "सिटी सेंटर",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "CCSC",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q63256235",
+        "wikipedia": "en:City Center metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140066,
+      "lat": 22.5800666,
+      "lon": 88.4012962,
+      "tags": {
+        "name": "Bengal Chemical",
+        "name:bn": "বেঙ্গল কেমিক্যালস",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BCSD",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q63256245",
+        "wikipedia": "en:Bengal Chemical metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140069,
+      "lat": 22.5731115,
+      "lon": 88.4030891,
+      "tags": {
+        "name": "Salt Lake Stadium",
+        "name:bn": "সল্ট লেক স্টেডিয়াম",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SSSA",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q65090392",
+        "wikipedia": "en:Salt Lake Stadium metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140072,
+      "lat": 22.5721268,
+      "lon": 88.3902408,
+      "tags": {
+        "name": "Phoolbagan",
+        "name:bn": "ফুলবাগান",
+        "name:hi": "फूलबगान",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "PBGB",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632551",
+        "wikipedia": "en:Phoolbagan metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7976140073,
+      "lat": 22.5809434,
+      "lon": 88.4290872,
+      "tags": {
+        "name": "Salt Lake Sector V",
+        "name:bn": "সল্টলেক সেক্টর V",
+        "name:hi": "सॉल्ट लेक सेक्टर ५",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SVSA",
+        "station": "subway",
+        "subway": "yes",
+        "wheelchair": "limited",
+        "wikidata": "Q55632405",
+        "wikipedia": "en:Salt Lake Sector-V metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8468061286,
+      "lat": 22.3507555,
+      "lon": 88.5747278,
+      "tags": {
+        "name": "Betberia Ghola",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BTPG",
+        "wikidata": "Q61799771",
+        "wikipedia": "en:Betberia Ghola railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8475640176,
+      "lat": 22.6530765,
+      "lon": 88.3805962,
+      "tags": {
+        "name": "Baranagar",
+        "name:bn": "বরাহনগর",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q63092244",
+        "wikipedia": "en:Baranagar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8507085275,
+      "lat": 22.6523276,
+      "lon": 88.3385375,
+      "tags": {
+        "IR:div": "SDAH",
+        "IR:stn_cat": "HG-3",
+        "IR:zone": "ER",
+        "name": "Bally Halt",
+        "network": "Indian Railways",
+        "operator": "Eastern Railway",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BLYH",
+        "wikidata": "Q59213925"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8994137056,
+      "lat": 22.7897513,
+      "lon": 88.5722344,
+      "tags": {
+        "addr:city": "Bira",
+        "name": "Bira",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BZRA",
+        "wikidata": "Q25549501",
+        "wikimedia_commons": "Category:Bira railway station",
+        "wikipedia": "en:Bira railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999697038,
+      "lat": 22.6065505,
+      "lon": 88.3952451,
+      "tags": {
+        "name": "Patipukur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "PTKR",
+        "wikidata": "Q56277048"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999697060,
+      "lat": 22.749007,
+      "lon": 88.5099763,
+      "tags": {
+        "name": "Bamangachi",
+        "name:bn": "বামনগাছি",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BMG",
+        "wikidata": "Q25549113",
+        "wikimedia_commons": "Category:Bamangachi railway station",
+        "wikipedia": "en:Bamangachhi railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999697061,
+      "lat": 22.6529137,
+      "lon": 88.3213135,
+      "tags": {
+        "IR:div": "HWH",
+        "IR:stn_cat": "HG-1",
+        "IR:zone": "ER",
+        "name": "Rajchandrapur",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "RCD",
+        "wikidata": "Q59214356"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999697105,
+      "lat": 22.343456,
+      "lon": 88.414597,
+      "tags": {
+        "name": "Kalyanpur",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "KYP",
+        "wikidata": "Q60165027"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999700624,
+      "lat": 22.3093549,
+      "lon": 88.3997483,
+      "tags": {
+        "name": "Hotar",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "HT",
+        "wikidata": "Q60165036"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999700636,
+      "lat": 22.3258194,
+      "lon": 88.406271,
+      "tags": {
+        "name": "Dakshin Durgapur",
+        "network": "IR",
+        "operator": "ER",
+        "railway": "station",
+        "ref": "DKDP",
+        "wikidata": "Q60165034"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8999700675,
+      "lat": 22.5900953,
+      "lon": 88.334688,
+      "tags": {
+        "name": "Howrah Goods",
+        "network": "IR",
+        "operator": "SER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "HWHG",
+        "wikidata": "Q63371469"
+      }
+    },
+    {
+      "type": "node",
+      "id": 9001302716,
+      "lat": 22.590157,
+      "lon": 88.3511761,
+      "tags": {
+        "name": "Barra Bazar",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BZB",
+        "wikidata": "Q25549503"
+      }
+    },
+    {
+      "type": "node",
+      "id": 9321290815,
+      "lat": 22.4987585,
+      "lon": 88.3173872,
+      "tags": {
+        "name": "Behala Bazar",
+        "name:bn": "বেহালা বাজার",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q84996197",
+        "wikipedia": "en:Behala Bazar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 9321292345,
+      "lat": 22.4873548,
+      "lon": 88.3133794,
+      "tags": {
+        "name": "Behala Chowrasta",
+        "name:bn": "বেহালা চৌরাস্তা",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q85273870",
+        "wikipedia": "en:Behala Chowrasta metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 9884790401,
+      "lat": 22.5666059,
+      "lon": 88.3697815,
+      "tags": {
+        "name": "Sealdah",
+        "name:bn": "শিয়ালদহ মেট্রো স্টেশন",
+        "name:en": "Sealdah",
+        "name:hi": "सियालदाह",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SDHM",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30278708",
+        "wikipedia": "en:Sealdah metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10036655361,
+      "lat": 22.6540325,
+      "lon": 88.3637533,
+      "tags": {
+        "name": "Dakshineshwar",
+        "name:bn": "দক্ষিণেশ্বর",
+        "name:hi": "दक्षिणेश्वर",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q63092256",
+        "wikipedia": "en:Dakshineswar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10146620696,
+      "lat": 22.443192,
+      "lon": 88.4303414,
+      "tags": {
+        "name": "Sonarpur Junction",
+        "name:bn": "সোনারপুর জংশন",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "SPR",
+        "train": "yes",
+        "wikidata": "Q55641786",
+        "wikipedia": "en:Sonarpur Junction railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10296539469,
+      "lat": 22.4643677,
+      "lon": 88.3075322,
+      "tags": {
+        "name": "Thakurpukur",
+        "name:bn": "ঠাকুরপুকুর",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KTKP",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30634511",
+        "wikipedia": "en:Thakurpukur metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10296539474,
+      "lat": 22.4748533,
+      "lon": 88.3099593,
+      "tags": {
+        "name": "Sakher Bazar",
+        "name:bn": "সখের বাজার",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q84716021",
+        "wikipedia": "en:Sakher Bazar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10296539476,
+      "lat": 22.5076863,
+      "lon": 88.3203842,
+      "tags": {
+        "name": "Taratala",
+        "name:bn": "তারাতলা",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KTRT",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q85069094",
+        "wikipedia": "bn:তারাতলা মেট্রো স্টেশন"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10296539478,
+      "lat": 22.452347,
+      "lon": 88.3018236,
+      "tags": {
+        "name": "Joka",
+        "name:bn": "জোকা",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30634510",
+        "wikipedia": "en:Joka metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10960407391,
+      "lat": 22.6766204,
+      "lon": 88.4349985,
+      "tags": {
+        "name": "birati railway station",
+        "public_transport": "station",
+        "railway": "halt",
+        "train": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11259469248,
+      "lat": 22.4119432,
+      "lon": 88.4760043,
+      "tags": {
+        "light_rail": "yes",
+        "name": "Kalikapur Railway Station",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "light_rail"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11425570800,
+      "lat": 22.7251859,
+      "lon": 88.3433628,
+      "tags": {
+        "addr:city": "Rishra",
+        "addr:housenumber": "65/109",
+        "name": "Rishra Railway Station",
+        "public_transport": "station",
+        "railway": "station",
+        "train": "yes"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11447425091,
+      "lat": 22.5148514,
+      "lon": 88.4014276,
+      "tags": {
+        "alt_name": "Ruby Hospital",
+        "name": "Hemanta Mukhopadhyay",
+        "name:bn": "হেমন্ত মুখোপাধ্যায়",
+        "name:hi": "हेमन्त मुखोपाध्याय",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632588",
+        "wikipedia": "en:Hemanta Mukhopadhyay metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11447425092,
+      "lat": 22.5053017,
+      "lon": 88.4009957,
+      "tags": {
+        "alt_name": "Kalikapur",
+        "name": "Kavi Sukanta",
+        "name:bn": "কবি সুকান্ত",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632590",
+        "wikipedia": "en:Kavi Sukanta metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11447425095,
+      "lat": 22.4956263,
+      "lon": 88.398449,
+      "tags": {
+        "alt_name": "Mukundapur",
+        "name": "Jyotirindra Nandi",
+        "name:bn": "জ্যোতিরিন্দ্র নন্দী",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q65090385",
+        "wikipedia": "en:Jyotirindra Nandi metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11447425096,
+      "lat": 22.4846775,
+      "lon": 88.3926447,
+      "tags": {
+        "name": "Satyajit Ray",
+        "name:bn": "সত্যজিৎ রায়",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632540",
+        "wikipedia": "en:Satyajit Ray metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11584548979,
+      "lat": 22.6313023,
+      "lon": 88.3505828,
+      "tags": {
+        "name": "Belur Math",
+        "network": "IR",
+        "operator": "ER",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "BRMH",
+        "train": "yes",
+        "wikidata": "Q25549504",
+        "wikipedia": "en:Belur Math railway station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11699268223,
+      "lat": 22.5720777,
+      "lon": 88.3505275,
+      "tags": {
+        "alt_name": "New Mahakaran",
+        "alt_name:en": "New Mahakaran",
+        "name": "Mahakaran",
+        "name:bn": "মহাকরণ",
+        "name:en": "Mahakaran",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "MKNA",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632550",
+        "wikipedia": "bn:মহাকরণ মেট্রো স্টেশন"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11699268224,
+      "lat": 22.5833648,
+      "lon": 88.3403452,
+      "tags": {
+        "name": "Howrah",
+        "name:bn": "হাওড়া",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "HWHM",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632554",
+        "wikipedia": "bn:হাওড়া মেট্রো স্টেশন"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11699268225,
+      "lat": 22.5838585,
+      "lon": 88.3339983,
+      "tags": {
+        "name": "Howrah Maidan",
+        "name:bn": "হাওড়া ময়দান",
+        "name:hi": "हावड़ा मैदान",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "HWMM",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632544",
+        "wikipedia": "bn:হাওড়া ময়দান মেট্রো স্টেশন"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11699268226,
+      "lat": 22.5191466,
+      "lon": 88.3236555,
+      "tags": {
+        "name": "Majerhat",
+        "name:bn": "মাঝেরহাট",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q85214864",
+        "wikipedia": "en:Majerhat metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11703282685,
+      "lat": 22.5641292,
+      "lon": 88.3502752,
+      "tags": {
+        "name": "Esplanade (Line 2)",
+        "name:bn": "এসপ্ল্যানেড",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KESP",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q5399030",
+        "wikipedia": "en:Esplanade metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11703389776,
+      "lat": 22.4711093,
+      "lon": 88.3980989,
+      "tags": {
+        "alt_name": "New Garia",
+        "name": "Kavi Subhash",
+        "name:bn": "কবি সুভাষ",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q6379216",
+        "wikipedia": "en:Kavi Subhash metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088458999,
+      "lat": 22.5507084,
+      "lon": 88.4039852,
+      "tags": {
+        "name": "Beleghata",
+        "name:bn": "বেলেঘাটা",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q109968614",
+        "wikipedia": "en:Beleghata metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088485701,
+      "lat": 22.5438072,
+      "lon": 88.3992762,
+      "tags": {
+        "alt_name": "Science City",
+        "name": "Barun Sengupta",
+        "name:bn": "বরুণ সেনগুপ্ত",
+        "name:hi": "वरुण सेन गुप्ता",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632591",
+        "wikipedia": "en:Barun Sengupta metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088485704,
+      "lat": 22.5329995,
+      "lon": 88.3964191,
+      "tags": {
+        "alt_name": "Bantala Road",
+        "name": "Ritwik Ghatak",
+        "name:bn": "ঋত্বিক ঘটক",
+        "name:hi": "ऋत्विक घटक",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "old_name": "Topsia",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q109524252",
+        "wikipedia": "en:Ritwik Ghatak metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088485707,
+      "lat": 22.5246847,
+      "lon": 88.3962331,
+      "tags": {
+        "name": "VIP Bazar",
+        "name:bn": "ভি আই পি বাজার",
+        "name:hi": "वी.आई.पी. बाज़ार",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q30632589",
+        "wikipedia": "en:VIP Bazar metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088491840,
+      "lat": 22.6473058,
+      "lon": 88.4373029,
+      "tags": {
+        "alt_name": "Biman Bandar",
+        "alt_name:hi": "विमान बंदर",
+        "name": "Jai Hind",
+        "name:bn": "জয় হিন্দ",
+        "name:hi": "जय हिंद",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q65090394",
+        "wikipedia": "en:Jai Hind metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088491871,
+      "lat": 22.6392646,
+      "lon": 88.4297701,
+      "tags": {
+        "name": "Jessore Road",
+        "name:bn": "যশোহর রোড",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "ref": "KJRO",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q76741320",
+        "wikipedia": "en:Jessore Road metro station"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13088491874,
+      "lat": 22.6375936,
+      "lon": 88.4121618,
+      "tags": {
+        "name": "Dum Dum Cantonment",
+        "name:bn": "দমদম ক্যান্টনমেন্ট",
+        "network": "Kolkata Metro",
+        "network:wikidata": "Q1048849",
+        "operator": "Metro Railway, Kolkata",
+        "public_transport": "station",
+        "railway": "station",
+        "station": "subway",
+        "subway": "yes",
+        "wikidata": "Q31725714",
+        "wikipedia": "en:Dum Dum Cantonment metro station"
+      }
+    }
+  ]
+}

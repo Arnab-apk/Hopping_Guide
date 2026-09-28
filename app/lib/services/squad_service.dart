@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:battery_plus/battery_plus.dart';
@@ -8,12 +9,16 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_user.dart';
+import '../models/pandal.dart';
 import '../models/squad_member.dart';
+import '../models/squad_pandal_stop.dart';
 import '../repositories/squad_firestore_repository.dart';
 import '../utils/haversine.dart';
 import 'auth_service.dart';
+import 'custom_hopping_trail_service.dart';
 import 'location_service.dart';
 import 'squad_neon_api.dart';
+import 'trail_optimizer.dart';
 import 'websocket_client.dart';
 
 /// Active separation alert when a companion strays outside designated radius
@@ -109,6 +114,22 @@ class SquadService extends ChangeNotifier {
   SquadSeparationAlert? get activeSeparationAlert => _activeSeparationAlert;
   List<SquadMember> get members => List.unmodifiable(_members);
 
+  // --- Collaborative Hopping Plan & Live Hopping ---
+  List<SquadPandalStop> _chosenPandals = [];
+  bool _isHoppingActive = false;
+  int _activeHoppingStopIndex = 0;
+
+  List<SquadPandalStop> get chosenPandals => List.unmodifiable(_chosenPandals);
+  bool get isHoppingActive => _isHoppingActive;
+  int get activeHoppingStopIndex => _activeHoppingStopIndex;
+  int get visitedPandalsCount => _chosenPandals.where((p) => p.isVisited).length;
+  SquadPandalStop? get currentHoppingTarget =>
+      (_isHoppingActive && _chosenPandals.isNotEmpty && _activeHoppingStopIndex < _chosenPandals.length)
+          ? _chosenPandals[_activeHoppingStopIndex]
+          : null;
+  double get hoppingProgress =>
+      _chosenPandals.isEmpty ? 0.0 : (visitedPandalsCount / _chosenPandals.length);
+
   /// Deprecated accessor retained for test backward compatibility
   SquadNeonApi get neonApi => SquadNeonApi();
 
@@ -123,35 +144,39 @@ class SquadService extends ChangeNotifier {
       _members.where((m) => !m.isUser).toList();
 
   void _listenToLocationService() {
-    LocationService.instance.addListener(() {
-      final pos = LocationService.instance.currentPositionSync;
-      if (pos != null && hasActiveSquad && _isSharingLocation) {
-        updateUserLocation(pos.latitude, pos.longitude);
-      }
-    });
+    LocationService.instance.addListener(_onLocationServiceChange);
   }
 
   void _listenToAuthService() {
-    AuthService.instance.addListener(() {
-      final user = AuthService.instance.currentUserModel;
-      if (user != null && hasActiveSquad) {
-        final idx = _members.indexWhere((m) => m.isUser);
-        if (idx != -1) {
-          final old = _members[idx];
-          final displayName = user.displayName ?? 'You';
-          if (old.id != user.uid || !old.name.startsWith(displayName)) {
-            final updated = old.copyWith(
-              id: user.uid,
-              name: '$displayName (You)',
-              photoUrl: user.photoUrl,
-            );
-            _members[idx] = updated;
-            _syncUserLocationToCloud();
-            notifyListeners();
-          }
+    AuthService.instance.addListener(_onAuthServiceChange);
+  }
+
+  void _onLocationServiceChange() {
+    final pos = LocationService.instance.currentPositionSync;
+    if (pos != null && hasActiveSquad && _isSharingLocation) {
+      updateUserLocation(pos.latitude, pos.longitude);
+    }
+  }
+
+  void _onAuthServiceChange() {
+    final user = AuthService.instance.currentUserModel;
+    if (user != null && hasActiveSquad) {
+      final idx = _members.indexWhere((m) => m.isUser);
+      if (idx != -1) {
+        final old = _members[idx];
+        final displayName = user.displayName ?? 'You';
+        if (old.id != user.uid || !old.name.startsWith(displayName)) {
+          final updated = old.copyWith(
+            id: user.uid,
+            name: '$displayName (You)',
+            photoUrl: user.photoUrl,
+          );
+          _members[idx] = updated;
+          _syncUserLocationToCloud();
+          notifyListeners();
         }
       }
-    });
+    }
   }
 
   void _listenToBattery() {
@@ -178,6 +203,9 @@ class SquadService extends ChangeNotifier {
 
   /// Explicitly query the real hardware battery level and broadcast if changed
   Future<int> refreshBatteryLevel() async {
+    if (enableTestMode || (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST'))) {
+      return _currentBatteryLevel;
+    }
     try {
       final lvl = await _battery.batteryLevel;
       _currentBatteryLevel = lvl;
@@ -217,6 +245,18 @@ class SquadService extends ChangeNotifier {
         _separationThresholdMeters = thresh;
       }
 
+      final pandalsJson = prefs.getString('saved_squad_pandals');
+      if (pandalsJson != null && pandalsJson.isNotEmpty) {
+        try {
+          final list = jsonDecode(pandalsJson) as List<dynamic>;
+          _chosenPandals = list
+              .map((e) => SquadPandalStop.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } catch (_) {}
+      }
+      _isHoppingActive = prefs.getBool('saved_squad_is_hopping') ?? false;
+      _activeHoppingStopIndex = prefs.getInt('saved_squad_hopping_stop') ?? 0;
+
       if (code != null && name != null) {
         _squadId = id;
         _squadCode = code;
@@ -227,7 +267,7 @@ class SquadService extends ChangeNotifier {
         _syncUserLocationToCloud();
         if (!_locationTrackingStarted) {
           _locationTrackingStarted = true;
-          LocationService.instance.startLiveTracking().catchError((e) {
+          LocationService.instance.startLiveTracking(callbackKey: this).catchError((e) {
             debugPrint('[SquadService] startLiveTracking on load error: $e');
             return false;
           });
@@ -249,11 +289,20 @@ class SquadService extends ChangeNotifier {
         await prefs.setString('saved_group_code', _squadCode!);
         await prefs.setString('saved_group_name', _squadName ?? 'My Squad');
         await prefs.setString('saved_meetup_point', _meetupPointName);
+        await prefs.setString(
+          'saved_squad_pandals',
+          jsonEncode(_chosenPandals.map((e) => e.toJson()).toList()),
+        );
+        await prefs.setBool('saved_squad_is_hopping', _isHoppingActive);
+        await prefs.setInt('saved_squad_hopping_stop', _activeHoppingStopIndex);
       } else {
         await prefs.remove('saved_group_id');
         await prefs.remove('saved_group_code');
         await prefs.remove('saved_group_name');
         await prefs.remove('saved_meetup_point');
+        await prefs.remove('saved_squad_pandals');
+        await prefs.remove('saved_squad_is_hopping');
+        await prefs.remove('saved_squad_hopping_stop');
       }
     } catch (e) {
       debugPrint('[SquadService] _persistState error: $e');
@@ -373,7 +422,7 @@ class SquadService extends ChangeNotifier {
     // Start live tracking immediately so GPS updates continuously stream
     if (!_locationTrackingStarted && !isTest) {
       _locationTrackingStarted = true;
-      LocationService.instance.startLiveTracking().catchError((e) {
+      LocationService.instance.startLiveTracking(callbackKey: this).catchError((e) {
         debugPrint('[SquadService] startLiveTracking on create error: $e');
         return false;
       });
@@ -494,7 +543,7 @@ class SquadService extends ChangeNotifier {
     // Start live tracking immediately so GPS updates continuously stream
     if (!_locationTrackingStarted) {
       _locationTrackingStarted = true;
-      LocationService.instance.startLiveTracking().catchError((e) {
+      LocationService.instance.startLiveTracking(callbackKey: this).catchError((e) {
         debugPrint('[SquadService] startLiveTracking on join error: $e');
         return false;
       });
@@ -573,7 +622,11 @@ class SquadService extends ChangeNotifier {
     _squadName = null;
     _focusedMemberId = null;
     _activeSeparationAlert = null;
+    _chosenPandals.clear();
+    _isHoppingActive = false;
+    _activeHoppingStopIndex = 0;
     _locationTrackingStarted = false; // Reset tracking flag
+    LocationService.instance.stopLiveTracking(callbackKey: this);
     _members.clear();
     await _persistState();
     notifyListeners();
@@ -754,6 +807,9 @@ class SquadService extends ChangeNotifier {
     _squadCode = null;
     _squadName = null;
     _activeSeparationAlert = null;
+    _chosenPandals.clear();
+    _isHoppingActive = false;
+    _activeHoppingStopIndex = 0;
     _members.clear();
     _separationThresholdMeters = 500;
   }
@@ -853,6 +909,41 @@ class SquadService extends ChangeNotifier {
           changed = true;
         }
 
+        if (squadData['chosenPandals'] is List) {
+          final rawList = squadData['chosenPandals'] as List;
+          final updated = <SquadPandalStop>[];
+          for (final item in rawList) {
+            if (item is Map<String, dynamic>) {
+              updated.add(SquadPandalStop.fromJson(item));
+            } else if (item is Map) {
+              updated.add(SquadPandalStop.fromJson(Map<String, dynamic>.from(item)));
+            }
+          }
+          _chosenPandals = updated;
+          changed = true;
+        }
+
+        if (squadData['isHoppingActive'] is bool) {
+          final newActive = squadData['isHoppingActive'] as bool;
+          if (newActive != _isHoppingActive) {
+            _isHoppingActive = newActive;
+            changed = true;
+            if (_isHoppingActive) {
+              _syncActiveTrailWithHoppingService();
+            } else if (CustomHoppingTrailService.instance.hasActiveTrail) {
+              CustomHoppingTrailService.instance.endTrail();
+            }
+          }
+        }
+
+        if (squadData['activeStopIndex'] is num) {
+          final newIdx = (squadData['activeStopIndex'] as num).toInt();
+          if (newIdx != _activeHoppingStopIndex) {
+            _activeHoppingStopIndex = newIdx;
+            changed = true;
+          }
+        }
+
         if (changed) {
           _persistState();
           _checkSeparationDistances();
@@ -865,8 +956,181 @@ class SquadService extends ChangeNotifier {
     );
   }
 
+  // --- Collaborative Squad Pandal & Live Hopping Actions ---
+
+  /// Add a pandal to the squad's shared hopping itinerary.
+  Future<bool> addPandalToSquad(Pandal pandal) async {
+    if (_chosenPandals.any((p) => p.id == pandal.id)) return false;
+    final user = await _ensureUser();
+    final stop = SquadPandalStop.fromPandal(
+      pandal,
+      suggestedBy: user.uid,
+      suggestedByName: user.displayName ?? 'Companion',
+    );
+    _chosenPandals.add(stop);
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+    return true;
+  }
+
+  /// Remove a pandal from the squad's shared list.
+  Future<void> removePandalFromSquad(String pandalId) async {
+    _chosenPandals.removeWhere((p) => p.id == pandalId);
+    if (_activeHoppingStopIndex >= _chosenPandals.length) {
+      _activeHoppingStopIndex = (_chosenPandals.length - 1).clamp(0, 999);
+    }
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+  }
+
+  /// Upvote or remove upvote for a chosen pandal stop.
+  Future<void> toggleVotePandal(String pandalId) async {
+    final user = await _ensureUser();
+    final idx = _chosenPandals.indexWhere((p) => p.id == pandalId);
+    if (idx != -1) {
+      final stop = _chosenPandals[idx];
+      final currentVotes = List<String>.from(stop.votes);
+      if (currentVotes.contains(user.uid)) {
+        currentVotes.remove(user.uid);
+      } else {
+        currentVotes.add(user.uid);
+      }
+      _chosenPandals[idx] = stop.copyWith(votes: currentVotes);
+      await _persistState();
+      _syncSquadPlanToCloud();
+      notifyListeners();
+    }
+  }
+
+  /// Optimize the route between chosen pandals using on-device Held-Karp algorithm.
+  Future<void> optimizeSquadRoute() async {
+    if (_chosenPandals.length < 2) return;
+    final userPos = LocationService.instance.currentPositionSync;
+    final startPos = userPos != null
+        ? LatLng(userPos.latitude, userPos.longitude)
+        : LatLng(_chosenPandals.first.lat, _chosenPandals.first.lng);
+
+    final pandalStops = _chosenPandals.map((s) => s.toPandal()).toList();
+    final result = TrailOptimizer.optimizePandalStops(
+      start: startPos,
+      stops: pandalStops,
+      allowMetro: true,
+    );
+
+    final reordered = <SquadPandalStop>[];
+    for (final optPandal in result.orderedStops) {
+      final match = _chosenPandals.firstWhere(
+        (s) => s.id == optPandal.id,
+        orElse: () => _chosenPandals.first,
+      );
+      reordered.add(match);
+    }
+    _chosenPandals = reordered;
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+  }
+
+  /// Start hopping together with the squad along the chosen pandal list.
+  /// Activates the live street trail, auto-visit proximity detection,
+  /// background navigation, and live companions tracking.
+  Future<void> startSquadHopping({LatLng? startLocation}) async {
+    if (_chosenPandals.isEmpty) return;
+    _isHoppingActive = true;
+    _activeHoppingStopIndex = 0;
+
+    _syncActiveTrailWithHoppingService(startPos: startLocation);
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+  }
+
+  /// Mark the current pandal visited and advance to the next stop.
+  Future<void> advanceToNextPandalStop() async {
+    if (!_isHoppingActive || _chosenPandals.isEmpty) return;
+
+    if (_activeHoppingStopIndex < _chosenPandals.length) {
+      final current = _chosenPandals[_activeHoppingStopIndex];
+      _chosenPandals[_activeHoppingStopIndex] = current.copyWith(isVisited: true);
+
+      // Record visit in CustomHoppingTrailService as well
+      CustomHoppingTrailService.instance.recordAutoVisit(current.toPandal());
+    }
+
+    _activeHoppingStopIndex++;
+    if (_activeHoppingStopIndex >= _chosenPandals.length) {
+      _isHoppingActive = false;
+      CustomHoppingTrailService.instance.endTrail();
+    } else {
+      _syncActiveTrailWithHoppingService();
+    }
+
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+  }
+
+  /// End the live hopping session for the squad.
+  Future<void> endSquadHopping() async {
+    _isHoppingActive = false;
+    CustomHoppingTrailService.instance.endTrail();
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+  }
+
+  void _syncActiveTrailWithHoppingService({LatLng? startPos}) {
+    if (_chosenPandals.isEmpty) return;
+    final userPos = LocationService.instance.currentPositionSync;
+    final effectiveStart = startPos ??
+        (userPos != null
+            ? LatLng(userPos.latitude, userPos.longitude)
+            : LatLng(_chosenPandals.first.lat, _chosenPandals.first.lng));
+
+    final pandalStops = _chosenPandals.map((s) => s.toPandal()).toList();
+    final result = TrailOptimizer.optimizePandalStops(
+      start: effectiveStart,
+      stops: pandalStops,
+      allowMetro: true,
+    );
+
+    final trail = ActiveCustomTrail.custom(
+      id: 'squad_trail_${_squadCode ?? "live"}',
+      startingLocation: effectiveStart,
+      startingAddress: _squadName ?? 'Squad Hopping',
+      stops: pandalStops,
+      totalDistanceKm: result.totalDistanceKm,
+      totalEstimatedMinutes: (result.totalDurationMinutes + (pandalStops.length * 15)).round(),
+      allowMetro: true,
+      legs: result.legs,
+    );
+
+    for (int i = 0; i < _activeHoppingStopIndex && i < trail.stops.length; i++) {
+      trail.visitedPandalIds.add(trail.stops[i].id);
+    }
+    trail.currentStopIndex = _activeHoppingStopIndex.clamp(0, trail.stops.length - 1);
+
+    CustomHoppingTrailService.instance.startTrail(trail);
+  }
+
+  void _syncSquadPlanToCloud() {
+    if (_squadId == null) return;
+    _repo.updateSquadPlan(
+      squadId: _squadId!,
+      chosenPandals: _chosenPandals.map((e) => e.toJson()).toList(),
+      isHoppingActive: _isHoppingActive,
+      activeStopIndex: _activeHoppingStopIndex,
+    ).catchError((e) {
+      debugPrint('[SquadService] _syncSquadPlanToCloud error: $e');
+    });
+  }
+
   @override
   void dispose() {
+    LocationService.instance.removeListener(_onLocationServiceChange);
+    AuthService.instance.removeListener(_onAuthServiceChange);
     _batteryPollTimer?.cancel();
     _batterySub?.cancel();
     _membersSub?.cancel();
