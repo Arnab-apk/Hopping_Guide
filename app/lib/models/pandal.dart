@@ -30,6 +30,9 @@ class Pandal {
     this.transport = const [],
     this.specialFeatures = const [],
     this.nearestStations = const [],
+    this.queueWaitMinutes,
+    this.queueReportedAt,
+    this.queueReportsCount = 0,
   });
 
   final String id;
@@ -52,6 +55,11 @@ class Pandal {
   final List<String> transport;
   final List<String> specialFeatures;
   final List<NearestStationInfo> nearestStations;
+
+  // Crowdsourced queue wait time (null = unknown)
+  final int? queueWaitMinutes;
+  final DateTime? queueReportedAt;
+  final int queueReportsCount;
 
   double get latitude => lat;
   double get longitude => lng;
@@ -88,6 +96,13 @@ class Pandal {
       transport: _parseStringList(d['transport']),
       specialFeatures: _parseStringList(d['special_features'] ?? d['specialFeatures']),
       nearestStations: _parseNearestStations(d['nearest_stations']),
+      queueWaitMinutes: (d['queue_wait_minutes'] as num?)?.toInt(),
+      queueReportedAt: d['queue_reported_at'] != null
+          ? (d['queue_reported_at'] is Timestamp
+              ? (d['queue_reported_at'] as Timestamp).toDate()
+              : DateTime.parse(d['queue_reported_at'] as String))
+          : null,
+      queueReportsCount: (d['queue_reports_count'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -111,6 +126,9 @@ class Pandal {
         'transport': transport,
         'special_features': specialFeatures,
         'nearest_stations': nearestStations.map((s) => s.toMap()).toList(),
+        'queue_wait_minutes': queueWaitMinutes,
+        'queue_reported_at': queueReportedAt?.toIso8601String(),
+        'queue_reports_count': queueReportsCount,
       };
 
   static List<NearestStationInfo> _parseNearestStations(dynamic raw) {

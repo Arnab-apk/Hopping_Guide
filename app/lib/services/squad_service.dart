@@ -17,6 +17,7 @@ import '../utils/haversine.dart';
 import 'auth_service.dart';
 import 'custom_hopping_trail_service.dart';
 import 'location_service.dart';
+import 'queue_wait_service.dart';
 import 'squad_neon_api.dart';
 import 'trail_optimizer.dart';
 import 'websocket_client.dart';
@@ -142,6 +143,22 @@ class SquadService extends ChangeNotifier {
   /// When a squad is newly created, this is strictly empty.
   List<SquadMember> get companionMembers =>
       _members.where((m) => !m.isUser).toList();
+
+  /// Current user's ID for queue reports and other features
+  String? get currentUserId {
+    final user = AuthService.instance.currentUserModel;
+    return user?.uid;
+  }
+
+  /// Broadcast a queue report to squad members via Firestore
+  Future<void> broadcastQueueReport(QueueReport report) async {
+    if (_squadId == null) return;
+    try {
+      await _repo.addQueueReport(squadId: _squadId!, report: report);
+    } catch (e) {
+      debugPrint('[SquadService] broadcastQueueReport error: $e');
+    }
+  }
 
   void _listenToLocationService() {
     LocationService.instance.addListener(_onLocationServiceChange);
@@ -1028,6 +1045,20 @@ class SquadService extends ChangeNotifier {
       reordered.add(match);
     }
     _chosenPandals = reordered;
+    await _persistState();
+    _syncSquadPlanToCloud();
+    notifyListeners();
+  }
+
+  /// Manually reorder a pandal stop within the chosen stops list.
+  Future<void> reorderSquadPandals(int oldIndex, int newIndex) async {
+    if (oldIndex < 0 || oldIndex >= _chosenPandals.length) return;
+    if (newIndex < 0 || newIndex > _chosenPandals.length) return;
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final item = _chosenPandals.removeAt(oldIndex);
+    _chosenPandals.insert(newIndex, item);
     await _persistState();
     _syncSquadPlanToCloud();
     notifyListeners();

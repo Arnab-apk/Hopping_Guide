@@ -225,13 +225,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // 1. Verify Card 4 Header is rendered
-      expect(find.text('Pandals to Hop Together'), findsOneWidget);
-      expect(find.text('Vote & plan group stops'), findsOneWidget);
+      // 1. Verify Trail tab is rendered
+      expect(find.text('Trail'), findsOneWidget);
 
       // 2. Empty state prompt
-      expect(find.text('No pandals chosen yet'), findsOneWidget);
-      expect(find.text('Choose Pandals to Visit'), findsOneWidget);
+      expect(find.text('No stops yet'), findsOneWidget);
+      expect(find.text('Add pandals'), findsWidgets);
 
       // 3. Add pandals to squad
       final p1 = Pandal(
@@ -269,22 +268,22 @@ void main() {
       // 4. Verify pandals appear in the list
       expect(find.text('Suruchi Sangha'), findsOneWidget);
       expect(find.text('Chetla Agrani Club'), findsOneWidget);
-      expect(find.text('Hop Together'), findsOneWidget);
-      expect(find.text('Optimize'), findsOneWidget);
+      expect(find.text('Start hopping ▶'), findsOneWidget);
+      expect(find.text('Optimize order'), findsOneWidget);
 
-      // 5. Tap "Hop Together"
-      await tester.tap(find.text('Hop Together'));
+      // 5. Tap "Start hopping ▶"
+      await tester.tap(find.text('Start hopping ▶'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
       // 6. Verify Live Hopping Banner activates
       expect(squadService.isHoppingActive, isTrue);
-      expect(find.text('HOPPING LIVE'), findsOneWidget);
-      expect(find.textContaining('CURRENT DESTINATION'), findsOneWidget);
-      expect(find.text('Next Stop / Visited'), findsOneWidget);
+      expect(find.text('LIVE HOPPING'), findsOneWidget);
+      expect(find.textContaining('NEXT STOP'), findsOneWidget);
+      expect(find.text('Skip stop'), findsOneWidget);
 
-      // 7. Advance stop via "Next Stop / Visited"
-      await tester.tap(find.text('Next Stop / Visited'));
+      // 7. Advance stop via "Skip stop"
+      await tester.tap(find.text('Skip stop'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 

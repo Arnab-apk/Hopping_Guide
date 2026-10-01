@@ -26,6 +26,7 @@ import '../repositories/supplementary_repository.dart';
 import '../services/auth_service.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
+import '../services/multimodal_routing_service.dart' hide haversineMeters;
 import '../services/position_interpolator.dart';
 import '../services/routing_service.dart';
 import '../services/squad_service.dart';
@@ -993,6 +994,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final start = LatLng(refLat, refLng);
     final dest = LatLng(pandal.lat, pandal.lng);
 
+    // Show modal to choose routing mode
+    final useMultimodal = await _showRoutingModeDialog(pandal, start, dest);
+    if (!mounted) return;
+    if (useMultimodal == null) return; // User cancelled
+
     setState(() {
       if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
@@ -1007,12 +1013,26 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     try {
-      final route = await RoutingService.instance.getWalkingRouteToPoint(
-        start: start,
-        destination: dest,
-        destinationName: pandal.name,
-        targetPandal: pandal,
-      );
+      WalkingRoute route;
+      if (useMultimodal) {
+        final multimodal = await MultimodalRoutingService.instance.computeRoute(
+          origin: start,
+          destination: dest,
+          destinationName: pandal.name,
+          targetPandal: pandal,
+          preferMetro: true,
+        );
+        // Convert to WalkingRoute for display (use walk legs only for map, but keep full info)
+        route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
+        _showMultimodalRouteInfo(multimodal);
+      } else {
+        route = await RoutingService.instance.getWalkingRouteToPoint(
+          start: start,
+          destination: dest,
+          destinationName: pandal.name,
+          targetPandal: pandal,
+        );
+      }
 
       if (!mounted) return;
       setState(() {
@@ -1038,6 +1058,92 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         icon: Icons.warning_amber_rounded,
       );
     }
+  }
+
+  Future<bool?> _showRoutingModeDialog(Pandal pandal, LatLng start, LatLng dest) async {
+    final directDist = haversineMeters(start.latitude, start.longitude, dest.latitude, dest.longitude);
+    
+    // If very close, just walk
+    if (directDist < 800) return false;
+    
+    // Check if metro is viable (has stations nearby)
+    final originStation = MultimodalRoutingService.instance.findNearestStation(start);
+    final destStation = MultimodalRoutingService.instance.findNearestStation(dest);
+    final hasMetroOption = originStation != null && destStation != null &&
+        haversineMeters(start.latitude, start.longitude, originStation.latitude, originStation.longitude) < 3000 &&
+        haversineMeters(dest.latitude, dest.longitude, destStation.latitude, destStation.longitude) < 3000;
+    
+    if (!hasMetroOption) return false;
+    
+    return await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Text('How to get to ${pandal.name}?', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('${(directDist/1000).toStringAsFixed(1)} km away • Choose your travel mode', style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+            const SizedBox(height: 16),
+            // Walk option
+            ListTile(
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.directions_walk, color: Colors.blue)),
+              title: const Text('Walk Only', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text('~${(directDist/1000*13.3).round()} min walk (4.5 km/h)'),
+              onTap: () => Navigator.pop(ctx, false),
+            ),
+            // Metro + Walk option
+            ListTile(
+              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.purple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.train, color: Colors.purple)),
+              title: const Text('Metro + Walk', style: TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text('Walk to ${originStation?.name ?? "metro"} → Ride → Walk to pandal'),
+              onTap: () => Navigator.pop(ctx, true),
+            ),
+            const SizedBox(height: 8),
+            TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  WalkingRoute _multimodalToWalkingRoute(MultimodalRoute multimodal, LatLng start, LatLng dest, Pandal pandal) {
+    // Combine all walk leg points for map display
+    final allPoints = <LatLng>[];
+    for (final leg in multimodal.walkLegs) {
+      allPoints.addAll(leg.points);
+    }
+    // If no walk legs (unlikely), fallback to direct line
+    if (allPoints.isEmpty) {
+      allPoints.addAll([start, dest]);
+    }
+    return WalkingRoute(
+      targetPandal: pandal,
+      customTitle: pandal.name,
+      points: allPoints,
+      distanceMeters: multimodal.totalWalkDistanceMeters,
+      durationSeconds: multimodal.totalDurationSeconds,
+      drivingDurationSeconds: multimodal.metroLegs.isNotEmpty ? multimodal.metroLegs.first.durationSeconds : null,
+      isFallback: multimodal.isFallback,
+    );
+  }
+
+  void _showMultimodalRouteInfo(MultimodalRoute route) {
+    _showStatusPill(
+      '🚇 ${route.summary}',
+      icon: Icons.train,
+      duration: const Duration(seconds: 5),
+    );
   }
 
   Future<void> _findAndHighlightNearestPandal() async {

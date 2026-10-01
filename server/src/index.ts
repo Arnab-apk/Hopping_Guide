@@ -15,7 +15,7 @@ import {
   broadcastToSquad,
 } from './handlers';
 import { v4 as uuidv4 } from 'uuid';
-import { handleChatRequest } from './chat/routes';
+import { handleChatRequest, handleStatusRequest } from './chat/routes';
 
 dotenv.config();
 
@@ -230,6 +230,12 @@ const server = http.createServer(async (req, res) => {
     // --------------------------------------------------------------------------
     // REST API: UMA Grounded Route Assistant Chatbot
     // --------------------------------------------------------------------------
+    if ((pathname === '/chat/status' || pathname === '/api/chat/status') && method === 'GET') {
+      const { status, data } = handleStatusRequest();
+      sendHttpJson(res, status, data);
+      return;
+    }
+
     if ((pathname === '/chat' || pathname === '/api/chat') && method === 'POST') {
       const body = await parseBody(req);
       const { status, data } = await handleChatRequest(body);

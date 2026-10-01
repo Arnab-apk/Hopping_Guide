@@ -37,17 +37,17 @@ export function detectIntent(msg: string): IntentResult {
 
   // 1. Emergency & Helpline Intent (Top priority for safety)
   if (
-    /(emergency|police|helpline|ambulance|doctor|hospital|lost child|bipod|danger|thana|phari|100|112|1090)/i.test(
+    /(emergency|police helpline|police phone|police number|call police|helpline|ambulance|doctor|hospital|lost child|bipod|danger|100|112|1090)/i.test(
       lower
     ) ||
-    /(জরুরি|পুলিশ|হেল্পলাইন|অ্যাম্বুলেন্স|হাসপাতাল|বিপদ)/.test(raw)
+    /(জরুরি|পুলিশ হেল্পলাইন|হেল্পলাইন|অ্যাম্বুলেন্স|হাসপাতাল|বিপদ)/.test(raw)
   ) {
     return { intent: 'helpline', entities: {}, language: lang };
   }
 
   // 2. Road Blockage & Barricade Intent
   if (
-    /(block|closed|closure|barricade|open|jam|traffic|road bondho|rasta bondho|barricaded|police diversion)/i.test(
+    /(block|closed|closure|barricade|open|jam|traffic|road bondho|rasta bondho|bondho ache|bondho kina|khola ache|khola kina|barricaded|police diversion)/i.test(
       lower
     ) ||
     /(বন্ধ|ব্যারিকেড|জ্যাম|রাস্তা বন্ধ|ট্রাফিক|খোলা)/.test(raw)
@@ -62,7 +62,7 @@ export function detectIntent(msg: string): IntentResult {
 
   // 3. Crowd Level Intent
   if (
-    /(crowd|busy|rush|bhir|empty|least crowded|kom bhir|line kemon|waiting time|bheer)/i.test(
+    /(crowd|busy|rush|bhir|empty|least crowded|kom bhir|line kemon|waiting time|bheer|bhidd|kothay bhir)/i.test(
       lower
     ) ||
     /(ভিড়|কম ভিড়|ফাঁকা|লাইন কেমন|ভিড়)/.test(raw)
@@ -77,7 +77,7 @@ export function detectIntent(msg: string): IntentResult {
 
   // 4. Nearest Station & Transit Intent
   if (
-    /(nearest metro|metro station|railway station|train station|nearest train|subway|kono station|kache metro)/i.test(
+    /(nearest metro|metro station|railway station|train station|nearest train|subway|kono station|kache metro|kacher metro|kache station)/i.test(
       lower
     ) ||
     /(মেট্রো|কাছের স্টেশন|ট্রেন|কাছের মেট্রো)/.test(raw)
@@ -92,7 +92,7 @@ export function detectIntent(msg: string): IntentResult {
 
   // 5. Timing & Best Hour Intent
   if (
-    /(should i go now|when to visit|best time|after 11|night|kokhon jabo|timing|time to go)/i.test(
+    /(should i go now|when to visit|best time|after 11|night|kokhon jabo|timing|time to go|akhon jabo)/i.test(
       lower
     ) ||
     /(কখন যাব|কখন ভিড় কম|এখন যাওয়া যাবে|সময়)/.test(raw)
@@ -107,10 +107,10 @@ export function detectIntent(msg: string): IntentResult {
 
   // 6. Route Intent (Default navigation query)
   if (
-    /(route|way|how to get|how to go|kibhabe jabo|kothay theke|to |theke|directions|walk to)/i.test(
+    /(route|way|how to get|how to go|kibhabe jabo|kivabe jabo|koto dur|koto time|kothay theke|to |theke|directions|walk to|jaowar rasta|jaoa jabe)/i.test(
       lower
     ) ||
-    /(কীভাবে যাব|কিভাবে যাব|যেতে হবে|থেকে|রাস্তা|পথ)/.test(raw)
+    /(কীভাবে যাব|কিভাবে যাব|যেতে হবে|থেকে|রাস্তা|পথ|কত দূর|কত সময়)/.test(raw)
   ) {
     const entities = extractRouteEndpoints(raw);
     return {

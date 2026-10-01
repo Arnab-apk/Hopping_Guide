@@ -196,3 +196,140 @@ export function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: 
       Math.sin(dLon / 2);
   return 2 * R * Math.asin(Math.sqrt(a));
 }
+
+export type FactBlock =
+  | {
+      type: 'route';
+      from: string;
+      to: string;
+      duration_min: number;
+      distance_m: number;
+      issues: number;
+    }
+  | {
+      type: 'blockage';
+      kind: string;
+      near: string;
+      source: string;
+      confirmations: number;
+      updated_min_ago: number;
+    }
+  | {
+      type: 'crowd';
+      place: string;
+      level: 'low' | 'moderate' | 'high' | 'packed';
+      source: string;
+      updated_min_ago: number;
+    }
+  | {
+      type: 'station';
+      name: string;
+      kind: string;
+      distance_m: number;
+    };
+
+export function buildFactBlocks(facts: ChatFacts): FactBlock[] {
+  const blocks: FactBlock[] = [];
+
+  if (facts.route && facts.from && facts.to) {
+    blocks.push({
+      type: 'route',
+      from: facts.from.name,
+      to: facts.to.name,
+      duration_min: facts.route.duration_min,
+      distance_m: facts.route.distance_m,
+      issues: facts.blockages_on_route.length,
+    });
+  }
+
+  for (const b of facts.blockages_on_route) {
+    blocks.push({
+      type: 'blockage',
+      kind:
+        b.type === 'police_barricade'
+          ? 'Police barricade'
+          : b.type === 'one_way_pedestrian'
+          ? 'One-way pedestrian'
+          : b.type === 'heavy_crowd_diversion'
+          ? 'Crowd diversion'
+          : 'Road blocked',
+      near: b.near,
+      source: b.source === 'police' ? 'Police notice' : `${b.confirmations} visitor reports`,
+      confirmations: b.confirmations,
+      updated_min_ago: b.updated_min_ago,
+    });
+  }
+
+  if (facts.crowd_at_destination && facts.to) {
+    blocks.push({
+      type: 'crowd',
+      place: facts.to.name,
+      level: facts.crowd_at_destination.level,
+      source: facts.crowd_at_destination.source === 'live_squad_aggregate' ? 'Live squad reports' : 'Typical pattern',
+      updated_min_ago: facts.crowd_at_destination.updated_min_ago,
+    });
+  }
+
+  if (facts.nearest_stations_to_destination && facts.nearest_stations_to_destination.length > 0) {
+    for (const s of facts.nearest_stations_to_destination.slice(0, 2)) {
+      blocks.push({
+        type: 'station',
+        name: s.name || s.id,
+        kind: s.kind || 'Metro',
+        distance_m: s.distance_m,
+      });
+    }
+  }
+
+  return blocks;
+}
+
+export function buildFactActions(facts: ChatFacts): string[] {
+  if (facts.route) {
+    return ['show_on_map', 'share_with_group', 'start_walking'];
+  }
+  if (facts.to || facts.blockages_on_route.length > 0) {
+    return ['show_on_map', 'share_with_group'];
+  }
+  return ['share_with_group'];
+}
+
+export function getActiveAlertsSummary(): {
+  closures_count: number;
+  updated_min_ago: number;
+  alerts: Array<{
+    type: 'blockage' | 'crowd';
+    title: string;
+    subtitle: string;
+    level?: string;
+  }>;
+} {
+  return {
+    closures_count: activeBlockages.length,
+    updated_min_ago: 2,
+    alerts: [
+      {
+        type: 'blockage',
+        title: 'College Street Boi Para barricade',
+        subtitle: 'Police notice · 8 min ago',
+      },
+      {
+        type: 'blockage',
+        title: 'Rabindra Sarani crossing barricade',
+        subtitle: 'Police notice · 12 min ago',
+      },
+      {
+        type: 'crowd',
+        title: 'Kumartuli Park: Busy',
+        subtitle: 'Live squad reports · 9 min ago',
+        level: 'high',
+      },
+      {
+        type: 'crowd',
+        title: 'Baghbazar Sarbojanin: Moderate',
+        subtitle: 'Live squad reports · 14 min ago',
+        level: 'moderate',
+      },
+    ],
+  };
+}

@@ -56,36 +56,19 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Header: Chat & Settings action icons with tooltips
-      expect(find.byTooltip('Group Chat'), findsOneWidget);
-      expect(find.byTooltip('Group Settings'), findsOneWidget);
+      // Header: Route Assistant icon and overflow menu
+      expect(find.byTooltip('Route assistant'), findsOneWidget);
+      expect(find.byType(PopupMenuButton<String>), findsOneWidget);
 
-      // Verify 3-dot overflow menu is completely removed
-      expect(find.byType(PopupMenuButton<String>), findsNothing);
-      expect(find.byTooltip('Squad Options'), findsNothing);
+      // Pinned Header: Code bar and tabs
+      expect(find.text('Code'), findsOneWidget);
+      expect(find.byTooltip('Copy code'), findsOneWidget);
+      expect(find.text('Share'), findsOneWidget);
+      expect(find.text('Trail'), findsOneWidget);
+      expect(find.text('People'), findsOneWidget);
+      expect(find.text('Chat'), findsOneWidget);
 
-      // Card 1: Squad Identity
-      expect(find.text("Arnab's squad"), findsOneWidget);
-      expect(find.text('1 member hopping together'), findsOneWidget);
-      // Exactly ONE "Invite Companions" button exists on the entire page
-      expect(find.text('Invite Companions'), findsOneWidget);
-      expect(find.byTooltip('Copy Group Code'), findsOneWidget);
-
-      // Card 2: GPS Sharing Toggle (Kept on main screen)
-      expect(find.text('Share Live GPS Location'), findsOneWidget);
-
-      // Card 3: Squad Members
-      expect(find.text('Members (1 Host, 0 Others)'), findsOneWidget);
-      expect(find.text('HOST'), findsOneWidget);
-      expect(find.textContaining('Tap to view Profile'), findsOneWidget);
-      // Empty state shows guidance message without duplicate button
-      expect(find.text('No companions yet — share your group code above to get started'), findsOneWidget);
-
-      // Card 4: Squad Chat & Media (tappable card with chevron, no duplicate button)
-      expect(find.text('Group Chat & Media'), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right_rounded), findsWidgets);
-
-      // Verify configuration items are NOT cluttering the main screen
+      // Verify old clutter is removed
       expect(find.text('Designated Meet-up Point'), findsNothing);
       expect(find.text('Separation Alert Distance'), findsNothing);
       expect(find.byIcon(Icons.edit_outlined), findsNothing);
@@ -109,8 +92,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Tap settings gear in AppBar
-      await tester.tap(find.byTooltip('Group Settings'));
+      // Tap overflow menu in AppBar
+      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.pumpAndSettle();
+
+      // Tap Group settings item
+      await tester.tap(find.text('Group settings'));
       await tester.pumpAndSettle();
 
       // Verify SquadSettingsScreen is shown
@@ -159,10 +146,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Card 3 header updates to 1 Other
-      expect(find.text('Members (1 Host, 1 Others)'), findsOneWidget);
+      // Switch to People tab
+      await tester.tap(find.text('People'));
+      await tester.pumpAndSettle();
+
+      // Member row is visible in People tab
       expect(find.text('Rahul Sen'), findsOneWidget);
-      expect(find.byTooltip('Call Companion'), findsOneWidget);
+      expect(find.byTooltip('Call'), findsOneWidget);
     });
 
     testWidgets('hides Call button for companion without phone number', (tester) async {
@@ -198,9 +188,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
+      // Switch to People tab
+      await tester.tap(find.text('People'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Sourav Ganguly'), findsOneWidget);
       // No call button since member has no phone number
-      expect(find.byTooltip('Call Companion'), findsNothing);
+      expect(find.byTooltip('Call'), findsNothing);
     });
 
     testWidgets('renders empty state with Create New Group and Join with Group Code buttons', (tester) async {

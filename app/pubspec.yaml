@@ -63,7 +63,18 @@ dependencies:
   app_links: ^7.2.1
   web_socket_channel: ^3.0.0
   battery_plus: ^7.1.1
-  web: ^1.1.0
+  path_provider: ^2.1.5
+  sqflite: ^2.4.2
+  path: ^1.9.1
+
+  # UI Enhancement Dependencies
+  flutter_animate: ^4.5.0              # Declarative, performant animations
+  shimmer: ^3.0.0                     # Skeleton loaders & shimmer effects
+  flutter_staggered_animations: ^1.1.1 # Staggered list/grid animations
+  animate_do: ^3.3.4                  # Animate.css port for Flutter
+  lottie: ^3.1.2                      # Lottie animations for delightful moments
+  flutter_svg: ^2.0.10                # SVG illustrations for empty states
+  speech_to_text: ^7.0.0              # Voice search integration
 
 dev_dependencies:
   flutter_test:

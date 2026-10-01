@@ -15,14 +15,17 @@ import '../repositories/supplementary_repository.dart';
 import '../services/location_service.dart';
 import '../services/pandal_search_service.dart';
 import '../services/pandal_user_state_service.dart';
+import '../utils/animation_constants.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 import '../widgets/animated_fade_slide.dart';
+import '../widgets/empty_states.dart';
 import '../widgets/pandal_card.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/pandal_search_autocomplete.dart';
 import '../widgets/puja_icons.dart';
+import '../widgets/skeleton_loaders.dart';
 import 'main_navigation_screen.dart';
 import 'map_screen.dart';
 
@@ -417,9 +420,26 @@ class _PandalListScreenState extends State<PandalListScreen> {
           // 5. Places List View
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const ContentSkeleton(itemCount: 6, itemBuilder: (i) => PandalCardSkeleton())
                 : displayList.isEmpty
-                    ? _buildEmptyState(isDark)
+                    ? EmptyStates.compact(
+                        _category == PlaceCategory.pandal
+                            ? EmptyStateType.noPandals
+                            : EmptyStateType.noFoodSpots,
+                        message: _activeTab == PandalTabFilter.favorites
+                            ? 'No favorites yet. Tap the heart on any place to save it.'
+                            : _activeTab == PandalTabFilter.visited
+                                ? 'No visited places yet. Mark places as hopped to track your journey.'
+                                : 'Try adjusting your search or filters.',
+                        onAction: () {
+                          setState(() {
+                            _searchQuery = '';
+                            _searchController.clear();
+                            _activeTab = PandalTabFilter.all;
+                            _selectedZone = null;
+                          });
+                        },
+                      )
                     : RefreshIndicator(
                         onRefresh: _loadPlaces,
                         child: ListView.builder(
@@ -430,24 +450,20 @@ class _PandalListScreenState extends State<PandalListScreen> {
                           itemCount: displayList.length,
                           itemBuilder: (context, index) {
                             final place = displayList[index];
-                            final delayMs = (index < 8) ? index * 30 : 0;
-                            return AnimatedFadeSlide(
+                            return PlaceCard(
                               key: ValueKey('${place.category.name}_${place.id}'),
-                              delay: Duration(milliseconds: delayMs),
-                              child: PlaceCard(
-                                place: place,
-                                onTap: () {
-                                  if (place.isPandal && place.rawPandal != null) {
-                                    PandalDetailSheet.show(context, place.rawPandal!);
-                                  } else if (place.isFoodSpot && place.rawFoodSpot != null) {
-                                    MapScreen.centerOnFoodSpot(context, place.rawFoodSpot!);
-                                  }
-                                },
-                                onMapTap: place.isFoodSpot && place.rawFoodSpot != null
-                                    ? () => MapScreen.centerOnFoodSpot(context, place.rawFoodSpot!)
-                                    : null,
-                              ),
-                            );
+                              place: place,
+                              onTap: () {
+                                if (place.isPandal && place.rawPandal != null) {
+                                  PandalDetailSheet.show(context, place.rawPandal!);
+                                } else if (place.isFoodSpot && place.rawFoodSpot != null) {
+                                  MapScreen.centerOnFoodSpot(context, place.rawFoodSpot!);
+                                }
+                              },
+                              onMapTap: place.isFoodSpot && place.rawFoodSpot != null
+                                  ? () => MapScreen.centerOnFoodSpot(context, place.rawFoodSpot!)
+                                  : null,
+                            ).staggerEntrance(index);
                           },
                         ),
                       ),

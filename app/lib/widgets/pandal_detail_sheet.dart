@@ -10,6 +10,8 @@ import '../repositories/supplementary_repository.dart';
 import '../screens/map_screen.dart';
 import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
+import '../services/queue_wait_service.dart';
+import '../utils/animation_constants.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
 import 'puja_icons.dart';
@@ -27,14 +29,11 @@ class PandalDetailSheet extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      useSafeArea: true,
       backgroundColor: Colors.transparent,
-      sheetAnimationStyle: const AnimationStyle(
-        curve: Curves.easeOutCubic,
-        duration: Duration(milliseconds: 320),
-        reverseCurve: Curves.easeInCubic,
-      ),
       builder: (context) => PandalDetailSheet(pandal: pandal),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
     );
   }
 
@@ -518,6 +517,11 @@ class PandalDetailSheet extends StatelessWidget {
 
                     // Nearest Public Washrooms (Female & Male)
                     _buildToiletSection(context, isDark),
+
+                    const SizedBox(height: 16),
+
+                    // Live Queue Wait Time (Crowdsourced)
+                    _buildQueueWaitSection(context, isDark),
 
                     const SizedBox(height: 18),
 
@@ -1049,5 +1053,407 @@ class PandalDetailSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildQueueWaitSection(BuildContext context, bool isDark) {
+    return StreamBuilder<Map<String, QueueWaitEstimate>>(
+      stream: QueueWaitService.instance.estimatesStream,
+      initialData: QueueWaitService.instance.getEstimates([pandal.id]),
+      builder: (context, snapshot) {
+        final estimate = snapshot.data?[pandal.id];
+        if (estimate == null || estimate.confidence == QueueConfidence.none) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                width: 0.9,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: const Icon(
+                        Icons.hourglass_top_rounded,
+                        size: 16,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Live Queue Wait Time',
+                        style: TextStyle(
+                          fontSize: context.dynamicFont(13),
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _reportQueueWait(context),
+                        icon: const Icon(Icons.add_circle_outline_rounded, size: 16),
+                        label: const Text('Report Wait Time'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          foregroundColor: isDark ? Colors.amber : Colors.orange.shade800,
+                          side: BorderSide(color: isDark ? Colors.amber : Colors.orange.shade800),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showQueueDetails(context, null),
+                        icon: const Icon(Icons.info_outline_rounded, size: 16),
+                        label: const Text('How this works'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: estimate.confidenceColor.withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: estimate.confidenceColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Icon(
+                      Icons.hourglass_top_rounded,
+                      size: 16,
+                      color: estimate.confidenceColor,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Live Queue Wait Time',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(13),
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          '${estimate.confidenceLabel} \u00b7 ${estimate.trendIcon} ${estimate.trend.name}',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(10),
+                            fontWeight: FontWeight.w500,
+                            color: estimate.confidenceColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: estimate.confidenceColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      estimate.formattedWait,
+                      style: TextStyle(
+                        fontSize: context.dynamicFont(14),
+                        fontWeight: FontWeight.w800,
+                        color: estimate.confidenceColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _reportQueueWait(context),
+                      icon: const Icon(Icons.edit_rounded, size: 16),
+                      label: const Text('Update Wait'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        foregroundColor: isDark ? Colors.amber : Colors.orange.shade800,
+                        side: BorderSide(color: isDark ? Colors.amber : Colors.orange.shade800),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showQueueDetails(context, estimate),
+                      icon: const Icon(Icons.analytics_rounded, size: 16),
+                      label: const Text('Details'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _reportQueueWait(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20, right: 20, top: 20,
+        ),
+        child: _QueueWaitReportSheet(pandalId: pandal.id, pandalName: pandal.name),
+      ),
+    );
+  }
+
+  void _showQueueDetails(BuildContext context, QueueWaitEstimate? estimate) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.8,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 16),
+              Text('Queue Wait Details', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              if (estimate != null) ...[
+                _buildDetailRow('Current Estimate', estimate.formattedWait),
+                _buildDetailRow('Confidence', estimate.confidenceLabel),
+                _buildDetailRow('Trend', '${estimate.trendIcon} ${estimate.trend.name}'),
+                _buildDetailRow('Total Reports', '${estimate.reportCount}'),
+                _buildDetailRow('Your Reports', '${estimate.userReports}'),
+                _buildDetailRow('Squad Reports', '${estimate.squadReports}'),
+                _buildDetailRow('Public Reports', '${estimate.publicReports}'),
+                _buildDetailRow('Last Updated', '${estimate.lastUpdated.hour}:${estimate.lastUpdated.minute.toString().padLeft(2, '0')}'),
+              ] else ...[
+                Text('No queue data available yet.', style: TextStyle(color: Colors.grey.shade600)),
+              ],
+              const SizedBox(height: 16),
+              Text('How it works:', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              const Text('• Users at the pandal report actual wait time via "Report Wait Time"'),
+              const Text('• Squad members\' reports are shared instantly'),
+              const Text('• Estimates use weighted average (recent reports count more)'),
+              const Text('• Data expires after 30 minutes'),
+              const Text('• More reports = higher confidence'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: const TextStyle(color: Colors.grey))),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueueWaitReportSheet extends StatefulWidget {
+  final String pandalId;
+  final String pandalName;
+  const _QueueWaitReportSheet({required this.pandalId, required this.pandalName});
+
+  @override
+  State<_QueueWaitReportSheet> createState() => _QueueWaitReportSheetState();
+}
+
+class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
+  int _waitMinutes = 15;
+  bool _submitting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
+          const SizedBox(height: 20),
+          Text('Report Queue Wait Time', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text('${widget.pandalName}', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          const SizedBox(height: 20),
+          // Wait time selector
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: _waitMinutes > 0 ? () => setState(() => _waitMinutes = (_waitMinutes - 5).clamp(0, 300)) : null,
+                icon: const Icon(Icons.remove_circle_outline_rounded, size: 28),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  _waitMinutes == 0 ? 'No wait' : '${_waitMinutes} min',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: _waitMinutes < 300 ? () => setState(() => _waitMinutes = (_waitMinutes + 5).clamp(0, 300)) : null,
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 28),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Quick preset buttons
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [5, 15, 30, 45, 60, 90, 120].map((m) => OutlinedButton(
+              onPressed: () => setState(() => _waitMinutes = m),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                foregroundColor: _waitMinutes == m ? theme.colorScheme.onPrimary : theme.colorScheme.primary,
+                backgroundColor: _waitMinutes == m ? theme.colorScheme.primary : null,
+              ),
+              child: Text('${m} min'),
+            )).toList(),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _submitting ? null : () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: _submitting ? null : _submit,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _submitting
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Submit', style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your report helps others plan better. Updates instantly for your squad.',
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
+    setState(() => _submitting = true);
+    try {
+      await QueueWaitService.instance.reportQueueWait(
+        pandalId: widget.pandalId,
+        waitMinutes: _waitMinutes,
+        source: 'user',
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Queue wait reported: ${_waitMinutes} min')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to report: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/chat_message.dart';
 import '../models/squad_member.dart';
+import '../services/queue_wait_service.dart';
 
 /// Clean Cloud Firestore repository for Durga Puja Hopping Squads.
 /// Inspired by the group & chat architecture in CHAT_APP-FLUTTER.
@@ -381,6 +382,32 @@ class SquadFirestoreRepository {
       });
     } catch (e) {
       debugPrint('[SquadFirestoreRepository] sendMessage error: $e');
+    }
+  }
+
+  /// Add a queue wait report to squad's queue_reports collection
+  Future<void> addQueueReport({
+    required String squadId,
+    required QueueReport report,
+  }) async {
+    final fs = _firestore;
+    if (fs == null) return;
+
+    try {
+      await fs
+          .collection('squads')
+          .doc(squadId)
+          .collection('queue_reports')
+          .doc('${report.pandalId}_${report.reporterId}_${report.timestamp.millisecondsSinceEpoch}')
+          .set({
+        'pandalId': report.pandalId,
+        'waitMinutes': report.waitMinutes,
+        'timestamp': report.timestamp.millisecondsSinceEpoch,
+        'reporterId': report.reporterId,
+        'source': report.source,
+      });
+    } catch (e) {
+      debugPrint('[SquadFirestoreRepository] addQueueReport error: $e');
     }
   }
 }

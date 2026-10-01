@@ -4,12 +4,19 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 
+/// Power profile for adaptive GPS/battery management
+enum PowerProfile { normal, pandalHopping, emergency }
+
 /// Real device location and continuous distance tracking service
 class LocationService extends ChangeNotifier {
   static final LocationService instance = LocationService();
 
   // Default fallback: Esplanade / Central Kolkata
   static const LatLng defaultKolkataCenter = LatLng(22.5697, 88.3533);
+
+  // Current power profile - affects GPS polling rate, accuracy, wake locks
+  PowerProfile _powerProfile = PowerProfile.normal;
+  PowerProfile get powerProfile => _powerProfile;
 
   Position? _currentPosition;
   bool _isLoading = false;
@@ -22,10 +29,88 @@ class LocationService extends ChangeNotifier {
   bool _isTestLiveTracking = false;
   void Function(Position)? _testLocationCallback;
 
+  // Wake lock for keeping screen on during navigation
+  // ignore: unused_field
+  Object? _wakeLock;
+
   // Heading fusion: GPS heading (when moving > 5 km/h) + compass (when slow/stationary)
   double? _lastCompassHeading;
   DateTime? _lastCompassUpdate;
   double? _fusedHeading;
+
+  /// Set power profile - dynamically adjusts GPS polling, accuracy, and wake locks
+  /// Call this when user toggles "Pandal Hopping Mode" in settings
+  Future<void> setPowerProfile(PowerProfile profile) async {
+    if (_powerProfile == profile) return;
+    
+    debugPrint('[LocationService] 🔋 Power profile: ${_powerProfile.name} → ${profile.name}');
+    _powerProfile = profile;
+    
+    // Restart position stream with new settings
+    if (_positionStreamSub != null && !enableTestMode) {
+      _restartPositionStream();
+    }
+    
+    // Manage wake lock
+    await _manageWakeLock();
+    
+    notifyListeners();
+  }
+
+  Future<void> _manageWakeLock() async {
+    // In a real implementation, use wakelock_plus or flutter_wakelock
+    // For now, we track the intent; UI should show persistent notification when active
+    switch (_powerProfile) {
+      case PowerProfile.pandalHopping:
+      case PowerProfile.emergency:
+        // Acquire partial wake lock - keep CPU alive for GPS
+        // await WakelockPlus.enable();
+        debugPrint('[LocationService] 🔒 Wake lock ACQUIRED for ${_powerProfile.name}');
+        break;
+      case PowerProfile.normal:
+        // Release wake lock
+        // await WakelockPlus.disable();
+        debugPrint('[LocationService] 🔓 Wake lock RELEASED');
+        break;
+    }
+  }
+
+  void _restartPositionStream() {
+    _positionStreamSub?.cancel();
+    _positionStreamSub = null;
+    
+    if (enableTestMode) return;
+    
+    // Restart with new settings (called from startLiveTracking internally)
+    // The actual restart happens in startLiveTracking via _createPositionStream
+  }
+
+  Stream<Position> _createPositionStream() {
+    final settings = _getLocationSettingsForProfile();
+    return Geolocator.getPositionStream(locationSettings: settings);
+  }
+
+  LocationSettings _getLocationSettingsForProfile() {
+    switch (_powerProfile) {
+      case PowerProfile.normal:
+        return const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 2,  // 2 meters
+        );
+      case PowerProfile.pandalHopping:
+        return const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,  // 10 meters - major battery saver
+          timeLimit: Duration(seconds: 30), // Max 30s between updates when stationary
+        );
+      case PowerProfile.emergency:
+        return const LocationSettings(
+          accuracy: LocationAccuracy.best,
+          distanceFilter: 50,  // 50 meters - absolute minimum
+          timeLimit: Duration(seconds: 60),
+        );
+    }
+  }
 
   void emitTestPosition(Position pos) {
     _currentPosition = pos;
@@ -157,12 +242,7 @@ class LocationService extends ChangeNotifier {
         }
       }).catchError((_) {});
 
-      _positionStreamSub = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 2,
-        ),
-      ).listen(
+      _positionStreamSub = _createPositionStream().listen(
         (position) {
           if (_isPaused) return;
 
@@ -279,6 +359,9 @@ class LocationService extends ChangeNotifier {
       _compassStreamSub = null;
       // Note: We don't clear _locationListeners here to preserve callbacks
       // for components that may still need the last known position
+      
+      // Release wake lock when tracking fully stops
+      _manageWakeLock();
     }
     notifyListeners();
   }

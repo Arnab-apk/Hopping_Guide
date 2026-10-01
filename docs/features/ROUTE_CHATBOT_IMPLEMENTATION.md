@@ -115,13 +115,19 @@ server/src/chat/
 
 ---
 
-## 5. Staying Within Free-Tier Limits ($0 Operating Cost)
+## 5. Multi-Tier Model Architecture & Free-Tier Resilience ($0 Operating Cost)
 
+The assistant uses an intelligent tiered backend architecture:
+1. **Primary Online Model**: **NVIDIA Nemotron 3 Ultra** (`nvidia/nemotron-3-ultra-550b-a55b`) via NVIDIA NIM API. Delivers advanced multi-step reasoning, excellent Bengali language generation, and strictly factual responses from the deterministic facts JSON.
+2. **Secondary Online Model**: **Google Gemini 1.5 Flash** as an automatic fallback if NVIDIA NIM is unavailable or quota-limited.
+3. **Offline & Zero-Cost Fallback**: Instant multilingual deterministic templates if all LLMs are offline, rate-limited, or network fails.
+
+### Free-Tier Protections
 1. **Per-Device Rate Limiting**: Max 10 queries per device per hour.
-2. **Global Daily Quota Protection**: When daily Gemini API requests exceed 80% of quota (~800 requests), system seamlessly switches all queries to deterministic template fallback.
-3. **Response Caching (60s TTL)**: Repeated common queries (e.g., "Howrah to College Square") serve cached responses without hitting the LLM.
+2. **Global Daily Quota Protection**: When daily API calls exceed the safety threshold, the system automatically routes queries to deterministic templates.
+3. **Response Caching (60s TTL)**: Repeated queries (e.g., "Howrah to College Square") serve cached responses without hitting the LLM.
 4. **Quick-Reply Template Shortcuts**: Frequently tapped chips ("Emergency Helplines", "Nearest Metro") skip the LLM and render instant grounded templates.
-5. **Token Cap**: Output tokens capped at 300 tokens to ensure rapid generation and minimal consumption.
+5. **Secure Credential Isolation**: API keys (`NVIDIA_API_KEY`, `GEMINI_API_KEY`) live exclusively in server-side `.env` (gitignored) and are never embedded into the Flutter client APK.
 
 ---
 

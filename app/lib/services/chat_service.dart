@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/route_chat_models.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/station_repository.dart';
+import '../utils/constants.dart';
 import '../utils/haversine.dart';
 
 /// Client service for the UMA Route Assistant Chatbot.
@@ -35,30 +37,40 @@ class ChatService {
   final StationRepository _stationRepo;
 
   String? _cachedDeviceId;
+  String? _resolvedBaseUrl;
 
-  /// Resolves the backend base URL across web, Android emulator, and desktop/iOS.
-  String get baseUrl {
+  /// Candidate backend URLs tried in order of priority.
+  List<String> get candidateBaseUrls {
     final customUrl = _configuredBaseUrl;
-    if (customUrl != null && customUrl.isNotEmpty) return customUrl;
+    if (customUrl != null && customUrl.isNotEmpty) return [customUrl];
 
     const envUrl = String.fromEnvironment('BACKEND_SERVER_URL');
-    if (envUrl.isNotEmpty) return envUrl;
+    if (envUrl.isNotEmpty) return [envUrl];
 
     const neonUrl = String.fromEnvironment('NEON_API_URL');
-    if (neonUrl.isNotEmpty) return neonUrl;
+    if (neonUrl.isNotEmpty) return [neonUrl];
 
-    // Android emulator maps host localhost to 10.0.2.2
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080';
+      return [
+        'http://127.0.0.1:8080',      // Physical device (USB adb reverse tunnel)
+        'http://localhost:8080',      // Physical device (USB adb reverse tunnel)
+        'http://192.168.0.102:8080',  // Physical device (Local Wi-Fi network)
+        'http://10.0.2.2:8080',       // Android emulator
+      ];
     }
-    return 'http://localhost:8080';
+    return ['http://localhost:8080', 'http://127.0.0.1:8080'];
   }
+
+  /// Resolves the backend base URL across web, Android emulator, and desktop/iOS.
+  String get baseUrl => _resolvedBaseUrl ?? candidateBaseUrls.first;
 
   /// Obtains or generates a persistent, privacy-preserving anonymous device ID.
   /// Never linked to phone number, Google account, or hardware IMEI.
   Future<String> getDeviceId() async {
-    if (_explicitDeviceId != null) return _explicitDeviceId!;
-    if (_cachedDeviceId != null) return _cachedDeviceId!;
+    final explicit = _explicitDeviceId;
+    if (explicit != null) return explicit;
+    final cached = _cachedDeviceId;
+    if (cached != null) return cached;
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -77,6 +89,25 @@ class ChatService {
     }
   }
 
+  /// Fetches live closure count and top alerts for the empty state.
+  Future<ChatStatusSummary> getStatus() async {
+    final candidates = _resolvedBaseUrl != null ? [_resolvedBaseUrl!] : candidateBaseUrls;
+
+    for (final candidate in candidates) {
+      try {
+        final uri = Uri.parse('$candidate/chat/status');
+        final response = await _client.get(uri).timeout(const Duration(seconds: 4));
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          _resolvedBaseUrl = candidate;
+          final data = jsonDecode(response.body) as Map<String, dynamic>;
+          return ChatStatusSummary.fromJson(data);
+        }
+      } catch (_) {}
+    }
+
+    return ChatStatusSummary.fallback;
+  }
+
   /// Ask a route or crowd question to the UMA Route Assistant.
   Future<ChatReply> ask(
     String message, {
@@ -89,40 +120,49 @@ class ChatService {
     }
 
     final devId = await getDeviceId();
+    final candidates = _resolvedBaseUrl != null ? [_resolvedBaseUrl!] : candidateBaseUrls;
 
-    try {
-      final uri = Uri.parse('$baseUrl/chat');
-      final payload = {
-        'deviceId': devId,
-        'message': trimmed,
-        if (route != null) 'route': route.toJson(),
-        'lang': lang,
-      };
+    for (final candidate in candidates) {
+      try {
+        final uri = Uri.parse('$candidate/chat');
+        final payload = {
+          'deviceId': devId,
+          'message': trimmed,
+          if (route != null) 'route': route.toJson(),
+          'lang': lang,
+        };
 
-      final response = await _client
-          .post(
-            uri,
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(payload),
-          )
-          .timeout(const Duration(seconds: 15));
+        final response = await _client
+            .post(
+              uri,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode(payload),
+            )
+            .timeout(const Duration(seconds: 15));
 
-      if (response.statusCode == 429) {
-        return ChatReply.rateLimited();
+        if (response.statusCode == 429) {
+          _resolvedBaseUrl = candidate;
+          return ChatReply.rateLimited();
+        }
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          _resolvedBaseUrl = candidate;
+          final data = jsonDecode(response.body) as Map<String, dynamic>;
+          return ChatReply.fromJson(data);
+        }
+
+        debugPrint('[ChatService] Endpoint $candidate returned ${response.statusCode}');
+      } catch (e) {
+        debugPrint('[ChatService] Failed to reach $candidate: $e');
+        if (_resolvedBaseUrl == candidate) {
+          _resolvedBaseUrl = null;
+        }
       }
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        return ChatReply.fromJson(data);
-      }
-
-      // Non-200 response -> execute deterministic local fallback
-      debugPrint('[ChatService] Server returned ${response.statusCode}, falling back to local data');
-      return await _localFallback(trimmed, route);
-    } catch (e) {
-      debugPrint('[ChatService] Network error ($e), running offline local fallback');
-      return await _localFallback(trimmed, route);
     }
+
+    // All endpoints failed or timed out -> execute deterministic local fallback
+    debugPrint('[ChatService] All server endpoints unreachable, falling back to local data');
+    return await _localFallback(trimmed, route);
   }
 
   /// Deterministic on-device fallback using bundled pandals and stations GeoJSON.
@@ -156,18 +196,18 @@ class ChatService {
         if (q.contains(p.name.toLowerCase()) ||
             p.name.toLowerCase().split(' ').any((w) => w.length > 3 && q.contains(w))) {
           final metro = p.nearestMetro;
-          final stations = _stationRepo.getNearest(p.location, limit: 2);
+          final stations = _stationRepo.getNearest(LatLng(p.lat, p.lng), limit: 2);
           final buffer = StringBuffer();
           buffer.write('Nearest transit to ${p.name}:\n');
           if (metro != null && metro.isNotEmpty) {
             buffer.write('🚇 Metro: $metro Metro Station\n');
           }
           if (stations.isNotEmpty) {
-            buffer.write('🚆 Nearby Stations: ' +
-                stations.map((s) {
-                  final dist = haversineMeters(p.lat, p.lng, s.lat, s.lon);
-                  return '${s.name} (${(dist / 1000).toStringAsFixed(1)} km)';
-                }).join(', '));
+            final stationDetails = stations.map((s) {
+              final dist = haversineMeters(p.lat, p.lng, s.lat, s.lon);
+              return '${s.name} (${(dist / 1000).toStringAsFixed(1)} km)';
+            }).join(', ');
+            buffer.write('🚆 Nearby Stations: $stationDetails');
           }
           return ChatReply.fallback(buffer.toString(), factsAsOf: DateTime.now());
         }
@@ -180,7 +220,7 @@ class ChatService {
         return ChatReply.fallback(
           'Station Info: ${s.name} (${s.code ?? 'Kolkata Metro'})\n'
           'Lines: ${s.lines.join(", ")}\n'
-          'Zone: ${s.zone ?? "Kolkata"}',
+          'Network: ${s.network ?? "Kolkata Transit"}',
           factsAsOf: DateTime.now(),
         );
       }
@@ -205,10 +245,11 @@ class ChatService {
     final pandals = await _pandalRepo.all();
     for (final p in pandals) {
       if (q.contains(p.name.toLowerCase())) {
+        final crowd = (p.crowdLevel ?? 'Normal').toUpperCase();
         return ChatReply.fallback(
           '${p.name} (${p.zone.label}):\n'
-          '• Theme: ${p.theme ?? "Traditional"}\n'
-          '• Crowd level: ${p.crowdLevel.toUpperCase()}\n'
+          '• Theme: ${p.theme}\n'
+          '• Crowd level: $crowd\n'
           '• Nearest Metro: ${p.nearestMetro ?? "Shyambazar / Central"}\n'
           '• Timings: ${p.timings}',
           factsAsOf: DateTime.now(),

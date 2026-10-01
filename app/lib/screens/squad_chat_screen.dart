@@ -13,6 +13,7 @@ import '../services/auth_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
 import '../widgets/puja_icons.dart';
+import 'route_chat_screen.dart';
 
 /// Screen for private squad text chat, live crowd updates, and photo/video sharing.
 class SquadChatScreen extends StatefulWidget {
@@ -20,10 +21,12 @@ class SquadChatScreen extends StatefulWidget {
     super.key,
     required this.squadCode,
     required this.squadName,
+    this.embedded = false,
   });
 
   final String squadCode;
   final String squadName;
+  final bool embedded;
 
   static void open(BuildContext context, {required String squadCode, required String squadName}) {
     Navigator.push(
@@ -371,26 +374,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     final currentUserId = Provider.of<AuthService>(context, listen: false).currentUserModel?.uid ?? 'user_self';
     final squadService = Provider.of<SquadService>(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.squadName,
-              style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            Text(
-              squadService.members.length == 1 ? '1 member' : '${squadService.members.length} members',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                color: isDark ? Colors.white60 : Colors.black54,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: Column(
+    final chatBody = Column(
         children: [
           // Messages List
           Expanded(
@@ -499,7 +483,42 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
             ),
           ),
         ],
+      );
+
+    if (widget.embedded) {
+      return chatBody;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.squadName,
+              style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              squadService.members.length == 1 ? '1 member' : '${squadService.members.length} members',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                color: isDark ? Colors.white60 : Colors.black54,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.alt_route),
+            tooltip: 'Route assistant',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              Navigator.push(context, RouteChatScreen.route());
+            },
+          ),
+        ],
       ),
+      body: chatBody,
     );
   }
 

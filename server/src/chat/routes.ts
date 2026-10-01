@@ -1,6 +1,13 @@
 import { detectIntent } from './intent';
 import { resolvePlace, ResolvedPlace } from './resolve';
-import { gatherRouteFacts, RouteClientSummary } from './facts';
+import {
+  gatherRouteFacts,
+  RouteClientSummary,
+  FactBlock,
+  buildFactBlocks,
+  buildFactActions,
+  getActiveAlertsSummary,
+} from './facts';
 import { askLLM } from './llm';
 import {
   templateRouteAnswer,
@@ -29,12 +36,21 @@ export interface ChatResponseBody {
   facts_as_of: string;
   used_llm: boolean;
   intent: string;
+  blocks?: FactBlock[];
+  actions?: string[];
   detected_places?: {
     from?: string;
     to?: string;
     place?: string;
   };
   suggestions?: string[];
+}
+
+export function handleStatusRequest(): { status: number; data: any } {
+  return {
+    status: 200,
+    data: getActiveAlertsSummary(),
+  };
 }
 
 export async function handleChatRequest(body: ChatRequestBody): Promise<{ status: number; data: any }> {
@@ -176,6 +192,9 @@ export async function handleChatRequest(body: ChatRequestBody): Promise<{ status
   // Cache response for 60 seconds
   setCachedAnswer(cacheKey, answer, facts.generated_at, usedLlm, 60);
 
+  const blocks = buildFactBlocks(facts);
+  const actions = buildFactActions(facts);
+
   return {
     status: 200,
     data: {
@@ -183,6 +202,8 @@ export async function handleChatRequest(body: ChatRequestBody): Promise<{ status
       facts_as_of: facts.generated_at,
       used_llm: usedLlm,
       intent,
+      blocks,
+      actions,
       detected_places: {
         from: fromPlace?.name,
         to: toPlace?.name,

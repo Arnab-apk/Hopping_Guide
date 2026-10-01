@@ -28,9 +28,9 @@ class SquadNeonApi {
     if (customUrl != null && customUrl.isNotEmpty) return customUrl;
     const envUrl = String.fromEnvironment('NEON_API_URL');
     if (envUrl.isNotEmpty) return envUrl;
-    // Android emulator maps host machine localhost to 10.0.2.2
+    // Physical device with adb reverse (or emulator with reverse)
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://10.0.2.2:8080';
+      return 'http://127.0.0.1:8080';
     }
     return 'http://localhost:8080';
   }

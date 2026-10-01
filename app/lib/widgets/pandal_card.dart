@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,7 @@ import '../models/pandal.dart';
 import '../models/place.dart';
 import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
+import '../utils/animation_constants.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
 import 'puja_icons.dart';
@@ -43,6 +45,8 @@ class PlaceCard extends StatelessWidget {
           (s) => s?.isVisited(place.id) ?? false,
         );
 
+    final pandal = place.isPandal ? place.rawPandal : null;
+
     // Real distance formatted string
     final distanceLabel = distanceKm != null
         ? '${distanceKm!.toStringAsFixed(1)} km'
@@ -50,7 +54,8 @@ class PlaceCard extends StatelessWidget {
             (loc) => loc?.formatDistance(place.latitude, place.longitude),
           );
 
-    return RepaintBoundary(
+    // Build card content
+    final cardContent = RepaintBoundary(
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         elevation: 0,
@@ -103,7 +108,10 @@ class PlaceCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              PujaIcon.shankha(size: context.dynamicIcon(18), color: Colors.green),
+                              PujaIcon.shankha(
+                                size: context.dynamicIcon(18),
+                                color: Colors.green,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Hopped',
@@ -143,7 +151,9 @@ class PlaceCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? const Color(0xFFE08B8D) : AppColors.accentPrimary,
+                            color: isDark
+                                ? const Color(0xFFE08B8D)
+                                : AppColors.accentPrimary,
                           ),
                         ),
                       ),
@@ -213,28 +223,39 @@ class PlaceCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   )
-                else if (place.isFoodSpot && place.mustTry != null && place.mustTry!.isNotEmpty)
+                else if (place.isFoodSpot &&
+                    place.mustTry != null &&
+                    place.mustTry!.isNotEmpty)
                   Container(
                     width: double.infinity,
                     margin: const EdgeInsets.only(top: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.accentPrimary.withValues(alpha: isDark ? 0.16 : 0.09),
+                      color: AppColors.accentPrimary.withValues(
+                        alpha: isDark ? 0.16 : 0.09,
+                      ),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: AppColors.accentPrimary.withValues(alpha: 0.28)),
+                      border: Border.all(
+                        color: AppColors.accentPrimary.withValues(alpha: 0.28),
+                      ),
                     ),
                     child: Text(
                       '🍲 Must Try: ${place.mustTry}',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? const Color(0xFFE08B8D) : AppColors.accentPrimary,
+                        color: isDark
+                            ? const Color(0xFFE08B8D)
+                            : AppColors.accentPrimary,
                       ),
                     ),
                   ),
 
                 const SizedBox(height: 10),
-                Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.35)),
+                Divider(
+                  height: 1,
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                ),
                 const SizedBox(height: 8),
 
                 // 4. Footer: Metro/Timings/Nearby, Real Distance & Rating
@@ -244,8 +265,13 @@ class PlaceCard extends StatelessWidget {
                   child: Row(
                     children: [
                       if (place.isPandal) ...[
-                        if (place.nearestMetro != null && place.nearestMetro!.isNotEmpty) ...[
-                          Icon(Icons.directions_subway_rounded, size: context.dynamicIcon(15), color: PujaColors.metroBlue),
+                        if (place.nearestMetro != null &&
+                            place.nearestMetro!.isNotEmpty) ...[
+                          Icon(
+                            Icons.directions_subway_rounded,
+                            size: context.dynamicIcon(15),
+                            color: PujaColors.metroBlue,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             place.nearestMetro!,
@@ -257,20 +283,33 @@ class PlaceCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ] else if (place.timings != null && place.timings!.isNotEmpty) ...[
-                          Icon(Icons.schedule_rounded, size: context.dynamicIcon(15), color: colorScheme.onSurfaceVariant),
+                        ] else if (place.timings != null &&
+                            place.timings!.isNotEmpty) ...[
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: context.dynamicIcon(15),
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             place.timings!,
-                            style: GoogleFonts.plusJakartaSans(fontSize: context.dynamicFont(11.5), color: colorScheme.onSurfaceVariant),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: context.dynamicFont(11.5),
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ] else ...[
                         // Food spot nearby pandal context
-                        if (place.nearbyPandal != null && place.nearbyPandal!.isNotEmpty) ...[
-                          Icon(Icons.location_on_outlined, size: context.dynamicIcon(15), color: colorScheme.onSurfaceVariant),
+                        if (place.nearbyPandal != null &&
+                            place.nearbyPandal!.isNotEmpty) ...[
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: context.dynamicIcon(15),
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Near ${place.nearbyPandal}',
@@ -285,7 +324,10 @@ class PlaceCard extends StatelessWidget {
                       if (distanceLabel != null) ...[
                         const SizedBox(width: 10),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: colorScheme.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(20),
@@ -293,7 +335,11 @@ class PlaceCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.near_me_rounded, size: context.dynamicIcon(11), color: colorScheme.primary),
+                              Icon(
+                                Icons.near_me_rounded,
+                                size: context.dynamicIcon(11),
+                                color: colorScheme.primary,
+                              ),
                               const SizedBox(width: 3),
                               Text(
                                 distanceLabel,
@@ -312,7 +358,11 @@ class PlaceCard extends StatelessWidget {
                         const SizedBox(width: 10),
                         Row(
                           children: [
-                            Icon(Icons.star_rounded, size: context.dynamicIcon(15), color: AppColors.accentGold),
+                            Icon(
+                              Icons.star_rounded,
+                              size: context.dynamicIcon(15),
+                              color: AppColors.accentGold,
+                            ),
                             const SizedBox(width: 2),
                             Text(
                               place.rating!.toStringAsFixed(1),
@@ -330,14 +380,25 @@ class PlaceCard extends StatelessWidget {
                         const SizedBox(width: 10),
                         TextButton.icon(
                           style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          icon: const Icon(Icons.map_outlined, size: 14, color: AppColors.accentPrimary),
+                          icon: const Icon(
+                            Icons.map_outlined,
+                            size: 14,
+                            color: AppColors.accentPrimary,
+                          ),
                           label: const Text(
                             'Map',
-                            style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: AppColors.accentPrimary),
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.accentPrimary,
+                            ),
                           ),
                           onPressed: onMapTap ?? onTap,
                         ),
@@ -351,6 +412,26 @@ class PlaceCard extends StatelessWidget {
         ),
       ),
     );
+
+    // Add entrance animation for pandal cards
+    if (pandal != null) {
+      return cardContent.animate(
+        effects: [
+          FadeEffect(
+            duration: AppDurations.emphasis,
+            curve: AppCurves.standardEaseOut,
+          ),
+          SlideEffect(
+            begin: const Offset(0, 0.15),
+            end: Offset.zero,
+            duration: AppDurations.emphasis,
+            curve: AppCurves.standardEaseOut,
+          ),
+        ],
+      );
+    }
+
+    return cardContent;
   }
 }
 

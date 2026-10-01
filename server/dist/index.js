@@ -244,6 +244,11 @@ const server = http_1.default.createServer(async (req, res) => {
         // --------------------------------------------------------------------------
         // REST API: UMA Grounded Route Assistant Chatbot
         // --------------------------------------------------------------------------
+        if ((pathname === '/chat/status' || pathname === '/api/chat/status') && method === 'GET') {
+            const { status, data } = (0, routes_1.handleStatusRequest)();
+            sendHttpJson(res, status, data);
+            return;
+        }
         if ((pathname === '/chat' || pathname === '/api/chat') && method === 'POST') {
             const body = await parseBody(req);
             const { status, data } = await (0, routes_1.handleChatRequest)(body);

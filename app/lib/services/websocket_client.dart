@@ -54,7 +54,7 @@ class WebSocketClient {
     }
 
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'ws://10.0.2.2:8080/ws';
+      return 'ws://127.0.0.1:8080/ws';
     }
 
     return 'ws://localhost:8080/ws';
