@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/route_chat_models.dart';
 import '../services/chat_service.dart';
+import '../widgets/custom_trail_planner_dialog.dart';
+import 'map_screen.dart';
+import 'main_navigation_screen.dart';
 
 /// Interactive Route Assistant for Kolkata Durga Puja.
 /// Implements the clean, card-based, human UI redesign defined in
@@ -126,6 +129,12 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
         route: widget.initialRoute,
       );
 
+      final isRouteRequest = RegExp(r'\b(route|way|walk|go to|directions|how to get|jabo|jao|rasta)\b', caseSensitive: false)
+          .hasMatch(clean);
+      final replyActions = <String>{
+        ...reply.actions,
+        if (isRouteRequest) 'show_on_map',
+      }.toList();
       final botMsg = RouteChatMessage(
         id: 'msg_${DateTime.now().millisecondsSinceEpoch}_b',
         text: reply.answer,
@@ -137,7 +146,8 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
         isError: reply.isError,
         suggestions: reply.suggestions,
         blocks: reply.blocks,
-        actions: reply.actions,
+        actions: replyActions,
+        sourceQuery: clean,
       );
 
       if (mounted) {
@@ -418,23 +428,33 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FilledButton.tonal(
-                    onPressed: () {
-                      final dest = _quickToController.text.trim();
-                      if (dest.isNotEmpty) {
-                        _sendMessage('Best way to $dest from current location');
-                      } else {
-                        _sendMessage('Best route to nearest major pandal');
-                      }
-                    },
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                      visualDensity: VisualDensity.compact,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () => CustomTrailPlannerDialog.show(context),
+                      icon: const Icon(Icons.tune_rounded, size: 16),
+                      label: const Text('Build custom'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
-                    child: const Text('Check route'),
-                  ),
+                    const SizedBox(width: 8),
+                    FilledButton.tonal(
+                      onPressed: () {
+                        final dest = _quickToController.text.trim();
+                        _sendMessage(dest.isNotEmpty
+                            ? 'Best way to $dest from current location'
+                            : 'Best route to nearest major pandal');
+                      },
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text('Check route'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -833,6 +853,12 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
       onPressed: () {
         HapticFeedback.selectionClick();
         if (action == 'show_on_map' || action == 'start_walking') {
+          final query = msg.sourceQuery;
+          if (query != null && query.isNotEmpty) {
+            MapScreen.requestAssistantRoute(context, query);
+          } else {
+            MainNavigationScreen.switchToTab(0);
+          }
           Navigator.of(context).pop();
         } else if (action == 'share_with_group') {
           Clipboard.setData(ClipboardData(text: msg.text));

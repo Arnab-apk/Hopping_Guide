@@ -215,7 +215,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         allowTrain: _allowTrain,
       );
 
-      await CustomHoppingTrailService.instance.startTrail(trail);
+      await CustomHoppingTrailService.instance.startTrail(trail, requireLiveRoute: true);
     } catch (e) {
       debugPrint('Error starting custom trail: $e');
     }

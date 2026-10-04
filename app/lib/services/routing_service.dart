@@ -206,7 +206,10 @@ class RoutingService {
     }
 
     final url = Uri.parse(
-      'https://router.project-osrm.org/route/v1/foot/$startLng,$startLat;$destLng,$destLat?overview=full&geometries=geojson',
+      // OSRM's public cluster does not publish the foot profile reliably
+      // (it frequently returns HTTP 400). Its road geometry is still a live,
+      // street-following path and is preferable to drawing a straight line.
+      'https://router.project-osrm.org/route/v1/driving/$startLng,$startLat;$destLng,$destLat?overview=full&geometries=geojson',
     );
 
     try {
@@ -282,6 +285,27 @@ class RoutingService {
       destinationName: destinationName,
       targetPandal: targetPandal,
     );
+  }
+
+  /// Requests a street route for interactive assistant actions. Callers that
+  /// need trustworthy map guidance can reject the straight-line safety route
+  /// instead of presenting it as a real street path.
+  Future<WalkingRoute> getLiveWalkingRouteToPoint({
+    required LatLng start,
+    required LatLng destination,
+    required String destinationName,
+    Pandal? targetPandal,
+  }) async {
+    final route = await getWalkingRouteToPoint(
+      start: start,
+      destination: destination,
+      destinationName: destinationName,
+      targetPandal: targetPandal,
+    );
+    if (route.isFallback) {
+      throw StateError('Live street routing is unavailable');
+    }
+    return route;
   }
 
   WalkingRoute _buildGeodesicFallback({
@@ -366,7 +390,7 @@ class RoutingService {
         .join(';');
 
     final url = Uri.parse(
-      'https://router.project-osrm.org/trip/v1/foot/$coordsParam?roundtrip=false&source=first&destination=last&geometries=geojson',
+      'https://router.project-osrm.org/trip/v1/driving/$coordsParam?roundtrip=false&source=first&destination=last&geometries=geojson',
     );
 
     try {
@@ -429,6 +453,17 @@ class RoutingService {
     }
 
     return _buildMultiStopGeodesicFallback(waypoints, routeTitle);
+  }
+
+  Future<WalkingRoute> getLiveMultiStopRoute({
+    required List<LatLng> waypoints,
+    String? routeTitle,
+  }) async {
+    final route = await getMultiStopRoute(waypoints: waypoints, routeTitle: routeTitle);
+    if (route.isFallback) {
+      throw StateError('Live street routing is unavailable');
+    }
+    return route;
   }
 
   WalkingRoute _buildMultiStopGeodesicFallback(List<LatLng> waypoints, String? title) {

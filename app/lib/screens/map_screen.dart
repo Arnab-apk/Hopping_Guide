@@ -50,6 +50,7 @@ import '../models/station.dart';
 import '../repositories/station_repository.dart';
 import '../widgets/station_detail_sheet.dart';
 import 'main_navigation_screen.dart';
+import 'route_chat_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository, this.onMapReady});
@@ -115,6 +116,13 @@ class MapScreen extends StatefulWidget {
   pendingToiletAction = ValueNotifier<({ToiletEntry toilet, bool traceRoute})?>(
     null,
   );
+
+  static final ValueNotifier<String?> pendingAssistantRouteQuery = ValueNotifier<String?>(null);
+
+  static void requestAssistantRoute(BuildContext context, String query) {
+    pendingAssistantRouteQuery.value = query;
+    MainNavigationScreen.switchTab(context, 0);
+  }
 
   /// Helper to route to a toilet from any screen without external apps
   static void routeToToilet(BuildContext context, ToiletEntry toilet) {
@@ -454,6 +462,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         (_) => _onPendingToiletAction(),
       );
     }
+    MapScreen.pendingAssistantRouteQuery.addListener(_onPendingAssistantRouteQuery);
+    if (MapScreen.pendingAssistantRouteQuery.value != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _onPendingAssistantRouteQuery());
+    }
     _loadData();
     _startContinuousTracking();
     _initTts();
@@ -487,6 +499,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     MapScreen.pendingToiletAction.removeListener(
       _onPendingToiletAction,
     );
+    MapScreen.pendingAssistantRouteQuery.removeListener(_onPendingAssistantRouteQuery);
     _statusOverlayTimer?.cancel();
     _contextualTimer?.cancel();
     _contextualTimer = null;
@@ -507,6 +520,73 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _tts?.stop();
     _tts = null;
     super.dispose();
+  }
+
+  Future<void> _onPendingAssistantRouteQuery() async {
+    final query = MapScreen.pendingAssistantRouteQuery.value;
+    if (query == null || query.trim().isEmpty) return;
+    MapScreen.pendingAssistantRouteQuery.value = null;
+    final normalized = query.toLowerCase();
+    Pandal? pandal;
+    for (final candidate in _pandals) {
+      if (normalized.contains(candidate.name.toLowerCase()) ||
+          (candidate.area != null && normalized.contains(candidate.area!.toLowerCase()))) {
+        pandal = candidate;
+        break;
+      }
+    }
+    if (pandal != null) {
+      await _highlightRouteTo(pandal, requireLive: true);
+      return;
+    }
+    final stations = await StationRepository.instance.allStations();
+    Station? station;
+    for (final candidate in stations) {
+      final name = candidate.name.toLowerCase();
+      final code = candidate.code?.toLowerCase() ?? '';
+      if (normalized.contains(name) || (code.isNotEmpty && normalized.contains(code))) {
+        station = candidate;
+        break;
+      }
+    }
+    if (station != null) {
+      await _highlightRouteToStation(station);
+      return;
+    }
+    _showStatusPill('Choose a pandal or station on the map to build this route', icon: Icons.route_rounded);
+  }
+
+  Future<void> _highlightRouteToStation(Station station) async {
+    final current = _effectiveUserLocation ?? LocationService.defaultKolkataCenter;
+    setState(() {
+      _isCalculatingRoute = true;
+      _selectedPandal = null;
+      _selectedSquadMember = null;
+      _selectedStation = station;
+    });
+    try {
+      final route = await RoutingService.instance.getLiveWalkingRouteToPoint(
+        start: current,
+        destination: LatLng(station.lat, station.lon),
+        destinationName: station.displayName,
+      );
+      if (!mounted) return;
+      setState(() {
+        _highlightedRoute = route;
+        _isCalculatingRoute = false;
+      });
+      if (route.points.length > 1) {
+        _mapController.fitCamera(CameraFit.bounds(
+          bounds: LatLngBounds.fromPoints(route.points),
+          padding: const EdgeInsets.fromLTRB(48, 160, 48, 240),
+        ));
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isCalculatingRoute = false);
+        _showStatusPill('Live route unavailable right now', icon: Icons.warning_amber_rounded);
+      }
+    }
   }
 
   void _onPendingFoodSpotAction() {
@@ -1007,7 +1087,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _highlightRouteTo(Pandal pandal) async {
+  Future<void> _highlightRouteTo(Pandal pandal, {bool requireLive = false}) async {
     HapticFeedback.mediumImpact();
     FocusScope.of(context).unfocus();
     var userPos = _userPosition;
@@ -1052,6 +1132,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       );
 
       final route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
+      if (requireLive && route.isFallback) {
+        throw StateError('Live street routing is unavailable');
+      }
       _showMultimodalRouteInfo(multimodal);
 
       if (!mounted) return;
@@ -1647,6 +1730,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: [
+          Positioned(
+            top: 12,
+            left: 16,
+            right: 16,
+            child: _buildAssistantHomeCard(context, isDark),
+          ),
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -3192,6 +3281,43 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAssistantHomeCard(BuildContext context, bool isDark) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(18),
+      color: scheme.surface.withValues(alpha: 0.96),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => Navigator.of(context).push(RouteChatScreen.route()),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: scheme.primaryContainer,
+                child: Icon(Icons.auto_awesome_rounded, color: scheme.onPrimaryContainer, size: 19),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Ask UMA', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+                    SizedBox(height: 2),
+                    Text('Plan a live route or find a quieter pandal', style: TextStyle(fontSize: 11.5)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
       ),
     );
   }

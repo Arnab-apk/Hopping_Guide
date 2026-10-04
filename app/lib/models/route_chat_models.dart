@@ -372,6 +372,7 @@ class RouteChatMessage {
     this.blocks = const [],
     this.actions = const [],
     this.routeSummary,
+    this.sourceQuery,
   });
 
   final String id;
@@ -386,6 +387,9 @@ class RouteChatMessage {
   final List<ChatFactBlock> blocks;
   final List<String> actions;
   final RouteSummary? routeSummary;
+  /// The user's request that produced this answer. Used by map actions so a
+  /// route can be materialized from the same destination the user asked for.
+  final String? sourceQuery;
 
   String get formattedTime {
     final hour = timestamp.hour.toString().padLeft(2, '0');

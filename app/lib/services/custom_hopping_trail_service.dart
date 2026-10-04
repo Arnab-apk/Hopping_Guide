@@ -472,13 +472,17 @@ class CustomHoppingTrailService extends ChangeNotifier {
 
   /// Starts the active trail session, enables continuous location listening,
   /// and displays the ongoing progress notification in the Android shade.
-  Future<void> startTrail(ActiveCustomTrail trail) async {
+  Future<void> startTrail(ActiveCustomTrail trail, {bool requireLiveRoute = false}) async {
     _activeTrail = trail;
     _activeTrail!.currentStopIndex = 0;
     _activeTrail!.isCompleted = false;
 
     // Immediately trigger asynchronous real road routing calculation
-    unawaited(calculateAndApplyRoadRoute(trail));
+    if (requireLiveRoute) {
+      await calculateAndApplyRoadRoute(trail, requireLive: true);
+    } else {
+      unawaited(calculateAndApplyRoadRoute(trail));
+    }
 
     // Start location tracking if not running
     await LocationService.instance.startLiveTracking();
@@ -502,7 +506,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
 
   /// Computes a real street-following pedestrian route for the active custom trail
   /// using [RoutingService] and updates polyline, distance, and duration stats.
-  Future<void> calculateAndApplyRoadRoute(ActiveCustomTrail trail) async {
+  Future<void> calculateAndApplyRoadRoute(ActiveCustomTrail trail, {bool requireLive = false}) async {
     if (trail.stops.isEmpty) return;
 
     if (trail.hasTransitLegs) {
@@ -703,10 +707,15 @@ class CustomHoppingTrailService extends ChangeNotifier {
 
     try {
       debugPrint('[TrailService] Calling multi-stop OSRM route with ${waypoints.length} waypoints');
-      final route = await RoutingService.instance.getMultiStopRoute(
-        waypoints: waypoints,
-        routeTitle: 'Custom Hopping Trail',
-      );
+      final route = requireLive
+          ? await RoutingService.instance.getLiveMultiStopRoute(
+              waypoints: waypoints,
+              routeTitle: 'Custom Hopping Trail',
+            )
+          : await RoutingService.instance.getMultiStopRoute(
+              waypoints: waypoints,
+              routeTitle: 'Custom Hopping Trail',
+            );
 
       debugPrint('[TrailService] Multi-stop route: ${route.points.length} pts, isFallback=${route.isFallback}, ${(route.distanceMeters/1000).toStringAsFixed(2)} km');
       final distanceKm = double.parse((route.distanceMeters / 1000.0).toStringAsFixed(1));
