@@ -52,8 +52,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 1023
@@ -228,20 +228,20 @@
         "distance_m": 779
       },
       {
+        "id": "stn_9884790401",
+        "name": "Sealdah",
+        "name_bn": "শিয়ালদহ",
+        "code": "SDAH",
+        "kind": "rail",
+        "distance_m": 892
+      },
+      {
         "id": "stn_m_mg_road",
         "name": "Mahatma Gandhi Road Metro",
         "name_bn": "মহাত্মা গান্ধী রোড মেট্রো",
         "code": "KMGR",
         "kind": "metro",
         "distance_m": 906
-      },
-      {
-        "id": "stn_5421545390",
-        "name": "Mahatma Gandhi Road",
-        "name_bn": "মহাত্মা গান্ধী রোড",
-        "code": "KMHR",
-        "kind": "metro",
-        "distance_m": 1020
       }
     ]
   },
@@ -407,8 +407,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 358
@@ -467,8 +467,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 352
@@ -663,8 +663,8 @@
       },
       {
         "id": "stn_5421542551",
-        "name": "Rabindra Sadan",
-        "name_bn": "রবীন্দ্র সদন",
+        "name": "Rabindra Sadan Metro",
+        "name_bn": "রবীন্দ্র সদন মেট্রো",
         "code": "KRSD",
         "kind": "metro",
         "distance_m": 916
@@ -837,8 +837,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1201
@@ -898,8 +898,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1082
@@ -1073,8 +1073,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 975
@@ -1195,8 +1195,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1213
@@ -1319,8 +1319,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 447
@@ -1396,8 +1396,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1587
@@ -1693,8 +1693,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 405
@@ -1990,8 +1990,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 975
@@ -2411,8 +2411,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 976
@@ -2584,8 +2584,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 250
@@ -2647,8 +2647,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 220
@@ -2768,8 +2768,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 793
@@ -2822,8 +2822,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 393
@@ -2883,8 +2883,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 608
@@ -2945,8 +2945,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 280
@@ -3007,8 +3007,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 552
@@ -3076,8 +3076,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 737
@@ -3137,8 +3137,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 765
@@ -3379,8 +3379,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1014
@@ -3509,8 +3509,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 2206
@@ -4098,8 +4098,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 291
@@ -4159,8 +4159,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 787
@@ -4220,8 +4220,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 750
@@ -4280,8 +4280,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 867
@@ -4357,8 +4357,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1317
@@ -4412,8 +4412,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 605
@@ -4465,8 +4465,8 @@
     "nearest_stations": [
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 213
@@ -4542,8 +4542,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 1134
@@ -4656,8 +4656,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 1133
@@ -4717,8 +4717,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 675
@@ -4782,8 +4782,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 828
@@ -4843,8 +4843,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 723
@@ -4949,8 +4949,8 @@
     "nearest_stations": [
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 490
@@ -5318,16 +5318,16 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 566
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 657
@@ -6154,8 +6154,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1172
@@ -6215,8 +6215,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 739
@@ -6276,8 +6276,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 500
@@ -6338,8 +6338,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 560
@@ -6416,8 +6416,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1023
@@ -6538,8 +6538,8 @@
       },
       {
         "id": "stn_5421542551",
-        "name": "Rabindra Sadan",
-        "name_bn": "রবীন্দ্র সদন",
+        "name": "Rabindra Sadan Metro",
+        "name_bn": "রবীন্দ্র সদন মেট্রো",
         "code": "KRSD",
         "kind": "metro",
         "distance_m": 989
@@ -6582,8 +6582,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 968
@@ -6701,28 +6701,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 1540
+      },
+      {
+        "id": "stn_garifa",
+        "name": "Garifa",
+        "name_bn": "গরিফা",
+        "code": "GFAE",
+        "kind": "rail",
+        "distance_m": 2344
+      },
+      {
         "id": "stn_naihati",
         "name": "Naihati Junction",
         "name_bn": "নৈহাটি জংশন",
         "code": "NH",
         "kind": "rail",
         "distance_m": 2639
-      },
-      {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
-        "kind": "rail",
-        "distance_m": 4266
-      },
-      {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
-        "kind": "rail",
-        "distance_m": 7175
       }
     ]
   },
@@ -6758,8 +6758,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 389
@@ -6821,8 +6821,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 611
@@ -6890,8 +6890,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 901
@@ -6951,8 +6951,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 894
@@ -6999,8 +6999,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 104
@@ -7061,8 +7061,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 402
@@ -7125,8 +7125,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 582
@@ -7424,8 +7424,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 667
@@ -7537,8 +7537,16 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_663839267",
+        "id": "stn_10036655361",
         "name": "Dakshineshwar",
+        "name_bn": "দক্ষিণেশ্বর",
+        "code": null,
+        "kind": "metro",
+        "distance_m": 606
+      },
+      {
+        "id": "stn_663839267",
+        "name": "Dakshineswar Metro",
         "name_bn": "দক্ষিণেশ্বর মেট্রো",
         "code": "DAKE",
         "kind": "rail",
@@ -7546,19 +7554,11 @@
       },
       {
         "id": "stn_1074604698",
-        "name": "Baranagar Road",
+        "name": "Baranagar Metro",
         "name_bn": "বরাহনগর মেট্রো",
         "code": "BARN",
         "kind": "rail",
         "distance_m": 1622
-      },
-      {
-        "id": "stn_8475640176",
-        "name": "Baranagar",
-        "name_bn": "বরাহনগর",
-        "code": null,
-        "kind": "metro",
-        "distance_m": 1804
       }
     ]
   },
@@ -7658,8 +7658,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 878
@@ -7721,8 +7721,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 907
@@ -7769,28 +7769,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
         "kind": "rail",
-        "distance_m": 3344
+        "distance_m": 1207
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
         "kind": "rail",
-        "distance_m": 3534
+        "distance_m": 1734
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
         "kind": "rail",
-        "distance_m": 6944
+        "distance_m": 2144
       }
     ]
   },
@@ -7832,8 +7832,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 316
@@ -7908,8 +7908,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 629
@@ -7953,8 +7953,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 805
@@ -8015,8 +8015,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 495
@@ -8078,8 +8078,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 138
@@ -8205,8 +8205,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 422
@@ -8564,8 +8564,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 837
@@ -8689,8 +8689,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 250
@@ -9066,8 +9066,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 806
@@ -9130,8 +9130,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 703
@@ -9182,8 +9182,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 600
@@ -9318,8 +9318,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 697
@@ -9618,8 +9618,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1038
@@ -9750,10 +9750,10 @@
       },
       {
         "id": "stn_11699268224",
-        "name": "Howrah Junction",
-        "name_bn": "হাওড়া জংশন",
-        "code": "HWH",
-        "kind": "rail",
+        "name": "Howrah Station Metro",
+        "name_bn": "হাওড়া স্টেশন মেট্রো",
+        "code": "HWHM",
+        "kind": "metro",
         "distance_m": 1004
       }
     ]
@@ -9812,8 +9812,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1116
@@ -9931,8 +9931,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1452
@@ -9978,8 +9978,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 190
@@ -10170,8 +10170,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 1023
@@ -10402,8 +10402,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 621
@@ -10473,8 +10473,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 666
@@ -10650,8 +10650,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1130
@@ -10728,8 +10728,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1038
@@ -10775,8 +10775,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 553
@@ -10851,8 +10851,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 774
@@ -11089,8 +11089,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 675
@@ -11212,8 +11212,8 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 934
@@ -11399,8 +11399,8 @@
       },
       {
         "id": "stn_5421542551",
-        "name": "Rabindra Sadan",
-        "name_bn": "রবীন্দ্র সদন",
+        "name": "Rabindra Sadan Metro",
+        "name_bn": "রবীন্দ্র সদন মেট্রো",
         "code": "KRSD",
         "kind": "metro",
         "distance_m": 939
@@ -11628,8 +11628,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 693
@@ -11690,8 +11690,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 674
@@ -12057,8 +12057,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 1308
@@ -12166,8 +12166,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 332
@@ -12304,8 +12304,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 1340
@@ -12405,28 +12405,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_kuntighat",
+        "name": "Kuntighat",
+        "name_bn": "কুন্তীঘাট",
+        "code": "KJU",
         "kind": "rail",
-        "distance_m": 9828
+        "distance_m": 3865
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_tribeni",
+        "name": "Tribeni",
+        "name_bn": "ত্রিবেণী",
+        "code": "TBAE",
         "kind": "rail",
-        "distance_m": 10777
+        "distance_m": 4133
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_dumurdaha",
+        "name": "Dumurdaha",
+        "name_bn": "ডুমুরদহ",
+        "code": "DMLE",
         "kind": "rail",
-        "distance_m": 18567
+        "distance_m": 5455
       }
     ]
   },
@@ -12462,28 +12462,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_tribeni",
+        "name": "Tribeni",
+        "name_bn": "ত্রিবেণী",
+        "code": "TBAE",
         "kind": "rail",
-        "distance_m": 8761
+        "distance_m": 3096
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_kuntighat",
+        "name": "Kuntighat",
+        "name_bn": "কুন্তীঘাট",
+        "code": "KJU",
         "kind": "rail",
-        "distance_m": 10176
+        "distance_m": 3658
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_bans_beria",
+        "name": "Bans Beria",
+        "name_bn": "বাঁশবেড়িয়া",
+        "code": "BSAE",
         "kind": "rail",
-        "distance_m": 17601
+        "distance_m": 4735
       }
     ]
   },
@@ -12519,28 +12519,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_bans_beria",
+        "name": "Bans Beria",
+        "name_bn": "বাঁশবেড়িয়া",
+        "code": "BSAE",
         "kind": "rail",
-        "distance_m": 6855
+        "distance_m": 2962
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_tribeni",
+        "name": "Tribeni",
+        "name_bn": "ত্রিবেণী",
+        "code": "TBAE",
         "kind": "rail",
-        "distance_m": 8450
+        "distance_m": 3115
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_adisaptagram",
+        "name": "Adisaptagram",
+        "name_bn": "আদিসপ্তগ্রাম",
+        "code": "ADST",
         "kind": "rail",
-        "distance_m": 15660
+        "distance_m": 4559
       }
     ]
   },
@@ -12576,28 +12576,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_tribeni",
+        "name": "Tribeni",
+        "name_bn": "ত্রিবেণী",
+        "code": "TBAE",
         "kind": "rail",
-        "distance_m": 8714
+        "distance_m": 3591
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_kuntighat",
+        "name": "Kuntighat",
+        "name_bn": "কুন্তীঘাট",
+        "code": "KJU",
         "kind": "rail",
-        "distance_m": 9806
+        "distance_m": 4205
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_bans_beria",
+        "name": "Bans Beria",
+        "name_bn": "বাঁশবেড়িয়া",
+        "code": "BSAE",
         "kind": "rail",
-        "distance_m": 17457
+        "distance_m": 4794
       }
     ]
   },
@@ -12638,28 +12638,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_tribeni",
+        "name": "Tribeni",
+        "name_bn": "ত্রিবেণী",
+        "code": "TBAE",
         "kind": "rail",
-        "distance_m": 8318
+        "distance_m": 4181
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_bans_beria",
+        "name": "Bans Beria",
+        "name_bn": "বাঁশবেড়িয়া",
+        "code": "BSAE",
         "kind": "rail",
-        "distance_m": 8998
+        "distance_m": 4619
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_kuntighat",
+        "name": "Kuntighat",
+        "name_bn": "কুন্তীঘাট",
+        "code": "KJU",
         "kind": "rail",
-        "distance_m": 16896
+        "distance_m": 5103
       }
     ]
   },
@@ -12696,28 +12696,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_tribeni",
+        "name": "Tribeni",
+        "name_bn": "ত্রিবেণী",
+        "code": "TBAE",
         "kind": "rail",
-        "distance_m": 9219
+        "distance_m": 4563
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_kuntighat",
+        "name": "Kuntighat",
+        "name_bn": "কুন্তীঘাট",
+        "code": "KJU",
         "kind": "rail",
-        "distance_m": 9733
+        "distance_m": 4896
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_bans_beria",
+        "name": "Bans Beria",
+        "name_bn": "বাঁশবেড়িয়া",
+        "code": "BSAE",
         "kind": "rail",
-        "distance_m": 17778
+        "distance_m": 5478
       }
     ]
   },
@@ -13185,8 +13185,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 877
@@ -13248,8 +13248,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 742
@@ -13305,8 +13305,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 745
@@ -13414,20 +13414,20 @@
         "distance_m": 736
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
         "kind": "rail",
-        "distance_m": 5087
+        "distance_m": 1502
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
         "kind": "rail",
-        "distance_m": 8652
+        "distance_m": 2186
       }
     ]
   },
@@ -13471,8 +13471,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 688
@@ -13534,8 +13534,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 682
@@ -13591,7 +13591,7 @@
       {
         "id": "stn_5421545051",
         "name": "Esplanade (Line 1)",
-        "name_bn": "এসপ্ল্যানেড",
+        "name_bn": "এসপ্ল্যানেড মেট্রো",
         "code": "KESP",
         "kind": "metro",
         "distance_m": 129
@@ -13958,8 +13958,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 455
@@ -14021,8 +14021,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 76
@@ -14268,8 +14268,8 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 436
@@ -14511,8 +14511,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1459
@@ -14559,8 +14559,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1001
@@ -14738,8 +14738,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 972
@@ -14863,8 +14863,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1084
@@ -14987,7 +14987,7 @@
     "nearest_stations": [
       {
         "id": "stn_1074604698",
-        "name": "Baranagar Road",
+        "name": "Baranagar Metro",
         "name_bn": "বরাহনগর মেট্রো",
         "code": "BARN",
         "kind": "rail",
@@ -15003,7 +15003,7 @@
       },
       {
         "id": "stn_663839267",
-        "name": "Dakshineshwar",
+        "name": "Dakshineswar Metro",
         "name_bn": "দক্ষিণেশ্বর মেট্রো",
         "code": "DAKE",
         "kind": "rail",
@@ -15233,8 +15233,8 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 346
@@ -15365,8 +15365,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 838
@@ -15426,8 +15426,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 1449
@@ -15472,8 +15472,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 482
@@ -15597,8 +15597,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 633
@@ -15888,8 +15888,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 777
@@ -15950,8 +15950,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 666
@@ -16072,8 +16072,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 864
@@ -16124,8 +16124,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 503
@@ -16187,8 +16187,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 355
@@ -16378,8 +16378,8 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 870
@@ -16914,28 +16914,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
         "kind": "rail",
-        "distance_m": 3204
+        "distance_m": 874
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
         "kind": "rail",
-        "distance_m": 3336
+        "distance_m": 1775
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_garifa",
+        "name": "Garifa",
+        "name_bn": "গরিফা",
+        "code": "GFAE",
         "kind": "rail",
-        "distance_m": 7278
+        "distance_m": 2334
       }
     ]
   },
@@ -17097,8 +17097,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 495
@@ -17154,28 +17154,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
         "kind": "rail",
-        "distance_m": 2526
+        "distance_m": 706
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
         "kind": "rail",
-        "distance_m": 4424
+        "distance_m": 1598
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
         "kind": "rail",
-        "distance_m": 6970
+        "distance_m": 1744
       }
     ]
   },
@@ -17212,28 +17212,28 @@
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
         "kind": "rail",
-        "distance_m": 3374
+        "distance_m": 1522
       },
       {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
         "kind": "rail",
-        "distance_m": 4067
+        "distance_m": 1576
       },
       {
-        "id": "stn_1672312834",
-        "name": "Mankundu",
-        "name_bn": null,
-        "code": "MUU",
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
         "kind": "rail",
-        "distance_m": 6462
+        "distance_m": 1713
       }
     ]
   },
@@ -17468,8 +17468,8 @@
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 1201
@@ -17515,16 +17515,16 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 395
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 703
@@ -17944,8 +17944,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 388
@@ -18013,8 +18013,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1406
@@ -18078,7 +18078,7 @@
       {
         "id": "stn_5421545051",
         "name": "Esplanade (Line 1)",
-        "name_bn": "এসপ্ল্যানেড",
+        "name_bn": "এসপ্ল্যানেড মেট্রো",
         "code": "KESP",
         "kind": "metro",
         "distance_m": 444
@@ -18430,8 +18430,8 @@
     "nearest_stations": [
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1095
@@ -18499,8 +18499,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1284
@@ -18568,8 +18568,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1638
@@ -18751,8 +18751,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1169
@@ -18865,8 +18865,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 843
@@ -19300,8 +19300,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 485
@@ -19360,8 +19360,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1049
@@ -19421,8 +19421,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1228
@@ -19482,8 +19482,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1436
@@ -19544,8 +19544,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 843
@@ -19677,8 +19677,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 492
@@ -19776,6 +19776,14 @@
     "category": "pandal",
     "nearest_stations": [
       {
+        "id": "stn_9884790401",
+        "name": "Sealdah",
+        "name_bn": "শিয়ালদহ",
+        "code": "SDAH",
+        "kind": "rail",
+        "distance_m": 434
+      },
+      {
         "id": "stn_252584722",
         "name": "Sealdah",
         "name_bn": "শিয়ালদহ",
@@ -19790,14 +19798,6 @@
         "code": null,
         "kind": "metro",
         "distance_m": 1002
-      },
-      {
-        "id": "stn_m_central",
-        "name": "Central Metro",
-        "name_bn": "সেন্ট্রাল মেট্রো",
-        "code": "KCEN",
-        "kind": "metro",
-        "distance_m": 1027
       }
     ]
   },
@@ -20160,8 +20160,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 844
@@ -20212,20 +20212,20 @@
         "distance_m": 342
       },
       {
+        "id": "stn_9884790401",
+        "name": "Sealdah",
+        "name_bn": "শিয়ালদহ",
+        "code": "SDAH",
+        "kind": "rail",
+        "distance_m": 530
+      },
+      {
         "id": "stn_5421528426",
         "name": "Central",
         "name_bn": "সেন্ট্রাল",
         "code": null,
         "kind": "metro",
         "distance_m": 1362
-      },
-      {
-        "id": "stn_5253354261",
-        "name": "Sir Gurudas Banerjee Halt",
-        "name_bn": null,
-        "code": "SGBA",
-        "kind": "rail",
-        "distance_m": 1396
       }
     ]
   },
@@ -20275,16 +20275,16 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 508
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 636
@@ -20526,8 +20526,8 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 566
@@ -20566,8 +20566,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 468
@@ -20814,8 +20814,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 524
@@ -20868,8 +20868,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 633
@@ -20923,8 +20923,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 303
@@ -20986,8 +20986,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 290
@@ -21180,8 +21180,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 769
@@ -21419,8 +21419,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 739
@@ -21481,8 +21481,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 769
@@ -21595,8 +21595,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1417
@@ -21648,8 +21648,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 1271
@@ -21717,16 +21717,16 @@
       },
       {
         "id": "stn_5421538365",
-        "name": "Rabindra Sarobar",
-        "name_bn": "রবীন্দ্র সরোবর",
+        "name": "Rabindra Sarobar Metro",
+        "name_bn": "রবীন্দ্র সরোবর মেট্রো",
         "code": "KRSO",
         "kind": "metro",
         "distance_m": 1204
       },
       {
         "id": "stn_10296539476",
-        "name": "Taratala",
-        "name_bn": "তারাতলা",
+        "name": "Taratala Metro",
+        "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
         "distance_m": 1401
@@ -21902,8 +21902,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 747
@@ -21964,8 +21964,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 821
@@ -22251,8 +22251,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 258
@@ -22436,8 +22436,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 485
@@ -22508,8 +22508,8 @@
       },
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 778
@@ -22561,8 +22561,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1251
@@ -22621,8 +22621,8 @@
       },
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1024
@@ -22675,8 +22675,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421539684",
-        "name": "Kalighat",
-        "name_bn": "কালীঘাট",
+        "name": "Kalighat Metro",
+        "name_bn": "কালীঘাট মেট্রো",
         "code": "KKGH",
         "kind": "metro",
         "distance_m": 1014
@@ -22928,8 +22928,8 @@
       },
       {
         "id": "stn_7976140063",
-        "name": "City Centre",
-        "name_bn": "সিটি সেন্টার",
+        "name": "City Centre Metro",
+        "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
         "distance_m": 1309
@@ -23154,8 +23154,8 @@
     "nearest_stations": [
       {
         "id": "stn_5421546475",
-        "name": "Girish Park",
-        "name_bn": "গিরিশ পার্ক",
+        "name": "Girish Park Metro",
+        "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
         "distance_m": 924
@@ -23353,8 +23353,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 1174
@@ -23415,8 +23415,8 @@
       },
       {
         "id": "stn_5421546974",
-        "name": "Shyambazar",
-        "name_bn": "শ্যামবাজার",
+        "name": "Shyambazar Metro",
+        "name_bn": "শ্যামবাজার মেট্রো",
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 1125

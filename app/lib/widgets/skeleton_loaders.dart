@@ -1,10 +1,9 @@
 /// Skeleton loaders and shimmer placeholders for perceived performance.
 /// Provides consistent loading states across the app with branded shimmer colors.
-library skeleton_loaders;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../config/theme.dart';
 
 /// Base skeleton widget with customizable shape and shimmer.
 class Skeleton extends StatelessWidget {
@@ -34,11 +33,13 @@ class Skeleton extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final effectiveBaseColor = baseColor ??
+    final effectiveBaseColor =
+        baseColor ??
         (isDark
             ? Colors.white.withValues(alpha: 0.08)
             : Colors.black.withValues(alpha: 0.06));
-    final effectiveHighlightColor = highlightColor ??
+    final effectiveHighlightColor =
+        highlightColor ??
         (isDark
             ? Colors.white.withValues(alpha: 0.15)
             : Colors.white.withValues(alpha: 0.3));
@@ -166,7 +167,11 @@ class PandalDetailSkeleton extends StatelessWidget {
                       3,
                       (i) => Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: Skeleton(width: 40, height: 40, shape: BoxShape.circle),
+                        child: Skeleton(
+                          width: 40,
+                          height: 40,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
                   ),
@@ -174,7 +179,11 @@ class PandalDetailSkeleton extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Title
-              const Skeleton(width: double.infinity, height: 28, borderRadius: 4),
+              const Skeleton(
+                width: double.infinity,
+                height: 28,
+                borderRadius: 4,
+              ),
               const SizedBox(height: 8),
               // Subtitle / area
               const Skeleton(width: 180, height: 18, borderRadius: 4),
@@ -185,7 +194,8 @@ class PandalDetailSkeleton extends StatelessWidget {
                 runSpacing: 8,
                 children: List.generate(
                   4,
-                  (i) => const Skeleton(width: 100, height: 32, borderRadius: 16),
+                  (i) =>
+                      const Skeleton(width: 100, height: 32, borderRadius: 16),
                 ),
               ),
               const SizedBox(height: 20),
@@ -197,7 +207,11 @@ class PandalDetailSkeleton extends StatelessWidget {
                   3,
                   (i) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: const Skeleton(width: double.infinity, height: 16, borderRadius: 4),
+                    child: const Skeleton(
+                      width: double.infinity,
+                      height: 16,
+                      borderRadius: 4,
+                    ),
                   ),
                 ),
               ),
@@ -205,13 +219,9 @@ class PandalDetailSkeleton extends StatelessWidget {
               // Action buttons
               Row(
                 children: [
-                  Expanded(
-                    child: Skeleton(height: 48, borderRadius: 16),
-                  ),
+                  Expanded(child: Skeleton(height: 48, borderRadius: 16)),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Skeleton(height: 48, borderRadius: 16),
-                  ),
+                  Expanded(child: Skeleton(height: 48, borderRadius: 16)),
                 ],
               ),
             ],
@@ -223,8 +233,7 @@ class PandalDetailSkeleton extends StatelessWidget {
 }
 
 /// Skeleton for the map screen overlay elements.
-class MapScreenSkeleton extends StatelessWidget
-    implements PreferredSizeWidget {
+class MapScreenSkeleton extends StatelessWidget implements PreferredSizeWidget {
   const MapScreenSkeleton({super.key});
 
   @override
@@ -315,7 +324,11 @@ class RouteCardSkeleton extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             // Action button
-            const Skeleton(width: double.infinity, height: 44, borderRadius: 12),
+            const Skeleton(
+              width: double.infinity,
+              height: 44,
+              borderRadius: 12,
+            ),
           ],
         ),
       ),
@@ -336,7 +349,9 @@ class GroupScreenSkeleton extends StatelessWidget {
           padding: EdgeInsets.all(16),
           child: Row(
             children: [
-              Expanded(child: Skeleton(width: 150, height: 24, borderRadius: 4)),
+              Expanded(
+                child: Skeleton(width: 150, height: 24, borderRadius: 4),
+              ),
               SizedBox(width: 12),
               Skeleton(width: 120, height: 40, borderRadius: 20),
             ],
@@ -347,21 +362,33 @@ class GroupScreenSkeleton extends StatelessWidget {
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: 3,
-            itemBuilder: (_, __) => Card(
+            itemBuilder: (_, _) => Card(
               margin: const EdgeInsets.only(bottom: 12),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    const Skeleton(width: 56, height: 56, shape: BoxShape.circle),
+                    const Skeleton(
+                      width: 56,
+                      height: 56,
+                      shape: BoxShape.circle,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Skeleton(width: 120, height: 20, borderRadius: 4),
+                          const Skeleton(
+                            width: 120,
+                            height: 20,
+                            borderRadius: 4,
+                          ),
                           const SizedBox(height: 4),
-                          const Skeleton(width: 80, height: 14, borderRadius: 4),
+                          const Skeleton(
+                            width: 80,
+                            height: 14,
+                            borderRadius: 4,
+                          ),
                         ],
                       ),
                     ),
@@ -389,7 +416,7 @@ class SearchAutocompleteSkeleton extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
-      itemBuilder: (_, __) => ListTile(
+      itemBuilder: (_, _) => ListTile(
         leading: const Skeleton(width: 40, height: 40, shape: BoxShape.circle),
         title: const Skeleton(width: 150, height: 18, borderRadius: 4),
         subtitle: const Skeleton(width: 100, height: 14, borderRadius: 4),
@@ -463,7 +490,7 @@ class ContentSkeleton extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: itemCount,
-      separatorBuilder: (_, __) => separator ?? const SizedBox(height: 8),
+      separatorBuilder: (_, _) => separator ?? const SizedBox(height: 8),
       itemBuilder: (_, index) =>
           itemBuilder?.call(index) ?? const PandalCardSkeleton(),
     );
@@ -493,11 +520,13 @@ class BrandedShimmer extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Shimmer.fromColors(
-      baseColor: baseColor ??
+      baseColor:
+          baseColor ??
           (isDark
               ? Colors.white.withValues(alpha: 0.06)
               : Colors.black.withValues(alpha: 0.05)),
-      highlightColor: highlightColor ??
+      highlightColor:
+          highlightColor ??
           (isDark
               ? Colors.white.withValues(alpha: 0.12)
               : theme.colorScheme.primary.withValues(alpha: 0.15)),

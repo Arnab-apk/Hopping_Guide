@@ -15,26 +15,20 @@ import '../repositories/supplementary_repository.dart';
 import '../services/location_service.dart';
 import '../services/pandal_search_service.dart';
 import '../services/pandal_user_state_service.dart';
-import '../utils/animation_constants.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
-import '../widgets/animated_fade_slide.dart';
 import '../widgets/empty_states.dart';
 import '../widgets/pandal_card.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/pandal_search_autocomplete.dart';
 import '../widgets/puja_icons.dart';
 import '../widgets/skeleton_loaders.dart';
+import '../widgets/animated_fade_slide.dart';
 import 'main_navigation_screen.dart';
 import 'map_screen.dart';
 
-enum PandalTabFilter {
-  all,
-  favorites,
-  visited,
-  nearest,
-}
+enum PandalTabFilter { all, favorites, visited, nearest }
 
 enum PandalSortOption {
   defaultOrder,
@@ -71,6 +65,8 @@ class _PandalListScreenState extends State<PandalListScreen> {
   List<Pandal> _allPandals = [];
   List<FoodSpot> _allFoodSpots = [];
   bool _isLoading = true;
+  bool _hasLoadError = false;
+  int _loadGeneration = 0;
 
   String _searchQuery = '';
   KolkataZone? _selectedZone;
@@ -83,7 +79,9 @@ class _PandalListScreenState extends State<PandalListScreen> {
     super.initState();
     _repo = widget.repository ?? LocalAssetPandalRepository();
 
-    PandalListScreen.externalCategoryNotifier.addListener(_handleExternalCategorySwitch);
+    PandalListScreen.externalCategoryNotifier.addListener(
+      _handleExternalCategorySwitch,
+    );
     if (PandalListScreen.externalCategoryNotifier.value != null) {
       _category = PandalListScreen.externalCategoryNotifier.value!;
       PandalListScreen.externalCategoryNotifier.value = null;
@@ -102,7 +100,9 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
   @override
   void dispose() {
-    PandalListScreen.externalCategoryNotifier.removeListener(_handleExternalCategorySwitch);
+    PandalListScreen.externalCategoryNotifier.removeListener(
+      _handleExternalCategorySwitch,
+    );
     _searchController.dispose();
     super.dispose();
   }
@@ -110,19 +110,39 @@ class _PandalListScreenState extends State<PandalListScreen> {
   /// Queries the repository strictly for the active category, guaranteeing that
   /// no food spots leak into the pandals list and vice versa at the data layer.
   Future<void> _loadPlaces() async {
-    setState(() => _isLoading = true);
-    final places = await _repo.getPlaces(category: _category);
-    if (!mounted) return;
-
+    final category = _category;
+    final generation = ++_loadGeneration;
     setState(() {
-      _allPlaces = places;
-      if (_category == PlaceCategory.pandal) {
-        _allPandals = places.map((p) => p.rawPandal ?? Pandal.fromMap(p.id, p.toMap())).toList();
-      } else {
-        _allFoodSpots = places.map((p) => p.rawFoodSpot ?? FoodSpot.fromJson(p.toMap())).toList();
-      }
-      _isLoading = false;
+      _isLoading = true;
+      _hasLoadError = false;
     });
+    try {
+      final places = await _repo.getPlaces(category: category);
+      if (!mounted || generation != _loadGeneration) return;
+
+      final pandals = category == PlaceCategory.pandal
+          ? places
+              .map((p) => p.rawPandal ?? Pandal.fromMap(p.id, p.toMap()))
+              .toList()
+          : <Pandal>[];
+      final foodSpots = category == PlaceCategory.foodSpot
+          ? places
+              .map((p) => p.rawFoodSpot ?? FoodSpot.fromJson(p.toMap()))
+              .toList()
+          : <FoodSpot>[];
+      setState(() {
+        _allPlaces = places;
+        _allPandals = pandals;
+        _allFoodSpots = foodSpots;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        _isLoading = false;
+        _hasLoadError = true;
+      });
+    }
   }
 
   void _onCategoryChanged(PlaceCategory newCat) {
@@ -131,8 +151,12 @@ class _PandalListScreenState extends State<PandalListScreen> {
     setState(() {
       _category = newCat;
       _activeTab = PandalTabFilter.all;
+      _currentSort = PandalSortOption.defaultOrder;
       _selectedZone = null;
       _searchQuery = '';
+      _allPlaces = [];
+      _allPandals = [];
+      _allFoodSpots = [];
       _searchController.clear();
     });
     // Re-run the query from the repository for the selected category
@@ -148,18 +172,30 @@ class _PandalListScreenState extends State<PandalListScreen> {
     // Tab filter (Favorites, Visited/Hopped, Nearest)
     if (_activeTab == PandalTabFilter.favorites && userState != null) {
       list = list.where((p) => userState.isFavorite(p.id)).toList();
-    } else if (_activeTab == PandalTabFilter.visited && userState != null && _category == PlaceCategory.pandal) {
+    } else if (_activeTab == PandalTabFilter.visited &&
+        userState != null &&
+        _category == PlaceCategory.pandal) {
       list = list.where((p) => userState.isVisited(p.id)).toList();
     } else if (_activeTab == PandalTabFilter.nearest) {
       final pos = locationService?.lastPosition;
       final rawLat = pos?.latitude ?? AppConfig.defaultLat;
       final rawLng = pos?.longitude ?? AppConfig.defaultLng;
-      final isFarAway = haversineMeters(rawLat, rawLng, AppConfig.defaultLat, AppConfig.defaultLng) > 70000;
+      final isFarAway =
+          haversineMeters(
+            rawLat,
+            rawLng,
+            AppConfig.defaultLat,
+            AppConfig.defaultLng,
+          ) >
+          70000;
       final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
       final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
 
-      final nearby = list.where((p) => haversineMeters(userLat, userLng, p.lat, p.lng) <= 10000).toList();
-      if (nearby.isNotEmpty) list = nearby;
+      list = list
+          .where(
+            (p) => haversineMeters(userLat, userLng, p.lat, p.lng) <= 10000,
+          )
+          .toList();
 
       list.sort((a, b) {
         final da = haversineMeters(userLat, userLng, a.lat, a.lng);
@@ -180,7 +216,10 @@ class _PandalListScreenState extends State<PandalListScreen> {
         final scoredResults = <String, double>{};
         list = list.where((p) {
           if (p.rawPandal != null) {
-            final result = PandalSearchService.instance.scorePandal(p.rawPandal!, _searchQuery.trim());
+            final result = PandalSearchService.instance.scorePandal(
+              p.rawPandal!,
+              _searchQuery.trim(),
+            );
             if (result != null) {
               scoredResults[p.id] = result.score;
               return true;
@@ -192,8 +231,13 @@ class _PandalListScreenState extends State<PandalListScreen> {
           return nameMatch || themeMatch || metroMatch;
         }).toList();
 
-        if (_currentSort == PandalSortOption.defaultOrder && _activeTab != PandalTabFilter.nearest) {
-          list.sort((a, b) => (scoredResults[b.id] ?? 0.0).compareTo(scoredResults[a.id] ?? 0.0));
+        if (_currentSort == PandalSortOption.defaultOrder &&
+            _activeTab != PandalTabFilter.nearest) {
+          list.sort(
+            (a, b) => (scoredResults[b.id] ?? 0.0).compareTo(
+              scoredResults[a.id] ?? 0.0,
+            ),
+          );
         }
       } else {
         list = list.where((p) {
@@ -216,7 +260,14 @@ class _PandalListScreenState extends State<PandalListScreen> {
         final pos = locationService?.lastPosition;
         final rawLat = pos?.latitude ?? AppConfig.defaultLat;
         final rawLng = pos?.longitude ?? AppConfig.defaultLng;
-        final isFarAway = haversineMeters(rawLat, rawLng, AppConfig.defaultLat, AppConfig.defaultLng) > 70000;
+        final isFarAway =
+            haversineMeters(
+              rawLat,
+              rawLng,
+              AppConfig.defaultLat,
+              AppConfig.defaultLng,
+            ) >
+            70000;
         final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
         final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
         list.sort((a, b) {
@@ -283,7 +334,8 @@ class _PandalListScreenState extends State<PandalListScreen> {
                     content: Text(
                       pos != null
                           ? '📍 GPS updated! Distance calculated from your current spot.'
-                          : (locationService?.error ?? 'Could not acquire GPS.'),
+                          : (locationService?.error ??
+                                'Could not acquire GPS.'),
                     ),
                   ),
                 );
@@ -362,8 +414,12 @@ class _PandalListScreenState extends State<PandalListScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: PandalSearchAutocomplete(
-              pandals: _category == PlaceCategory.pandal ? _allPandals : const [],
-              foodSpots: _category == PlaceCategory.foodSpot ? _allFoodSpots : const [],
+              pandals: _category == PlaceCategory.pandal
+                  ? _allPandals
+                  : const [],
+              foodSpots: _category == PlaceCategory.foodSpot
+                  ? _allFoodSpots
+                  : const [],
               metroStations: _category == PlaceCategory.pandal
                   ? MetroRepository.allStations
                   : const [],
@@ -420,53 +476,68 @@ class _PandalListScreenState extends State<PandalListScreen> {
           // 5. Places List View
           Expanded(
             child: _isLoading
-                ? const ContentSkeleton(itemCount: 6, itemBuilder: (i) => PandalCardSkeleton())
+                ? const ContentSkeleton(itemCount: 6)
+                : _hasLoadError
+                ? EmptyStates.compact(
+                    EmptyStateType.networkError,
+                    message: 'We couldn\'t load these places. Please try again.',
+                    onAction: _loadPlaces,
+                  )
                 : displayList.isEmpty
-                    ? EmptyStates.compact(
-                        _category == PlaceCategory.pandal
-                            ? EmptyStateType.noPandals
-                            : EmptyStateType.noFoodSpots,
-                        message: _activeTab == PandalTabFilter.favorites
-                            ? 'No favorites yet. Tap the heart on any place to save it.'
-                            : _activeTab == PandalTabFilter.visited
-                                ? 'No visited places yet. Mark places as hopped to track your journey.'
-                                : 'Try adjusting your search or filters.',
-                        onAction: () {
-                          setState(() {
-                            _searchQuery = '';
-                            _searchController.clear();
-                            _activeTab = PandalTabFilter.all;
-                            _selectedZone = null;
-                          });
-                        },
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _loadPlaces,
-                        child: ListView.builder(
-                          scrollCacheExtent: const ScrollCacheExtent.pixels(600.0),
-                          physics: const BouncingScrollPhysics(
-                            parent: AlwaysScrollableScrollPhysics(),
-                          ),
-                          itemCount: displayList.length,
-                          itemBuilder: (context, index) {
-                            final place = displayList[index];
-                            return PlaceCard(
-                              key: ValueKey('${place.category.name}_${place.id}'),
-                              place: place,
-                              onTap: () {
-                                if (place.isPandal && place.rawPandal != null) {
-                                  PandalDetailSheet.show(context, place.rawPandal!);
-                                } else if (place.isFoodSpot && place.rawFoodSpot != null) {
-                                  MapScreen.centerOnFoodSpot(context, place.rawFoodSpot!);
-                                }
-                              },
-                              onMapTap: place.isFoodSpot && place.rawFoodSpot != null
-                                  ? () => MapScreen.centerOnFoodSpot(context, place.rawFoodSpot!)
-                                  : null,
-                            ).staggerEntrance(index);
-                          },
-                        ),
+                ? EmptyStates.compact(
+                    _category == PlaceCategory.pandal
+                        ? EmptyStateType.noPandals
+                        : EmptyStateType.noFoodSpots,
+                    message: _activeTab == PandalTabFilter.favorites
+                        ? 'No favorites yet. Tap the heart on any place to save it.'
+                        : _activeTab == PandalTabFilter.visited
+                        ? 'No visited places yet. Mark places as hopped to track your journey.'
+                        : 'Try adjusting your search or filters.',
+                    actionLabel: 'Clear Filters',
+                    onAction: () {
+                      setState(() {
+                        _searchQuery = '';
+                        _searchController.clear();
+                        _activeTab = PandalTabFilter.all;
+                        _selectedZone = null;
+                      });
+                    },
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadPlaces,
+                    child: ListView.builder(
+                      scrollCacheExtent: const ScrollCacheExtent.pixels(600.0),
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
                       ),
+                      itemCount: displayList.length,
+                      itemBuilder: (context, index) {
+                        final place = displayList[index];
+                        return PlaceCard(
+                          key: ValueKey('${place.category.name}_${place.id}'),
+                          place: place,
+                          onTap: () {
+                            if (place.isPandal && place.rawPandal != null) {
+                              PandalDetailSheet.show(context, place.rawPandal!);
+                            } else if (place.isFoodSpot &&
+                                place.rawFoodSpot != null) {
+                              MapScreen.centerOnFoodSpot(
+                                context,
+                                place.rawFoodSpot!,
+                              );
+                            }
+                          },
+                          onMapTap:
+                              place.isFoodSpot && place.rawFoodSpot != null
+                              ? () => MapScreen.centerOnFoodSpot(
+                                  context,
+                                  place.rawFoodSpot!,
+                                )
+                              : null,
+                        ).staggerEntrance(index);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -639,12 +710,15 @@ class _PandalListScreenState extends State<PandalListScreen> {
         HapticFeedback.selectionClick();
         onTap();
       },
-      avatar: customIcon ??
+      avatar:
+          customIcon ??
           (icon != null
               ? Icon(
                   icon,
                   size: context.dynamicIcon(15),
-                  color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant,
+                  color: isSelected
+                      ? colorScheme.onSecondaryContainer
+                      : colorScheme.onSurfaceVariant,
                 )
               : null),
       label: Text(label),
@@ -667,7 +741,9 @@ class _PandalListScreenState extends State<PandalListScreen> {
       avatar: Icon(
         Icons.tune_rounded,
         size: context.dynamicIcon(15),
-        color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurfaceVariant,
+        color: isSelected
+            ? colorScheme.onSecondaryContainer
+            : colorScheme.onSurfaceVariant,
       ),
       label: Text(
         _selectedZone != null ? _selectedZone!.shortLabel : 'Regions',
@@ -697,17 +773,18 @@ class _PandalListScreenState extends State<PandalListScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
                 child: Row(
                   children: [
-                    Text(
-                      _category == PlaceCategory.pandal
-                          ? 'Filter Pandals by Region'
-                          : 'Filter Food Spots by Region',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : Colors.black87,
+                    Expanded(
+                      child: Text(
+                        _category == PlaceCategory.pandal
+                            ? 'Filter Pandals by Region'
+                            : 'Filter Food Spots by Region',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
                       ),
                     ),
-                    const Spacer(),
                     if (_selectedZone != null)
                       TextButton(
                         onPressed: () {
@@ -726,12 +803,22 @@ class _PandalListScreenState extends State<PandalListScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.all_inclusive_rounded, color: PujaColors.festivalGold),
+                      leading: const Icon(
+                        Icons.all_inclusive_rounded,
+                        color: PujaColors.festivalGold,
+                      ),
                       title: Text(
-                        _category == PlaceCategory.pandal ? 'All Kolkata Pandals' : 'All Kolkata Food Spots',
+                        _category == PlaceCategory.pandal
+                            ? 'All Kolkata Pandals'
+                            : 'All Kolkata Food Spots',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      trailing: _selectedZone == null ? const Icon(Icons.check_circle, color: Color(0xFF00E676)) : null,
+                      trailing: _selectedZone == null
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF00E676),
+                            )
+                          : null,
                       onTap: () {
                         setState(() => _selectedZone = null);
                         Navigator.pop(ctx);
@@ -739,16 +826,29 @@ class _PandalListScreenState extends State<PandalListScreen> {
                     ),
                     ...KolkataZone.values.map((zone) {
                       final isSelected = _selectedZone == zone;
-                      final count = _allPlaces.where((p) => p.zone == zone).length;
+                      final count = _allPlaces
+                          .where((p) => p.zone == zone)
+                          .length;
                       return ListTile(
-                        leading: const Icon(Icons.location_on_outlined, color: PujaColors.durgaRed),
-                        title: Text(zone.label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        leading: const Icon(
+                          Icons.location_on_outlined,
+                          color: PujaColors.durgaRed,
+                        ),
+                        title: Text(
+                          zone.label,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         subtitle: Text(
                           _category == PlaceCategory.pandal
                               ? '$count Pandals in ${zone.shortLabel}'
                               : '$count Food Spots in ${zone.shortLabel}',
                         ),
-                        trailing: isSelected ? const Icon(Icons.check_circle, color: Color(0xFF00E676)) : null,
+                        trailing: isSelected
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: Color(0xFF00E676),
+                              )
+                            : null,
                         onTap: () {
                           setState(() => _selectedZone = zone);
                           Navigator.pop(ctx);
@@ -762,86 +862,6 @@ class _PandalListScreenState extends State<PandalListScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildEmptyState(bool isDark) {
-    String title = _category == PlaceCategory.pandal ? 'No Pandals Found' : 'No Food Spots Found';
-    String subtitle = 'Try adjusting your search query or selected filters.';
-    String ctaText = _category == PlaceCategory.pandal ? 'View All Pandals' : 'View All Food Spots';
-    VoidCallback onCta = () {
-      setState(() {
-        _searchQuery = '';
-        _searchController.clear();
-        _activeTab = PandalTabFilter.all;
-        _selectedZone = null;
-      });
-    };
-
-    if (_activeTab == PandalTabFilter.favorites) {
-      title = _category == PlaceCategory.pandal ? 'No Favorites Yet' : 'No Favorite Food Spots';
-      subtitle = _category == PlaceCategory.pandal
-          ? 'Tap the heart icon on any pandal card to bookmark your favorites.'
-          : 'Bookmark legendary food stops to build your Puja feast list.';
-      ctaText = _category == PlaceCategory.pandal ? 'Explore Pandals' : 'Explore Food Spots';
-    } else if (_activeTab == PandalTabFilter.visited && _category == PlaceCategory.pandal) {
-      title = 'No Pandals Visited Yet';
-      subtitle = 'Mark pandals as hopped to celebrate and track your journey.';
-      ctaText = 'Start Hopping';
-    } else if (_selectedZone != null) {
-      title = _category == PlaceCategory.pandal
-          ? 'No Pandals in ${_selectedZone!.shortLabel}'
-          : 'No Food Spots in ${_selectedZone!.shortLabel}';
-      subtitle = 'Try clearing the zone filter to view all places across Kolkata.';
-      ctaText = 'Clear Region Filter';
-      onCta = () => setState(() => _selectedZone = null);
-    }
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _activeTab == PandalTabFilter.favorites
-                  ? Icons.favorite_border_rounded
-                  : (_activeTab == PandalTabFilter.visited
-                      ? Icons.check_circle_outline_rounded
-                      : Icons.search_off_rounded),
-              size: 56,
-              color: PujaColors.festivalGold,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.white70 : Colors.black54,
-              ),
-            ),
-            const SizedBox(height: 20),
-            FilledButton.tonal(
-              onPressed: onCta,
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              ),
-              child: Text(ctaText),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,0 +1,1097 @@
+[
+  {
+    "code": "SHE",
+    "name": "Sheoraphuli Junction",
+    "wiki": "Sheoraphuli railway station",
+    "lines": [
+      "Howrah Main Line",
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.774737,
+    "lon": 88.328397,
+    "name_bn": "শেওড়াফুলি জংশন"
+  },
+  {
+    "code": "BBAE",
+    "name": "Baidyabati",
+    "wiki": "Baidyabati railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "name_bn": "বৈদ্যবাটি",
+    "lat": 22.79549199,
+    "lon": 88.33203765
+  },
+  {
+    "code": "BHR",
+    "name": "Bhadreshwar",
+    "wiki": "Bhadreshwar railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 22.8279397,
+    "lon": 88.34153486,
+    "name_bn": "ভদ্রেশ্বর"
+  },
+  {
+    "code": "MUU",
+    "name": "Mankundu",
+    "wiki": "Mankundu railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 22.846462,
+    "lon": 88.346368,
+    "name_bn": "মানকুণ্ডু"
+  },
+  {
+    "code": "CGR",
+    "name": "Chandannagar",
+    "wiki": "Chandannagar railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 22.86747,
+    "lon": 88.354421,
+    "name_bn": "চন্দননগর"
+  },
+  {
+    "code": "CNS",
+    "name": "Chuchura",
+    "wiki": "Chuchura railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 22.890191,
+    "lon": 88.3695,
+    "name_bn": "চুঁচুড়া"
+  },
+  {
+    "code": "HGY",
+    "name": "Hooghly",
+    "wiki": "Hooghly railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 22.905827,
+    "lon": 88.376163,
+    "name_bn": "হুগলি"
+  },
+  {
+    "code": "BDC",
+    "name": "Bandel Junction",
+    "wiki": "Bandel Junction railway station",
+    "lines": [
+      "Howrah Main Line",
+      "Bandel-Katwa Line",
+      "Naihati-Bandel Branch"
+    ],
+    "lat": 22.9232,
+    "lon": 88.378459,
+    "name_bn": "ব্যান্ডেল জংশন"
+  },
+  {
+    "code": "ADST",
+    "name": "Adisaptagram",
+    "wiki": "Adisaptagram railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 22.954619,
+    "lon": 88.379102,
+    "name_bn": "আদিসপ্তগ্রাম"
+  },
+  {
+    "code": "MUG",
+    "name": "Magra",
+    "wiki": "Magra railway station",
+    "lines": [
+      "Howrah Main Line"
+    ]
+  },
+  {
+    "code": "TLO",
+    "name": "Talandu",
+    "wiki": "Talandu railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.010525,
+    "lon": 88.345583,
+    "name_bn": "তালাণ্ডু"
+  },
+  {
+    "code": "KHN",
+    "name": "Khanyan",
+    "wiki": "Khanyan railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.046446,
+    "lon": 88.315393,
+    "name_bn": "খন্যান"
+  },
+  {
+    "code": "PDA",
+    "name": "Pundooah",
+    "wiki": "Pundooah railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.070651,
+    "lon": 88.26968,
+    "name_bn": "পাণ্ডুয়া"
+  },
+  {
+    "code": "SLG",
+    "name": "Simlagarh",
+    "wiki": "Simlagarh railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.096234,
+    "lon": 88.23161,
+    "name_bn": "সিমলাগড়"
+  },
+  {
+    "code": "BCGM",
+    "name": "Bainchigram",
+    "wiki": "Bainchigram railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.106517,
+    "lon": 88.216109,
+    "name_bn": "বৈঁচিগ্রাম"
+  },
+  {
+    "code": "BOI",
+    "name": "Bainchi",
+    "wiki": "Bainchi railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.119483,
+    "lon": 88.196729
+  },
+  {
+    "code": "DBP",
+    "name": "Debipur",
+    "wiki": "Debipur railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.1446129567,
+    "lon": 88.1559976581,
+    "name_bn": "দেবীপুর"
+  },
+  {
+    "code": "BGF",
+    "name": "Bagila",
+    "wiki": "Bagila railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.16014581,
+    "lon": 88.12200441,
+    "name_bn": "বাগিলা"
+  },
+  {
+    "code": "MYM",
+    "name": "Memari",
+    "wiki": "Memari railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.172935,
+    "lon": 88.095637,
+    "name_bn": "মেমারী"
+  },
+  {
+    "code": "NMO",
+    "name": "Nimo",
+    "wiki": "Nimo railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.180298,
+    "lon": 88.069346,
+    "name_bn": "নিমো"
+  },
+  {
+    "code": "RSLR",
+    "name": "Rasulpur",
+    "wiki": "Rasulpur railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.187509,
+    "lon": 88.040742,
+    "name_bn": "রসুলপুর"
+  },
+  {
+    "code": "PLAE",
+    "name": "Palsit",
+    "wiki": "Palsit railway station",
+    "lines": [
+      "Howrah Main Line"
+    ],
+    "lat": 23.196622,
+    "lon": 88.003161,
+    "name_bn": "পালসিট"
+  },
+  {
+    "code": "SKG",
+    "name": "Saktigarh",
+    "wiki": "Saktigarh railway station",
+    "lines": [
+      "Howrah Main Line",
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.207213,
+    "lon": 87.968882,
+    "name_bn": "শক্তিগড়"
+  },
+  {
+    "code": "GRP",
+    "name": "Gangpur",
+    "wiki": "Gangpur railway station",
+    "lines": [
+      "Howrah Main Line",
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.223521,
+    "lon": 87.927095,
+    "name_bn": "গাংপুর"
+  },
+  {
+    "code": "BWN",
+    "name": "Barddhaman Junction",
+    "wiki": "Barddhaman Junction railway station",
+    "lines": [
+      "Howrah Main Line",
+      "Howrah-Bardhaman Chord",
+      "Barddhaman-Katwa Line",
+      "Barddhaman-Asansol Line"
+    ],
+    "lat": 23.250041,
+    "lon": 87.869995,
+    "name_bn": "বর্ধমান জংশন"
+  },
+  {
+    "code": "BZL",
+    "name": "Belanagar",
+    "wiki": "Belanagar railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.6612065,
+    "lon": 88.3170935,
+    "name_bn": "বেলানগর"
+  },
+  {
+    "code": "DKAE",
+    "name": "Dankuni Junction",
+    "wiki": "Dankuni Junction railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord",
+      "Sealdah-Dankuni Line"
+    ],
+    "lat": 22.677995,
+    "lon": 88.290975,
+    "name_bn": "ডানকুনি জংশন"
+  },
+  {
+    "code": "GBRA",
+    "name": "Gobra",
+    "wiki": "Gobra railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.695504,
+    "lon": 88.279274,
+    "name_bn": "গোবরা"
+  },
+  {
+    "code": "JOX",
+    "name": "Janai Road",
+    "wiki": "Janai Road railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.720873,
+    "lon": 88.265695,
+    "name_bn": "জনাই রোড"
+  },
+  {
+    "code": "BPAE",
+    "name": "Begampur",
+    "wiki": "Begampur railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.737627,
+    "lon": 88.255644,
+    "name_bn": "বেগমপুর"
+  },
+  {
+    "code": "BRPA",
+    "name": "Baruipara",
+    "wiki": "Baruipara railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.766962,
+    "lon": 88.237007,
+    "name_bn": "বারুইপাড়া"
+  },
+  {
+    "code": "MBE",
+    "name": "Mirzapur Bankipur",
+    "wiki": "Mirzapur Bankipur railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ]
+  },
+  {
+    "code": "BLAE",
+    "name": "Balarambati",
+    "wiki": "Balarambati railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.808031,
+    "lon": 88.211622,
+    "name_bn": "বলরামবাটী"
+  },
+  {
+    "code": "KQU",
+    "name": "Kamarkundu Junction",
+    "wiki": "Kamarkundu railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord",
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.821698,
+    "lon": 88.204736,
+    "name_bn": "কামারকুণ্ডু"
+  },
+  {
+    "code": "MDSE",
+    "name": "Madhusudanpur",
+    "wiki": "Madhusudanpur railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.845108,
+    "lon": 88.193499,
+    "name_bn": "মধুসূদনপুর"
+  },
+  {
+    "code": "CDAE",
+    "name": "Chandanpur",
+    "wiki": "Chandanpur railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.8813,
+    "lon": 88.176177,
+    "name_bn": "চন্দনপুর"
+  },
+  {
+    "code": "PBZ",
+    "name": "Porabazar",
+    "wiki": "Porabazar railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.916427,
+    "lon": 88.15914,
+    "name_bn": "পোড়াবাজার"
+  },
+  {
+    "code": "BMAE",
+    "name": "Belmuri",
+    "wiki": "Belmuri railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.93272742,
+    "lon": 88.15233111,
+    "name_bn": "বেলমুড়ি"
+  },
+  {
+    "code": "SHBC",
+    "name": "Shiblung Halt",
+    "wiki": "Shiblung Halt railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ]
+  },
+  {
+    "code": "DNHL",
+    "name": "Dhaniakhali Halt",
+    "wiki": "Dhaniakhali railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.95019,
+    "lon": 88.143651,
+    "name_bn": "ধনিয়াখালি হল্ট"
+  },
+  {
+    "code": "GRAE",
+    "name": "Sibaichandi",
+    "wiki": "Sibaichandi railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 22.974465,
+    "lon": 88.13369,
+    "name_bn": "শিবাইচণ্ডী"
+  },
+  {
+    "code": "HIH",
+    "name": "Hajigarh",
+    "wiki": "Hajigarh railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.007032,
+    "lon": 88.121403,
+    "name_bn": "হাজিগড়"
+  },
+  {
+    "code": "GUH",
+    "name": "Gurap",
+    "wiki": "Gurap railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.02534,
+    "lon": 88.112282,
+    "name_bn": "গুড়াপ"
+  },
+  {
+    "code": "JPQ",
+    "name": "Jhapandanga",
+    "wiki": "Jhapandanga railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.064129,
+    "lon": 88.091187,
+    "name_bn": "ঝাপানডাঙ্গা"
+  },
+  {
+    "code": "JRAE",
+    "name": "Jaugram",
+    "wiki": "Jaugram railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.078737,
+    "lon": 88.080887,
+    "name_bn": "জৌগ্রাম"
+  },
+  {
+    "code": "NBAE",
+    "name": "Nabagram",
+    "wiki": "Nabagram railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.09918,
+    "lon": 88.066909,
+    "name_bn": "নবগ্রাম"
+  },
+  {
+    "code": "MSAE",
+    "name": "Masagram Junction",
+    "wiki": "Masagram railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord",
+      "Bankura-Damodar Railway"
+    ],
+    "lat": 23.135782,
+    "lon": 88.042129,
+    "name_bn": "মসাগ্রাম"
+  },
+  {
+    "code": "CHC",
+    "name": "Chanchai",
+    "wiki": "Chanchai railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.157905,
+    "lon": 88.025521,
+    "name_bn": "চাঁচাই"
+  },
+  {
+    "code": "PRAE",
+    "name": "Palla Road",
+    "wiki": "Palla Road railway station",
+    "lines": [
+      "Howrah-Bardhaman Chord"
+    ],
+    "lat": 23.179393,
+    "lon": 88.009121,
+    "name_bn": "পাল্লা রোড"
+  },
+  {
+    "code": "BSAE",
+    "name": "Bans Beria",
+    "wiki": "Bansh Baria railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 22.957168,
+    "lon": 88.395239,
+    "name_bn": "বাঁশবেড়িয়া"
+  },
+  {
+    "code": "TBAE",
+    "name": "Tribeni",
+    "wiki": "Tribeni railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 22.991405,
+    "lon": 88.398737,
+    "name_bn": "ত্রিবেণী"
+  },
+  {
+    "code": "KJU",
+    "name": "Kuntighat",
+    "wiki": "Kuntighat railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.016351,
+    "lon": 88.41305,
+    "name_bn": "কুন্তীঘাট"
+  },
+  {
+    "code": "DMLE",
+    "name": "Dumurdaha",
+    "wiki": "Dumurdaha railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.039851,
+    "lon": 88.432234,
+    "name_bn": "ডুমুরদহ"
+  },
+  {
+    "code": "KMAE",
+    "name": "Khamargachhi",
+    "wiki": "Khamargachhi railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ]
+  },
+  {
+    "code": "JIT",
+    "name": "Jirat",
+    "wiki": "Jirat railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.097635,
+    "lon": 88.461351,
+    "name_bn": "জিরাট"
+  },
+  {
+    "code": "BGAE",
+    "name": "Balagarh",
+    "wiki": "Balagarh railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.122107,
+    "lon": 88.452913,
+    "name_bn": "বলাগড়"
+  },
+  {
+    "code": "SOAE",
+    "name": "Somra Bazar",
+    "wiki": "Somra Bazar railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.138525,
+    "lon": 88.432895,
+    "name_bn": "সোমড়া বাজার"
+  },
+  {
+    "code": "BHLA",
+    "name": "Behula",
+    "wiki": "Behula railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.180586,
+    "lon": 88.428691,
+    "name_bn": "বেহুলা"
+  },
+  {
+    "code": "GPAE",
+    "name": "Guptipara",
+    "wiki": "Guptipara railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.197746,
+    "lon": 88.416588,
+    "name_bn": "গুপ্তিপাড়া"
+  },
+  {
+    "code": "ABKA",
+    "name": "Ambika Kalna",
+    "wiki": "Ambika Kalna railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.211377,
+    "lon": 88.353984,
+    "name_bn": "অম্বিকা কালনা"
+  },
+  {
+    "code": "BGRA",
+    "name": "Baghnapara",
+    "wiki": "Baghnapara railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.241464,
+    "lon": 88.329471,
+    "name_bn": "বাঘনাপাড়া"
+  },
+  {
+    "code": "DTAE",
+    "name": "Dhatrigram",
+    "wiki": "Dhatrigram railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.277974,
+    "lon": 88.311875,
+    "name_bn": "ধাত্রীগ্রাম"
+  },
+  {
+    "code": "NDIM",
+    "name": "Nandaigram Halt",
+    "wiki": "Nandaigram Halt railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "name_bn": "হাওড়া–বর্ধমান মেন রেলপথ"
+  },
+  {
+    "code": "SMAE",
+    "name": "Samudragarh",
+    "wiki": "Samudragarh railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.335321,
+    "lon": 88.324707,
+    "name_bn": "সমুদ্রগড়"
+  },
+  {
+    "code": "KLNT",
+    "name": "Kalinagar",
+    "wiki": "Kalinagar railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.365836,
+    "lon": 88.335893,
+    "name_bn": "কালীনগর"
+  },
+  {
+    "code": "NDAE",
+    "name": "Nabadwip Dham",
+    "wiki": "Nabadwip Dham railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "name_bn": "নবদ্বীপ ধাম",
+    "lat": 23.396593,
+    "lon": 88.356472
+  },
+  {
+    "code": "VNP",
+    "name": "Bishnupriya",
+    "wiki": "Bishnupriya railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.414048,
+    "lon": 88.355435,
+    "name_bn": "বিষ্ণুপ্রিয়া হল্ট"
+  },
+  {
+    "code": "BFZ",
+    "name": "Bhandartikuri",
+    "wiki": "Bhandartikuri railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.43295,
+    "lon": 88.329977,
+    "name_bn": "ভান্ডারটিকুরী"
+  },
+  {
+    "code": "PSAE",
+    "name": "Purbasthali",
+    "wiki": "Purbasthali railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.454329,
+    "lon": 88.324642,
+    "name_bn": "পূর্বস্থলী"
+  },
+  {
+    "code": "MTFA",
+    "name": "Mertala Phaleya Halt",
+    "wiki": "Mertala Phaleya railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.480882,
+    "lon": 88.320437
+  },
+  {
+    "code": "LKX",
+    "name": "Lakshmipur",
+    "wiki": "Lakshmipur railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.503257,
+    "lon": 88.302841
+  },
+  {
+    "code": "BQH",
+    "name": "Belerhat",
+    "wiki": "Belerhat railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.51930706,
+    "lon": 88.28291748,
+    "name_bn": "বেলেরহাট"
+  },
+  {
+    "code": "PTAE",
+    "name": "Patuli",
+    "wiki": "Patuli railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.5475854116,
+    "lon": 88.2517138599,
+    "name_bn": "পাটুলী"
+  },
+  {
+    "code": "AGAE",
+    "name": "Agradwip",
+    "wiki": "Agradwip railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.58096,
+    "lon": 88.226117,
+    "name_bn": "অগ্রদ্বীপ"
+  },
+  {
+    "code": "SHBA",
+    "name": "Sahebtala",
+    "wiki": "Sahebtala railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.591585,
+    "lon": 88.200996,
+    "name_bn": "সাহেবতলা"
+  },
+  {
+    "code": "DHAE",
+    "name": "Dainhat",
+    "wiki": "Dainhat railway station",
+    "lines": [
+      "Bandel-Katwa Line"
+    ],
+    "lat": 23.60191,
+    "lon": 88.170269,
+    "name_bn": "দাঁইহাট"
+  },
+  {
+    "code": "KWAE",
+    "name": "Katwa Junction",
+    "wiki": "Katwa Junction railway station",
+    "lines": [
+      "Bandel-Katwa Line",
+      "Barddhaman-Katwa Line",
+      "Katwa-Azimganj Line"
+    ],
+    "lat": 23.6399,
+    "lon": 88.1242,
+    "name_bn": "কাটোয়া জংশন"
+  },
+  {
+    "code": "KMDC",
+    "name": "Kamalakantapur",
+    "wiki": "Kamalakantapur railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ]
+  },
+  {
+    "code": "KJRM",
+    "name": "Karjana",
+    "wiki": "Karjana railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.3445683,
+    "lon": 87.8922692,
+    "name_bn": "করজনা"
+  },
+  {
+    "code": "KJME",
+    "name": "Karjana Chehar",
+    "wiki": "Karjana Chehar railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ]
+  },
+  {
+    "code": "BTRH",
+    "name": "Bhatar",
+    "wiki": "Bhatar railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.406376,
+    "lon": 87.9248312,
+    "name_bn": "ভাতাড়"
+  },
+  {
+    "code": "ARNB",
+    "name": "Amarun",
+    "wiki": "Amarun railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.3695125,
+    "lon": 87.9094514,
+    "name_bn": "আমারুন"
+  },
+  {
+    "code": "BGNA",
+    "name": "Balgona",
+    "wiki": "Balgona railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.458049719227,
+    "lon": 87.950456449762,
+    "name_bn": "বলগোনা"
+  },
+  {
+    "code": "SOF",
+    "name": "Saota",
+    "wiki": "Saota railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.4883896,
+    "lon": 87.9774454,
+    "name_bn": "সাওতা"
+  },
+  {
+    "code": "NGX",
+    "name": "Nigan",
+    "wiki": "Nigan railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.5051556,
+    "lon": 87.992506,
+    "name_bn": "নিগান"
+  },
+  {
+    "code": "KCY",
+    "name": "Kaichar Halt",
+    "wiki": "Kaichar Halt railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ]
+  },
+  {
+    "code": "BCF",
+    "name": "Bankapasi",
+    "wiki": "Bankapasi railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.5704001,
+    "lon": 88.0372191,
+    "name_bn": "বনকাপাসী"
+  },
+  {
+    "code": "SIZ",
+    "name": "Shrikhanda",
+    "wiki": "Shrikhanda railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ],
+    "lat": 23.5995035,
+    "lon": 88.0653334,
+    "name_bn": "শ্রীখণ্ড"
+  },
+  {
+    "code": "SPS",
+    "name": "Sripat Shrikhanda",
+    "wiki": "Sripat Shrikhanda railway station",
+    "lines": [
+      "Barddhaman-Katwa Line"
+    ]
+  },
+  {
+    "code": "GFAE",
+    "name": "Garifa",
+    "wiki": "Garifa railway station",
+    "lines": [
+      "Naihati-Bandel Branch"
+    ],
+    "lat": 22.9084986,
+    "lon": 88.4114952,
+    "name_bn": "গরিফা"
+  },
+  {
+    "code": "HYG",
+    "name": "Hooghly Ghat",
+    "wiki": "Hooghly Ghat railway station",
+    "lines": [
+      "Naihati-Bandel Branch"
+    ],
+    "lat": 22.904839,
+    "lon": 88.396434,
+    "name_bn": "হুগলি ঘাট"
+  },
+  {
+    "code": "DEA",
+    "name": "Diara",
+    "wiki": "Diara railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.798358,
+    "lon": 88.281483,
+    "name_bn": "দিয়াড়া"
+  },
+  {
+    "code": "NSF",
+    "name": "Nasibpur",
+    "wiki": "Nasibpur railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.804985,
+    "lon": 88.262608,
+    "name_bn": "নসিবপুর"
+  },
+  {
+    "code": "SIU",
+    "name": "Singur",
+    "wiki": "Singur railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.814835,
+    "lon": 88.227696,
+    "name_bn": "সিঙ্গুর"
+  },
+  {
+    "code": "NKL",
+    "name": "Nalikul",
+    "wiki": "Nalikul railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.830301,
+    "lon": 88.166773,
+    "name_bn": "নালিকুল"
+  },
+  {
+    "code": "MLYA",
+    "name": "Maliya",
+    "wiki": "Maliya railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.831567,
+    "lon": 88.135964,
+    "name_bn": "মালিয়া"
+  },
+  {
+    "code": "HPL",
+    "name": "Haripal",
+    "wiki": "Haripal railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.831547,
+    "lon": 88.119163,
+    "name_bn": "হরিপাল"
+  },
+  {
+    "code": "KKAE",
+    "name": "Kaikala",
+    "wiki": "Kaikala railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.840565,
+    "lon": 88.091581,
+    "name_bn": "কৈকালা"
+  },
+  {
+    "code": "BAHW",
+    "name": "Bahirkhanda",
+    "wiki": "Bahirkhanda railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.852647,
+    "lon": 88.069119,
+    "name_bn": "বাহিরখণ্ড"
+  },
+  {
+    "code": "LOK",
+    "name": "Loknath",
+    "wiki": "Loknath railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.871608,
+    "lon": 88.034151,
+    "name_bn": "লোকনাথ"
+  },
+  {
+    "code": "TAK",
+    "name": "Tarakeswar",
+    "wiki": "Tarakeswar railway station",
+    "lines": [
+      "Sheoraphuli-Tarakeswar Line"
+    ],
+    "lat": 22.882403,
+    "lon": 88.014213,
+    "name_bn": "তারকেশ্বর"
+  }
+]

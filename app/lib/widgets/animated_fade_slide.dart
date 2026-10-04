@@ -87,3 +87,14 @@ class _AnimatedFadeSlideState extends State<AnimatedFadeSlide>
     );
   }
 }
+
+/// Convenience extension for applying staggered entrance animation to any widget.
+extension StaggerEntranceExtension on Widget {
+  Widget staggerEntrance(int index, {int maxDelayIndex = 8, int stepMs = 30}) {
+    final delayMs = (index < maxDelayIndex) ? index * stepMs : 0;
+    return AnimatedFadeSlide(
+      delay: Duration(milliseconds: delayMs),
+      child: this,
+    );
+  }
+}

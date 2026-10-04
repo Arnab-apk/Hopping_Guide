@@ -5,7 +5,6 @@ library empty_states;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import '../config/theme.dart';
 
 /// Pre-defined empty state types.
 enum EmptyStateType {
@@ -183,13 +182,11 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final defaults = EmptyStateConfig.defaults(config.type);
 
     final effectiveTitle = config.title ?? defaults.title!;
     final effectiveMessage = config.message ?? defaults.message!;
     final effectiveActionLabel = config.actionLabel ?? defaults.actionLabel;
-    final effectiveOnAction = config.onAction;
     final effectiveIcon = config.icon ?? defaults.icon;
     final effectiveLottie = config.lottieAsset ?? defaults.lottieAsset;
     final effectiveColor = config.illustrationColor ??
@@ -199,44 +196,51 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 360),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Illustration
-              _buildIllustration(context, effectiveColor, effectiveIcon, effectiveLottie),
-              SizedBox(height: config.compact ? 16 : 24),
-              // Title
-              Text(
-                effectiveTitle,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: config.compact ? 18 : 22,
-                  fontWeight: FontWeight.w700,
-                  color: theme.colorScheme.onSurface,
-                  letterSpacing: 0.2,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Illustration
+                _buildIllustration(
+                  context,
+                  effectiveColor,
+                  effectiveIcon,
+                  effectiveLottie,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: config.compact ? 8 : 12),
-              // Message
-              Text(
-                effectiveMessage,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: config.compact ? 14 : 15,
-                  fontWeight: FontWeight.w400,
-                  color: theme.colorScheme.onSurfaceVariant,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              // Actions
-              if (config.showAction && effectiveActionLabel != null) ...[
                 SizedBox(height: config.compact ? 16 : 24),
-                _buildActions(context),
+                // Title
+                Text(
+                  effectiveTitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: config.compact ? 18 : 22,
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
+                    letterSpacing: 0.2,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: config.compact ? 8 : 12),
+                // Message
+                Text(
+                  effectiveMessage,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: config.compact ? 14 : 15,
+                    fontWeight: FontWeight.w400,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                // Actions
+                if (config.showAction && effectiveActionLabel != null) ...[
+                  SizedBox(height: config.compact ? 16 : 24),
+                  _buildActions(context),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -284,13 +288,15 @@ class EmptyState extends StatelessWidget {
   }
 
   Widget _buildActions(BuildContext context) {
-    final theme = Theme.of(context);
     final defaults = EmptyStateConfig.defaults(config.type);
+    final actionLabel = config.actionLabel ?? defaults.actionLabel;
+    final secondaryActionLabel =
+        config.secondaryActionLabel ?? defaults.secondaryActionLabel;
 
     final actions = <Widget>[];
 
     // Primary action
-    if (config.actionLabel != null) {
+    if (actionLabel != null) {
       actions.add(
         SizedBox(
           width: double.infinity,
@@ -302,14 +308,14 @@ class EmptyState extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Text(config.actionLabel!),
+            child: Text(actionLabel),
           ),
         ),
       );
     }
 
     // Secondary action
-    if (config.showSecondaryAction && config.secondaryActionLabel != null) {
+    if (config.showSecondaryAction && secondaryActionLabel != null) {
       actions.add(const SizedBox(height: 12));
       actions.add(
         SizedBox(
@@ -322,7 +328,7 @@ class EmptyState extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Text(config.secondaryActionLabel!),
+            child: Text(secondaryActionLabel),
           ),
         ),
       );
@@ -524,6 +530,7 @@ class EmptyStates {
   /// Compact version for inline usage.
   static Widget compact(EmptyStateType type, {
     String? message,
+    String? actionLabel,
     VoidCallback? onAction,
     Key? key,
   }) =>
@@ -532,6 +539,7 @@ class EmptyStates {
         config: EmptyStateConfig(
           type: type,
           message: message,
+          actionLabel: actionLabel,
           onAction: onAction,
           compact: true,
         ),
@@ -556,7 +564,6 @@ class ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Center(
       child: Padding(

@@ -6,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
+import '../models/station.dart';
 import '../repositories/metro_repository.dart';
+import '../repositories/station_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../services/omni_search_service.dart';
 import '../utils/haversine.dart';
@@ -22,9 +24,11 @@ class PandalSearchAutocomplete extends StatefulWidget {
     required this.pandals,
     required this.onPandalSelected,
     this.onMetroSelected,
+    this.onStationSelected,
     this.onFoodSpotSelected,
     this.foodSpots,
     this.metroStations,
+    this.railStations,
     this.onQueryChanged,
     this.onSubmitted,
     this.controller,
@@ -39,9 +43,11 @@ class PandalSearchAutocomplete extends StatefulWidget {
   final List<Pandal> pandals;
   final void Function(Pandal pandal) onPandalSelected;
   final void Function(MetroStation metro)? onMetroSelected;
+  final void Function(Station station)? onStationSelected;
   final void Function(FoodSpot foodSpot)? onFoodSpotSelected;
   final List<FoodSpot>? foodSpots;
   final List<MetroStation>? metroStations;
+  final List<Station>? railStations;
   final void Function(String query)? onQueryChanged;
   final void Function(String query)? onSubmitted;
   final TextEditingController? controller;
@@ -172,6 +178,7 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
       pandals: widget.pandals,
       foodSpots: widget.foodSpots,
       metroStations: widget.metroStations ?? MetroRepository.allStations,
+      railStations: widget.railStations ?? StationRepository.instance.railStations,
       category: OmniCategory.all,
       limit: 8,
       userLat: widget.userLat,
@@ -197,6 +204,11 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
       case OmniResultType.pandal:
         if (result.pandal != null) {
           widget.onPandalSelected(result.pandal!);
+        }
+        break;
+      case OmniResultType.rail:
+        if (result.station != null) {
+          widget.onStationSelected?.call(result.station!);
         }
         break;
       case OmniResultType.metro:
@@ -501,6 +513,12 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                                   PujaIcon.bhogSweets(
                                     size: 24,
                                     color: const Color(0xFFFF9100),
+                                  )
+                                else if (res.type == OmniResultType.rail)
+                                  const Icon(
+                                    Icons.train_rounded,
+                                    size: 24,
+                                    color: Color(0xFF6A1B9A),
                                   )
                                 else
                                   Icon(

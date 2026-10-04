@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
+import '../models/station.dart';
 import '../repositories/metro_repository.dart';
+import '../repositories/station_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
@@ -15,6 +17,7 @@ enum OmniCategory {
   all(label: 'All', icon: Icons.auto_awesome_rounded),
   pandals(label: 'Pandals', icon: Icons.temple_hindu_rounded),
   metro(label: 'Metro', icon: Icons.subway_rounded),
+  rail(label: 'Trains', icon: Icons.train_rounded),
   food(label: 'Food', icon: Icons.restaurant_rounded);
 
   const OmniCategory({required this.label, required this.icon});
@@ -26,6 +29,7 @@ enum OmniCategory {
 enum OmniResultType {
   pandal,
   metro,
+  rail,
   food,
 }
 
@@ -44,6 +48,7 @@ class OmniSearchResult {
     this.distanceMeters,
     this.pandal,
     this.metroStation,
+    this.station,
     this.foodSpot,
     this.badgeText,
     this.badgeColor,
@@ -62,6 +67,7 @@ class OmniSearchResult {
   final double? distanceMeters;
   final Pandal? pandal;
   final MetroStation? metroStation;
+  final Station? station;
   final FoodSpot? foodSpot;
   final String? badgeText;
   final Color? badgeColor;
@@ -73,6 +79,8 @@ class OmniSearchResult {
         return Icons.temple_hindu_rounded;
       case OmniResultType.metro:
         return Icons.subway_rounded;
+      case OmniResultType.rail:
+        return Icons.train_rounded;
       case OmniResultType.food:
         return Icons.restaurant_rounded;
     }
@@ -84,6 +92,8 @@ class OmniSearchResult {
         return PujaColors.durgaRed;
       case OmniResultType.metro:
         return metroStation?.line.color ?? const Color(0xFF1976D2);
+      case OmniResultType.rail:
+        return PujaColors.railwayPurple;
       case OmniResultType.food:
         return const Color(0xFFFF9100); // warm culinary amber
     }
@@ -250,6 +260,138 @@ class OmniSearchService {
       metroStation: station,
       badgeText: station.line.code.toUpperCase(),
       badgeColor: station.line.color,
+    );
+  }
+
+  /// Evaluates and scores an Indian Railways / Suburban station against a search query
+  OmniSearchResult? scoreStation(
+    Station station,
+    String rawQuery, {
+    double? userLat,
+    double? userLng,
+    TextStyle? normalStyle,
+    TextStyle? highlightStyle,
+  }) {
+    final query = rawQuery.trim().toLowerCase();
+    if (query.isEmpty) return null;
+
+    final normQuery = PandalSearchService.normalize(query);
+    final queryTokens = normQuery.split(' ').where((t) => t.isNotEmpty).toList();
+    if (queryTokens.isEmpty) return null;
+
+    final normName = PandalSearchService.normalize(station.name);
+    final normNameBn = station.nameBn != null ? station.nameBn!.trim().toLowerCase() : '';
+    final code = station.code?.trim().toLowerCase() ?? '';
+
+    double score = 0.0;
+    String matchedField = 'Name';
+
+    // 1. Exact or prefix match on station IRCTC code (e.g. "bwn", "kwae", "bdc", "dkae")
+    if (code.isNotEmpty && code == query) {
+      score += 1500;
+      matchedField = 'Station Code';
+    } else if (code.isNotEmpty && code.startsWith(query)) {
+      score += 900;
+      matchedField = 'Station Code';
+    }
+
+    // 2. Exact or prefix match on name or Bengali name
+    if (normName == normQuery || (normNameBn.isNotEmpty && normNameBn == query)) {
+      score += 1300;
+    } else if (normName.startsWith(normQuery) || (normNameBn.isNotEmpty && normNameBn.startsWith(query))) {
+      score += 850;
+    } else if (normName.contains(normQuery) || (normNameBn.isNotEmpty && normNameBn.contains(query))) {
+      score += 500;
+    }
+
+    // 3. Token evaluation
+    int tokensMatched = 0;
+    for (final token in queryTokens) {
+      bool tokenMatched = false;
+
+      final words = normName.split(' ');
+      for (final w in words) {
+        if (w == token) {
+          score += 320;
+          tokenMatched = true;
+          break;
+        } else if (w.startsWith(token)) {
+          score += 220;
+          tokenMatched = true;
+          break;
+        }
+      }
+
+      if (!tokenMatched && normName.contains(token)) {
+        score += 160;
+        tokenMatched = true;
+      }
+
+      if (!tokenMatched && normNameBn.contains(token)) {
+        score += 250;
+        tokenMatched = true;
+        matchedField = 'Bengali Name';
+      }
+
+      if (token == 'train' || token == 'railway' || token == 'station') {
+        score += 150;
+        tokenMatched = true;
+      }
+
+      for (final line in station.lines) {
+        if (PandalSearchService.normalize(line).contains(token)) {
+          score += 170;
+          tokenMatched = true;
+          matchedField = 'Line';
+          break;
+        }
+      }
+
+      if (tokenMatched) tokensMatched++;
+    }
+
+    if (score <= 0 && tokensMatched < queryTokens.length) {
+      return null;
+    }
+
+    double? distMeters;
+    if (userLat != null && userLng != null) {
+      distMeters = haversineMeters(userLat, userLng, station.lat, station.lon);
+      final distKm = distMeters / 1000.0;
+      score += math.max(0.0, (15.0 - distKm) * 4.0);
+    }
+
+    final spans = PandalSearchService.buildHighlightSpans(
+      text: station.displayName,
+      query: query,
+      normalStyle: normalStyle,
+      highlightStyle: highlightStyle,
+    );
+
+    final subtitleParts = <String>[];
+    if (station.nameBn != null && station.nameBn!.isNotEmpty) {
+      subtitleParts.add(station.nameBn!);
+    }
+    if (station.lines.isNotEmpty) {
+      subtitleParts.add(station.lines.first);
+    } else {
+      subtitleParts.add(station.network ?? 'Eastern Railway');
+    }
+
+    return OmniSearchResult(
+      type: OmniResultType.rail,
+      id: station.id,
+      title: station.displayName,
+      subtitle: subtitleParts.join(' · '),
+      latitude: station.lat,
+      longitude: station.lon,
+      score: score,
+      highlightSpans: spans,
+      matchedField: matchedField,
+      distanceMeters: distMeters,
+      station: station,
+      badgeText: (station.code != null && station.code!.isNotEmpty) ? station.code!.toUpperCase() : 'RAIL',
+      badgeColor: PujaColors.railwayPurple,
     );
   }
 
@@ -422,12 +564,13 @@ class OmniSearchService {
   }
 
   /// Performs a universal query across all system entities:
-  /// Pandals, Metro Stations, and Food Spots.
+  /// Pandals, Metro Stations, Railway Stations, and Food Spots.
   List<OmniSearchResult> search({
     required String query,
     required List<Pandal> pandals,
     List<FoodSpot>? foodSpots,
     List<MetroStation>? metroStations,
+    List<Station>? railStations,
     OmniCategory category = OmniCategory.all,
     int limit = 8,
     double? userLat,
@@ -439,10 +582,11 @@ class OmniSearchService {
     if (trimmed.isEmpty) return const [];
 
     final stations = metroStations ?? MetroRepository.allStations;
+    final trains = railStations ?? StationRepository.instance.railStations;
 
     // Check query cache (for instant sub-millisecond responses on repeated searches)
     final cacheKey =
-        '${category.name}|${trimmed.toLowerCase()}|$limit|${pandals.length}|${stations.length}|${foodSpots?.length ?? 0}|${userLat != null ? userLat.toStringAsFixed(2) : ""}|${userLng != null ? userLng.toStringAsFixed(2) : ""}';
+        '${category.name}|${trimmed.toLowerCase()}|$limit|${pandals.length}|${stations.length}|${trains.length}|${foodSpots?.length ?? 0}|${userLat != null ? userLat.toStringAsFixed(2) : ""}|${userLng != null ? userLng.toStringAsFixed(2) : ""}';
     final cached = _searchCache[cacheKey];
     if (cached != null) return cached;
 
@@ -482,7 +626,24 @@ class OmniSearchService {
       }
     }
 
-    // 3. Search Food Spots
+    // 3. Search Railway Stations
+    if (category == OmniCategory.all || category == OmniCategory.rail) {
+      for (final stn in trains) {
+        final res = scoreStation(
+          stn,
+          trimmed,
+          userLat: userLat,
+          userLng: userLng,
+          normalStyle: normalStyle,
+          highlightStyle: highlightStyle,
+        );
+        if (res != null) {
+          results.add(res);
+        }
+      }
+    }
+
+    // 4. Search Food Spots
     if ((category == OmniCategory.all || category == OmniCategory.food) && foodSpots != null) {
       for (final spot in foodSpots) {
         final res = scoreFoodSpot(

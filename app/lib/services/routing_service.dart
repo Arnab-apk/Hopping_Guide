@@ -35,6 +35,10 @@ class WalkingRoute {
     required this.durationSeconds,
     this.drivingDurationSeconds,
     this.isFallback = false,
+    this.segments = const [],
+    this.transitMode = 'walk',
+    this.bestModeBadge,
+    this.summary,
   });
 
   final Pandal? targetPandal;
@@ -44,6 +48,14 @@ class WalkingRoute {
   final double durationSeconds;
   final double? drivingDurationSeconds;
   final bool isFallback;
+  final List<dynamic> segments;
+  final String transitMode; // 'walk', 'metro', 'train'
+  final String? bestModeBadge;
+  final String? summary;
+
+  bool get isTrain => transitMode == 'train';
+  bool get isMetro => transitMode == 'metro';
+  bool get isWalk => transitMode == 'walk';
 
   String get destinationTitle => targetPandal?.name ?? customTitle ?? 'Destination';
 

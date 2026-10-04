@@ -21,6 +21,7 @@ import '../models/toilet.dart';
 import '../models/trail_leg.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/metro_repository.dart';
+import '../repositories/railway_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../services/auth_service.dart';
@@ -179,6 +180,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   List<PandalToilets> _allToilets = [];
   bool _showFoodSpots = false;
   bool _showMetroStations = false;
+  bool _showRailwayStations = false;
   bool _showToilets = false;
   bool _filterNearby10Km = false;
   bool _isLoading = true;
@@ -883,6 +885,39 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
+  void _onStationSelectedFromSearch(Station station) {
+    HapticFeedback.mediumImpact();
+    if (_followUser) {
+      setState(() => _followUser = false);
+    }
+
+    _animatedMapMove(LatLng(station.lat, station.lon), 15.5);
+    _mapSearchController.clear();
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _showRailwayStations = true;
+      _selectedStation = station;
+      _selectedMetroStation = null;
+      _selectedPandal = null;
+      _selectedSquadMember = null;
+      _selectedFoodSpot = null;
+      _selectedToilet = null;
+      _highlightedRoute = null;
+    });
+
+    _showStatusPill(
+      '🚆 ${station.displayName}${station.nameBn != null ? ' • ${station.nameBn}' : ''}',
+      icon: Icons.train_rounded,
+      color: PujaColors.railwayPurple,
+    );
+
+    StationDetailSheet.show(
+      context,
+      station: station,
+      onRouteToPandal: (pandal) => _highlightRouteTo(pandal),
+    );
+  }
+
   void _onFoodSpotSelectedFromSearch(FoodSpot spot) {
     HapticFeedback.mediumImpact();
     if (_followUser) {
@@ -994,11 +1029,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final start = LatLng(refLat, refLng);
     final dest = LatLng(pandal.lat, pandal.lng);
 
-    // Show modal to choose routing mode
-    final useMultimodal = await _showRoutingModeDialog(pandal, start, dest);
-    if (!mounted) return;
-    if (useMultimodal == null) return; // User cancelled
-
     setState(() {
       if (userPos != null) _userPosition = userPos;
       _isCalculatingRoute = true;
@@ -1013,26 +1043,16 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     try {
-      WalkingRoute route;
-      if (useMultimodal) {
-        final multimodal = await MultimodalRoutingService.instance.computeRoute(
-          origin: start,
-          destination: dest,
-          destinationName: pandal.name,
-          targetPandal: pandal,
-          preferMetro: true,
-        );
-        // Convert to WalkingRoute for display (use walk legs only for map, but keep full info)
-        route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
-        _showMultimodalRouteInfo(multimodal);
-      } else {
-        route = await RoutingService.instance.getWalkingRouteToPoint(
-          start: start,
-          destination: dest,
-          destinationName: pandal.name,
-          targetPandal: pandal,
-        );
-      }
+      // Evaluate all 3 modes (Road, Metro, Train) and pick the shortest/optimal one automatically!
+      final multimodal = await MultimodalRoutingService.instance.computeRoute(
+        origin: start,
+        destination: dest,
+        destinationName: pandal.name,
+        targetPandal: pandal,
+      );
+
+      final route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
+      _showMultimodalRouteInfo(multimodal);
 
       if (!mounted) return;
       setState(() {
@@ -1040,7 +1060,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         _isCalculatingRoute = false;
       });
 
-      // Fit camera to display both user and pandal walking corridor
+      // Fit camera to display entire transit corridor
       if (route.points.isNotEmpty) {
         final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
         _mapController.fitCamera(
@@ -1060,89 +1080,45 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<bool?> _showRoutingModeDialog(Pandal pandal, LatLng start, LatLng dest) async {
-    final directDist = haversineMeters(start.latitude, start.longitude, dest.latitude, dest.longitude);
-    
-    // If very close, just walk
-    if (directDist < 800) return false;
-    
-    // Check if metro is viable (has stations nearby)
-    final originStation = MultimodalRoutingService.instance.findNearestStation(start);
-    final destStation = MultimodalRoutingService.instance.findNearestStation(dest);
-    final hasMetroOption = originStation != null && destStation != null &&
-        haversineMeters(start.latitude, start.longitude, originStation.latitude, originStation.longitude) < 3000 &&
-        haversineMeters(dest.latitude, dest.longitude, destStation.latitude, destStation.longitude) < 3000;
-    
-    if (!hasMetroOption) return false;
-    
-    return await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 16),
-            Text('How to get to ${pandal.name}?', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('${(directDist/1000).toStringAsFixed(1)} km away • Choose your travel mode', style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
-            const SizedBox(height: 16),
-            // Walk option
-            ListTile(
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.directions_walk, color: Colors.blue)),
-              title: const Text('Walk Only', style: TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('~${(directDist/1000*13.3).round()} min walk (4.5 km/h)'),
-              onTap: () => Navigator.pop(ctx, false),
-            ),
-            // Metro + Walk option
-            ListTile(
-              leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.purple.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.train, color: Colors.purple)),
-              title: const Text('Metro + Walk', style: TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('Walk to ${originStation?.name ?? "metro"} → Ride → Walk to pandal'),
-              onTap: () => Navigator.pop(ctx, true),
-            ),
-            const SizedBox(height: 8),
-            TextButton(onPressed: () => Navigator.pop(ctx, null), child: const Text('Cancel')),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
+  WalkingRoute _multimodalToWalkingRoute(
+    MultimodalRoute multimodal,
+    LatLng start,
+    LatLng dest,
+    Pandal pandal,
+  ) {
+    final allPoints = multimodal.allDisplayPoints.isNotEmpty
+        ? multimodal.allDisplayPoints
+        : [start, dest];
 
-  WalkingRoute _multimodalToWalkingRoute(MultimodalRoute multimodal, LatLng start, LatLng dest, Pandal pandal) {
-    // Combine all walk leg points for map display
-    final allPoints = <LatLng>[];
-    for (final leg in multimodal.walkLegs) {
-      allPoints.addAll(leg.points);
-    }
-    // If no walk legs (unlikely), fallback to direct line
-    if (allPoints.isEmpty) {
-      allPoints.addAll([start, dest]);
-    }
     return WalkingRoute(
       targetPandal: pandal,
       customTitle: pandal.name,
       points: allPoints,
-      distanceMeters: multimodal.totalWalkDistanceMeters,
+      distanceMeters: multimodal.totalDistanceMeters,
       durationSeconds: multimodal.totalDurationSeconds,
-      drivingDurationSeconds: multimodal.metroLegs.isNotEmpty ? multimodal.metroLegs.first.durationSeconds : null,
+      drivingDurationSeconds: multimodal.metroLegs.isNotEmpty
+          ? multimodal.metroLegs.first.durationSeconds
+          : (multimodal.trainLegs.isNotEmpty
+              ? multimodal.trainLegs.first.durationSeconds
+              : null),
       isFallback: multimodal.isFallback,
+      segments: multimodal.polylines,
+      transitMode: multimodal.isTrain ? 'train' : (multimodal.isMetro ? 'metro' : 'walk'),
+      bestModeBadge: multimodal.bestModeBadge,
+      summary: multimodal.summary,
     );
   }
 
   void _showMultimodalRouteInfo(MultimodalRoute route) {
+    final icon = route.isTrain
+        ? Icons.train_rounded
+        : (route.isMetro
+            ? Icons.subway_rounded
+            : Icons.directions_walk_rounded);
     _showStatusPill(
-      '🚇 ${route.summary}',
-      icon: Icons.train,
-      duration: const Duration(seconds: 5),
+      '${route.bestModeBadge ?? "Route"}: ${route.summary}',
+      icon: icon,
+      duration: const Duration(seconds: 4),
     );
   }
 
@@ -1802,31 +1778,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
                 ),
 
-              // Nearest / Selected Pandal Walking Route Polyline
+              // Nearest / Selected Pandal Walking & Transit Route Polyline
               if (_highlightedRoute != null &&
                   _highlightedRoute!.points.isNotEmpty)
                 RepaintBoundary(
                   child: PolylineLayer(
-                    polylines: [
-                      // Outer glow halo
-                      Polyline(
-                        points: _highlightedRoute!.points,
-                        strokeWidth: 7.5,
-                        color:
-                            (isDark
-                                    ? const Color(0xFF00E5FF)
-                                    : PujaColors.durgaRed)
-                                .withValues(alpha: 0.35),
-                      ),
-                      // Core route line
-                      Polyline(
-                        points: _highlightedRoute!.points,
-                        strokeWidth: 4.2,
-                        color: isDark
-                            ? const Color(0xFF00E5FF)
-                            : PujaColors.durgaRed,
-                      ),
-                    ],
+                    polylines: _buildHighlightedRoutePolylines(
+                      _highlightedRoute!,
+                      isDark,
+                    ),
                   ),
                 ),
 
@@ -1883,7 +1843,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
 
               // Full Kolkata Metro & Railway Stations Network Layer (Leaflet Metro Pins)
-              if (_showMetroStations && !isTrailActive)
+              if ((_showMetroStations || _showRailwayStations) && !isTrailActive)
                 RepaintBoundary(
                   child: MarkerLayer(
                     markers: (StationRepository.instance.all.isNotEmpty
@@ -1897,6 +1857,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                   lat: stn.latitude,
                                   lon: stn.longitude,
                                 )))
+                        .where((stn) {
+                          if (stn.isRail) return _showRailwayStations;
+                          return _showMetroStations;
+                        })
                         .map((stn) {
                       final isStationSelected = _selectedStation?.id == stn.id;
                       final isRailway = stn.isRail;
@@ -2562,12 +2526,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   pandals: _pandals,
                   foodSpots: _foodSpots,
                   metroStations: MetroRepository.allStations,
+                  railStations: StationRepository.instance.railStations,
                   userLat: _userPosition?.latitude,
                   userLng: _userPosition?.longitude,
                   isFloatingOnMap: true,
-                  hintText: 'Search pandals, metro, food spots...',
+                  hintText: 'Search pandals, trains, metro, food spots...',
                   onPandalSelected: _onPandalSelectedFromSearch,
                   onMetroSelected: _onMetroSelectedFromSearch,
+                  onStationSelected: _onStationSelectedFromSearch,
                   onFoodSpotSelected: _onFoodSpotSelectedFromSearch,
                   onSubmitted: (_) {
                     FocusScope.of(context).unfocus();
@@ -2616,6 +2582,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           _buildNearbyChip(isDark),
                           _buildCustomTrailChip(isDark),
                           _buildMetroToggleChip(isDark),
+                          _buildTrainToggleChip(isDark),
                           _buildFoodToggleChip(isDark),
                           _buildToiletToggleChip(isDark),
                           if (squadService.hasActiveSquad)
@@ -2672,19 +2639,30 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       Container(
                         padding: const EdgeInsets.all(7),
                         decoration: BoxDecoration(
-                          color:
-                              (isDark
-                                      ? const Color(0xFF00E5FF)
-                                      : PujaColors.durgaRed)
-                                  .withValues(alpha: 0.12),
+                          color: (_highlightedRoute!.isTrain
+                                  ? PujaColors.railwayPurple
+                                  : (_highlightedRoute!.isMetro
+                                      ? PujaColors.metroBlue
+                                      : (isDark
+                                          ? const Color(0xFF00E5FF)
+                                          : PujaColors.durgaRed)))
+                              .withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          Icons.directions_walk_rounded,
+                          _highlightedRoute!.isTrain
+                              ? Icons.train_rounded
+                              : (_highlightedRoute!.isMetro
+                                  ? Icons.subway_rounded
+                                  : Icons.directions_walk_rounded),
                           size: 19,
-                          color: isDark
-                              ? const Color(0xFF00E5FF)
-                              : PujaColors.durgaRed,
+                          color: _highlightedRoute!.isTrain
+                              ? PujaColors.railwayPurple
+                              : (_highlightedRoute!.isMetro
+                                  ? PujaColors.metroBlue
+                                  : (isDark
+                                      ? const Color(0xFF00E5FF)
+                                      : PujaColors.durgaRed)),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -2693,20 +2671,58 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              _highlightedRoute!.destinationTitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w700,
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    _highlightedRoute!.destinationTitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                if (_highlightedRoute!.bestModeBadge != null) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: (_highlightedRoute!.isTrain
+                                              ? PujaColors.railwayPurple
+                                              : (_highlightedRoute!.isMetro
+                                                  ? PujaColors.metroBlue
+                                                  : Colors.green))
+                                          .withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      _highlightedRoute!.bestModeBadge!,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: _highlightedRoute!.isTrain
+                                            ? PujaColors.railwayPurple
+                                            : (_highlightedRoute!.isMetro
+                                                ? PujaColors.metroBlue
+                                                : Colors.green.shade700),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              '${_highlightedRoute!.formattedDistance} · ${_highlightedRoute!.formattedDuration}',
+                              '${_highlightedRoute!.formattedDistance} · ${_highlightedRoute!.formattedDuration}${_highlightedRoute!.summary != null ? " · ${_highlightedRoute!.summary}" : ""}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11.5,
                                 fontWeight: FontWeight.w600,
                                 color: isDark
                                     ? const Color(0xFF00E5FF)
@@ -3709,6 +3725,97 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
+  List<Polyline> _buildHighlightedRoutePolylines(
+    WalkingRoute route,
+    bool isDark,
+  ) {
+    if (route.points.isEmpty) return const [];
+
+    // If multi-segment transit route (pedestrian walk + metro tracks + train tracks)
+    if (route.segments.isNotEmpty) {
+      final polylines = <Polyline>[];
+      for (final seg in route.segments) {
+        if (seg.points.length < 2) continue;
+
+        if (seg.isMetro) {
+          final color = seg.color ?? PujaColors.metroBlue;
+          // Glowing underlay
+          polylines.add(
+            Polyline(
+              points: seg.points,
+              strokeWidth: 9.0,
+              color: color.withValues(alpha: 0.35),
+            ),
+          );
+          // Solid Metro Line following real tracks
+          polylines.add(
+            Polyline(
+              points: seg.points,
+              strokeWidth: 5.5,
+              color: color,
+            ),
+          );
+        } else if (seg.isTrain) {
+          final color = seg.color ?? PujaColors.railwayPurple;
+          // Glowing underlay
+          polylines.add(
+            Polyline(
+              points: seg.points,
+              strokeWidth: 9.0,
+              color: color.withValues(alpha: 0.35),
+            ),
+          );
+          // Solid Suburban Railway line following track curves
+          polylines.add(
+            Polyline(
+              points: seg.points,
+              strokeWidth: 5.5,
+              color: color,
+            ),
+          );
+        } else {
+          // Walk / Pedestrian connector
+          final walkColor = isDark
+              ? const Color(0xFF00E5FF)
+              : PujaColors.durgaRed;
+          polylines.add(
+            Polyline(
+              points: seg.points,
+              strokeWidth: 7.0,
+              color: walkColor.withValues(alpha: 0.28),
+            ),
+          );
+          polylines.add(
+            Polyline(
+              points: seg.points,
+              strokeWidth: 4.2,
+              color: walkColor,
+              pattern: StrokePattern.dashed(segments: const [7, 4]),
+            ),
+          );
+        }
+      }
+      return polylines;
+    }
+
+    // Default single road / walk polyline
+    final defaultColor = isDark
+        ? const Color(0xFF00E5FF)
+        : PujaColors.durgaRed;
+    return [
+      Polyline(
+        points: route.points,
+        strokeWidth: 7.5,
+        color: defaultColor.withValues(alpha: 0.35),
+      ),
+      Polyline(
+        points: route.points,
+        strokeWidth: 4.2,
+        color: defaultColor,
+      ),
+    ];
+  }
+
   List<Polyline> _buildTrailPolylines(
     ActiveCustomTrail trail,
     LatLng? liveLoc,
@@ -3722,25 +3829,28 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     // Only reconstructed when the trail ID, routed polyline geometry, or theme changes,
     // completely eliminating map stutter and tile-loading lag caused by continuous GPS ticks.
     final String coreKey =
-        '${trail.id}_${trail.routedPolyline?.length ?? 0}_${trail.hasMetroLegs}_$isDark';
+        '${trail.id}_${trail.routedPolyline?.length ?? 0}_${trail.hasTransitLegs}_$isDark';
     if (_cachedTrailCoreKey != coreKey || _cachedTrailCorePolylines == null) {
       final corePolylines = <Polyline>[];
 
-      if (trail.hasMetroLegs) {
-        // Multi-modal rendering: individual walk segments and authentic metro lines
+      if (trail.hasTransitLegs) {
+        // Multi-modal rendering: individual walk segments, authentic metro lines, and suburban train tracks
         for (final leg in trail.legs) {
           if (leg.mode == LegMode.walk) {
+            final points = (leg.roadPolyline != null && leg.roadPolyline!.length >= 2)
+                ? leg.roadPolyline!
+                : [leg.from, leg.to];
             // Walking segment between consecutive pandals
             corePolylines.add(
               Polyline(
-                points: [leg.from, leg.to],
+                points: points,
                 strokeWidth: 8.0,
                 color: PujaColors.festivalGold.withValues(alpha: 0.3),
               ),
             );
             corePolylines.add(
               Polyline(
-                points: [leg.from, leg.to],
+                points: points,
                 strokeWidth: 5.0,
                 color: PujaColors.festivalGold,
               ),
@@ -3761,13 +3871,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             );
 
-            // 2. Metro rail track: boarding -> [interchange] -> alighting
-            final metroPoints = [
-              boardPos,
-              if (detail.requiresInterchange && detail.interchangeStation != null)
-                detail.interchangeStation!.toLatLng(),
-              alightPos,
-            ];
+            // 2. Metro rail track: curved track points following actual line alignment!
+            final metroPoints = MetroRepository.getTrackPolylineBetween(
+              detail.boardingStation,
+              detail.alightingStation,
+            );
             // Glowing underlay
             corePolylines.add(
               Polyline(
@@ -3786,6 +3894,56 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             );
 
             // 3. Pedestrian connection: alighting station to pandal (dashed)
+            corePolylines.add(
+              Polyline(
+                points: [alightPos, leg.to],
+                strokeWidth: 3.5,
+                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                pattern: StrokePattern.dashed(segments: const [6, 4]),
+              ),
+            );
+          } else if (leg.mode == LegMode.train && leg.trainDetail != null) {
+            final detail = leg.trainDetail!;
+            final boardPos = LatLng(detail.boardingStation.latitude, detail.boardingStation.longitude);
+            final alightPos = LatLng(detail.alightingStation.latitude, detail.alightingStation.longitude);
+            const trainColor = PujaColors.railwayPurple;
+
+            // 1. Pedestrian connection: pandal to boarding railway station (dashed)
+            corePolylines.add(
+              Polyline(
+                points: [leg.from, boardPos],
+                strokeWidth: 3.5,
+                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                pattern: StrokePattern.dashed(segments: const [6, 4]),
+              ),
+            );
+
+            // 2. Railway track: curved track points tracing real alignment!
+            final trainPoints = detail.trackPoints.length >= 2
+                ? detail.trackPoints
+                : RailwayRepository.getTrackPolylineBetween(
+                    detail.boardingStation,
+                    detail.alightingStation,
+                  );
+
+            // Glowing underlay
+            corePolylines.add(
+              Polyline(
+                points: trainPoints,
+                strokeWidth: 9.0,
+                color: trainColor.withValues(alpha: 0.35),
+              ),
+            );
+            // Solid railway transit line
+            corePolylines.add(
+              Polyline(
+                points: trainPoints,
+                strokeWidth: 5.5,
+                color: trainColor,
+              ),
+            );
+
+            // 3. Pedestrian connection: alighting railway station to pandal (dashed)
             corePolylines.add(
               Polyline(
                 points: [alightPos, leg.to],
@@ -4077,9 +4235,30 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         setState(() => _showMetroStations = !_showMetroStations);
         if (_showMetroStations) {
           _setContextualBanner(
-            '🚇 Showing 55 Kolkata Metro stations & Railway terminals across Kolkata',
+            '🚇 Showing 55 Kolkata Metro stations across Lines 1 to 6',
             icon: Icons.subway_rounded,
             color: PujaColors.metroBlue,
+          );
+        } else {
+          _clearContextualBanner();
+        }
+      },
+    );
+  }
+
+  Widget _buildTrainToggleChip(bool isDark) {
+    return _buildFilterPill(
+      isActive: _showRailwayStations,
+      isDark: isDark,
+      icon: Icons.train_rounded,
+      label: 'Trains',
+      onTap: () {
+        setState(() => _showRailwayStations = !_showRailwayStations);
+        if (_showRailwayStations) {
+          _setContextualBanner(
+            '🚆 Showing Suburban Railways, Howrah-Bardhaman & Katwa stations',
+            icon: Icons.train_rounded,
+            color: PujaColors.railwayPurple,
           );
         } else {
           _clearContextualBanner();
@@ -4479,7 +4658,25 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       child: LeafletMarkerPin.metro(width: 28, height: 38),
                     ),
                     title: 'Metro Station',
-                    subtitle: 'Kolkata Metro transit hub for rapid commute between zones',
+                    subtitle: 'Kolkata Metro transit hub (Lines 1 to 6 network)',
+                    isDark: isDark,
+                  ),
+                  const SizedBox(height: 14),
+
+                  // 6b. Suburban Railway Station
+                  _buildLegendRow(
+                    iconWidget: SizedBox(
+                      width: 30,
+                      height: 40,
+                      child: LeafletMarkerPin.metro(
+                        width: 28,
+                        height: 38,
+                        isRailway: true,
+                        lineColor: PujaColors.railwayPurple,
+                      ),
+                    ),
+                    title: 'Suburban Railway Station',
+                    subtitle: 'Eastern, South Eastern & Circular Railway corridors',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),

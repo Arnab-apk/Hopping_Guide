@@ -12,6 +12,7 @@ import 'package:kolkata_puja/services/offline_map_service.dart';
 import 'package:kolkata_puja/services/pandal_user_state_service.dart';
 import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:kolkata_puja/services/theme_service.dart';
+import 'package:kolkata_puja/widgets/puja_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -77,6 +78,17 @@ void main() {
       // Both splash and navigation screen are mounted in widget tree from frame zero
       expect(find.byType(GreetingSplashScreen), findsOneWidget);
       expect(find.byType(MainNavigationScreen), findsOneWidget);
+
+      final navigationBar = find.byType(NavigationBar);
+      expect(navigationBar, findsOneWidget);
+      final navigationIcons = tester.widgetList<PujaIcon>(
+        find.descendant(
+          of: navigationBar,
+          matching: find.byType(PujaIcon),
+        ),
+      );
+      expect(navigationIcons, hasLength(5));
+      expect(navigationIcons.every((icon) => icon.size == 24), isTrue);
 
       // Advance through preload duration and crossfade
       await tester.pump(const Duration(milliseconds: 400));

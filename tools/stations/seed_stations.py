@@ -206,17 +206,17 @@ CURATED_TIER1_STATIONS = [
     {
         "type": "Feature",
         "id": "stn_naihati",
-        "geometry": {"type": "Point", "coordinates": [88.4239, 22.8953]},
+        "geometry": {"type": "Point", "coordinates": [88.4181, 22.8876]},
         "properties": {
             "id": "stn_naihati",
             "name": "Naihati Junction",
             "name_bn": "নৈহাটি জংশন",
             "code": "NH",
             "kind": "rail",
-            "lat": 22.8953,
-            "lon": 88.4239,
+            "lat": 22.8876,
+            "lon": 88.4181,
             "network": "Eastern Railway",
-            "lines": ["Sealdah Main", "Bandel Branch"]
+            "lines": ["Sealdah Main", "Naihati-Bandel Branch"]
         }
     },
 
@@ -301,22 +301,7 @@ CURATED_TIER1_STATIONS = [
             "lines": ["Sealdah South"]
         }
     },
-    {
-        "type": "Feature",
-        "id": "stn_garia",
-        "geometry": {"type": "Point", "coordinates": [88.3842, 22.4705]},
-        "properties": {
-            "id": "stn_garia",
-            "name": "Garia",
-            "name_bn": "গড়িয়া",
-            "code": "GIA",
-            "kind": "rail",
-            "lat": 22.4705,
-            "lon": 88.3842,
-            "network": "Eastern Railway",
-            "lines": ["Sealdah South"]
-        }
-    },
+
     {
         "type": "Feature",
         "id": "stn_sonarpur",
@@ -1001,7 +986,7 @@ CURATED_TIER1_STATIONS = [
         "geometry": {"type": "Point", "coordinates": [88.3453, 22.4975]},
         "properties": {
             "id": "stn_m_mahanayak_uttankumar",
-            "name": "Mahanayak Uttam Kumar (Tollygunge) Metro",
+            "name": "Mahanayak Uttam Kumar Metro",
             "name_bn": "মহানায়ক উত্তম কুমার মেট্রো",
             "code": "KMUK",
             "kind": "metro",
@@ -1065,8 +1050,8 @@ CURATED_TIER1_STATIONS = [
         "geometry": {"type": "Point", "coordinates": [88.3756, 22.4628]},
         "properties": {
             "id": "stn_m_kavi_nazrul",
-            "name": "Kavi Nazrul (Garia Bazar) Metro",
-            "name_bn": "কাজী নজরুল ইসলাম মেট্রো",
+            "name": "Kavi Nazrul Metro",
+            "name_bn": "কবি নজরুল মেট্রো",
             "code": "KKNZ",
             "kind": "metro",
             "lat": 22.4628,
@@ -1097,7 +1082,7 @@ CURATED_TIER1_STATIONS = [
         "geometry": {"type": "Point", "coordinates": [88.3975, 22.4575]},
         "properties": {
             "id": "stn_m_kavi_subhash",
-            "name": "Kavi Subhash (New Garia) Metro",
+            "name": "Kavi Subhash Metro",
             "name_bn": "কবি সুভাষ মেট্রো",
             "code": "KKSB",
             "kind": "metro",
@@ -1381,6 +1366,1627 @@ CURATED_TIER1_STATIONS = [
             "lon": 88.3225,
             "network": "Kolkata Metro",
             "lines": ["Purple Line (Line 3)"]
+        }
+    },
+    # --- Howrah-Bardhaman Main Line (Extended to Barddhaman Junction) ---,
+    {
+        "type": "Feature",
+        "id": "stn_sheoraphuli_junction",
+        "geometry": {"type": "Point", "coordinates": [88.328397, 22.774737]},
+        "properties": {
+            "id": "stn_sheoraphuli_junction",
+            "name": "Sheoraphuli Junction",
+            "name_bn": "শেওড়াফুলি জংশন",
+            "code": "SHE",
+            "kind": "rail",
+            "lat": 22.774737,
+            "lon": 88.328397,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line", "Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_baidyabati",
+        "geometry": {"type": "Point", "coordinates": [88.332038, 22.795492]},
+        "properties": {
+            "id": "stn_baidyabati",
+            "name": "Baidyabati",
+            "name_bn": "বৈদ্যবাটি",
+            "code": "BBAE",
+            "kind": "rail",
+            "lat": 22.795492,
+            "lon": 88.332038,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bhadreshwar",
+        "geometry": {"type": "Point", "coordinates": [88.341535, 22.82794]},
+        "properties": {
+            "id": "stn_bhadreshwar",
+            "name": "Bhadreshwar",
+            "name_bn": "ভদ্রেশ্বর",
+            "code": "BHR",
+            "kind": "rail",
+            "lat": 22.82794,
+            "lon": 88.341535,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_mankundu",
+        "geometry": {"type": "Point", "coordinates": [88.346368, 22.846462]},
+        "properties": {
+            "id": "stn_mankundu",
+            "name": "Mankundu",
+            "name_bn": "মানকুণ্ডু",
+            "code": "MUU",
+            "kind": "rail",
+            "lat": 22.846462,
+            "lon": 88.346368,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_chandannagar",
+        "geometry": {"type": "Point", "coordinates": [88.354421, 22.86747]},
+        "properties": {
+            "id": "stn_chandannagar",
+            "name": "Chandannagar",
+            "name_bn": "চন্দননগর",
+            "code": "CGR",
+            "kind": "rail",
+            "lat": 22.86747,
+            "lon": 88.354421,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_chuchura",
+        "geometry": {"type": "Point", "coordinates": [88.3695, 22.890191]},
+        "properties": {
+            "id": "stn_chuchura",
+            "name": "Chuchura",
+            "name_bn": "চুঁচুড়া",
+            "code": "CNS",
+            "kind": "rail",
+            "lat": 22.890191,
+            "lon": 88.3695,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_hooghly",
+        "geometry": {"type": "Point", "coordinates": [88.376163, 22.905827]},
+        "properties": {
+            "id": "stn_hooghly",
+            "name": "Hooghly",
+            "name_bn": "হুগলি",
+            "code": "HGY",
+            "kind": "rail",
+            "lat": 22.905827,
+            "lon": 88.376163,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_adisaptagram",
+        "geometry": {"type": "Point", "coordinates": [88.379102, 22.954619]},
+        "properties": {
+            "id": "stn_adisaptagram",
+            "name": "Adisaptagram",
+            "name_bn": "আদিসপ্তগ্রাম",
+            "code": "ADST",
+            "kind": "rail",
+            "lat": 22.954619,
+            "lon": 88.379102,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_magra",
+        "geometry": {"type": "Point", "coordinates": [88.368112, 22.984155]},
+        "properties": {
+            "id": "stn_magra",
+            "name": "Magra",
+            "name_bn": "মগরা",
+            "code": "MUG",
+            "kind": "rail",
+            "lat": 22.984155,
+            "lon": 88.368112,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_talandu",
+        "geometry": {"type": "Point", "coordinates": [88.345583, 23.010525]},
+        "properties": {
+            "id": "stn_talandu",
+            "name": "Talandu",
+            "name_bn": "তালাণ্ডু",
+            "code": "TLO",
+            "kind": "rail",
+            "lat": 23.010525,
+            "lon": 88.345583,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_khanyan",
+        "geometry": {"type": "Point", "coordinates": [88.315393, 23.046446]},
+        "properties": {
+            "id": "stn_khanyan",
+            "name": "Khanyan",
+            "name_bn": "খন্যান",
+            "code": "KHN",
+            "kind": "rail",
+            "lat": 23.046446,
+            "lon": 88.315393,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_pundooah",
+        "geometry": {"type": "Point", "coordinates": [88.26968, 23.070651]},
+        "properties": {
+            "id": "stn_pundooah",
+            "name": "Pundooah",
+            "name_bn": "পাণ্ডুয়া",
+            "code": "PDA",
+            "kind": "rail",
+            "lat": 23.070651,
+            "lon": 88.26968,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_simlagarh",
+        "geometry": {"type": "Point", "coordinates": [88.23161, 23.096234]},
+        "properties": {
+            "id": "stn_simlagarh",
+            "name": "Simlagarh",
+            "name_bn": "সিমলাগড়",
+            "code": "SLG",
+            "kind": "rail",
+            "lat": 23.096234,
+            "lon": 88.23161,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bainchigram",
+        "geometry": {"type": "Point", "coordinates": [88.216109, 23.106517]},
+        "properties": {
+            "id": "stn_bainchigram",
+            "name": "Bainchigram",
+            "name_bn": "বৈঁচিগ্রাম",
+            "code": "BCGM",
+            "kind": "rail",
+            "lat": 23.106517,
+            "lon": 88.216109,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bainchi",
+        "geometry": {"type": "Point", "coordinates": [88.196729, 23.119483]},
+        "properties": {
+            "id": "stn_bainchi",
+            "name": "Bainchi",
+            "name_bn": "বৈঁচি",
+            "code": "BOI",
+            "kind": "rail",
+            "lat": 23.119483,
+            "lon": 88.196729,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_debipur",
+        "geometry": {"type": "Point", "coordinates": [88.155998, 23.144613]},
+        "properties": {
+            "id": "stn_debipur",
+            "name": "Debipur",
+            "name_bn": "দেবীপুর",
+            "code": "DBP",
+            "kind": "rail",
+            "lat": 23.144613,
+            "lon": 88.155998,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bagila",
+        "geometry": {"type": "Point", "coordinates": [88.122004, 23.160146]},
+        "properties": {
+            "id": "stn_bagila",
+            "name": "Bagila",
+            "name_bn": "বাগিলা",
+            "code": "BGF",
+            "kind": "rail",
+            "lat": 23.160146,
+            "lon": 88.122004,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_memari",
+        "geometry": {"type": "Point", "coordinates": [88.095637, 23.172935]},
+        "properties": {
+            "id": "stn_memari",
+            "name": "Memari",
+            "name_bn": "মেমারি",
+            "code": "MYM",
+            "kind": "rail",
+            "lat": 23.172935,
+            "lon": 88.095637,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nimo",
+        "geometry": {"type": "Point", "coordinates": [88.069346, 23.180298]},
+        "properties": {
+            "id": "stn_nimo",
+            "name": "Nimo",
+            "name_bn": "নিমো",
+            "code": "NMO",
+            "kind": "rail",
+            "lat": 23.180298,
+            "lon": 88.069346,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_rasulpur",
+        "geometry": {"type": "Point", "coordinates": [88.040742, 23.187509]},
+        "properties": {
+            "id": "stn_rasulpur",
+            "name": "Rasulpur",
+            "name_bn": "রসুলপুর",
+            "code": "RSLR",
+            "kind": "rail",
+            "lat": 23.187509,
+            "lon": 88.040742,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_palsit",
+        "geometry": {"type": "Point", "coordinates": [88.003161, 23.196622]},
+        "properties": {
+            "id": "stn_palsit",
+            "name": "Palsit",
+            "name_bn": "পালসিট",
+            "code": "PLAE",
+            "kind": "rail",
+            "lat": 23.196622,
+            "lon": 88.003161,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line"]
+        }
+    },
+    # --- Howrah-Bardhaman Chord Line (Dankuni to Saktigarh/Barddhaman) ---,
+    {
+        "type": "Feature",
+        "id": "stn_saktigarh",
+        "geometry": {"type": "Point", "coordinates": [87.968882, 23.207213]},
+        "properties": {
+            "id": "stn_saktigarh",
+            "name": "Saktigarh",
+            "name_bn": "শক্তিগড়",
+            "code": "SKG",
+            "kind": "rail",
+            "lat": 23.207213,
+            "lon": 87.968882,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line", "Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_gangpur",
+        "geometry": {"type": "Point", "coordinates": [87.927095, 23.223521]},
+        "properties": {
+            "id": "stn_gangpur",
+            "name": "Gangpur",
+            "name_bn": "গাংপুর",
+            "code": "GRP",
+            "kind": "rail",
+            "lat": 23.223521,
+            "lon": 87.927095,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line", "Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_belanagar",
+        "geometry": {"type": "Point", "coordinates": [88.317093, 22.661206]},
+        "properties": {
+            "id": "stn_belanagar",
+            "name": "Belanagar",
+            "name_bn": "বেলানগর",
+            "code": "BZL",
+            "kind": "rail",
+            "lat": 22.661206,
+            "lon": 88.317093,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_dankuni_junction",
+        "geometry": {"type": "Point", "coordinates": [88.290975, 22.677995]},
+        "properties": {
+            "id": "stn_dankuni_junction",
+            "name": "Dankuni Junction",
+            "name_bn": "ডানকুনি জংশন",
+            "code": "DKAE",
+            "kind": "rail",
+            "lat": 22.677995,
+            "lon": 88.290975,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord", "Sealdah-Dankuni Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_gobra",
+        "geometry": {"type": "Point", "coordinates": [88.279274, 22.695504]},
+        "properties": {
+            "id": "stn_gobra",
+            "name": "Gobra",
+            "name_bn": "গোবরা",
+            "code": "GBRA",
+            "kind": "rail",
+            "lat": 22.695504,
+            "lon": 88.279274,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_janai_road",
+        "geometry": {"type": "Point", "coordinates": [88.265695, 22.720873]},
+        "properties": {
+            "id": "stn_janai_road",
+            "name": "Janai Road",
+            "name_bn": "জনাই রোড",
+            "code": "JOX",
+            "kind": "rail",
+            "lat": 22.720873,
+            "lon": 88.265695,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_begampur",
+        "geometry": {"type": "Point", "coordinates": [88.255644, 22.737627]},
+        "properties": {
+            "id": "stn_begampur",
+            "name": "Begampur",
+            "name_bn": "বেগমপুর",
+            "code": "BPAE",
+            "kind": "rail",
+            "lat": 22.737627,
+            "lon": 88.255644,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_baruipara",
+        "geometry": {"type": "Point", "coordinates": [88.237007, 22.766962]},
+        "properties": {
+            "id": "stn_baruipara",
+            "name": "Baruipara",
+            "name_bn": "বারুইপাড়া",
+            "code": "BRPA",
+            "kind": "rail",
+            "lat": 22.766962,
+            "lon": 88.237007,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_mirzapur_bankipur",
+        "geometry": {"type": "Point", "coordinates": [88.222182, 22.790742]},
+        "properties": {
+            "id": "stn_mirzapur_bankipur",
+            "name": "Mirzapur Bankipur",
+            "name_bn": "মির্জাপুর বাঁকিপুর",
+            "code": "MBE",
+            "kind": "rail",
+            "lat": 22.790742,
+            "lon": 88.222182,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_balarambati",
+        "geometry": {"type": "Point", "coordinates": [88.211622, 22.808031]},
+        "properties": {
+            "id": "stn_balarambati",
+            "name": "Balarambati",
+            "name_bn": "বলরামবাটী",
+            "code": "BLAE",
+            "kind": "rail",
+            "lat": 22.808031,
+            "lon": 88.211622,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kamarkundu_junction",
+        "geometry": {"type": "Point", "coordinates": [88.204736, 22.821698]},
+        "properties": {
+            "id": "stn_kamarkundu_junction",
+            "name": "Kamarkundu Junction",
+            "name_bn": "কামারকুণ্ডু জংশন",
+            "code": "KQU",
+            "kind": "rail",
+            "lat": 22.821698,
+            "lon": 88.204736,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord", "Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_madhusudanpur",
+        "geometry": {"type": "Point", "coordinates": [88.193499, 22.845108]},
+        "properties": {
+            "id": "stn_madhusudanpur",
+            "name": "Madhusudanpur",
+            "name_bn": "মধুসূদনপুর",
+            "code": "MDSE",
+            "kind": "rail",
+            "lat": 22.845108,
+            "lon": 88.193499,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_chandanpur",
+        "geometry": {"type": "Point", "coordinates": [88.176177, 22.8813]},
+        "properties": {
+            "id": "stn_chandanpur",
+            "name": "Chandanpur",
+            "name_bn": "চন্দনপুর",
+            "code": "CDAE",
+            "kind": "rail",
+            "lat": 22.8813,
+            "lon": 88.176177,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_porabazar",
+        "geometry": {"type": "Point", "coordinates": [88.15914, 22.916427]},
+        "properties": {
+            "id": "stn_porabazar",
+            "name": "Porabazar",
+            "name_bn": "পোড়াবাজার",
+            "code": "PBZ",
+            "kind": "rail",
+            "lat": 22.916427,
+            "lon": 88.15914,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_belmuri",
+        "geometry": {"type": "Point", "coordinates": [88.152331, 22.932727]},
+        "properties": {
+            "id": "stn_belmuri",
+            "name": "Belmuri",
+            "name_bn": "বেলমুড়ি",
+            "code": "BMAE",
+            "kind": "rail",
+            "lat": 22.932727,
+            "lon": 88.152331,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_dhaniakhali_halt",
+        "geometry": {"type": "Point", "coordinates": [88.143651, 22.95019]},
+        "properties": {
+            "id": "stn_dhaniakhali_halt",
+            "name": "Dhaniakhali Halt",
+            "name_bn": "ধনিয়াখালি হল্ট",
+            "code": "DNHL",
+            "kind": "rail",
+            "lat": 22.95019,
+            "lon": 88.143651,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_sibaichandi",
+        "geometry": {"type": "Point", "coordinates": [88.13369, 22.974465]},
+        "properties": {
+            "id": "stn_sibaichandi",
+            "name": "Sibaichandi",
+            "name_bn": "শিবাইচণ্ডী",
+            "code": "SHBC",
+            "kind": "rail",
+            "lat": 22.974465,
+            "lon": 88.13369,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_hajigarh",
+        "geometry": {"type": "Point", "coordinates": [88.121403, 23.007032]},
+        "properties": {
+            "id": "stn_hajigarh",
+            "name": "Hajigarh",
+            "name_bn": "হাজিগড়",
+            "code": "HIH",
+            "kind": "rail",
+            "lat": 23.007032,
+            "lon": 88.121403,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_gurap",
+        "geometry": {"type": "Point", "coordinates": [88.112282, 23.02534]},
+        "properties": {
+            "id": "stn_gurap",
+            "name": "Gurap",
+            "name_bn": "গুড়াপ",
+            "code": "GRAE",
+            "kind": "rail",
+            "lat": 23.02534,
+            "lon": 88.112282,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_jhapandanga",
+        "geometry": {"type": "Point", "coordinates": [88.091187, 23.064129]},
+        "properties": {
+            "id": "stn_jhapandanga",
+            "name": "Jhapandanga",
+            "name_bn": "ঝাপানডাঙ্গা",
+            "code": "JPQ",
+            "kind": "rail",
+            "lat": 23.064129,
+            "lon": 88.091187,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_jaugram",
+        "geometry": {"type": "Point", "coordinates": [88.080887, 23.078737]},
+        "properties": {
+            "id": "stn_jaugram",
+            "name": "Jaugram",
+            "name_bn": "জৌগ্রাম",
+            "code": "JRAE",
+            "kind": "rail",
+            "lat": 23.078737,
+            "lon": 88.080887,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nabagram",
+        "geometry": {"type": "Point", "coordinates": [88.066909, 23.09918]},
+        "properties": {
+            "id": "stn_nabagram",
+            "name": "Nabagram",
+            "name_bn": "নবগ্রাম",
+            "code": "NBAE",
+            "kind": "rail",
+            "lat": 23.09918,
+            "lon": 88.066909,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_masagram_junction",
+        "geometry": {"type": "Point", "coordinates": [88.042129, 23.135782]},
+        "properties": {
+            "id": "stn_masagram_junction",
+            "name": "Masagram Junction",
+            "name_bn": "মসাগ্রাম",
+            "code": "MSAE",
+            "kind": "rail",
+            "lat": 23.135782,
+            "lon": 88.042129,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord", "Bankura-Damodar Railway"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_chanchai",
+        "geometry": {"type": "Point", "coordinates": [88.025521, 23.157905]},
+        "properties": {
+            "id": "stn_chanchai",
+            "name": "Chanchai",
+            "name_bn": "চাঁচাই",
+            "code": "CHC",
+            "kind": "rail",
+            "lat": 23.157905,
+            "lon": 88.025521,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_palla_road",
+        "geometry": {"type": "Point", "coordinates": [88.009121, 23.179393]},
+        "properties": {
+            "id": "stn_palla_road",
+            "name": "Palla Road",
+            "name_bn": "পাল্লা রোড",
+            "code": "PRAE",
+            "kind": "rail",
+            "lat": 23.179393,
+            "lon": 88.009121,
+            "network": "Eastern Railway",
+            "lines": ["Howrah-Bardhaman Chord"]
+        }
+    },
+    # --- Bandel-Katwa Line (Bandel Junction to Katwa Junction) ---,
+    {
+        "type": "Feature",
+        "id": "stn_bans_beria",
+        "geometry": {"type": "Point", "coordinates": [88.395239, 22.957168]},
+        "properties": {
+            "id": "stn_bans_beria",
+            "name": "Bans Beria",
+            "name_bn": "বাঁশবেড়িয়া",
+            "code": "BSAE",
+            "kind": "rail",
+            "lat": 22.957168,
+            "lon": 88.395239,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_tribeni",
+        "geometry": {"type": "Point", "coordinates": [88.398737, 22.991405]},
+        "properties": {
+            "id": "stn_tribeni",
+            "name": "Tribeni",
+            "name_bn": "ত্রিবেণী",
+            "code": "TBAE",
+            "kind": "rail",
+            "lat": 22.991405,
+            "lon": 88.398737,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kuntighat",
+        "geometry": {"type": "Point", "coordinates": [88.41305, 23.016351]},
+        "properties": {
+            "id": "stn_kuntighat",
+            "name": "Kuntighat",
+            "name_bn": "কুন্তীঘাট",
+            "code": "KJU",
+            "kind": "rail",
+            "lat": 23.016351,
+            "lon": 88.41305,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_dumurdaha",
+        "geometry": {"type": "Point", "coordinates": [88.432234, 23.039851]},
+        "properties": {
+            "id": "stn_dumurdaha",
+            "name": "Dumurdaha",
+            "name_bn": "ডুমুরদহ",
+            "code": "DMLE",
+            "kind": "rail",
+            "lat": 23.039851,
+            "lon": 88.432234,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_khamargachhi",
+        "geometry": {"type": "Point", "coordinates": [88.444013, 23.053988]},
+        "properties": {
+            "id": "stn_khamargachhi",
+            "name": "Khamargachhi",
+            "name_bn": "খামারগাছি",
+            "code": "KMAE",
+            "kind": "rail",
+            "lat": 23.053988,
+            "lon": 88.444013,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_jirat",
+        "geometry": {"type": "Point", "coordinates": [88.461351, 23.097635]},
+        "properties": {
+            "id": "stn_jirat",
+            "name": "Jirat",
+            "name_bn": "জিরাট",
+            "code": "JIT",
+            "kind": "rail",
+            "lat": 23.097635,
+            "lon": 88.461351,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_balagarh",
+        "geometry": {"type": "Point", "coordinates": [88.452913, 23.122107]},
+        "properties": {
+            "id": "stn_balagarh",
+            "name": "Balagarh",
+            "name_bn": "বলাগড়",
+            "code": "BGAE",
+            "kind": "rail",
+            "lat": 23.122107,
+            "lon": 88.452913,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_somra_bazar",
+        "geometry": {"type": "Point", "coordinates": [88.432895, 23.138525]},
+        "properties": {
+            "id": "stn_somra_bazar",
+            "name": "Somra Bazar",
+            "name_bn": "সোমড়া বাজার",
+            "code": "SOAE",
+            "kind": "rail",
+            "lat": 23.138525,
+            "lon": 88.432895,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_behula",
+        "geometry": {"type": "Point", "coordinates": [88.428691, 23.180586]},
+        "properties": {
+            "id": "stn_behula",
+            "name": "Behula",
+            "name_bn": "বেহুলা",
+            "code": "BHLA",
+            "kind": "rail",
+            "lat": 23.180586,
+            "lon": 88.428691,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_guptipara",
+        "geometry": {"type": "Point", "coordinates": [88.416588, 23.197746]},
+        "properties": {
+            "id": "stn_guptipara",
+            "name": "Guptipara",
+            "name_bn": "গুপ্তিপাড়া",
+            "code": "GPAE",
+            "kind": "rail",
+            "lat": 23.197746,
+            "lon": 88.416588,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_ambika_kalna",
+        "geometry": {"type": "Point", "coordinates": [88.353984, 23.211377]},
+        "properties": {
+            "id": "stn_ambika_kalna",
+            "name": "Ambika Kalna",
+            "name_bn": "অম্বিকা কালনা",
+            "code": "ABKA",
+            "kind": "rail",
+            "lat": 23.211377,
+            "lon": 88.353984,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_baghnapara",
+        "geometry": {"type": "Point", "coordinates": [88.329471, 23.241464]},
+        "properties": {
+            "id": "stn_baghnapara",
+            "name": "Baghnapara",
+            "name_bn": "বাঘনাপাড়া",
+            "code": "BGRA",
+            "kind": "rail",
+            "lat": 23.241464,
+            "lon": 88.329471,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_dhatrigram",
+        "geometry": {"type": "Point", "coordinates": [88.311875, 23.277974]},
+        "properties": {
+            "id": "stn_dhatrigram",
+            "name": "Dhatrigram",
+            "name_bn": "ধাত্রীগ্রাম",
+            "code": "DTAE",
+            "kind": "rail",
+            "lat": 23.277974,
+            "lon": 88.311875,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nandaigram_halt",
+        "geometry": {"type": "Point", "coordinates": [88.31521, 23.30745]},
+        "properties": {
+            "id": "stn_nandaigram_halt",
+            "name": "Nandaigram Halt",
+            "name_bn": "নন্দাইগ্রাম হল্ট",
+            "code": "NDIM",
+            "kind": "rail",
+            "lat": 23.30745,
+            "lon": 88.31521,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_samudragarh",
+        "geometry": {"type": "Point", "coordinates": [88.324707, 23.335321]},
+        "properties": {
+            "id": "stn_samudragarh",
+            "name": "Samudragarh",
+            "name_bn": "সমুদ্রগড়",
+            "code": "SMAE",
+            "kind": "rail",
+            "lat": 23.335321,
+            "lon": 88.324707,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kalinagar",
+        "geometry": {"type": "Point", "coordinates": [88.335893, 23.365836]},
+        "properties": {
+            "id": "stn_kalinagar",
+            "name": "Kalinagar",
+            "name_bn": "কালীনগর",
+            "code": "KLNT",
+            "kind": "rail",
+            "lat": 23.365836,
+            "lon": 88.335893,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nabadwip_dham",
+        "geometry": {"type": "Point", "coordinates": [88.356472, 23.396593]},
+        "properties": {
+            "id": "stn_nabadwip_dham",
+            "name": "Nabadwip Dham",
+            "name_bn": "নবদ্বীপ ধাম",
+            "code": "NDAE",
+            "kind": "rail",
+            "lat": 23.396593,
+            "lon": 88.356472,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bishnupriya",
+        "geometry": {"type": "Point", "coordinates": [88.355435, 23.414048]},
+        "properties": {
+            "id": "stn_bishnupriya",
+            "name": "Bishnupriya",
+            "name_bn": "বিষ্ণুপ্রিয়া হল্ট",
+            "code": "VNP",
+            "kind": "rail",
+            "lat": 23.414048,
+            "lon": 88.355435,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bhandartikuri",
+        "geometry": {"type": "Point", "coordinates": [88.329977, 23.43295]},
+        "properties": {
+            "id": "stn_bhandartikuri",
+            "name": "Bhandartikuri",
+            "name_bn": "ভান্ডারটিকুরী",
+            "code": "BFZ",
+            "kind": "rail",
+            "lat": 23.43295,
+            "lon": 88.329977,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_purbasthali",
+        "geometry": {"type": "Point", "coordinates": [88.324642, 23.454329]},
+        "properties": {
+            "id": "stn_purbasthali",
+            "name": "Purbasthali",
+            "name_bn": "পূর্বস্থলী",
+            "code": "PSAE",
+            "kind": "rail",
+            "lat": 23.454329,
+            "lon": 88.324642,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_mertala_phaleya_halt",
+        "geometry": {"type": "Point", "coordinates": [88.320437, 23.480882]},
+        "properties": {
+            "id": "stn_mertala_phaleya_halt",
+            "name": "Mertala Phaleya Halt",
+            "name_bn": "মেরতলা ফালেয়া হল্ট",
+            "code": "MTFA",
+            "kind": "rail",
+            "lat": 23.480882,
+            "lon": 88.320437,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_lakshmipur",
+        "geometry": {"type": "Point", "coordinates": [88.302841, 23.503257]},
+        "properties": {
+            "id": "stn_lakshmipur",
+            "name": "Lakshmipur",
+            "name_bn": "লক্ষ্মীপুর",
+            "code": "LKX",
+            "kind": "rail",
+            "lat": 23.503257,
+            "lon": 88.302841,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_belerhat",
+        "geometry": {"type": "Point", "coordinates": [88.282917, 23.519307]},
+        "properties": {
+            "id": "stn_belerhat",
+            "name": "Belerhat",
+            "name_bn": "বেলেরহাট",
+            "code": "BQH",
+            "kind": "rail",
+            "lat": 23.519307,
+            "lon": 88.282917,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_patuli",
+        "geometry": {"type": "Point", "coordinates": [88.251714, 23.547585]},
+        "properties": {
+            "id": "stn_patuli",
+            "name": "Patuli",
+            "name_bn": "পাটুলী",
+            "code": "PTAE",
+            "kind": "rail",
+            "lat": 23.547585,
+            "lon": 88.251714,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_agradwip",
+        "geometry": {"type": "Point", "coordinates": [88.226117, 23.58096]},
+        "properties": {
+            "id": "stn_agradwip",
+            "name": "Agradwip",
+            "name_bn": "অগ্রদ্বীপ",
+            "code": "AGAE",
+            "kind": "rail",
+            "lat": 23.58096,
+            "lon": 88.226117,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_sahebtala",
+        "geometry": {"type": "Point", "coordinates": [88.200996, 23.591585]},
+        "properties": {
+            "id": "stn_sahebtala",
+            "name": "Sahebtala",
+            "name_bn": "সাহেবতলা",
+            "code": "SHBA",
+            "kind": "rail",
+            "lat": 23.591585,
+            "lon": 88.200996,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_dainhat",
+        "geometry": {"type": "Point", "coordinates": [88.170269, 23.60191]},
+        "properties": {
+            "id": "stn_dainhat",
+            "name": "Dainhat",
+            "name_bn": "দাঁইহাট",
+            "code": "DHAE",
+            "kind": "rail",
+            "lat": 23.60191,
+            "lon": 88.170269,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line"]
+        }
+    },
+    # --- Barddhaman-Katwa Line (Barddhaman to Katwa Junction) ---,
+    {
+        "type": "Feature",
+        "id": "stn_barddhaman_junction",
+        "geometry": {"type": "Point", "coordinates": [87.869995, 23.250041]},
+        "properties": {
+            "id": "stn_barddhaman_junction",
+            "name": "Barddhaman Junction",
+            "name_bn": "বর্ধমান জংশন",
+            "code": "BWN",
+            "kind": "rail",
+            "lat": 23.250041,
+            "lon": 87.869995,
+            "network": "Eastern Railway",
+            "lines": ["Howrah Main Line", "Howrah-Bardhaman Chord", "Barddhaman-Katwa Line", "Barddhaman-Asansol Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_katwa_junction",
+        "geometry": {"type": "Point", "coordinates": [88.1242, 23.6399]},
+        "properties": {
+            "id": "stn_katwa_junction",
+            "name": "Katwa Junction",
+            "name_bn": "কাটোয়া জংশন",
+            "code": "KWAE",
+            "kind": "rail",
+            "lat": 23.6399,
+            "lon": 88.1242,
+            "network": "Eastern Railway",
+            "lines": ["Bandel-Katwa Line", "Barddhaman-Katwa Line", "Katwa-Azimganj Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_karjana",
+        "geometry": {"type": "Point", "coordinates": [87.892269, 23.344568]},
+        "properties": {
+            "id": "stn_karjana",
+            "name": "Karjana",
+            "name_bn": "করজনা",
+            "code": "KJRA",
+            "kind": "rail",
+            "lat": 23.344568,
+            "lon": 87.892269,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bhatar",
+        "geometry": {"type": "Point", "coordinates": [87.924831, 23.406376]},
+        "properties": {
+            "id": "stn_bhatar",
+            "name": "Bhatar",
+            "name_bn": "ভাতাড়",
+            "code": "BTRH",
+            "kind": "rail",
+            "lat": 23.406376,
+            "lon": 87.924831,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_amarun",
+        "geometry": {"type": "Point", "coordinates": [87.909451, 23.369512]},
+        "properties": {
+            "id": "stn_amarun",
+            "name": "Amarun",
+            "name_bn": "আমারুন",
+            "code": "ARNB",
+            "kind": "rail",
+            "lat": 23.369512,
+            "lon": 87.909451,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_balgona",
+        "geometry": {"type": "Point", "coordinates": [87.950456, 23.45805]},
+        "properties": {
+            "id": "stn_balgona",
+            "name": "Balgona",
+            "name_bn": "বলগোনা",
+            "code": "BGNA",
+            "kind": "rail",
+            "lat": 23.45805,
+            "lon": 87.950456,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_saota",
+        "geometry": {"type": "Point", "coordinates": [87.977445, 23.48839]},
+        "properties": {
+            "id": "stn_saota",
+            "name": "Saota",
+            "name_bn": "সাওতা",
+            "code": "SOF",
+            "kind": "rail",
+            "lat": 23.48839,
+            "lon": 87.977445,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nigan",
+        "geometry": {"type": "Point", "coordinates": [87.992506, 23.505156]},
+        "properties": {
+            "id": "stn_nigan",
+            "name": "Nigan",
+            "name_bn": "নিগান",
+            "code": "NGX",
+            "kind": "rail",
+            "lat": 23.505156,
+            "lon": 87.992506,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kaichar_halt",
+        "geometry": {"type": "Point", "coordinates": [88.011826, 23.537565]},
+        "properties": {
+            "id": "stn_kaichar_halt",
+            "name": "Kaichar Halt",
+            "name_bn": "কৈচর হল্ট",
+            "code": "KCY",
+            "kind": "rail",
+            "lat": 23.537565,
+            "lon": 88.011826,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bankapasi",
+        "geometry": {"type": "Point", "coordinates": [88.037219, 23.5704]},
+        "properties": {
+            "id": "stn_bankapasi",
+            "name": "Bankapasi",
+            "name_bn": "বনকাপাসী",
+            "code": "BCF",
+            "kind": "rail",
+            "lat": 23.5704,
+            "lon": 88.037219,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_shrikhanda",
+        "geometry": {"type": "Point", "coordinates": [88.065333, 23.599504]},
+        "properties": {
+            "id": "stn_shrikhanda",
+            "name": "Shrikhanda",
+            "name_bn": "শ্রীখণ্ড",
+            "code": "SIZ",
+            "kind": "rail",
+            "lat": 23.599504,
+            "lon": 88.065333,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_sripat_shrikhanda",
+        "geometry": {"type": "Point", "coordinates": [88.088180, 23.619106]},
+        "properties": {
+            "id": "stn_sripat_shrikhanda",
+            "name": "Sripat Shrikhanda",
+            "name_bn": "শ্রীপাট শ্রীখণ্ড",
+            "code": "SPS",
+            "kind": "rail",
+            "lat": 23.619106,
+            "lon": 88.088180,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kamnara",
+        "geometry": {"type": "Point", "coordinates": [87.880341, 23.299241]},
+        "properties": {
+            "id": "stn_kamnara",
+            "name": "Kamnara",
+            "name_bn": "কামরানা",
+            "code": "KMRA",
+            "kind": "rail",
+            "lat": 23.299241,
+            "lon": 87.880341,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kshetia",
+        "geometry": {"type": "Point", "coordinates": [87.884739, 23.312641]},
+        "properties": {
+            "id": "stn_kshetia",
+            "name": "Kshetia",
+            "name_bn": "খেতিয়া",
+            "code": "KSHT",
+            "kind": "rail",
+            "lat": 23.312641,
+            "lon": 87.884739,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_chamardighi",
+        "geometry": {"type": "Point", "coordinates": [87.88989, 23.333685]},
+        "properties": {
+            "id": "stn_chamardighi",
+            "name": "Chamardighi",
+            "name_bn": "চামরদিঘী",
+            "code": "CMDG",
+            "kind": "rail",
+            "lat": 23.333685,
+            "lon": 87.88989,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_karjanagram",
+        "geometry": {"type": "Point", "coordinates": [87.894094, 23.352835]},
+        "properties": {
+            "id": "stn_karjanagram",
+            "name": "Karjanagram",
+            "name_bn": "করজনাগ্রাম",
+            "code": "KJRM",
+            "kind": "rail",
+            "lat": 23.352835,
+            "lon": 87.894094,
+            "network": "Eastern Railway",
+            "lines": ["Barddhaman-Katwa Line"]
+        }
+    },
+    # --- Connecting Links (Naihati-Bandel & Sheoraphuli-Tarakeswar) ---,
+    {
+        "type": "Feature",
+        "id": "stn_garifa",
+        "geometry": {"type": "Point", "coordinates": [88.411495, 22.908499]},
+        "properties": {
+            "id": "stn_garifa",
+            "name": "Garifa",
+            "name_bn": "গরিফা",
+            "code": "GFAE",
+            "kind": "rail",
+            "lat": 22.908499,
+            "lon": 88.411495,
+            "network": "Eastern Railway",
+            "lines": ["Naihati-Bandel Branch"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_hooghly_ghat",
+        "geometry": {"type": "Point", "coordinates": [88.396434, 22.904839]},
+        "properties": {
+            "id": "stn_hooghly_ghat",
+            "name": "Hooghly Ghat",
+            "name_bn": "হুগলি ঘাট",
+            "code": "HYG",
+            "kind": "rail",
+            "lat": 22.904839,
+            "lon": 88.396434,
+            "network": "Eastern Railway",
+            "lines": ["Naihati-Bandel Branch"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_diara",
+        "geometry": {"type": "Point", "coordinates": [88.281483, 22.798358]},
+        "properties": {
+            "id": "stn_diara",
+            "name": "Diara",
+            "name_bn": "দিয়াড়া",
+            "code": "DEA",
+            "kind": "rail",
+            "lat": 22.798358,
+            "lon": 88.281483,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nasibpur",
+        "geometry": {"type": "Point", "coordinates": [88.262608, 22.804985]},
+        "properties": {
+            "id": "stn_nasibpur",
+            "name": "Nasibpur",
+            "name_bn": "নসিবপুর",
+            "code": "NSF",
+            "kind": "rail",
+            "lat": 22.804985,
+            "lon": 88.262608,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_singur",
+        "geometry": {"type": "Point", "coordinates": [88.227696, 22.814835]},
+        "properties": {
+            "id": "stn_singur",
+            "name": "Singur",
+            "name_bn": "সিঙ্গুর",
+            "code": "SIU",
+            "kind": "rail",
+            "lat": 22.814835,
+            "lon": 88.227696,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_nalikul",
+        "geometry": {"type": "Point", "coordinates": [88.166773, 22.830301]},
+        "properties": {
+            "id": "stn_nalikul",
+            "name": "Nalikul",
+            "name_bn": "নালিকুল",
+            "code": "NKL",
+            "kind": "rail",
+            "lat": 22.830301,
+            "lon": 88.166773,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_maliya",
+        "geometry": {"type": "Point", "coordinates": [88.135964, 22.831567]},
+        "properties": {
+            "id": "stn_maliya",
+            "name": "Maliya",
+            "name_bn": "মালিয়া",
+            "code": "MLYA",
+            "kind": "rail",
+            "lat": 22.831567,
+            "lon": 88.135964,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_haripal",
+        "geometry": {"type": "Point", "coordinates": [88.119163, 22.831547]},
+        "properties": {
+            "id": "stn_haripal",
+            "name": "Haripal",
+            "name_bn": "হরিপাল",
+            "code": "HPL",
+            "kind": "rail",
+            "lat": 22.831547,
+            "lon": 88.119163,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_kaikala",
+        "geometry": {"type": "Point", "coordinates": [88.091581, 22.840565]},
+        "properties": {
+            "id": "stn_kaikala",
+            "name": "Kaikala",
+            "name_bn": "কৈকালা",
+            "code": "KKAE",
+            "kind": "rail",
+            "lat": 22.840565,
+            "lon": 88.091581,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_bahirkhanda",
+        "geometry": {"type": "Point", "coordinates": [88.069119, 22.852647]},
+        "properties": {
+            "id": "stn_bahirkhanda",
+            "name": "Bahirkhanda",
+            "name_bn": "বাহিরখণ্ড",
+            "code": "BAHW",
+            "kind": "rail",
+            "lat": 22.852647,
+            "lon": 88.069119,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_loknath",
+        "geometry": {"type": "Point", "coordinates": [88.034151, 22.871608]},
+        "properties": {
+            "id": "stn_loknath",
+            "name": "Loknath",
+            "name_bn": "লোকনাথ",
+            "code": "LOK",
+            "kind": "rail",
+            "lat": 22.871608,
+            "lon": 88.034151,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
+        }
+    },
+    {
+        "type": "Feature",
+        "id": "stn_tarakeswar",
+        "geometry": {"type": "Point", "coordinates": [88.014213, 22.882403]},
+        "properties": {
+            "id": "stn_tarakeswar",
+            "name": "Tarakeswar",
+            "name_bn": "তারকেশ্বর",
+            "code": "TAK",
+            "kind": "rail",
+            "lat": 22.882403,
+            "lon": 88.014213,
+            "network": "Eastern Railway",
+            "lines": ["Sheoraphuli-Tarakeswar Line"]
         }
     }
 ]

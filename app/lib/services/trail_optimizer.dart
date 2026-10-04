@@ -60,6 +60,7 @@ class TrailOptimizer {
     double walkingSpeedKmH = defaultWalkingSpeedKmH,
     double circuityFactor = defaultCircuityFactor,
     bool allowMetro = false,
+    bool allowTrain = false,
   }) {
     if (stops.isEmpty) {
       return const TrailOptimizationResult(
@@ -77,6 +78,7 @@ class TrailOptimizer {
       final legs = buildLegBreakdown(
         [start, target],
         allowMetro: allowMetro,
+        allowTrain: allowTrain || allowMetro,
         walkingSpeedKmH: walkingSpeedKmH,
         circuityFactor: circuityFactor,
       );
@@ -89,14 +91,17 @@ class TrailOptimizer {
           circuityFactor;
       final speedMPerMin = (walkingSpeedKmH * 1000.0) / 60.0;
       final walkDurationMin = distM / speedMPerMin;
-      final durationMin = (legs.isNotEmpty && legs.first.isMetro)
-          ? legs.first.metroDetail!.totalMinutes
+      final durationMin = (legs.isNotEmpty && !legs.first.isWalk)
+          ? (legs.first.isMetro
+              ? legs.first.metroDetail!.totalMinutes
+              : (legs.first.trainDetail?.totalMinutes ?? walkDurationMin))
           : walkDurationMin;
+      final totalDistKm = legs.isNotEmpty ? legs.first.distanceKm : (distM / 1000.0);
 
       return TrailOptimizationResult(
         orderedStops: List.from(stops),
         totalDurationMinutes: durationMin,
-        totalDistanceKm: double.parse((distM / 1000.0).toStringAsFixed(2)),
+        totalDistanceKm: double.parse(totalDistKm.toStringAsFixed(2)),
         visitOrderIndices: const [0],
         legs: legs,
       );
@@ -108,6 +113,7 @@ class TrailOptimizer {
       walkingSpeedKmH: walkingSpeedKmH,
       circuityFactor: circuityFactor,
       allowMetro: allowMetro,
+      allowTrain: allowTrain || allowMetro,
     );
 
     final result = optimize(durationMatrix);
@@ -125,28 +131,37 @@ class TrailOptimizer {
     final legs = buildLegBreakdown(
       orderedPoints,
       allowMetro: allowMetro,
+      allowTrain: allowTrain || allowMetro,
       walkingSpeedKmH: walkingSpeedKmH,
       circuityFactor: circuityFactor,
     );
 
-    // Compute total distance along the optimized path
-    double totalDistM = 0.0;
-    LatLng prev = start;
-    for (final p in ordered) {
-      totalDistM += haversineMeters(
-            prev.latitude,
-            prev.longitude,
-            p.lat,
-            p.lng,
-          ) *
-          circuityFactor;
-      prev = LatLng(p.lat, p.lng);
+    // Compute total distance along the optimized path using actual leg distances
+    double totalDistKm = 0.0;
+    if (legs.isNotEmpty) {
+      for (final l in legs) {
+        totalDistKm += l.distanceKm;
+      }
+    } else {
+      double totalDistM = 0.0;
+      LatLng prev = start;
+      for (final p in ordered) {
+        totalDistM += haversineMeters(
+              prev.latitude,
+              prev.longitude,
+              p.lat,
+              p.lng,
+            ) *
+            circuityFactor;
+        prev = LatLng(p.lat, p.lng);
+      }
+      totalDistKm = totalDistM / 1000.0;
     }
 
     return TrailOptimizationResult(
       orderedStops: ordered,
       totalDurationMinutes: result.totalDuration,
-      totalDistanceKm: double.parse((totalDistM / 1000.0).toStringAsFixed(2)),
+      totalDistanceKm: double.parse(totalDistKm.toStringAsFixed(2)),
       visitOrderIndices: stopIndices,
       legs: legs,
     );
@@ -159,6 +174,7 @@ class TrailOptimizer {
     double walkingSpeedKmH = defaultWalkingSpeedKmH,
     double circuityFactor = defaultCircuityFactor,
     bool allowMetro = false,
+    bool allowTrain = false,
   }) {
     final n = stops.length + 1;
     final points = [
@@ -180,19 +196,36 @@ class TrailOptimizer {
             circuityFactor;
         final walkMinutes = walkDistM / speedMPerMin;
 
-        if (!allowMetro) {
+        if (!allowMetro && !allowTrain) {
           matrix[i][j] = walkMinutes;
           continue;
         }
 
-        final metro = MetroTransitEstimator.estimate(
-          points[i],
-          points[j],
-          walkingSpeedKmH: walkingSpeedKmH,
-        );
-        matrix[i][j] = metro != null
-            ? (metro.totalMinutes < walkMinutes ? metro.totalMinutes : walkMinutes)
-            : walkMinutes;
+        double bestMinutes = walkMinutes;
+
+        if (allowMetro) {
+          final metro = MetroTransitEstimator.estimate(
+            points[i],
+            points[j],
+            walkingSpeedKmH: walkingSpeedKmH,
+          );
+          if (metro != null && metro.totalMinutes < bestMinutes) {
+            bestMinutes = metro.totalMinutes;
+          }
+        }
+
+        if (allowTrain) {
+          final train = TrainTransitEstimator.estimate(
+            points[i],
+            points[j],
+            walkingSpeedKmH: walkingSpeedKmH,
+          );
+          if (train != null && train.totalMinutes < bestMinutes) {
+            bestMinutes = train.totalMinutes;
+          }
+        }
+
+        matrix[i][j] = bestMinutes;
       }
     }
 

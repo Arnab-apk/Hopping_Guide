@@ -18,6 +18,7 @@ function httpRequest(options, postData) {
       });
     });
     req.on('error', reject);
+    req.setTimeout(2000, () => req.destroy(new Error('HTTP request timed out')));
     if (postData) {
       req.write(JSON.stringify(postData));
     }
@@ -27,6 +28,28 @@ function httpRequest(options, postData) {
 
 const path = require('path');
 
+async function waitForServer(serverProcess) {
+  let spawnError;
+  serverProcess.once('error', (error) => { spawnError = error; });
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    if (spawnError) throw spawnError;
+    if (serverProcess.exitCode !== null) {
+      throw new Error(`Server exited before becoming ready: ${serverProcess.exitCode}`);
+    }
+    try {
+      const health = await httpRequest({
+        hostname: '127.0.0.1', port: 8089, path: '/health', method: 'GET',
+      });
+      if (health.status === 200 && health.data.status === 'ok') return;
+    } catch (_) {
+      // Startup time varies on cold builds and slower machines.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+  throw new Error('Server did not become ready within 30 seconds');
+}
+
 async function runNeonSquadTests() {
   console.log('🧪 Starting Neon Squad & Realtime End-to-End Test...');
 
@@ -35,14 +58,19 @@ async function runNeonSquadTests() {
 
   // Start the server process on port 8089 to avoid conflicts
   const serverProcess = spawn(process.execPath, [serverScript], {
-    env: { ...process.env, PORT: '8089', HOST: '127.0.0.1' },
+    env: {
+      ...process.env, PORT: '8089', HOST: '127.0.0.1',
+      DATABASE_URL: '', REDIS_URL: '', FIREBASE_SERVICE_ACCOUNT_JSON: '',
+      GOOGLE_APPLICATION_CREDENTIALS: '',
+    },
+    windowsHide: true,
     stdio: 'inherit',
   });
-
-  // Wait for server to boot
-  await new Promise((r) => setTimeout(r, 2000));
+  let hostWs;
+  let peerWs;
 
   try {
+    await waitForServer(serverProcess);
     // 1. Health check
     console.log('Test 1: Health check...');
     const health = await httpRequest({
@@ -129,8 +157,8 @@ async function runNeonSquadTests() {
     // 5. Connect WebSockets for both Host and Companion
     console.log('Test 5: Connecting WebSockets to /ws?squadId=...');
     const wsUrl = `ws://127.0.0.1:8089/ws?squadId=${squadId}`;
-    const hostWs = new WebSocket(`${wsUrl}&token=host_arnab_123`);
-    const peerWs = new WebSocket(`${wsUrl}&token=peer_debaditya_456`);
+    hostWs = new WebSocket(`${wsUrl}&token=host_arnab_123`);
+    peerWs = new WebSocket(`${wsUrl}&token=peer_debaditya_456`);
 
     const awaitOpen = (ws) =>
       new Promise((resolve, reject) => {
@@ -220,9 +248,9 @@ async function runNeonSquadTests() {
       })
     );
 
-    await Promise.all([
-      ackPromise,
-      chatReceivedPromise,
+    await Promise.race([
+      Promise.all([ackPromise, chatReceivedPromise]),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout waiting for chat delivery')), 4000)),
     ]);
     console.log('✓ Chat message delivery & acknowledgement verified');
 
@@ -230,6 +258,8 @@ async function runNeonSquadTests() {
     peerWs.close();
     console.log('\n🎉 ALL NEON SQUAD & REALTIME TESTS PASSED SUCCESSFULLY! 🎉\n');
   } finally {
+    hostWs?.terminate();
+    peerWs?.terminate();
     serverProcess.kill();
   }
 }

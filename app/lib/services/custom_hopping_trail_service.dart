@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/pandal.dart';
+import '../repositories/metro_repository.dart';
 import '../utils/haversine.dart';
 import 'location_service.dart';
 import 'notification_progress_service.dart';
@@ -106,6 +107,7 @@ class ActiveCustomTrail {
     required this.totalDistanceKm,
     required this.totalEstimatedMinutes,
     this.allowMetro = false,
+    this.allowTrain = false,
     this.legs = const [],
     DateTime? startedAt,
   })  : startedAt = startedAt ?? DateTime.now(),
@@ -122,6 +124,7 @@ class ActiveCustomTrail {
     HoppingStyle style = HoppingStyle.express,
     HoppingTransitMode transitMode = HoppingTransitMode.walking,
     bool allowMetro = false,
+    bool allowTrain = false,
     List<TrailLeg> legs = const [],
     DateTime? startedAt,
   }) {
@@ -136,6 +139,7 @@ class ActiveCustomTrail {
       totalDistanceKm: totalDistanceKm,
       totalEstimatedMinutes: totalEstimatedMinutes,
       allowMetro: allowMetro,
+      allowTrain: allowTrain,
       legs: legs,
       startedAt: startedAt,
     );
@@ -151,10 +155,13 @@ class ActiveCustomTrail {
   final double totalDistanceKm;
   final int totalEstimatedMinutes;
   final bool allowMetro;
+  final bool allowTrain;
   final List<TrailLeg> legs;
   final DateTime startedAt;
 
   bool get hasMetroLegs => legs.any((l) => l.mode == LegMode.metro);
+  bool get hasTrainLegs => legs.any((l) => l.mode == LegMode.train);
+  bool get hasTransitLegs => hasMetroLegs || hasTrainLegs;
 
   /// Real road-routed distance in kilometers computed via GemKit native RoutingService.
   double? routedDistanceKm;
@@ -257,6 +264,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
     required String startLabel,
     required List<Pandal> selectedPandals,
     bool allowMetro = false,
+    bool allowTrain = false,
   }) {
     if (selectedPandals.isEmpty) {
       return ActiveCustomTrail.custom(
@@ -267,6 +275,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
         totalDistanceKm: 0.0,
         totalEstimatedMinutes: 0,
         allowMetro: allowMetro,
+        allowTrain: allowTrain,
         legs: const [],
       );
     }
@@ -290,9 +299,10 @@ class CustomHoppingTrailService extends ChangeNotifier {
       start: effectiveStart,
       stops: selectedPandals,
       allowMetro: allowMetro,
+      allowTrain: allowTrain,
     );
 
-    // Estimate dwell time (~15 mins per pandal) + walk/metro duration
+    // Estimate dwell time (~15 mins per pandal) + walk/metro/train duration
     final totalEstMinutes =
         (result.totalDurationMinutes + (result.orderedStops.length * 15)).round();
 
@@ -306,6 +316,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
       totalDistanceKm: result.totalDistanceKm,
       totalEstimatedMinutes: totalEstMinutes,
       allowMetro: allowMetro,
+      allowTrain: allowTrain,
       legs: result.legs,
     );
   }
@@ -494,8 +505,8 @@ class CustomHoppingTrailService extends ChangeNotifier {
   Future<void> calculateAndApplyRoadRoute(ActiveCustomTrail trail) async {
     if (trail.stops.isEmpty) return;
 
-    if (trail.hasMetroLegs) {
-      // Multi-modal trail: assemble road-routed walks and metro transit polylines
+    if (trail.hasTransitLegs) {
+      // Multi-modal trail: assemble road-routed walks and authentic transit track polylines
       final fullPoints = <LatLng>[];
       double totalDistanceMeters = 0.0;
       double totalTransitSeconds = 0.0;
@@ -550,18 +561,21 @@ class CustomHoppingTrailService extends ChangeNotifier {
             );
           }
 
-          // 2. Metro segment line
-          if (detail.requiresInterchange && detail.interchangeStation != null) {
-            fullPoints.addAll([boardPos, detail.interchangeStation!.toLatLng(), alightPos]);
-          } else {
-            fullPoints.addAll([boardPos, alightPos]);
-          }
-          final metroDistM = haversineMeters(
-            boardPos.latitude,
-            boardPos.longitude,
-            alightPos.latitude,
-            alightPos.longitude,
+          // 2. Metro segment line: use authentic track curve points
+          final metroTrackPoints = MetroRepository.getTrackPolylineBetween(
+            detail.boardingStation,
+            detail.alightingStation,
           );
+          fullPoints.addAll(metroTrackPoints);
+          double metroDistM = 0;
+          for (int i = 0; i < metroTrackPoints.length - 1; i++) {
+            metroDistM += haversineMeters(
+              metroTrackPoints[i].latitude,
+              metroTrackPoints[i].longitude,
+              metroTrackPoints[i + 1].latitude,
+              metroTrackPoints[i + 1].longitude,
+            );
+          }
           totalDistanceMeters += metroDistM;
 
           // 3. Walk from alighting station to leg.to
@@ -570,6 +584,66 @@ class CustomHoppingTrailService extends ChangeNotifier {
               start: alightPos,
               destination: leg.to,
               destinationName: 'Walk from Metro',
+            );
+            fullPoints.addAll(walkFromAlight.points);
+            totalDistanceMeters += walkFromAlight.distanceMeters;
+          } catch (_) {
+            fullPoints.addAll([alightPos, leg.to]);
+            totalDistanceMeters += haversineMeters(
+              alightPos.latitude,
+              alightPos.longitude,
+              leg.to.latitude,
+              leg.to.longitude,
+            );
+          }
+
+          totalTransitSeconds += (detail.totalMinutes * 60.0);
+        } else if (leg.mode == LegMode.train && leg.trainDetail != null) {
+          final detail = leg.trainDetail!;
+          final boardPos = detail.boardingStation.toLatLng();
+          final alightPos = detail.alightingStation.toLatLng();
+
+          // 1. Walk to rail station
+          try {
+            final walkToBoard = await RoutingService.instance.getWalkingRouteToPoint(
+              start: leg.from,
+              destination: boardPos,
+              destinationName: 'Walk to Railway',
+            );
+            fullPoints.addAll(walkToBoard.points);
+            totalDistanceMeters += walkToBoard.distanceMeters;
+          } catch (_) {
+            fullPoints.addAll([leg.from, boardPos]);
+            totalDistanceMeters += haversineMeters(
+              leg.from.latitude,
+              leg.from.longitude,
+              boardPos.latitude,
+              boardPos.longitude,
+            );
+          }
+
+          // 2. Train segment track points
+          final trainTrackPoints = detail.trackPoints.isNotEmpty
+              ? detail.trackPoints
+              : [boardPos, alightPos];
+          fullPoints.addAll(trainTrackPoints);
+          double trainDistM = 0;
+          for (int i = 0; i < trainTrackPoints.length - 1; i++) {
+            trainDistM += haversineMeters(
+              trainTrackPoints[i].latitude,
+              trainTrackPoints[i].longitude,
+              trainTrackPoints[i + 1].latitude,
+              trainTrackPoints[i + 1].longitude,
+            );
+          }
+          totalDistanceMeters += trainDistM;
+
+          // 3. Walk from alighting station to leg.to
+          try {
+            final walkFromAlight = await RoutingService.instance.getWalkingRouteToPoint(
+              start: alightPos,
+              destination: leg.to,
+              destinationName: 'Walk from Railway',
             );
             fullPoints.addAll(walkFromAlight.points);
             totalDistanceMeters += walkFromAlight.distanceMeters;

@@ -31,6 +31,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<SquadService>.value(value: squadService),
         ChangeNotifierProvider<AuthService>.value(value: AuthService.instance),
+        ChangeNotifierProvider<LocationService>.value(value: LocationService.instance),
       ],
       child: const MaterialApp(
         home: GroupScreen(),

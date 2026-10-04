@@ -11,8 +11,9 @@ Output:
 import json
 import math
 import pathlib
-import sys
+import re
 import shutil
+import sys
 
 # Earth radius in metres
 R_EARTH = 6371000
@@ -31,6 +32,20 @@ def determine_kind(tags):
     if tags.get("station") == "subway" or tags.get("railway") == "subway":
         return "metro"
     return "rail"
+
+def normalize_name(n):
+    """Normalize station name for fuzzy matching."""
+    n = re.sub(r'\(.*?\)', '', n)
+    n = n.lower()
+    for s in ["railway station", "metro station", "junction", "metro", "halt", "station", "cantonment"]:
+        n = n.replace(s, "")
+    return re.sub(r'[^a-z0-9]', '', n)
+
+EXCLUDE_NAMES = {
+    "shiblung halt",
+    "kamalakantapur",
+    "karjana chehar"
+}
 
 def main():
     base_dir = pathlib.Path(__file__).parent
@@ -120,50 +135,51 @@ def main():
     # Merge curated Tier 1 stations to guarantee all terminal, circular railway and metro stations are present
     from seed_stations import CURATED_TIER1_STATIONS
     for stn in CURATED_TIER1_STATIONS:
+        sname_lower = stn["properties"]["name"].strip().lower()
+        if any(ex in sname_lower for ex in EXCLUDE_NAMES):
+            continue
+
         sc = stn["geometry"]["coordinates"]
-        sname = stn["properties"]["name"].strip().lower()
+        sname = stn["properties"]["name"].strip()
         scode = stn["properties"].get("code")
+        skind = stn["properties"]["kind"]
+
         matched = False
         for existing in stations:
             ec = existing["geometry"]["coordinates"]
-            ename = existing["properties"]["name"].strip().lower()
+            ename = existing["properties"]["name"].strip()
             ecode = existing["properties"].get("code")
+            ekind = existing["properties"]["kind"]
             dist = haversine((sc[1], sc[0]), (ec[1], ec[0]))
-            if (scode and ecode and scode == ecode) or (sname == ename and dist < 500) or dist < 180:
+
+            code_match = (scode and ecode and scode == ecode)
+            exact_name_match = (sname.lower() == ename.lower() and dist < 600)
+            norm_name_match = (normalize_name(sname) == normalize_name(ename) and dist < 500)
+            kind_proximity_match = (skind == ekind and dist < 120)
+
+            if code_match or exact_name_match or norm_name_match or kind_proximity_match:
                 matched = True
                 if not existing["properties"].get("code") and scode:
                     existing["properties"]["code"] = scode
-                if not existing["properties"].get("name_bn") and stn["properties"].get("name_bn"):
+                if stn["properties"].get("name_bn"):
                     existing["properties"]["name_bn"] = stn["properties"]["name_bn"]
+                if stn["properties"].get("lines"):
+                    curr_lines = existing["properties"].get("lines", [])
+                    for l in stn["properties"]["lines"]:
+                        if l not in curr_lines:
+                            curr_lines.append(l)
+                    existing["properties"]["lines"] = curr_lines
+                if skind == "metro":
+                    existing["properties"]["kind"] = "metro"
+                if len(sname) > len(ename) or ("metro" in sname.lower() and "metro" not in ename.lower()):
+                    existing["properties"]["name"] = sname
                 break
+
         if not matched:
             stations.append(stn)
 
-    # De-duplicate: same name or within 150m of another station of the same kind
-    unique = []
+    # Apply manual overrides keyed by station id, code, or exact matching name
     for s in stations:
-        s_coord = s["geometry"]["coordinates"]
-        s_name = s["properties"]["name"].strip().lower()
-        s_kind = s["properties"]["kind"]
-        dup = False
-        for u in unique:
-            u_coord = u["geometry"]["coordinates"]
-            u_name = u["properties"]["name"].strip().lower()
-            u_kind = u["properties"]["kind"]
-            dist = haversine((s_coord[1], s_coord[0]), (u_coord[1], u_coord[0]))
-            if (s_name == u_name and dist < 300) or (s_kind == u_kind and dist < 120):
-                # Merge any missing fields into u
-                if not u["properties"].get("code") and s["properties"].get("code"):
-                    u["properties"]["code"] = s["properties"]["code"]
-                if not u["properties"].get("name_bn") and s["properties"].get("name_bn"):
-                    u["properties"]["name_bn"] = s["properties"]["name_bn"]
-                dup = True
-                break
-        if not dup:
-            unique.append(s)
-
-    # Apply manual overrides keyed by station id, code, or matching name
-    for s in unique:
         sid = s["properties"]["id"]
         code = s["properties"].get("code")
         name = s["properties"]["name"].strip().lower()
@@ -177,17 +193,66 @@ def main():
             for k, v in overrides.items():
                 v_name = v.get("name", "").strip().lower()
                 v_code = v.get("code")
-                if (v_name and (v_name == name or v_name in name or name in v_name)) or (code and code == v_code):
+                # Strict exact matching ONLY
+                if (v_code and code and v_code == code) or (v_name and v_name == name):
                     matched_override = v
                     break
 
         if matched_override:
             s["properties"].update(matched_override)
+            if "lat" in matched_override and "lon" in matched_override:
+                s["geometry"]["coordinates"] = [float(matched_override["lon"]), float(matched_override["lat"])]
 
         # Ensure lat/lon properties match geometry
         c = s["geometry"]["coordinates"]
         s["properties"]["lon"] = c[0]
         s["properties"]["lat"] = c[1]
+
+    # De-duplicate
+    unique = []
+    for s in stations:
+        s_name_lower = s["properties"]["name"].strip().lower()
+        if any(ex in s_name_lower for ex in EXCLUDE_NAMES):
+            continue
+
+        s_coord = s["geometry"]["coordinates"]
+        s_name = s["properties"]["name"].strip()
+        s_code = s["properties"].get("code")
+        s_kind = s["properties"]["kind"]
+        dup = False
+
+        for u in unique:
+            u_coord = u["geometry"]["coordinates"]
+            u_name = u["properties"]["name"].strip()
+            u_code = u["properties"].get("code")
+            u_kind = u["properties"]["kind"]
+            dist = haversine((s_coord[1], s_coord[0]), (u_coord[1], u_coord[0]))
+
+            # Different non-empty official codes -> definitely distinct stations (e.g. BLY vs BLYH vs BLYG)
+            if s_code and u_code and s_code != u_code:
+                continue
+
+            code_match = (s_code and u_code and s_code == u_code)
+            exact_name_match = (s_name.lower() == u_name.lower() and dist < 600)
+            norm_name_match = (normalize_name(s_name) == normalize_name(u_name) and dist < 500)
+            close_proximity_match = (s_kind == u_kind and dist < 80)
+
+            if code_match or exact_name_match or norm_name_match or close_proximity_match:
+                if not u["properties"].get("code") and s_code:
+                    u["properties"]["code"] = s_code
+                if not u["properties"].get("name_bn") and s["properties"].get("name_bn"):
+                    u["properties"]["name_bn"] = s["properties"]["name_bn"]
+                if s["properties"].get("lines"):
+                    curr_lines = u["properties"].get("lines", [])
+                    for l in s["properties"]["lines"]:
+                        if l not in curr_lines:
+                            curr_lines.append(l)
+                    u["properties"]["lines"] = curr_lines
+                dup = True
+                break
+
+        if not dup:
+            unique.append(s)
 
     feature_collection = {
         "type": "FeatureCollection",

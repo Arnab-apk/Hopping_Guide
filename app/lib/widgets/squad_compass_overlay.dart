@@ -6,6 +6,7 @@ import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
 import '../models/squad_member.dart';
 import '../services/location_service.dart';
+import '../services/squad_service.dart';
 import '../utils/haversine.dart';
 
 /// AR-style compass overlay showing direction to squad members
@@ -46,7 +47,10 @@ class _SquadCompassOverlayState extends State<SquadCompassOverlay>
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat(reverse: true);
+    );
+    if (!SquadService.enableTestMode) {
+      _pulseController.repeat(reverse: true);
+    }
     
     _rotateController = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -427,7 +431,10 @@ class _SquadCompassButtonState extends State<SquadCompassButton>
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )..repeat(reverse: true);
+    );
+    if (!SquadService.enableTestMode) {
+      _pulseController.repeat(reverse: true);
+    }
     
     _compassSub = FlutterCompass.events?.listen((event) {
       if (event.heading != null && !event.heading!.isNaN) {

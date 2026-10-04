@@ -1135,6 +1135,7 @@ class SquadService extends ChangeNotifier {
       totalDistanceKm: result.totalDistanceKm,
       totalEstimatedMinutes: (result.totalDurationMinutes + (pandalStops.length * 15)).round(),
       allowMetro: true,
+      allowTrain: true,
       legs: result.legs,
     );
 

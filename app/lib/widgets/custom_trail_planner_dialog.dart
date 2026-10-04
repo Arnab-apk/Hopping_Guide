@@ -83,6 +83,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
   // Step 3: Generating state & preferences
   bool _isGenerating = false;
   bool _allowMetro = false;
+  bool _allowTrain = false;
 
   // Popular Kolkata Starting Hubs
   static const List<Map<String, dynamic>> _popularHubs = [
@@ -211,6 +212,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         startLabel: _selectedLocationLabel,
         selectedPandals: selectedList,
         allowMetro: _allowMetro,
+        allowTrain: _allowTrain,
       );
 
       await CustomHoppingTrailService.instance.startTrail(trail);
@@ -1052,7 +1054,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               ),
             ),
             subtitle: Text(
-              'Suggests metro rides when they\'re meaningfully faster than walking',
+              'Suggests Kolkata Metro rides when faster than road/walk',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 11,
                 color: isDark ? Colors.white60 : Colors.black54,
@@ -1063,6 +1065,57 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
             onChanged: (v) {
               HapticFeedback.selectionClick();
               setState(() => _allowMetro = v);
+            },
+          ),
+        ),
+
+        const SizedBox(height: 10),
+
+        // Multi-modal train toggle (defaults to false)
+        Material(
+          color: isDark ? const Color(0xFF22232E) : Colors.grey.shade50,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(
+              color: _allowTrain
+                  ? const Color(0xFF9334E6).withValues(alpha: 0.5)
+                  : (isDark ? Colors.white10 : Colors.black12),
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: SwitchListTile(
+            secondary: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF9334E6).withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.train_rounded,
+                color: Color(0xFF9334E6),
+                size: 20,
+              ),
+            ),
+            title: Text(
+              'Allow Suburban Trains',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            subtitle: Text(
+              'Uses Eastern, South Eastern & Circular Railway when optimal',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                color: isDark ? Colors.white60 : Colors.black54,
+              ),
+            ),
+            value: _allowTrain,
+            activeThumbColor: const Color(0xFF9334E6),
+            onChanged: (v) {
+              HapticFeedback.selectionClick();
+              setState(() => _allowTrain = v);
             },
           ),
         ),

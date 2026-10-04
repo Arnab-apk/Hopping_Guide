@@ -1,0 +1,226 @@
+{
+  "VNP": {
+    "code": "VNP",
+    "label": "Beijingnan railway station",
+    "lat": 39.863546,
+    "lon": 116.372573,
+    "wikidata_id": "http://www.wikidata.org/entity/Q163962"
+  },
+  "SPS": {
+    "code": "SPS",
+    "label": "Pirmasens Hauptbahnhof",
+    "lat": 49.2056,
+    "lon": 7.59833,
+    "wikidata_id": "http://www.wikidata.org/entity/Q442589"
+  },
+  "TLO": {
+    "code": "TLO",
+    "label": "Lorch (Württ) station",
+    "lat": 48.797919444,
+    "lon": 9.69555,
+    "wikidata_id": "http://www.wikidata.org/entity/Q801119"
+  },
+  "SLG": {
+    "code": "SLG",
+    "label": "Sulgen railway station",
+    "lat": 47.5388,
+    "lon": 9.183679,
+    "wikidata_id": "http://www.wikidata.org/entity/Q801492"
+  },
+  "HM": {
+    "code": "HM",
+    "label": "Hódmezővásárhely railway station",
+    "lat": 46.413281,
+    "lon": 20.339937,
+    "wikidata_id": "http://www.wikidata.org/entity/Q21877080"
+  },
+  "RIS": {
+    "code": "RIS",
+    "label": "Rissne metro station",
+    "lat": 59.375833333,
+    "lon": 17.939722222,
+    "wikidata_id": "http://www.wikidata.org/entity/Q2036394"
+  },
+  "LOK": {
+    "code": "LOK",
+    "label": "Tollembeek railway station",
+    "lat": 50.735278,
+    "lon": 3.993333,
+    "wikidata_id": "http://www.wikidata.org/entity/Q2619951"
+  },
+  "CNS": {
+    "code": "CNS",
+    "label": "Changting South Railway Station",
+    "lat": 25.76906,
+    "lon": 116.352692,
+    "wikidata_id": "http://www.wikidata.org/entity/Q24836454"
+  },
+  "BDC": {
+    "code": "BDC",
+    "label": "Baotou East railway station",
+    "lat": 40.568837777,
+    "lon": 110.019044444,
+    "wikidata_id": "http://www.wikidata.org/entity/Q4857483"
+  },
+  "BCF": {
+    "code": "BCF",
+    "label": "Beecroft railway station",
+    "lat": -33.749605555,
+    "lon": 151.066311111,
+    "wikidata_id": "http://www.wikidata.org/entity/Q4879721"
+  },
+  "BLY": {
+    "code": "BLY",
+    "label": "Burnley",
+    "lat": -37.82743,
+    "lon": 145.00657,
+    "wikidata_id": "http://www.wikidata.org/entity/Q5000029"
+  },
+  "SHE": {
+    "code": "SHE",
+    "label": "Seaholme",
+    "lat": -37.8679,
+    "lon": 144.8411,
+    "wikidata_id": "http://www.wikidata.org/entity/Q7440491"
+  },
+  "SRP": {
+    "code": "SRP",
+    "label": "Serpong railway station",
+    "lat": -6.3201452,
+    "lon": 106.6651493,
+    "wikidata_id": "http://www.wikidata.org/entity/Q12516340"
+  },
+  "JOX": {
+    "code": "JOX",
+    "label": "Jian'ou West Railway Station",
+    "lat": 27.05138889,
+    "lon": 118.27472222,
+    "wikidata_id": "http://www.wikidata.org/entity/Q18384014"
+  },
+  "NGX": {
+    "code": "NGX",
+    "label": "Nenjiang Railway Station",
+    "lat": 49.175936463,
+    "lon": 125.241828305,
+    "wikidata_id": "http://www.wikidata.org/entity/Q10944023"
+  },
+  "GUH": {
+    "code": "GUH",
+    "label": "Gunnedah railway station",
+    "lat": -30.979032,
+    "lon": 150.247956,
+    "wikidata_id": "http://www.wikidata.org/entity/Q19874045"
+  },
+  "HPL": {
+    "code": "HPL",
+    "label": "Hepingli Railway Station",
+    "lat": 39.965703,
+    "lon": 116.425693,
+    "wikidata_id": "http://www.wikidata.org/entity/Q36474593"
+  },
+  "TAK": {
+    "code": "TAK",
+    "label": "Taishan Railway Station",
+    "lat": 36.1869,
+    "lon": 117.103,
+    "wikidata_id": "http://www.wikidata.org/entity/Q11145007"
+  },
+  "HIH": {
+    "code": "HIH",
+    "label": "Hai'an Railway Station",
+    "lat": 32.549355,
+    "lon": 120.4993,
+    "wikidata_id": "http://www.wikidata.org/entity/Q11150562"
+  },
+  "CHC": {
+    "code": "CHC",
+    "label": "Metro Chacao",
+    "lat": 10.4930309,
+    "lon": -66.8545356,
+    "wikidata_id": "http://www.wikidata.org/entity/Q11318084"
+  },
+  "BHR": {
+    "code": "BHR",
+    "label": "Bornheim Rathaus",
+    "lat": 50.75715,
+    "lon": 7.00216,
+    "wikidata_id": "http://www.wikidata.org/entity/Q63416439"
+  },
+  "NKL": {
+    "code": "NKL",
+    "label": "Kirchenlaibach station",
+    "lat": 49.869921,
+    "lon": 11.776278,
+    "wikidata_id": "http://www.wikidata.org/entity/Q16054528"
+  },
+  "LLH": {
+    "code": "LLH",
+    "label": "Bléharies railway station",
+    "lat": 50.514966,
+    "lon": 3.419503,
+    "wikidata_id": "http://www.wikidata.org/entity/Q125526565"
+  },
+  "KHN": {
+    "code": "KHN",
+    "label": "Huahu Railway Station",
+    "lat": 30.261143,
+    "lon": 115.021876,
+    "wikidata_id": "http://www.wikidata.org/entity/Q17029086"
+  },
+  "BOI": {
+    "code": "BOI",
+    "label": "Bojong Indah railway station",
+    "lat": -6.159824,
+    "lon": 106.737007,
+    "wikidata_id": "http://www.wikidata.org/entity/Q19740874"
+  },
+  "NMO": {
+    "code": "NMO",
+    "label": "Moosham (b Regensburg)",
+    "lat": 48.9233273,
+    "lon": 12.2692915,
+    "wikidata_id": "http://www.wikidata.org/entity/Q118848993"
+  },
+  "SIU": {
+    "code": "SIU",
+    "label": "Situngir railway station",
+    "lat": 2.492754,
+    "lon": 99.678659,
+    "wikidata_id": "http://www.wikidata.org/entity/Q31174106"
+  },
+  "KJU": {
+    "code": "KJU",
+    "label": "Jünkerath train station",
+    "lat": 50.344566564,
+    "lon": 6.580772254,
+    "wikidata_id": "http://www.wikidata.org/entity/Q23924993"
+  },
+  "MTFA": {
+    "code": "MTFA",
+    "label": "Murgenthal, Fahracker",
+    "lat": 47.264694937,
+    "lon": 7.829333256,
+    "wikidata_id": "http://www.wikidata.org/entity/Q31452594"
+  },
+  "GRAE": {
+    "code": "GRAE",
+    "label": "Gränichen railway station",
+    "lat": 47.361664,
+    "lon": 8.09878,
+    "wikidata_id": "http://www.wikidata.org/entity/Q33452128"
+  },
+  "MUU": {
+    "code": "MUU",
+    "label": "Q113535529",
+    "lat": 62.113,
+    "lon": 25.6559,
+    "wikidata_id": "http://www.wikidata.org/entity/Q113535529"
+  },
+  "NSF": {
+    "code": "NSF",
+    "label": "Seubersdorf",
+    "lat": 49.167637,
+    "lon": 11.628094,
+    "wikidata_id": "http://www.wikidata.org/entity/Q116018717"
+  }
+}

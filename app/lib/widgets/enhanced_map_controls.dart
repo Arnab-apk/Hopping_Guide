@@ -89,9 +89,15 @@ class MapTypeSelector extends StatefulWidget {
     this.showTrafficToggle = true,
     this.showCrowdToggle = true,
     this.show3DToggle = true,
-    this.showStationsToggle = true,
+    this.showStationsToggle = false,
     this.stationsEnabled = false,
     this.onStationsToggled,
+    this.showMetroToggle = true,
+    this.metroEnabled = false,
+    this.onMetroToggled,
+    this.showRailwaysToggle = true,
+    this.railwaysEnabled = false,
+    this.onRailwaysToggled,
   });
 
   final MapType currentType;
@@ -102,6 +108,12 @@ class MapTypeSelector extends StatefulWidget {
   final bool showStationsToggle;
   final bool stationsEnabled;
   final ValueChanged<bool>? onStationsToggled;
+  final bool showMetroToggle;
+  final bool metroEnabled;
+  final ValueChanged<bool>? onMetroToggled;
+  final bool showRailwaysToggle;
+  final bool railwaysEnabled;
+  final ValueChanged<bool>? onRailwaysToggled;
 
   @override
   State<MapTypeSelector> createState() => _MapTypeSelectorState();
@@ -205,9 +217,32 @@ class _MapTypeSelectorState extends State<MapTypeSelector>
                         _toggle();
                       },
                     )),
-                if (widget.showTrafficToggle || widget.showCrowdToggle || widget.show3DToggle || widget.showStationsToggle)
+                if (widget.showTrafficToggle ||
+                    widget.showCrowdToggle ||
+                    widget.show3DToggle ||
+                    widget.showStationsToggle ||
+                    widget.showMetroToggle ||
+                    widget.showRailwaysToggle)
                   const Divider(height: 16),
                 // Toggles
+                if (widget.showMetroToggle)
+                  _MapToggleOption(
+                    icon: Icons.subway_rounded,
+                    label: 'Metro Stations',
+                    value: widget.metroEnabled,
+                    onChanged: (v) {
+                      widget.onMetroToggled?.call(v);
+                    },
+                  ),
+                if (widget.showRailwaysToggle)
+                  _MapToggleOption(
+                    icon: Icons.train_rounded,
+                    label: 'Suburban Trains',
+                    value: widget.railwaysEnabled,
+                    onChanged: (v) {
+                      widget.onRailwaysToggled?.call(v);
+                    },
+                  ),
                 if (widget.showStationsToggle)
                   _MapToggleOption(
                     icon: Icons.train_rounded,

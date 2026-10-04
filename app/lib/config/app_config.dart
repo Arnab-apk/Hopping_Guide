@@ -20,4 +20,17 @@ class AppConfig {
   static const double defaultLat = 22.5536;
   static const double defaultLng = 88.3517;
   static const double defaultZoom = 12.0;
+
+  /// NVIDIA API Key for route assistant LLM (Nemotron 3 Ultra)
+  /// Pass at build time: --dart-define=NVIDIA_API_KEY=your_key
+  static const String nvidiaApiKey = String.fromEnvironment('NVIDIA_API_KEY');
+
+  /// NVIDIA Model for route assistant LLM
+  static const String nvidiaModel = String.fromEnvironment(
+    'NVIDIA_MODEL',
+    defaultValue: 'nvidia/nemotron-3-ultra-550b-a55b',
+  );
+
+  /// Google Gemini API key as secondary fallback
+  static const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 }

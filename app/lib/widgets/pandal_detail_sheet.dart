@@ -11,7 +11,6 @@ import '../screens/map_screen.dart';
 import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../services/queue_wait_service.dart';
-import '../utils/animation_constants.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
 import 'puja_icons.dart';
@@ -1334,8 +1333,6 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(

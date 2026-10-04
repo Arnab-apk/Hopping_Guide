@@ -236,8 +236,10 @@
     "name_bn": "নৈহাটি জংশন",
     "code": "NH",
     "kind": "rail",
+    "lat": 22.88760,
+    "lon": 88.41810,
     "network": "Eastern Railway",
-    "lines": ["Sealdah Main"]
+    "lines": ["Sealdah Main", "Naihati-Bandel Branch"]
   },
   "LLH": {
     "name": "Liluah",
@@ -285,6 +287,146 @@
     "code": "BDC",
     "kind": "rail",
     "network": "Eastern Railway",
-    "lines": ["Howrah Main Line"]
+    "lines": ["Howrah Main Line", "Bandel-Katwa Line", "Naihati-Bandel Branch"]
+  },
+  "stn_2378518670": {
+    "name": "New Barrackpore",
+    "name_bn": "নিউ ব্যারাকপুর",
+    "code": "NBE",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah-Hasnabad Line", "Sealdah-Bangaon Line"]
+  },
+  "stn_7717075781": {
+    "name": "Bally Ghat",
+    "name_bn": "বালী ঘাট",
+    "code": "BLYG",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah-Dankuni Line"]
+  },
+  "stn_8507085275": {
+    "name": "Bally Halt",
+    "name_bn": "বালী হল্ট",
+    "code": "BLYH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah-Bardhaman Chord", "Sealdah-Dankuni Line"]
+  },
+  "stn_11584548979": {
+    "name": "Belur Math",
+    "name_bn": "বেলুড় মঠ",
+    "code": "BRMH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Belur Math Branch"]
+  },
+  "stn_5768054702": {
+    "name": "New Garia",
+    "name_bn": "নিউ গড়িয়া",
+    "code": "NGRI",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "NBE": {
+    "name": "New Barrackpore",
+    "name_bn": "নিউ ব্যারাকপুর",
+    "code": "NBE",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah-Hasnabad Line", "Sealdah-Bangaon Line"]
+  },
+  "BLYG": {
+    "name": "Bally Ghat",
+    "name_bn": "বালী ঘাট",
+    "code": "BLYG",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah-Dankuni Line"]
+  },
+  "BLYH": {
+    "name": "Bally Halt",
+    "name_bn": "বালী হল্ট",
+    "code": "BLYH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Howrah-Bardhaman Chord", "Sealdah-Dankuni Line"]
+  },
+  "BRMH": {
+    "name": "Belur Math",
+    "name_bn": "বেলুড় মঠ",
+    "code": "BRMH",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Belur Math Branch"]
+  },
+  "NGRI": {
+    "name": "New Garia",
+    "name_bn": "নিউ গড়িয়া",
+    "code": "NGRI",
+    "kind": "rail",
+    "network": "Eastern Railway",
+    "lines": ["Sealdah South"]
+  },
+  "SHBC": {
+    "name": "Sibaichandi",
+    "name_bn": "শিবাইচণ্ডী",
+    "code": "SHBC",
+    "kind": "rail",
+    "lat": 22.974465,
+    "lon": 88.13369,
+    "network": "Eastern Railway",
+    "lines": ["Howrah-Bardhaman Chord"]
+  },
+  "GRAE": {
+    "name": "Gurap",
+    "name_bn": "গুড়াপ",
+    "code": "GRAE",
+    "kind": "rail",
+    "lat": 23.02534,
+    "lon": 88.112282,
+    "network": "Eastern Railway",
+    "lines": ["Howrah-Bardhaman Chord"]
+  },
+  "KJRA": {
+    "name": "Karjana",
+    "name_bn": "করজনা",
+    "code": "KJRA",
+    "kind": "rail",
+    "lat": 23.344568,
+    "lon": 87.892269,
+    "network": "Eastern Railway",
+    "lines": ["Barddhaman-Katwa Line"]
+  },
+  "KJRM": {
+    "name": "Karjanagram",
+    "name_bn": "করজনাগ্রাম",
+    "code": "KJRM",
+    "kind": "rail",
+    "lat": 23.352835,
+    "lon": 87.894094,
+    "network": "Eastern Railway",
+    "lines": ["Barddhaman-Katwa Line"]
+  },
+  "SPS": {
+    "name": "Sripat Shrikhanda",
+    "name_bn": "শ্রীপাট শ্রীখণ্ড",
+    "code": "SPS",
+    "kind": "rail",
+    "lat": 23.619106,
+    "lon": 88.088180,
+    "network": "Eastern Railway",
+    "lines": ["Barddhaman-Katwa Line"]
+  },
+  "NDIM": {
+    "name": "Nandaigram Halt",
+    "name_bn": "নন্দাইগ্রাম হল্ট",
+    "code": "NDIM",
+    "kind": "rail",
+    "lat": 23.30745,
+    "lon": 88.31521,
+    "network": "Eastern Railway",
+    "lines": ["Bandel-Katwa Line"]
   }
 }

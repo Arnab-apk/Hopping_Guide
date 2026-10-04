@@ -1654,8 +1654,11 @@ class _GroupScreenState extends State<GroupScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
         leading: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -1737,8 +1740,9 @@ class _GroupScreenState extends State<GroupScreen> {
           }
         },
       ),
-    );
-  }
+    ),
+  );
+}
 
   // --- NO GROUP VIEW ---
 

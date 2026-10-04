@@ -129,55 +129,55 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         destinations: [
           NavigationDestination(
             icon: PujaIcon.durgaEyes(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             selectedIcon: PujaIcon.durgaEyes(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.primary,
             ),
             label: 'Map',
           ),
           NavigationDestination(
             icon: PujaIcon.durgaFace(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             selectedIcon: PujaIcon.durgaFace(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.primary,
             ),
             label: 'Pandals',
           ),
           NavigationDestination(
             icon: PujaIcon.ashtabhujaVariant(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             selectedIcon: PujaIcon.ashtabhujaVariant(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.primary,
             ),
             label: 'Routes',
           ),
           NavigationDestination(
             icon: PujaIcon.dhaki(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             selectedIcon: PujaIcon.dhaki(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.primary,
             ),
             label: 'Group',
           ),
           NavigationDestination(
             icon: PujaIcon.trishulEyes(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             selectedIcon: PujaIcon.trishulEyes(
-              size: 32,
+              size: 24,
               color: theme.colorScheme.primary,
             ),
             label: 'Helpline',
@@ -187,4 +187,3 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     );
   }
 }
-
