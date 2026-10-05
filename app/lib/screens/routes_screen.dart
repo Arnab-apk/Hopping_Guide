@@ -11,9 +11,7 @@ import '../services/custom_hopping_trail_service.dart';
 import '../widgets/animated_fade_slide.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/puja_icons.dart';
-import '../models/route_chat_models.dart';
 import 'main_navigation_screen.dart';
-import 'route_chat_screen.dart';
 
 enum RouteCategoryFilter {
   all(label: 'All', icon: Icons.explore_outlined),
@@ -269,16 +267,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Curated Routes'),
-        actions: [
-          IconButton(
-            tooltip: 'UMA Route Assistant',
-            icon: const Icon(Icons.smart_toy_outlined),
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              Navigator.push(context, RouteChatScreen.route());
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -817,31 +805,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 40,
-                        child: OutlinedButton.icon(
-                          onPressed: () => _askAboutRoute(route, pandalsInRoute),
-                          icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                          label: Text(
-                            'Ask Route Assistant about this circuit',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: colorScheme.primary,
-                            side: BorderSide(
-                              color: colorScheme.outlineVariant.withValues(alpha: 0.8),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(22),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -849,29 +812,6 @@ class _RoutesScreenState extends State<RoutesScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _askAboutRoute(HoppingRoute route, List<Pandal> pandalsInRoute) {
-    HapticFeedback.lightImpact();
-    final first = pandalsInRoute.isNotEmpty ? pandalsInRoute.first.name : route.title;
-    final last = pandalsInRoute.isNotEmpty ? pandalsInRoute.last.name : route.title;
-    final distNum = (double.tryParse(route.distance.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 4.0) * 1000;
-    final durMin = int.tryParse(route.duration.replaceAll(RegExp(r'[^0-9]'), '')) ?? 60;
-
-    final summary = RouteSummary(
-      distanceM: distNum.round(),
-      durationS: durMin * 60,
-      originName: first,
-      destinationName: last,
-    );
-
-    Navigator.push(
-      context,
-      RouteChatScreen.route(
-        initialRoute: summary,
-        initialQuestion: 'Are there any road blockages or heavy crowds on the ${route.title} circuit right now?',
       ),
     );
   }

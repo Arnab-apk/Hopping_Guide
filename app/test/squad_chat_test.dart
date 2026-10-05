@@ -142,6 +142,33 @@ void main() {
       expect(latest?.isImage, isTrue);
       expect(latest?.mediaUrl, contains('unsplash.com'));
     });
+
+    test('Puja Bot messages (system_pujo) persist and broadcast to all squad members', () async {
+      final chatService = SquadChatService();
+      const squadId = 'SQUAD_BOT_TEST';
+
+      // User sends query
+      await chatService.sendText(
+        squadId,
+        senderId: 'user_arnab',
+        senderName: 'Arnab',
+        text: '@bot Which pandal is closest to Baghbazar?',
+      );
+
+      // Puja Bot responds with system_pujo identity
+      await chatService.sendText(
+        squadId,
+        senderId: 'system_pujo',
+        senderName: 'Puja Bot 🪈',
+        text: 'Joy Maa Durga! 🙏 Baghbazar Sarbojanin is ~400m away.',
+      );
+
+      final latest = chatService.getLatestMessage(squadId);
+      expect(latest, isNotNull);
+      expect(latest?.senderId, equals('system_pujo'));
+      expect(latest?.senderName, contains('Puja Bot'));
+      expect(latest?.text, contains('Baghbazar Sarbojanin'));
+    });
   });
 
   group('SquadService Comma & Separation Threshold Tests', () {

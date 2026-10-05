@@ -24,7 +24,6 @@ import '../widgets/squad_pandal_picker_sheet.dart';
 import '../widgets/user_profile_sheet.dart';
 import '../widgets/vote_avatar_stack.dart';
 import 'main_navigation_screen.dart';
-import 'route_chat_screen.dart';
 import 'squad_chat_screen.dart';
 import 'squad_settings_screen.dart';
 
@@ -248,16 +247,8 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   void _openAssistantWithGroupContext(BuildContext context, SquadService squadService) {
-    String? initialQuestion;
-    if (squadService.isHoppingActive && squadService.currentHoppingTarget != null) {
-      initialQuestion = 'What is the fastest and least crowded route to ${squadService.currentHoppingTarget!.pandalName}?';
-    } else if (squadService.chosenPandals.isNotEmpty) {
-      final next = squadService.chosenPandals.first;
-      initialQuestion = 'How is the route and crowd near ${next.pandalName} right now?';
-    } else {
-      initialQuestion = 'Which pandals near us are least crowded right now?';
-    }
-    Navigator.push(context, RouteChatScreen.route(initialQuestion: initialQuestion));
+    HapticFeedback.selectionClick();
+    DefaultTabController.maybeOf(context)?.animateTo(2);
   }
 
   Future<void> _callCompanion(BuildContext context, SquadMember member) async {
@@ -534,11 +525,15 @@ class _GroupScreenState extends State<GroupScreen> {
           title: const Text('Hopping Group'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.alt_route),
+              icon: const Icon(Icons.smart_toy_outlined),
               tooltip: 'Route assistant',
               onPressed: () {
                 HapticFeedback.selectionClick();
-                Navigator.push(context, RouteChatScreen.route());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Join or create a hopping squad to chat with Puja Bot!'),
+                  ),
+                );
               },
             ),
           ],
@@ -559,13 +554,15 @@ class _GroupScreenState extends State<GroupScreen> {
             style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           actions: [
-            IconButton(
-              tooltip: 'Route assistant',
-              icon: const Icon(Icons.alt_route),
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                _openAssistantWithGroupContext(context, squadService);
-              },
+            Builder(
+              builder: (innerCtx) => IconButton(
+                tooltip: 'Route assistant',
+                icon: const Icon(Icons.smart_toy_outlined),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  _openAssistantWithGroupContext(innerCtx, squadService);
+                },
+              ),
             ),
             PopupMenuButton<String>(
               tooltip: 'More options',
@@ -1081,9 +1078,9 @@ class _GroupScreenState extends State<GroupScreen> {
                           ),
                           const SizedBox(width: 8),
                           ActionChip(
-                            avatar: const Icon(Icons.alt_route, size: 13, color: AppColors.accentGold),
+                            avatar: const Icon(Icons.auto_awesome, size: 13, color: AppColors.accentGold),
                             label: Text(
-                              'Check route to ${stops[index + 1].pandalName}',
+                              'Ask bot about ${stops[index + 1].pandalName}',
                               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1091,12 +1088,7 @@ class _GroupScreenState extends State<GroupScreen> {
                             side: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
                             onPressed: () {
                               HapticFeedback.lightImpact();
-                              Navigator.push(
-                                context,
-                                RouteChatScreen.route(
-                                  initialQuestion: 'Check the route and crowd between ${stop.pandalName} and ${stops[index + 1].pandalName}',
-                                ),
-                              );
+                              DefaultTabController.maybeOf(context)?.animateTo(2);
                             },
                           ),
                         ],

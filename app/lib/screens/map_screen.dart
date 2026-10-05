@@ -49,7 +49,6 @@ import '../repositories/station_repository.dart';
 import '../widgets/station_detail_sheet.dart';
 import '../widgets/feature_status_notice.dart';
 import 'main_navigation_screen.dart';
-import 'route_chat_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key, this.repository, this.onMapReady});
@@ -1629,12 +1628,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: [
-          Positioned(
-              top: 12,
-              left: 16,
-              right: 16,
-              child: _buildAssistantHomeCard(context, isDark),
-            ),
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -3171,42 +3164,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAssistantHomeCard(BuildContext context, bool isDark) {
-    final scheme = Theme.of(context).colorScheme;
-    return Material(
-      elevation: 5,
-      borderRadius: BorderRadius.circular(18),
-      color: scheme.surface.withValues(alpha: 0.96),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: () => Navigator.of(context).push(RouteChatScreen.route()),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: scheme.primaryContainer,
-                child: Icon(Icons.auto_awesome_rounded, color: scheme.onPrimaryContainer, size: 19),
-              ),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Ask UMA', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-                    SizedBox(height: 2),
-                    Text('Plan a live route or find a quieter pandal', style: TextStyle(fontSize: 11.5)),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+
 
   /// Compact, tactile map floating action button with consistent 46x46 dimensions,
   /// squircle corners, theme borders, and smooth haptic feedback.

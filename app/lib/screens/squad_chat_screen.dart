@@ -9,11 +9,12 @@ import 'package:provider/provider.dart';
 
 import '../config/theme.dart';
 import '../models/chat_message.dart';
+import '../models/route_chat_models.dart';
 import '../services/auth_service.dart';
+import '../services/chat_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
 import '../widgets/puja_icons.dart';
-import 'route_chat_screen.dart';
 
 /// Screen for private squad text chat, live crowd updates, and photo/video sharing.
 class SquadChatScreen extends StatefulWidget {
@@ -47,17 +48,20 @@ class SquadChatScreen extends StatefulWidget {
 class _SquadChatScreenState extends State<SquadChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
+  bool _isBotThinking = false;
 
   @override
   void dispose() {
     _textController.dispose();
     _scrollController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
-  void _sendMessage() async {
-    final text = _textController.text.trim();
+  void _sendMessage({String? customText}) async {
+    final text = (customText ?? _textController.text).trim();
     if (text.isEmpty) return;
 
     final auth = Provider.of<AuthService>(context, listen: false);
@@ -66,7 +70,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     final senderName = user?.displayName ?? 'You';
     final photoUrl = user?.photoUrl;
 
-    _textController.clear();
+    if (customText == null) {
+      _textController.clear();
+    }
     HapticFeedback.lightImpact();
 
     await SquadChatService.instance.sendText(
@@ -76,6 +82,93 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       text: text,
       senderPhotoUrl: photoUrl,
     );
+
+    if (_shouldTriggerBot(text)) {
+      _queryPujaBot(text);
+    }
+  }
+
+  bool _shouldTriggerBot(String text) {
+    final lower = text.toLowerCase().trim();
+    return lower.startsWith('@bot') ||
+        lower.startsWith('/bot') ||
+        lower.startsWith('/ask') ||
+        lower.startsWith('@puja') ||
+        lower.startsWith('@pujo') ||
+        lower.startsWith('@uma') ||
+        lower.contains('@bot') ||
+        lower.contains('@puja') ||
+        lower.contains('@pujo');
+  }
+
+  Future<void> _queryPujaBot(String userQuery) async {
+    setState(() => _isBotThinking = true);
+
+    try {
+      final squadService = Provider.of<SquadService>(context, listen: false);
+
+      var cleanQuery = userQuery
+          .replaceAll(RegExp(r'@[a-zA-Z0-9_]+'), '')
+          .replaceAll(RegExp(r'^/(?:bot|ask)\s*', caseSensitive: false), '')
+          .trim();
+      if (cleanQuery.isEmpty) {
+        cleanQuery = 'How is the crowd and what are the best pandals to visit near our circuit?';
+      }
+
+      RouteSummary? routeSummary;
+      if (squadService.isHoppingActive && squadService.currentHoppingTarget != null) {
+        final target = squadService.currentHoppingTarget!;
+        routeSummary = RouteSummary(
+          distanceM: 1200,
+          durationS: 18 * 60,
+          destinationName: target.pandalName,
+        );
+      } else if (squadService.chosenPandals.isNotEmpty) {
+        final first = squadService.chosenPandals.first;
+        final last = squadService.chosenPandals.last;
+        routeSummary = RouteSummary(
+          distanceM: 2500,
+          durationS: 30 * 60,
+          originName: first.pandalName,
+          destinationName: last.pandalName,
+        );
+      }
+
+      final reply = await ChatService.instance.ask(cleanQuery, route: routeSummary);
+
+      final buffer = StringBuffer(reply.answer.trim());
+
+      for (final block in reply.blocks) {
+        if (block is BlockageBlock) {
+          buffer.writeln('\n⚠️ ${block.kind} near ${block.near} (${block.source})');
+        } else if (block is StationBlock) {
+          buffer.writeln('\n🚇 Transit: ${block.name} (${block.kind}, ~${(block.distanceM / 1000).toStringAsFixed(1)} km away)');
+        } else if (block is CrowdBlock) {
+          buffer.writeln('\n👥 Crowd: ${block.levelLabel} at ${block.place}');
+        }
+      }
+
+      final botReplyText = buffer.toString().trim();
+
+      await SquadChatService.instance.sendText(
+        widget.squadId,
+        senderId: 'system_pujo',
+        senderName: 'Puja Bot 🪈',
+        text: botReplyText,
+      );
+    } catch (e) {
+      debugPrint('[SquadChat] Puja Bot error: $e');
+      await SquadChatService.instance.sendText(
+        widget.squadId,
+        senderId: 'system_pujo',
+        senderName: 'Puja Bot 🪈',
+        text: 'Joy Maa Durga! 🙏 I had a brief network glitch, but you can check our squad trail tab for the next pandal stops!',
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isBotThinking = false);
+      }
+    }
   }
 
   void _showMediaPicker() {
@@ -387,7 +480,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
                 final messages = snapshot.data ?? [];
 
-                if (messages.isEmpty) {
+                if (messages.isEmpty && !_isBotThinking) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -399,22 +492,31 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                           style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
-                        Text(
-                          'Coordinate your route, crowd updates, and meetup points.',
-                          style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Text(
+                            'Coordinate your route, crowd updates, and meetup points.\nMention @bot or tap the prompts below to ask Puja Bot anytime!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54),
+                          ),
                         ),
                       ],
                     ),
                   );
                 }
 
+                final totalCount = messages.length + (_isBotThinking ? 1 : 0);
                 return ListView.builder(
                   controller: _scrollController,
                   reverse: true,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  itemCount: messages.length,
+                  itemCount: totalCount,
                   itemBuilder: (context, index) {
-                    final msg = messages[index];
+                    if (_isBotThinking && index == 0) {
+                      return _buildThinkingBubble(context, isDark);
+                    }
+                    final messageIndex = _isBotThinking ? index - 1 : index;
+                    final msg = messages[messageIndex];
                     final isMe = msg.isUser(currentUserId);
                     return _buildMessageBubble(context, msg, isMe, isDark);
                   },
@@ -430,6 +532,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
               color: Theme.of(context).colorScheme.primary,
               backgroundColor: Colors.transparent,
             ),
+
+          // Quick Action Chips for Puja Bot
+          _buildQuickActionChips(isDark),
 
           // Bottom Input Bar
           Container(
@@ -451,9 +556,10 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _textController,
+                      focusNode: _focusNode,
                       textCapitalization: TextCapitalization.sentences,
                       decoration: InputDecoration(
-                        hintText: 'Message group...',
+                        hintText: 'Message group or @bot...',
                         hintStyle: TextStyle(fontSize: 14, color: isDark ? Colors.white38 : Colors.black38),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
@@ -475,7 +581,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
                     child: IconButton(
                       icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                       tooltip: 'Send',
-                      onPressed: _sendMessage,
+                      onPressed: () => _sendMessage(),
                     ),
                   ),
                 ],
@@ -509,11 +615,15 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.alt_route),
-            tooltip: 'Route assistant',
+            icon: const Icon(Icons.auto_awesome),
+            tooltip: 'Ask Puja Bot',
             onPressed: () {
               HapticFeedback.selectionClick();
-              Navigator.push(context, RouteChatScreen.route());
+              _textController.text = '@bot ';
+              _textController.selection = TextSelection.fromPosition(
+                TextPosition(offset: _textController.text.length),
+              );
+              _focusNode.requestFocus();
             },
           ),
         ],
@@ -522,8 +632,249 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     );
   }
 
+  Widget _buildQuickActionChips(bool isDark) {
+    final chips = [
+      (
+        icon: Icons.auto_awesome_rounded,
+        label: '@bot Ask Bot',
+        action: () {
+          _textController.text = '@bot ';
+          _textController.selection = TextSelection.fromPosition(
+            TextPosition(offset: _textController.text.length),
+          );
+          _focusNode.requestFocus();
+        },
+      ),
+      (
+        icon: Icons.directions_walk_rounded,
+        label: 'Next pandal route?',
+        action: () => _sendMessage(customText: '@bot What is the best route and traffic condition to the next pandal?'),
+      ),
+      (
+        icon: Icons.people_alt_outlined,
+        label: 'Crowd update',
+        action: () => _sendMessage(customText: '@bot Are there heavy crowds or long queues right now?'),
+      ),
+      (
+        icon: Icons.subway_outlined,
+        label: 'Nearest metro',
+        action: () => _sendMessage(customText: '@bot Which metro station is closest to us and how do we get there?'),
+      ),
+      (
+        icon: Icons.traffic_outlined,
+        label: 'Road blockages',
+        action: () => _sendMessage(customText: '@bot Are there any police barricades or road closures on our way?'),
+      ),
+    ];
+
+    return Container(
+      height: 38,
+      margin: const EdgeInsets.only(bottom: 6),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: chips.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final item = chips[index];
+          return ActionChip(
+            avatar: Icon(item.icon, size: 14, color: AppColors.accentGold),
+            label: Text(
+              item.label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+            ),
+            backgroundColor: isDark ? const Color(0xFF262730) : Colors.amber.shade50.withValues(alpha: 0.8),
+            side: BorderSide(
+              color: isDark ? AppColors.accentGold.withValues(alpha: 0.3) : AppColors.accentGold.withValues(alpha: 0.5),
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              item.action();
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildThinkingBubble(BuildContext context, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10, left: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.accentGold.withValues(alpha: 0.2),
+              border: Border.all(color: AppColors.accentGold, width: 1.2),
+            ),
+            child: const Icon(Icons.auto_awesome, size: 14, color: AppColors.accentGold),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2B2215) : const Color(0xFFFFF8E7),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.accentGold.withValues(alpha: 0.4),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.accentGold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Puja Bot is checking Kolkata routes & crowd...',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: isDark ? AppColors.accentGold : const Color(0xFF8A5A00),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMessageBubble(BuildContext context, ChatMessage msg, bool isMe, bool isDark) {
+    final isBot = msg.senderId == 'system_pujo' || msg.senderName.contains('Puja Bot');
     final timeStr = '${msg.timestamp.hour.toString().padLeft(2, '0')}:${msg.timestamp.minute.toString().padLeft(2, '0')}';
+
+    if (isBot) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accentGold.withValues(alpha: 0.2),
+                border: Border.all(color: AppColors.accentGold, width: 1.5),
+              ),
+              child: const Icon(Icons.auto_awesome, size: 16, color: AppColors.accentGold),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Container(
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF261E14) : const Color(0xFFFFF9EE),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(4),
+                    topRight: Radius.circular(18),
+                    bottomLeft: Radius.circular(18),
+                    bottomRight: Radius.circular(18),
+                  ),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.accentGold.withValues(alpha: 0.4)
+                        : AppColors.accentGold.withValues(alpha: 0.6),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accentGold.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Puja Bot 🪈',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? AppColors.accentGold : const Color(0xFF946200),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: AppColors.accentGold.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'SQUAD GUIDE',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: isDark ? AppColors.accentGold : const Color(0xFF946200),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    if (msg.text != null && msg.text!.isNotEmpty)
+                      Text(
+                        msg.text!,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
+                          height: 1.42,
+                          color: isDark ? Colors.white.withValues(alpha: 0.95) : const Color(0xFF2C2518),
+                        ),
+                      ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.verified_outlined,
+                          size: 11,
+                          color: isDark ? Colors.white38 : Colors.black38,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          '$timeStr · Shared with squad',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isDark ? Colors.white38 : Colors.black38,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
