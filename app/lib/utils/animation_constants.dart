@@ -1,5 +1,6 @@
 /// Animation duration and curve constants for consistent motion design.
 /// Extracted from animations.dart for reuse without flutter_animate dependency.
+library;
 
 import 'package:flutter/material.dart';
 

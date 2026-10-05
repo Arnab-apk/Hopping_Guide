@@ -262,7 +262,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    LocationService.instance.pauseLiveTracking();
+    LocationService.instance.stopLiveTracking(callbackKey: this);
     MapScreen.pendingPandalAction.removeListener(_handlePendingPandalAction);
     MapScreen.pendingFoodSpotAction.removeListener(_handlePendingFoodSpotAction);
     MapScreen.pendingMetroStationAction.removeListener(_handlePendingMetroAction);
@@ -362,6 +362,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
 
   void _startLocationUpdates() {
     LocationService.instance.startLiveTracking(
+      callbackKey: this,
       throttleInterval: const Duration(milliseconds: 1500),
       onLocationChanged: (pos) {
         if (!mounted) return;

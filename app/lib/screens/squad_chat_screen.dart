@@ -19,21 +19,21 @@ import 'route_chat_screen.dart';
 class SquadChatScreen extends StatefulWidget {
   const SquadChatScreen({
     super.key,
-    required this.squadCode,
+    required this.squadId,
     required this.squadName,
     this.embedded = false,
   });
 
-  final String squadCode;
+  final String squadId;
   final String squadName;
   final bool embedded;
 
-  static void open(BuildContext context, {required String squadCode, required String squadName}) {
+  static void open(BuildContext context, {required String squadId, required String squadName}) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => SquadChatScreen(
-          squadCode: squadCode,
+          squadId: squadId,
           squadName: squadName,
         ),
       ),
@@ -70,7 +70,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     HapticFeedback.lightImpact();
 
     await SquadChatService.instance.sendText(
-      widget.squadCode,
+      widget.squadId,
       senderId: senderId,
       senderName: senderName,
       text: text,
@@ -227,7 +227,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       final mediaDataUri = 'data:image/jpeg;base64,$base64String';
 
       await SquadChatService.instance.sendMedia(
-        widget.squadCode,
+        widget.squadId,
         senderId: senderId,
         senderName: senderName,
         mediaUrl: mediaDataUri,
@@ -379,7 +379,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
           // Messages List
           Expanded(
             child: StreamBuilder<List<ChatMessage>>(
-              stream: SquadChatService.instance.messagesStream(widget.squadCode),
+              stream: SquadChatService.instance.messagesStream(widget.squadId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator(color: AppColors.chipMuted));

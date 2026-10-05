@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/route_chat_models.dart';
 import '../services/chat_service.dart';
 import '../widgets/custom_trail_planner_dialog.dart';
+import '../widgets/feature_status_notice.dart';
 import 'map_screen.dart';
 import 'main_navigation_screen.dart';
 
@@ -217,6 +218,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            tooltip: 'Feature status',
+            onPressed: () => FeatureStatusNotice.show(context),
+          ),
           TextButton(
             onPressed: _resetChat,
             style: TextButton.styleFrom(

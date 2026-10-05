@@ -1,22 +1,68 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Hopping Squads & Real-time Live Tracking
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function squadMember(squadId) {
+      return signedIn() &&
+        request.auth.uid in get(/databases/$(database)/documents/squads/$(squadId)).data.membersUid;
+    }
+
+    function squadMemberAfter(squadId) {
+      return signedIn() &&
+        request.auth.uid in getAfter(/databases/$(database)/documents/squads/$(squadId)).data.membersUid;
+    }
+
     match /squads/{squadId} {
-      allow read, write: if true;
+      // Signed-in guests can look up groups by invite code.
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.hostId == request.auth.uid &&
+        request.resource.data.membersUid == [request.auth.uid];
+      allow update: if signedIn() && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membersUid']) &&
+          request.auth.uid in request.resource.data.membersUid &&
+          request.resource.data.membersUid.removeAll([request.auth.uid]) == resource.data.membersUid) ||
+        (request.auth.uid in resource.data.membersUid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'chosenPandals', 'isHoppingActive', 'activeStopIndex', 'planRevision',
+            'updatedAt', 'name', 'meetupPointName', 'meetupLat', 'meetupLng',
+            'separationThresholdMeters', 'lastMessage', 'lastMessageTime'
+          ])) ||
+        (request.auth.uid in resource.data.membersUid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membersUid']) &&
+          request.resource.data.membersUid == resource.data.membersUid.removeAll([request.auth.uid]))
+      );
+      allow delete: if false;
 
       match /members/{memberId} {
-        allow read, write: if true;
+        allow read: if squadMember(squadId);
+        allow create: if squadMemberAfter(squadId) && request.auth.uid == memberId;
+        allow update, delete: if squadMember(squadId) && request.auth.uid == memberId;
       }
 
       match /messages/{messageId} {
-        allow read, write: if true;
+        allow read: if squadMember(squadId);
+        allow create: if squadMember(squadId) &&
+          request.resource.data.senderId in [request.auth.uid, 'system_pujo'];
+        allow update, delete: if false;
+      }
+
+      match /queue_reports/{reportId} {
+        allow read: if squadMember(squadId);
+        allow create: if squadMember(squadId) &&
+          request.resource.data.reporterId == request.auth.uid;
+        allow update, delete: if false;
       }
     }
 
-    // Default fallback rule for festival users
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    match /pandals/{pandalId} {
+      allow read, write: if signedIn();
+    }
+
+    match /pandal_queue_waits/{pandalId} {
+      allow read, write: if signedIn();
     }
   }
 }

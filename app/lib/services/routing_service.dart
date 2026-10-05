@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:simplify/simplify.dart';
 
+import '../config/app_config.dart';
 import '../models/pandal.dart';
 import '../utils/haversine.dart';
 
@@ -106,7 +107,8 @@ class WalkingRoute {
 }
 
 /// Service that computes walking paths between the user's location and pandals or squad members.
-/// Utilizes the free OSRM foot routing engine with offline geodesic fallback.
+/// General map routes retain the OSRM/geodesic fallback, while live navigation
+/// uses OpenRouteService for pedestrian geometry and maneuver instructions.
 class RoutingService {
   RoutingService({http.Client? client}) : _client = client ?? http.Client();
 
@@ -187,6 +189,10 @@ class RoutingService {
         durationSeconds: cached.route.durationSeconds,
         drivingDurationSeconds: cached.route.drivingDurationSeconds,
         isFallback: cached.route.isFallback,
+        segments: cached.route.segments,
+        transitMode: cached.route.transitMode,
+        bestModeBadge: cached.route.bestModeBadge,
+        summary: cached.route.summary,
       );
     }
 
@@ -296,16 +302,87 @@ class RoutingService {
     required String destinationName,
     Pandal? targetPandal,
   }) async {
-    final route = await getWalkingRouteToPoint(
+    if (AppConfig.orsApiKey.isEmpty) {
+      throw StateError(
+        'OpenRouteService API key is missing. '
+        'Build with --dart-define=ORS_API_KEY=your_key',
+      );
+    }
+
+    final route = await _getOpenRouteServiceWalkingRoute(
       start: start,
       destination: destination,
       destinationName: destinationName,
       targetPandal: targetPandal,
     );
-    if (route.isFallback) {
-      throw StateError('Live street routing is unavailable');
-    }
     return route;
+  }
+
+  Future<WalkingRoute> _getOpenRouteServiceWalkingRoute({
+    required LatLng start,
+    required LatLng destination,
+    required String destinationName,
+    Pandal? targetPandal,
+  }) async {
+    final url = Uri.https(
+      'api.openrouteservice.org',
+      '/v2/directions/foot-walking',
+      <String, String>{
+        'api_key': AppConfig.orsApiKey,
+        'start': '${start.longitude},${start.latitude}',
+        'end': '${destination.longitude},${destination.latitude}',
+      },
+    );
+
+    final response = await _client.get(
+      url,
+      headers: const <String, String>{
+        'Accept': 'application/geo+json, application/json',
+      },
+    ).timeout(const Duration(seconds: 12));
+
+    if (response.statusCode != 200) {
+      debugPrint(
+        '[RoutingService] ORS HTTP ${response.statusCode}: '
+        '${response.body.substring(0, response.body.length.clamp(0, 240))}',
+      );
+      throw StateError('Walking route unavailable (${response.statusCode})');
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final features = data['features'] as List?;
+    final feature =
+        features != null && features.isNotEmpty
+            ? features.first as Map<String, dynamic>
+            : null;
+    final geometry = feature?['geometry'] as Map<String, dynamic>?;
+    final coordinates = geometry?['coordinates'] as List?;
+    final properties = feature?['properties'] as Map<String, dynamic>?;
+    final summary = properties?['summary'] as Map<String, dynamic>?;
+
+    if (coordinates == null || coordinates.isEmpty) {
+      throw const FormatException('OpenRouteService returned no route geometry');
+    }
+
+    final points = coordinates.map((coordinate) {
+      final pair = coordinate as List;
+      return LatLng(
+        (pair[1] as num).toDouble(),
+        (pair[0] as num).toDouble(),
+      );
+    }).toList();
+
+    final distance = (summary?['distance'] as num?)?.toDouble() ?? 0;
+    final duration = (summary?['duration'] as num?)?.toDouble() ?? 0;
+    return WalkingRoute(
+      targetPandal: targetPandal,
+      customTitle: destinationName,
+      points: optimizeRoute(points),
+      distanceMeters: distance,
+      durationSeconds: duration,
+      isFallback: false,
+      summary: 'OpenRouteService walking route',
+    );
   }
 
   WalkingRoute _buildGeodesicFallback({

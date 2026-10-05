@@ -33,4 +33,10 @@ class AppConfig {
 
   /// Google Gemini API key as secondary fallback
   static const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
+
+  /// Gemini model used by the route assistant.
+  static const String geminiModel = String.fromEnvironment(
+    'GEMINI_MODEL',
+    defaultValue: 'gemini-3.8-flash',
+  );
 }

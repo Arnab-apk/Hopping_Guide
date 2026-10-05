@@ -25,6 +25,7 @@ class LocationService extends ChangeNotifier {
   StreamSubscription<CompassEvent>? _compassStreamSub;
   bool _isPaused = false;
   DateTime? _lastBroadcastTime;
+  Duration _throttleInterval = const Duration(milliseconds: 1500);
   static bool enableTestMode = false;
   bool _isTestLiveTracking = false;
   void Function(Position)? _testLocationCallback;
@@ -78,11 +79,40 @@ class LocationService extends ChangeNotifier {
   void _restartPositionStream() {
     _positionStreamSub?.cancel();
     _positionStreamSub = null;
-    
-    if (enableTestMode) return;
-    
-    // Restart with new settings (called from startLiveTracking internally)
-    // The actual restart happens in startLiveTracking via _createPositionStream
+    if (enableTestMode || _trackingRefCount == 0) return;
+    _listenToPositionStream();
+  }
+
+  void _listenToPositionStream() {
+    _positionStreamSub = _createPositionStream().listen(
+      (position) {
+        if (_isPaused) return;
+        final now = DateTime.now();
+        if (_lastBroadcastTime != null &&
+            now.difference(_lastBroadcastTime!) < _throttleInterval) {
+          final last = _currentPosition;
+          if (last != null &&
+              Geolocator.distanceBetween(last.latitude, last.longitude,
+                  position.latitude, position.longitude) < 12.0) {
+            return;
+          }
+        }
+        _lastBroadcastTime = now;
+        _currentPosition = position;
+        _error = null;
+        _updateFusedHeading();
+        notifyListeners();
+        for (final cb in _locationListeners.values.toList()) {
+          try {
+            cb(position);
+          } catch (_) {}
+        }
+      },
+      onError: (err) {
+        _error = err.toString();
+        notifyListeners();
+      },
+    );
   }
 
   Stream<Position> _createPositionStream() {
@@ -100,14 +130,12 @@ class LocationService extends ChangeNotifier {
       case PowerProfile.pandalHopping:
         return const LocationSettings(
           accuracy: LocationAccuracy.high,
-          distanceFilter: 10,  // 10 meters - major battery saver
-          timeLimit: Duration(seconds: 30), // Max 30s between updates when stationary
+          distanceFilter: 10,
         );
       case PowerProfile.emergency:
         return const LocationSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 50,  // 50 meters - absolute minimum
-          timeLimit: Duration(seconds: 60),
+          accuracy: LocationAccuracy.medium,
+          distanceFilter: 50,
         );
     }
   }
@@ -185,6 +213,7 @@ class LocationService extends ChangeNotifier {
     Duration throttleInterval = const Duration(milliseconds: 1500),
   }) async {
     _trackingRefCount++;
+    _throttleInterval = throttleInterval;
     if (callbackKey != null && onLocationChanged != null) {
       _locationListeners[callbackKey] = onLocationChanged;
     }
@@ -207,7 +236,7 @@ class LocationService extends ChangeNotifier {
       if (!serviceEnabled) {
         _error = 'Location services disabled on device.';
         notifyListeners();
-        return false;
+        return _trackingStartFailed(callbackKey);
       }
 
       LocationPermission permission = await Geolocator.checkPermission();
@@ -216,14 +245,14 @@ class LocationService extends ChangeNotifier {
         if (permission == LocationPermission.denied) {
           _error = 'Location permission denied by user.';
           notifyListeners();
-          return false;
+          return _trackingStartFailed(callbackKey);
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         _error = 'Location permissions permanently denied.';
         notifyListeners();
-        return false;
+        return _trackingStartFailed(callbackKey);
       }
 
       // Initial fast fix
@@ -242,42 +271,7 @@ class LocationService extends ChangeNotifier {
         }
       }).catchError((_) {});
 
-      _positionStreamSub = _createPositionStream().listen(
-        (position) {
-          if (_isPaused) return;
-
-          final now = DateTime.now();
-          if (_lastBroadcastTime != null &&
-              now.difference(_lastBroadcastTime!) < throttleInterval) {
-            // Check if movement is significant (> 12m) to bypass throttle interval
-            final last = _currentPosition;
-            if (last != null &&
-                Geolocator.distanceBetween(
-                  last.latitude,
-                  last.longitude,
-                  position.latitude,
-                  position.longitude,
-                ) < 12.0) {
-              return;
-            }
-          }
-
-          _lastBroadcastTime = now;
-          _currentPosition = position;
-          _error = null;
-          _updateFusedHeading(); // Update fused heading with new GPS data
-          notifyListeners();
-          for (final cb in _locationListeners.values.toList()) {
-            try {
-              cb(position);
-            } catch (_) {}
-          }
-        },
-        onError: (err) {
-          _error = err.toString();
-          notifyListeners();
-        },
-      );
+      _listenToPositionStream();
 
       // Start compass stream for heading fusion
       await _startCompassStream();
@@ -287,8 +281,14 @@ class LocationService extends ChangeNotifier {
     } catch (e) {
       _error = e.toString();
       notifyListeners();
-      return false;
+      return _trackingStartFailed(callbackKey);
     }
+  }
+
+  bool _trackingStartFailed(Object? callbackKey) {
+    if (callbackKey != null) _locationListeners.remove(callbackKey);
+    _trackingRefCount = (_trackingRefCount - 1).clamp(0, 100);
+    return false;
   }
 
   /// Starts compass stream for heading fusion (when GPS heading is unreliable)

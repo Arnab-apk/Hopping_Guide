@@ -172,11 +172,12 @@ class SquadSettingsScreen extends StatelessWidget {
       ),
     );
     if (confirm == true) {
-      await squadService.leaveSquad();
+      final left = await squadService.leaveSquad();
       if (context.mounted) {
-        Navigator.pop(context); // return to main group screen
+        if (left) Navigator.pop(context); // return to main group screen
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You left the group.')),
+          SnackBar(content: Text(left ? 'You left the group.' :
+              (squadService.lastError ?? 'Could not leave the group.'))),
         );
       }
     }

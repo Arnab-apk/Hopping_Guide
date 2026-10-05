@@ -287,6 +287,11 @@ const bool kFirebaseConfigured = true;
 /// This function safely initializes GemKit without breaking the app
 /// if the SDK is not yet installed or configured.
 Future<void> _initializeGemKit() async {
+  if (!GemKitConfig.useGemKitMap) {
+    debugPrint('GemKit initialization skipped: 2D FlutterMap is active');
+    return;
+  }
+
   try {
     // Check if API token is configured
     if (!GemKitConfig.isConfigured) {

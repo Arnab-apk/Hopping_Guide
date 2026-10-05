@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,17 +40,21 @@ class SquadSeparationAlert {
   final bool isCleared;
 }
 
+/// Whether the current squad snapshot has been confirmed by Firestore's server.
+enum SquadSyncState { unavailable, connecting, live, cached, error }
+
 /// Centralized state manager for Durga Puja hopping squads.
 /// Grounded in real device GPS coordinates from [LocationService].
 /// Backed natively by Google Cloud Firestore (serverless, cloud real-time sync).
 /// Supports anonymous guest hoppers, Google upgrade, presence, live GPS updates,
 /// and client-side Haversine separation alerts.
-class SquadService extends ChangeNotifier {
+class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   SquadService._({this._prefs, SquadFirestoreRepository? repo})
       : _repo = repo ?? SquadFirestoreRepository() {
     _listenToLocationService();
     _listenToAuthService();
     _listenToBattery();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   final SharedPreferences? _prefs;
@@ -57,6 +62,11 @@ class SquadService extends ChangeNotifier {
   static SquadService? _instance;
   static bool enableTestMode = false;
   bool _locationTrackingStarted = false; // Guard against duplicate startLiveTracking calls
+  Position? _lastObservedPosition;
+  DateTime? _lastCloudLocationAt;
+  double? _lastCloudLat;
+  double? _lastCloudLng;
+  SquadSyncState _syncState = SquadSyncState.unavailable;
 
   static SquadService get instance {
     _instance ??= SquadService._();
@@ -97,9 +107,11 @@ class SquadService extends ChangeNotifier {
 
   // Getters
   SquadFirestoreRepository get repository => _repo;
+  // Kept for existing callers; Firestore is not a WebSocket connection.
   WebSocketConnectionState get wsConnectionState =>
-      _repo.isAvailable ? WebSocketConnectionState.connected : WebSocketConnectionState.disconnected;
-  bool get isWsConnected => _repo.isAvailable;
+      _syncState == SquadSyncState.live ? WebSocketConnectionState.connected : WebSocketConnectionState.disconnected;
+  bool get isWsConnected => _syncState == SquadSyncState.live;
+  SquadSyncState get syncState => _syncState;
   String? get squadId => _squadId;
   String? get squadCode => _squadCode;
   String? get squadName => _squadName;
@@ -107,6 +119,8 @@ class SquadService extends ChangeNotifier {
   LatLng get meetupPointCoords => _meetupPointCoords;
   bool get hasActiveSquad => _squadCode != null;
   bool get isSharingLocation => _isSharingLocation;
+  bool get isLocationTracking => _locationTrackingStarted &&
+      LocationService.instance.isLiveTracking && !LocationService.instance.isPaused;
   bool get isBatterySaver => _batterySaver;
   bool get showSquadOnMap => _showSquadOnMap;
   int get separationThresholdMeters => _separationThresholdMeters;
@@ -119,10 +133,13 @@ class SquadService extends ChangeNotifier {
   List<SquadPandalStop> _chosenPandals = [];
   bool _isHoppingActive = false;
   int _activeHoppingStopIndex = 0;
+  int _planRevision = 0;
+  bool _isPlanMutationPending = false;
 
   List<SquadPandalStop> get chosenPandals => List.unmodifiable(_chosenPandals);
   bool get isHoppingActive => _isHoppingActive;
   int get activeHoppingStopIndex => _activeHoppingStopIndex;
+  bool get isPlanMutationPending => _isPlanMutationPending;
   int get visitedPandalsCount => _chosenPandals.where((p) => p.isVisited).length;
   SquadPandalStop? get currentHoppingTarget =>
       (_isHoppingActive && _chosenPandals.isNotEmpty && _activeHoppingStopIndex < _chosenPandals.length)
@@ -164,13 +181,40 @@ class SquadService extends ChangeNotifier {
     LocationService.instance.addListener(_onLocationServiceChange);
   }
 
+  void _startSquadLocationTracking() {
+    if (_locationTrackingStarted) return;
+    _locationTrackingStarted = true;
+    LocationService.instance.startLiveTracking(callbackKey: this).then((started) {
+      if (!started) {
+        _locationTrackingStarted = false;
+        notifyListeners();
+      }
+    }).catchError((e) {
+      _locationTrackingStarted = false;
+      debugPrint('[SquadService] location tracking error: $e');
+      notifyListeners();
+    });
+  }
+
   void _listenToAuthService() {
     AuthService.instance.addListener(_onAuthServiceChange);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      LocationService.instance.pauseLiveTracking();
+    } else if (state == AppLifecycleState.resumed && hasActiveSquad) {
+      LocationService.instance.resumeLiveTracking();
+      if (!_locationTrackingStarted) _startSquadLocationTracking();
+    }
   }
 
   void _onLocationServiceChange() {
     final pos = LocationService.instance.currentPositionSync;
     if (pos != null && hasActiveSquad && _isSharingLocation) {
+      if (identical(pos, _lastObservedPosition)) return;
+      _lastObservedPosition = pos;
       updateUserLocation(pos.latitude, pos.longitude);
     }
   }
@@ -189,7 +233,7 @@ class SquadService extends ChangeNotifier {
             photoUrl: user.photoUrl,
           );
           _members[idx] = updated;
-          _syncUserLocationToCloud();
+          _syncUserLocationToCloud(force: true);
           notifyListeners();
         }
       }
@@ -230,7 +274,7 @@ class SquadService extends ChangeNotifier {
       final idx = _members.indexWhere((m) => m.isUser);
       if (idx != -1 && _members[idx].batteryLevel != lvl) {
         _members[idx] = _members[idx].copyWith(batteryLevel: lvl);
-        _syncUserLocationToCloud();
+        _syncUserLocationToCloud(force: true);
         notifyListeners();
       }
       return lvl;
@@ -241,6 +285,10 @@ class SquadService extends ChangeNotifier {
   }
 
   Future<AppUser> _ensureUser() async {
+    if (_repo.isAvailable && !enableTestMode &&
+        (kIsWeb || !Platform.environment.containsKey('FLUTTER_TEST'))) {
+      return AuthService.instance.ensureCloudUser();
+    }
     var user = AuthService.instance.currentUserModel;
     if (user == null) {
       debugPrint('[SquadService] No active user session, initializing guest profile...');
@@ -282,13 +330,7 @@ class SquadService extends ChangeNotifier {
         _initMembers(isHost: true);
         _listenToCloud();
         _syncUserLocationToCloud();
-        if (!_locationTrackingStarted) {
-          _locationTrackingStarted = true;
-          LocationService.instance.startLiveTracking(callbackKey: this).catchError((e) {
-            debugPrint('[SquadService] startLiveTracking on load error: $e');
-            return false;
-          });
-        }
+        _startSquadLocationTracking();
       }
     } catch (e) {
       debugPrint('[SquadService] _loadSavedState error: $e');
@@ -406,13 +448,24 @@ class SquadService extends ChangeNotifier {
   /// and sync directly to Google Cloud Firestore.
   Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
     _lastError = null;
-    await _ensureUser();
+    try {
+      await _ensureUser();
+    } catch (e) {
+      _lastError = 'Could not sign in for group sync. Check your connection and try again.';
+      notifyListeners();
+      return;
+    }
 
     final cleanName = name.trim().replaceAll(RegExp(r',\s*s\b'), "'s");
     _squadName = cleanName.isEmpty ? 'My Puja Squad' : cleanName;
     _meetupPointName = meetup.trim().isEmpty ? 'Main Entrance Landmark' : meetup.trim();
 
     final isTest = enableTestMode || (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST'));
+    if (!_repo.isAvailable && !isTest) {
+      _lastError = 'Group sync is unavailable. Firebase must be configured before inviting friends.';
+      notifyListeners();
+      return;
+    }
 
     // Try to get fresh real GPS coordinate before writing to Firestore
     Position? currentPos = LocationService.instance.currentPositionSync;
@@ -438,11 +491,7 @@ class SquadService extends ChangeNotifier {
 
     // Start live tracking immediately so GPS updates continuously stream
     if (!_locationTrackingStarted && !isTest) {
-      _locationTrackingStarted = true;
-      LocationService.instance.startLiveTracking(callbackKey: this).catchError((e) {
-        debugPrint('[SquadService] startLiveTracking on create error: $e');
-        return false;
-      });
+      _startSquadLocationTracking();
     }
 
     // 1. Create squad in Cloud Firestore
@@ -459,9 +508,18 @@ class SquadService extends ChangeNotifier {
       _squadId = res['squadId'] as String?;
       _squadCode = res['squadCode'] as String?;
     } catch (e) {
-      debugPrint('[SquadService] Firestore createSquad note: $e');
-      _squadCode ??= SquadFirestoreRepository.generateSquadCode();
-      _squadId ??= 'sq_${DateTime.now().millisecondsSinceEpoch}';
+      debugPrint('[SquadService] Firestore createSquad error: $e');
+      _lastError = 'Could not create the group online. Check your connection and try again.';
+      _squadId = null;
+      _squadCode = null;
+      _squadName = null;
+      _members.clear();
+      if (_locationTrackingStarted) {
+        LocationService.instance.stopLiveTracking(callbackKey: this);
+        _locationTrackingStarted = false;
+      }
+      notifyListeners();
+      return;
     }
 
     await _persistState();
@@ -499,8 +557,26 @@ class SquadService extends ChangeNotifier {
       _lastError = 'Please enter a valid squad code.';
       return false;
     }
+    if (hasActiveSquad) {
+      if (_squadCode == cleanCode) return true;
+      _lastError = 'Leave your current group before joining another one.';
+      notifyListeners();
+      return false;
+    }
 
-    await _ensureUser();
+    try {
+      await _ensureUser();
+    } catch (e) {
+      _lastError = 'Could not sign in for group sync. Check your connection and try again.';
+      notifyListeners();
+      return false;
+    }
+    final isTest = enableTestMode || (!kIsWeb && Platform.environment.containsKey('FLUTTER_TEST'));
+    if (!_repo.isAvailable && !isTest) {
+      _lastError = 'Group sync is unavailable. Firebase must be configured before joining friends.';
+      notifyListeners();
+      return false;
+    }
 
     // 1. Lookup squad in Firestore by 6-character code
     Map<String, dynamic>? squadData;
@@ -508,11 +584,14 @@ class SquadService extends ChangeNotifier {
       squadData = await _repo.findSquadByCode(cleanCode);
     } catch (e) {
       debugPrint('[SquadService] findSquadByCode error: $e');
+      _lastError = 'Could not look up that group online. Check your connection and try again.';
+      notifyListeners();
+      return false;
     }
 
     if (squadData == null) {
       // In offline / test mode without Firebase configured, allow joining for testing
-      if (!_repo.isAvailable) {
+      if (!_repo.isAvailable && isTest) {
         squadData = {
           'squadId': 'sq_local_$cleanCode',
           'squadCode': cleanCode,
@@ -558,16 +637,23 @@ class SquadService extends ChangeNotifier {
     final member = _members.first;
 
     // Start live tracking immediately so GPS updates continuously stream
-    if (!_locationTrackingStarted) {
-      _locationTrackingStarted = true;
-      LocationService.instance.startLiveTracking(callbackKey: this).catchError((e) {
-        debugPrint('[SquadService] startLiveTracking on join error: $e');
-        return false;
-      });
-    }
+    _startSquadLocationTracking();
 
     if (_squadId != null) {
-      await _repo.joinSquad(squadId: _squadId!, member: member);
+      final joined = await _repo.joinSquad(squadId: _squadId!, member: member);
+      if (!joined) {
+        _lastError = 'Could not join the group online. Check your connection and try again.';
+        _squadId = null;
+        _squadCode = null;
+        _squadName = null;
+        _members.clear();
+        if (_locationTrackingStarted) {
+          LocationService.instance.stopLiveTracking(callbackKey: this);
+          _locationTrackingStarted = false;
+        }
+        notifyListeners();
+        return false;
+      }
     }
 
     await _persistState();
@@ -615,24 +701,32 @@ class SquadService extends ChangeNotifier {
   }
 
   /// Leave the current squad and clear members
-  Future<void> leaveSquad() async {
+  Future<bool> leaveSquad() async {
     final oldSquadId = _squadId;
     final user = AuthService.instance.currentUserModel;
+    if (oldSquadId != null && _repo.isAvailable) {
+      if (user == null) {
+        _lastError = 'Could not verify your account to leave the group.';
+        notifyListeners();
+        return false;
+      }
+      try {
+        await _repo.leaveSquad(
+          squadId: oldSquadId,
+          memberId: user.uid,
+          memberName: user.displayName,
+        );
+      } catch (e) {
+        _lastError = 'Could not leave the group online. Check your connection and try again.';
+        notifyListeners();
+        return false;
+      }
+    }
 
     _membersSub?.cancel();
     _membersSub = null;
     _squadSub?.cancel();
     _squadSub = null;
-
-    if (oldSquadId != null && user != null) {
-      _repo.leaveSquad(
-        squadId: oldSquadId,
-        memberId: user.uid,
-        memberName: user.displayName,
-      ).catchError((e) {
-        debugPrint('[SquadService] leaveSquad error: $e');
-      });
-    }
 
     _squadId = null;
     _squadCode = null;
@@ -642,11 +736,18 @@ class SquadService extends ChangeNotifier {
     _chosenPandals.clear();
     _isHoppingActive = false;
     _activeHoppingStopIndex = 0;
+    _planRevision = 0;
+    _isPlanMutationPending = false;
     _locationTrackingStarted = false; // Reset tracking flag
+    _lastCloudLocationAt = null;
+    _lastCloudLat = null;
+    _lastCloudLng = null;
+    _lastObservedPosition = null;
     LocationService.instance.stopLiveTracking(callbackKey: this);
     _members.clear();
     await _persistState();
     notifyListeners();
+    return true;
   }
 
   /// Update the current user's real GPS coordinates
@@ -673,13 +774,22 @@ class SquadService extends ChangeNotifier {
     }
   }
 
-  void _syncUserLocationToCloud() {
+  void _syncUserLocationToCloud({bool force = false}) {
     if (_squadId == null || !_isSharingLocation) return;
     final user = AuthService.instance.currentUserModel;
     if (user == null) return;
     final idx = _members.indexWhere((m) => m.isUser);
     if (idx == -1) return;
     final self = _members[idx];
+    final now = DateTime.now();
+    if (!force && _lastCloudLocationAt != null && _lastCloudLat != null && _lastCloudLng != null &&
+        now.difference(_lastCloudLocationAt!) < const Duration(seconds: 15) &&
+        haversineMeters(_lastCloudLat!, _lastCloudLng!, self.latitude, self.longitude) < 10) {
+      return;
+    }
+    _lastCloudLocationAt = now;
+    _lastCloudLat = self.latitude;
+    _lastCloudLng = self.longitude;
 
     _repo.updateMemberLocation(
       squadId: _squadId!,
@@ -740,7 +850,12 @@ class SquadService extends ChangeNotifier {
         });
       }
     }
+    if (val) _syncUserLocationToCloud(force: true);
     notifyListeners();
+  }
+
+  void retryLocationTracking() {
+    if (hasActiveSquad && _isSharingLocation) _startSquadLocationTracking();
   }
 
   /// Toggle battery saver mode
@@ -782,7 +897,10 @@ class SquadService extends ChangeNotifier {
     SquadSeparationAlert? newAlert;
 
     for (final companion in companionMembers) {
-      if (!companion.shareLocation || !companion.isOnline) continue;
+      if (companion.markerState != MemberMarkerState.fresh &&
+          companion.markerState != MemberMarkerState.stale) {
+        continue;
+      }
       final dist = haversineMeters(
         user.latitude,
         user.longitude,
@@ -827,8 +945,14 @@ class SquadService extends ChangeNotifier {
     _chosenPandals.clear();
     _isHoppingActive = false;
     _activeHoppingStopIndex = 0;
+    _planRevision = 0;
+    _isPlanMutationPending = false;
     _members.clear();
     _separationThresholdMeters = 500;
+    _lastCloudLocationAt = null;
+    _lastCloudLat = null;
+    _lastCloudLng = null;
+    _lastObservedPosition = null;
   }
 
   @visibleForTesting
@@ -842,7 +966,11 @@ class SquadService extends ChangeNotifier {
   void _listenToCloud() {
     _membersSub?.cancel();
     _squadSub?.cancel();
-    if (_squadId == null) return;
+    if (_squadId == null) {
+      _syncState = SquadSyncState.unavailable;
+      return;
+    }
+    _syncState = _repo.isAvailable ? SquadSyncState.connecting : SquadSyncState.unavailable;
 
     final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
 
@@ -895,7 +1023,36 @@ class SquadService extends ChangeNotifier {
     _squadSub = _repo.streamSquad(_squadId!).listen(
       (squadData) {
         if (squadData == null) return;
+        if (squadData['_exists'] == false) {
+          if (squadData['_fromCache'] == true) return;
+          _membersSub?.cancel();
+          _squadId = null;
+          _squadCode = null;
+          _squadName = null;
+          _members.clear();
+          _chosenPandals.clear();
+          _isHoppingActive = false;
+          _activeHoppingStopIndex = 0;
+          _planRevision = 0;
+          _syncState = SquadSyncState.error;
+          _lastError = 'This group is no longer available.';
+          if (_locationTrackingStarted) {
+            LocationService.instance.stopLiveTracking(callbackKey: this);
+            _locationTrackingStarted = false;
+          }
+          _persistState();
+          notifyListeners();
+          return;
+        }
         bool changed = false;
+
+        final nextSyncState = squadData['_fromCache'] == true
+            ? SquadSyncState.cached
+            : SquadSyncState.live;
+        if (nextSyncState != _syncState) {
+          _syncState = nextSyncState;
+          changed = true;
+        }
 
         final newName = squadData['name'] as String?;
         if (newName != null && newName.isNotEmpty && newName != _squadName) {
@@ -926,40 +1083,7 @@ class SquadService extends ChangeNotifier {
           changed = true;
         }
 
-        if (squadData['chosenPandals'] is List) {
-          final rawList = squadData['chosenPandals'] as List;
-          final updated = <SquadPandalStop>[];
-          for (final item in rawList) {
-            if (item is Map<String, dynamic>) {
-              updated.add(SquadPandalStop.fromJson(item));
-            } else if (item is Map) {
-              updated.add(SquadPandalStop.fromJson(Map<String, dynamic>.from(item)));
-            }
-          }
-          _chosenPandals = updated;
-          changed = true;
-        }
-
-        if (squadData['isHoppingActive'] is bool) {
-          final newActive = squadData['isHoppingActive'] as bool;
-          if (newActive != _isHoppingActive) {
-            _isHoppingActive = newActive;
-            changed = true;
-            if (_isHoppingActive) {
-              _syncActiveTrailWithHoppingService();
-            } else if (CustomHoppingTrailService.instance.hasActiveTrail) {
-              CustomHoppingTrailService.instance.endTrail();
-            }
-          }
-        }
-
-        if (squadData['activeStopIndex'] is num) {
-          final newIdx = (squadData['activeStopIndex'] as num).toInt();
-          if (newIdx != _activeHoppingStopIndex) {
-            _activeHoppingStopIndex = newIdx;
-            changed = true;
-          }
-        }
+        if (_applyPlanSnapshot(squadData)) changed = true;
 
         if (changed) {
           _persistState();
@@ -969,11 +1093,98 @@ class SquadService extends ChangeNotifier {
       },
       onError: (err) {
         debugPrint('[SquadService] streamSquad error: $err');
+        _syncState = SquadSyncState.error;
+        notifyListeners();
       },
     );
   }
 
   // --- Collaborative Squad Pandal & Live Hopping Actions ---
+
+  bool _applyPlanSnapshot(Map<String, dynamic> data) {
+    final revision = (data['planRevision'] as num?)?.toInt() ?? 0;
+    if (revision < _planRevision) return false;
+    final raw = data['chosenPandals'];
+    if (raw is! List) return false;
+    final stops = raw
+        .whereType<Map>()
+        .map((item) => SquadPandalStop.fromJson(Map<String, dynamic>.from(item)))
+        .toList();
+    final active = data['isHoppingActive'] == true;
+    final index = ((data['activeStopIndex'] as num?)?.toInt() ?? 0)
+        .clamp(0, stops.length);
+    final changed = revision != _planRevision ||
+        jsonEncode(stops.map((e) => e.toJson()).toList()) !=
+            jsonEncode(_chosenPandals.map((e) => e.toJson()).toList()) ||
+        active != _isHoppingActive || index != _activeHoppingStopIndex;
+    if (!changed) return false;
+    final trailChanged = active != _isHoppingActive ||
+        index != _activeHoppingStopIndex ||
+        stops.length != _chosenPandals.length ||
+        List.generate(stops.length, (i) => i).any((i) =>
+            i >= _chosenPandals.length ||
+            stops[i].id != _chosenPandals[i].id ||
+            stops[i].isVisited != _chosenPandals[i].isVisited);
+    _planRevision = revision;
+    _chosenPandals = stops;
+    _isHoppingActive = active && index < stops.length;
+    _activeHoppingStopIndex = index;
+    if (_isHoppingActive && trailChanged) {
+      _syncActiveTrailWithHoppingService();
+    } else if (!_isHoppingActive && CustomHoppingTrailService.instance.hasActiveTrail) {
+      CustomHoppingTrailService.instance.endTrail();
+    }
+    return true;
+  }
+
+  Future<bool> _changePlan(
+    Map<String, dynamic> Function(Map<String, dynamic>) change,
+  ) async {
+    if (_squadId == null) return false;
+    if (_isPlanMutationPending) return false;
+    if (!_repo.isAvailable && !enableTestMode &&
+        (kIsWeb || !Platform.environment.containsKey('FLUTTER_TEST'))) {
+      _lastError = 'Group plan cannot sync right now. Try again when cloud sync is available.';
+      notifyListeners();
+      return false;
+    }
+    final hadError = _lastError != null;
+    _lastError = null;
+    _isPlanMutationPending = true;
+    notifyListeners();
+    try {
+      Map<String, dynamic> next;
+      if (_repo.isAvailable) {
+        next = await _repo.mutateSquadPlan(squadId: _squadId!, change: change);
+      } else {
+        final current = <String, dynamic>{
+          'chosenPandals': _chosenPandals.map((e) => e.toJson()).toList(),
+          'isHoppingActive': _isHoppingActive,
+          'activeStopIndex': _activeHoppingStopIndex,
+        };
+        next = {...change(current), 'planRevision': _planRevision + 1};
+      }
+      final changed = _applyPlanSnapshot(next);
+      if (changed) {
+        await _persistState();
+      }
+      if (changed || hadError) notifyListeners();
+      return true;
+    } catch (e) {
+      _lastError = 'Could not sync the group plan. Please try again.';
+      debugPrint('[SquadService] plan change error: $e');
+      notifyListeners();
+      return false;
+    } finally {
+      _isPlanMutationPending = false;
+      notifyListeners();
+    }
+  }
+
+  List<Map<String, dynamic>> _stopsFrom(Map<String, dynamic> plan) =>
+      (plan['chosenPandals'] as List<dynamic>? ?? const [])
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
 
   /// Add a pandal to the squad's shared hopping itinerary.
   Future<bool> addPandalToSquad(Pandal pandal) async {
@@ -984,70 +1195,77 @@ class SquadService extends ChangeNotifier {
       suggestedBy: user.uid,
       suggestedByName: user.displayName ?? 'Companion',
     );
-    _chosenPandals.add(stop);
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
-    return true;
+    return _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      if (!stops.any((item) => item['id'] == pandal.id)) {
+        stops.add(stop.toJson());
+      }
+      return {...plan, 'chosenPandals': stops};
+    });
   }
 
   /// Remove a pandal from the squad's shared list.
   Future<void> removePandalFromSquad(String pandalId) async {
-    _chosenPandals.removeWhere((p) => p.id == pandalId);
-    if (_activeHoppingStopIndex >= _chosenPandals.length) {
-      _activeHoppingStopIndex = (_chosenPandals.length - 1).clamp(0, 999);
-    }
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
+    await _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      final removedIndex = stops.indexWhere((item) => item['id'] == pandalId);
+      if (removedIndex == -1) return plan;
+      stops.removeAt(removedIndex);
+      var index = (plan['activeStopIndex'] as num?)?.toInt() ?? 0;
+      if (removedIndex < index) index--;
+      index = index.clamp(0, stops.length);
+      return {
+        ...plan,
+        'chosenPandals': stops,
+        'activeStopIndex': index,
+        'isHoppingActive': stops.isNotEmpty && plan['isHoppingActive'] == true,
+      };
+    });
   }
 
   /// Upvote or remove upvote for a chosen pandal stop.
   Future<void> toggleVotePandal(String pandalId) async {
     final user = await _ensureUser();
-    final idx = _chosenPandals.indexWhere((p) => p.id == pandalId);
-    if (idx != -1) {
-      final stop = _chosenPandals[idx];
-      final currentVotes = List<String>.from(stop.votes);
-      if (currentVotes.contains(user.uid)) {
-        currentVotes.remove(user.uid);
-      } else {
-        currentVotes.add(user.uid);
+    await _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      final idx = stops.indexWhere((item) => item['id'] == pandalId);
+      if (idx != -1) {
+        final currentVotes = List<String>.from(stops[idx]['votes'] as List? ?? const []);
+        if (currentVotes.contains(user.uid)) {
+          currentVotes.remove(user.uid);
+        } else {
+          currentVotes.add(user.uid);
+        }
+        stops[idx]['votes'] = currentVotes;
       }
-      _chosenPandals[idx] = stop.copyWith(votes: currentVotes);
-      await _persistState();
-      _syncSquadPlanToCloud();
-      notifyListeners();
-    }
+      return {...plan, 'chosenPandals': stops};
+    });
   }
 
   /// Optimize the route between chosen pandals using on-device Held-Karp algorithm.
-  Future<void> optimizeSquadRoute() async {
-    if (_chosenPandals.length < 2) return;
+  Future<bool> optimizeSquadRoute() async {
+    if (_chosenPandals.length < 2) return false;
     final userPos = LocationService.instance.currentPositionSync;
     final startPos = userPos != null
         ? LatLng(userPos.latitude, userPos.longitude)
         : LatLng(_chosenPandals.first.lat, _chosenPandals.first.lng);
 
-    final pandalStops = _chosenPandals.map((s) => s.toPandal()).toList();
-    final result = TrailOptimizer.optimizePandalStops(
-      start: startPos,
-      stops: pandalStops,
-      allowMetro: true,
-    );
-
-    final reordered = <SquadPandalStop>[];
-    for (final optPandal in result.orderedStops) {
-      final match = _chosenPandals.firstWhere(
-        (s) => s.id == optPandal.id,
-        orElse: () => _chosenPandals.first,
+    return _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      if (stops.length < 2) return plan;
+      final models = stops.map(SquadPandalStop.fromJson).toList();
+      final result = TrailOptimizer.optimizePandalStops(
+        start: startPos,
+        stops: models.map((s) => s.toPandal()).toList(),
+        allowMetro: true,
       );
-      reordered.add(match);
-    }
-    _chosenPandals = reordered;
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
+      final byId = {for (final stop in stops) stop['id']: stop};
+      final ordered = result.orderedStops.map((p) => byId[p.id]!).toList();
+      final targetId = (plan['activeStopIndex'] as num?)?.toInt() ?? 0;
+      final oldTarget = targetId < stops.length ? stops[targetId]['id'] : null;
+      final newIndex = oldTarget == null ? ordered.length : ordered.indexWhere((s) => s['id'] == oldTarget);
+      return {...plan, 'chosenPandals': ordered, 'activeStopIndex': newIndex < 0 ? 0 : newIndex};
+    });
   }
 
   /// Manually reorder a pandal stop within the chosen stops list.
@@ -1057,59 +1275,82 @@ class SquadService extends ChangeNotifier {
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-    final item = _chosenPandals.removeAt(oldIndex);
-    _chosenPandals.insert(newIndex, item);
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
+    final movedId = _chosenPandals[oldIndex].id;
+    final desiredOrder = _chosenPandals.map((s) => s.id).toList();
+    desiredOrder.removeAt(oldIndex);
+    desiredOrder.insert(newIndex, movedId);
+    final beforeId = newIndex + 1 < desiredOrder.length
+        ? desiredOrder[newIndex + 1]
+        : null;
+    await _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      final from = stops.indexWhere((s) => s['id'] == movedId);
+      if (from < 0) return plan;
+      final active = (plan['activeStopIndex'] as num?)?.toInt() ?? 0;
+      final currentId = active < stops.length ? stops[active]['id'] : null;
+      final moved = stops.removeAt(from);
+      final to = beforeId == null ? stops.length : stops.indexWhere((s) => s['id'] == beforeId);
+      stops.insert(to < 0 ? stops.length : to, moved);
+      final nextIndex = currentId == null ? stops.length : stops.indexWhere((s) => s['id'] == currentId);
+      return {...plan, 'chosenPandals': stops, 'activeStopIndex': nextIndex < 0 ? 0 : nextIndex};
+    });
   }
 
   /// Start hopping together with the squad along the chosen pandal list.
   /// Activates the live street trail, auto-visit proximity detection,
   /// background navigation, and live companions tracking.
-  Future<void> startSquadHopping({LatLng? startLocation}) async {
-    if (_chosenPandals.isEmpty) return;
-    _isHoppingActive = true;
-    _activeHoppingStopIndex = 0;
-
-    _syncActiveTrailWithHoppingService(startPos: startLocation);
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
+  Future<bool> startSquadHopping({LatLng? startLocation}) async {
+    if (_chosenPandals.isEmpty) return false;
+    return _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      if (stops.isEmpty) return plan;
+      final firstUnvisited = stops.indexWhere((stop) => stop['isVisited'] != true);
+      if (firstUnvisited < 0) {
+        for (final stop in stops) {
+          stop['isVisited'] = false;
+        }
+      }
+      return {
+        ...plan,
+        'chosenPandals': stops,
+        'isHoppingActive': true,
+        'activeStopIndex': firstUnvisited < 0 ? 0 : firstUnvisited,
+      };
+    });
   }
 
   /// Mark the current pandal visited and advance to the next stop.
   Future<void> advanceToNextPandalStop() async {
-    if (!_isHoppingActive || _chosenPandals.isEmpty) return;
+    await _moveToNextStop(markVisited: true);
+  }
 
-    if (_activeHoppingStopIndex < _chosenPandals.length) {
-      final current = _chosenPandals[_activeHoppingStopIndex];
-      _chosenPandals[_activeHoppingStopIndex] = current.copyWith(isVisited: true);
+  /// Move on without counting this stop as visited.
+  Future<void> skipCurrentPandalStop() async {
+    await _moveToNextStop(markVisited: false);
+  }
 
-      // Record visit in CustomHoppingTrailService as well
-      CustomHoppingTrailService.instance.recordAutoVisit(current.toPandal());
-    }
-
-    _activeHoppingStopIndex++;
-    if (_activeHoppingStopIndex >= _chosenPandals.length) {
-      _isHoppingActive = false;
-      CustomHoppingTrailService.instance.endTrail();
-    } else {
-      _syncActiveTrailWithHoppingService();
-    }
-
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
+  Future<void> _moveToNextStop({required bool markVisited}) async {
+    final expectedStopId = currentHoppingTarget?.id;
+    if (expectedStopId == null) return;
+    await _changePlan((plan) {
+      final stops = _stopsFrom(plan);
+      final current = (plan['activeStopIndex'] as num?)?.toInt() ?? 0;
+      if (plan['isHoppingActive'] != true || current >= stops.length) return plan;
+      if (stops[current]['id'] != expectedStopId) return plan;
+      if (markVisited) stops[current]['isVisited'] = true;
+      final next = current + 1;
+      return {
+        ...plan,
+        'chosenPandals': stops,
+        'activeStopIndex': next,
+        'isHoppingActive': next < stops.length,
+      };
+    });
   }
 
   /// End the live hopping session for the squad.
   Future<void> endSquadHopping() async {
-    _isHoppingActive = false;
-    CustomHoppingTrailService.instance.endTrail();
-    await _persistState();
-    _syncSquadPlanToCloud();
-    notifyListeners();
+    await _changePlan((plan) => {...plan, 'isHoppingActive': false});
   }
 
   void _syncActiveTrailWithHoppingService({LatLng? startPos}) {
@@ -1121,46 +1362,47 @@ class SquadService extends ChangeNotifier {
             : LatLng(_chosenPandals.first.lat, _chosenPandals.first.lng));
 
     final pandalStops = _chosenPandals.map((s) => s.toPandal()).toList();
-    final result = TrailOptimizer.optimizePandalStops(
-      start: effectiveStart,
-      stops: pandalStops,
+    // Preserve the shared order. Optimization is an explicit group action.
+    final orderedPoints = [
+      effectiveStart,
+      ...pandalStops.map((p) => LatLng(p.lat, p.lng)),
+    ];
+    final legs = buildLegBreakdown(
+      orderedPoints,
       allowMetro: true,
+      allowTrain: true,
+      walkingSpeedKmH: TrailOptimizer.defaultWalkingSpeedKmH,
     );
+    final distanceKm = legs.fold<double>(0, (sum, leg) => sum + leg.distanceKm);
+    final travelMinutes = legs.fold<double>(0, (sum, leg) {
+      if (leg.isMetro) return sum + (leg.metroDetail?.totalMinutes ?? 0);
+      if (leg.isTrain) return sum + (leg.trainDetail?.totalMinutes ?? 0);
+      return sum + leg.distanceKm / TrailOptimizer.defaultWalkingSpeedKmH * 60;
+    });
 
     final trail = ActiveCustomTrail.custom(
       id: 'squad_trail_${_squadCode ?? "live"}',
       startingLocation: effectiveStart,
       startingAddress: _squadName ?? 'Squad Hopping',
       stops: pandalStops,
-      totalDistanceKm: result.totalDistanceKm,
-      totalEstimatedMinutes: (result.totalDurationMinutes + (pandalStops.length * 15)).round(),
+      totalDistanceKm: distanceKm,
+      totalEstimatedMinutes: (travelMinutes + (pandalStops.length * 15)).round(),
       allowMetro: true,
       allowTrain: true,
-      legs: result.legs,
+      legs: legs,
     );
 
-    for (int i = 0; i < _activeHoppingStopIndex && i < trail.stops.length; i++) {
-      trail.visitedPandalIds.add(trail.stops[i].id);
+    for (final stop in _chosenPandals.where((stop) => stop.isVisited)) {
+      trail.visitedPandalIds.add(stop.id);
     }
     trail.currentStopIndex = _activeHoppingStopIndex.clamp(0, trail.stops.length - 1);
 
     CustomHoppingTrailService.instance.startTrail(trail);
   }
 
-  void _syncSquadPlanToCloud() {
-    if (_squadId == null) return;
-    _repo.updateSquadPlan(
-      squadId: _squadId!,
-      chosenPandals: _chosenPandals.map((e) => e.toJson()).toList(),
-      isHoppingActive: _isHoppingActive,
-      activeStopIndex: _activeHoppingStopIndex,
-    ).catchError((e) {
-      debugPrint('[SquadService] _syncSquadPlanToCloud error: $e');
-    });
-  }
-
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     LocationService.instance.removeListener(_onLocationServiceChange);
     AuthService.instance.removeListener(_onAuthServiceChange);
     _batteryPollTimer?.cancel();

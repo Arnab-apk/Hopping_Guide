@@ -104,6 +104,29 @@ class AuthService extends ChangeNotifier {
   bool get isGoogleUser =>
       currentUserModel != null && !currentUserModel!.isGuest;
 
+  /// Ensure the profile UID used by group writes matches Firebase Auth rules.
+  Future<AppUser> ensureCloudUser() async {
+    final auth = _auth;
+    if (auth == null) throw StateError('Firebase Auth is unavailable');
+    var firebaseUser = auth.currentUser;
+    firebaseUser ??= (await auth.signInAnonymously()).user;
+    if (firebaseUser == null) throw StateError('Could not sign in to Firebase');
+    final saved = _currentUserModel;
+    if (saved?.uid == firebaseUser.uid) return saved!;
+    final profile = AppUser(
+      uid: firebaseUser.uid,
+      displayName: firebaseUser.displayName ?? saved?.displayName ?? 'Guest Pujo Hopper',
+      email: firebaseUser.email ?? saved?.email,
+      photoUrl: firebaseUser.photoURL ?? saved?.photoUrl,
+      phoneNumber: firebaseUser.phoneNumber ?? saved?.phoneNumber,
+      isGuest: firebaseUser.isAnonymous,
+    );
+    _currentUserModel = profile;
+    await _saveUser(profile);
+    notifyListeners();
+    return profile;
+  }
+
   @visibleForTesting
   void setCurrentUserForTesting(AppUser? user) {
     _currentUserModel = user;

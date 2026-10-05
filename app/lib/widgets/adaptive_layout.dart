@@ -1,6 +1,6 @@
 /// Adaptive layout helpers for responsive design across phone, tablet, foldable, and desktop.
 /// Provides breakpoint system, layout builders, and responsive utilities.
-library adaptive_layout;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -10,11 +10,11 @@ class AppBreakpoints {
   AppBreakpoints._();
 
   // Breakpoint values (width in dp)
-  static const double xs = 0;      // Phone portrait
-  static const double sm = 600;    // Phone landscape / small tablet
-  static const double md = 840;    // Tablet portrait
-  static const double lg = 1200;   // Tablet landscape / desktop
-  static const double xl = 1600;   // Large desktop
+  static const double xs = 0; // Phone portrait
+  static const double sm = 600; // Phone landscape / small tablet
+  static const double md = 840; // Tablet portrait
+  static const double lg = 1200; // Tablet landscape / desktop
+  static const double xl = 1600; // Large desktop
 
   /// Current breakpoint enum for semantic usage.
   static Breakpoint fromWidth(double width) {
@@ -50,24 +50,12 @@ class AppBreakpoints {
 enum Breakpoint { xs, sm, md, lg, xl }
 
 /// Device form factor detection.
-enum DeviceFormFactor {
-  phone,
-  tablet,
-  foldable,
-  desktop,
-  watch,
-}
+enum DeviceFormFactor { phone, tablet, foldable, desktop, watch }
 
 /// Extension for responsive values based on breakpoint.
 extension ResponsiveValue<T> on T {
   /// Returns a value based on the current breakpoint.
-  T responsive(BuildContext context, {
-    T? xs,
-    T? sm,
-    T? md,
-    T? lg,
-    T? xl,
-  }) {
+  T responsive(BuildContext context, {T? xs, T? sm, T? md, T? lg, T? xl}) {
     final width = MediaQuery.of(context).size.width;
     final breakpoint = AppBreakpoints.fromWidth(width);
 
@@ -198,7 +186,8 @@ class TwoPaneLayout extends StatelessWidget {
         }
 
         final availableWidth = constraints.maxWidth;
-        final primaryWidth = primaryPaneWidth ??
+        final primaryWidth =
+            primaryPaneWidth ??
             (availableWidth * 0.4).clamp(minPrimaryWidth, maxPrimaryWidth);
 
         return Row(
@@ -325,9 +314,10 @@ class AdaptiveList extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: itemCount,
-            separatorBuilder: (_, __) => separator ?? SizedBox(height: spacing),
+            separatorBuilder: (_, _) => separator ?? SizedBox(height: spacing),
             itemBuilder: (context, index) =>
-                listItemBuilder?.call(context, index) ?? itemBuilder(context, index),
+                listItemBuilder?.call(context, index) ??
+                itemBuilder(context, index),
           );
         }
 
@@ -343,7 +333,8 @@ class AdaptiveList extends StatelessWidget {
           ),
           itemCount: itemCount,
           itemBuilder: (context, index) =>
-              gridItemBuilder?.call(context, index) ?? itemBuilder(context, index),
+              gridItemBuilder?.call(context, index) ??
+              itemBuilder(context, index),
         );
       },
     );
@@ -415,8 +406,10 @@ class ResponsiveTextStyle extends StatelessWidget {
           Breakpoint.xs => xsStyle ?? baseStyle,
           Breakpoint.sm => smStyle ?? xsStyle ?? baseStyle,
           Breakpoint.md => mdStyle ?? smStyle ?? xsStyle ?? baseStyle,
-          Breakpoint.lg => lgStyle ?? mdStyle ?? smStyle ?? xsStyle ?? baseStyle,
-          Breakpoint.xl => xlStyle ?? lgStyle ?? mdStyle ?? smStyle ?? xsStyle ?? baseStyle,
+          Breakpoint.lg =>
+            lgStyle ?? mdStyle ?? smStyle ?? xsStyle ?? baseStyle,
+          Breakpoint.xl =>
+            xlStyle ?? lgStyle ?? mdStyle ?? smStyle ?? xsStyle ?? baseStyle,
         };
         return DefaultTextStyle(
           style: style ?? const TextStyle(),
@@ -458,22 +451,18 @@ class BreakpointVisibility extends StatelessWidget {
 /// Extension for context-aware responsive values.
 extension AdaptiveContext on BuildContext {
   /// Current breakpoint.
-  Breakpoint get breakpoint => AppBreakpoints.fromWidth(MediaQuery.of(this).size.width);
+  Breakpoint get breakpoint =>
+      AppBreakpoints.fromWidth(MediaQuery.of(this).size.width);
 
   /// Whether current device is tablet or larger.
   bool get isTabletOrLarger => breakpoint != Breakpoint.xs;
 
   /// Whether current device is desktop.
-  bool get isDesktop => breakpoint == Breakpoint.lg || breakpoint == Breakpoint.xl;
+  bool get isDesktop =>
+      breakpoint == Breakpoint.lg || breakpoint == Breakpoint.xl;
 
   /// Responsive value shortcut.
-  T responsive<T>(T value, {
-    T? xs,
-    T? sm,
-    T? md,
-    T? lg,
-    T? xl,
-  }) =>
+  T responsive<T>(T value, {T? xs, T? sm, T? md, T? lg, T? xl}) =>
       value.responsive(this, xs: xs, sm: sm, md: md, lg: lg, xl: xl);
 
   /// Responsive padding.
@@ -485,7 +474,8 @@ extension AdaptiveContext on BuildContext {
     EdgeInsetsGeometry? xl,
   }) {
     final bp = breakpoint;
-    if (bp == Breakpoint.xl) return xl ?? lg ?? md ?? sm ?? xs ?? EdgeInsets.zero;
+    if (bp == Breakpoint.xl)
+      return xl ?? lg ?? md ?? sm ?? xs ?? EdgeInsets.zero;
     if (bp == Breakpoint.lg) return lg ?? md ?? sm ?? xs ?? EdgeInsets.zero;
     if (bp == Breakpoint.md) return md ?? sm ?? xs ?? EdgeInsets.zero;
     if (bp == Breakpoint.sm) return sm ?? xs ?? EdgeInsets.zero;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -42,6 +44,22 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
+  Timer? _freshnessTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _freshnessTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _freshnessTimer?.cancel();
+    super.dispose();
+  }
+
   void _shareInvite(BuildContext context, SquadService squadService) {
     if (!squadService.hasActiveSquad) return;
     final code = squadService.squadCode;
@@ -214,10 +232,11 @@ class _GroupScreenState extends State<GroupScreen> {
             style: FilledButton.styleFrom(backgroundColor: AppColors.semanticAlert),
             onPressed: () async {
               Navigator.pop(ctx);
-              await squadService.leaveSquad();
+              final left = await squadService.leaveSquad();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Left group')),
+                  SnackBar(content: Text(left ? 'Left group' :
+                      (squadService.lastError ?? 'Could not leave group'))),
                 );
               }
             },
@@ -484,11 +503,11 @@ class _GroupScreenState extends State<GroupScreen> {
   String _getPowerProfileDescription(PowerProfile profile) {
     switch (profile) {
       case PowerProfile.normal:
-        return 'Full GPS accuracy, 2m updates, higher battery use';
+        return 'High accuracy, updates after roughly 2 m of movement';
       case PowerProfile.pandalHopping:
-        return '10m updates, 30s max interval, wake lock, ~40% less battery';
+        return 'High accuracy, updates after roughly 10 m of movement';
       case PowerProfile.emergency:
-        return '50m updates, 60s max interval, absolute minimum battery';
+        return 'Updates after roughly 50 m of movement';
     }
   }
 
@@ -528,7 +547,6 @@ class _GroupScreenState extends State<GroupScreen> {
       );
     }
 
-    final squadCode = squadService.squadCode ?? '';
     final rawName = squadService.squadName ?? 'Hopping Group';
     final squadName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
 
@@ -579,14 +597,28 @@ class _GroupScreenState extends State<GroupScreen> {
             ),
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            _buildTrailTab(context, theme, isDark, squadService),
-            _buildPeopleTab(context, theme, isDark, squadService),
-            SquadChatScreen(
-              squadCode: squadCode,
-              squadName: squadName,
-              embedded: true,
+            if (squadService.lastError != null)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: AppColors.semanticAlert.withValues(alpha: 0.12),
+                child: Text(squadService.lastError!,
+                    style: const TextStyle(fontSize: 12, color: AppColors.semanticAlert)),
+              ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildTrailTab(context, theme, isDark, squadService),
+                  _buildPeopleTab(context, theme, isDark, squadService),
+                  SquadChatScreen(
+                    squadId: squadService.squadId ?? '',
+                    squadName: squadName,
+                    embedded: true,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -714,16 +746,50 @@ class _GroupScreenState extends State<GroupScreen> {
               ),
             ),
           ),
+          const SizedBox(width: 6),
+          _buildSyncIndicator(context, squadService, isDark),
         ],
       ),
     );
   }
 
+  Widget _buildSyncIndicator(BuildContext context, SquadService squadService, bool isDark) {
+    final state = squadService.syncState;
+    final (label, icon, color) = switch (state) {
+      SquadSyncState.live => ('Live', Icons.cloud_done_rounded, AppColors.semanticLive),
+      SquadSyncState.cached => ('Offline', Icons.cloud_off_rounded, AppColors.semanticAlert),
+      SquadSyncState.connecting => ('Connecting', Icons.sync_rounded, AppColors.accentGold),
+      SquadSyncState.unavailable => ('Demo', Icons.cloud_off_rounded, Colors.grey),
+      SquadSyncState.error => ('Sync issue', Icons.sync_problem_rounded, AppColors.semanticAlert),
+    };
+    return Tooltip(
+      message: switch (state) {
+        SquadSyncState.live => 'Group updates confirmed by the server',
+        SquadSyncState.cached => 'Showing saved group data; updates may not reach friends yet',
+        SquadSyncState.connecting => 'Waiting for a server-confirmed group update',
+        SquadSyncState.unavailable => 'Cloud sync is unavailable in this build',
+        SquadSyncState.error => 'Could not receive group updates. Check your connection.',
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: isDark ? 0.18 : 0.10),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 4),
+          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: color)),
+        ]),
+      ),
+    );
+  }
+
   Widget _buildChatTabLabel(BuildContext context, SquadService squadService) {
-    final squadCode = squadService.squadCode ?? '';
+    final squadId = squadService.squadId ?? '';
     return StreamBuilder<List<ChatMessage>>(
-      stream: squadCode.isNotEmpty
-          ? SquadChatService.instance.messagesStream(squadCode)
+      stream: squadId.isNotEmpty
+          ? SquadChatService.instance.messagesStream(squadId)
           : null,
       builder: (context, snapshot) {
         final count = snapshot.hasData ? snapshot.data!.length : 0;
@@ -841,12 +907,12 @@ class _GroupScreenState extends State<GroupScreen> {
                   ),
                   icon: const Icon(Icons.auto_fix_high_rounded, size: 15),
                   label: const Text('Optimize order', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                  onPressed: () async {
+                  onPressed: squadService.isPlanMutationPending ? null : () async {
                     HapticFeedback.lightImpact();
-                    await squadService.optimizeSquadRoute();
-                    if (context.mounted) {
+                    final saved = await squadService.optimizeSquadRoute();
+                    if (context.mounted && saved) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Route optimized for shortest walking distance!')),
+                        const SnackBar(content: Text('Suggested stop order saved for the group.')),
                       );
                     }
                   },
@@ -1079,10 +1145,10 @@ class _GroupScreenState extends State<GroupScreen> {
                     'Start hopping ▶',
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                   ),
-                  onPressed: () async {
+                  onPressed: squadService.isPlanMutationPending ? null : () async {
                     HapticFeedback.lightImpact();
-                    await squadService.startSquadHopping();
-                    if (context.mounted) {
+                    final started = await squadService.startSquadHopping();
+                    if (context.mounted && started) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Live squad hopping started!')),
                       );
@@ -1118,7 +1184,14 @@ class _GroupScreenState extends State<GroupScreen> {
         SquadMember? furthest;
         double maxDist = 0;
         int nearbyCount = 1; // user is always nearby
+        var unknownCount = 0;
         for (final comp in squadService.companionMembers) {
+          if (comp.markerState == MemberMarkerState.old ||
+              comp.markerState == MemberMarkerState.offline ||
+              comp.markerState == MemberMarkerState.notSharing) {
+            unknownCount++;
+            continue;
+          }
           final dist = haversineMeters(userMember.latitude, userMember.longitude, comp.latitude, comp.longitude);
           if (dist > maxDist) {
             maxDist = dist;
@@ -1128,7 +1201,9 @@ class _GroupScreenState extends State<GroupScreen> {
             nearbyCount++;
           }
         }
-        if (maxDist > 150 && furthest != null) {
+        if (unknownCount > 0) {
+          separationSummary = '$unknownCount member location${unknownCount == 1 ? '' : 's'} unavailable or old';
+        } else if (maxDist > 150 && furthest != null) {
           separationSummary = 'People: $nearbyCount of ${members.length} nearby · ${furthest.name} is ${formatDistance(maxDist)} behind';
         } else {
           separationSummary = 'People: all ${members.length} nearby';
@@ -1172,20 +1247,27 @@ class _GroupScreenState extends State<GroupScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.semanticLive.withValues(alpha: 0.15),
+                      color: (squadService.syncState == SquadSyncState.live
+                              ? AppColors.semanticLive : AppColors.accentGold)
+                          .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.circle, color: AppColors.semanticLive, size: 7),
-                        SizedBox(width: 4),
+                        Icon(Icons.circle,
+                            color: squadService.syncState == SquadSyncState.live
+                                ? AppColors.semanticLive : AppColors.accentGold,
+                            size: 7),
+                        const SizedBox(width: 4),
                         Text(
-                          'LIVE HOPPING',
+                          squadService.syncState == SquadSyncState.live
+                              ? 'LIVE HOPPING' : 'HOPPING',
                           style: TextStyle(
                             fontSize: 9.5,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.semanticLive,
+                            color: squadService.syncState == SquadSyncState.live
+                                ? AppColors.semanticLive : AppColors.accentGold,
                           ),
                         ),
                       ],
@@ -1204,42 +1286,12 @@ class _GroupScreenState extends State<GroupScreen> {
               if (currentTarget != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  '${currentTarget.zone} · ~8 min walking',
+                  '${currentTarget.zone} · ${currentTarget.area ?? 'Open route for directions'}',
                   style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : Colors.black54),
-                ),
-                const SizedBox(height: 8),
-                // Route warning
-                Row(
-                  children: [
-                    const Icon(Icons.info_outline, size: 14, color: AppColors.semanticAlert),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '1 road barricade reported on route (near crossing)',
-                        style: TextStyle(fontSize: 11.5, color: isDark ? Colors.white70 : Colors.black87),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                // Crowd status
-                Row(
-                  children: [
-                    const Icon(Icons.people_outline, size: 14, color: AppColors.accentGold),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Crowd there: Busy',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white70 : Colors.black87,
-                      ),
-                    ),
-                  ],
                 ),
               ],
               const SizedBox(height: 14),
-              // Action buttons: Open route & Skip stop
+              // Navigation and actual arrival are the primary actions.
               Row(
                 children: [
                   Expanded(
@@ -1258,29 +1310,34 @@ class _GroupScreenState extends State<GroupScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
+                  FilledButton.tonalIcon(
+                    style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                      side: BorderSide(color: isDark ? Colors.white24 : Colors.black26),
                     ),
-                    icon: const Icon(Icons.skip_next_rounded, size: 16),
-                    label: const Text('Skip stop', style: TextStyle(fontSize: 12.5)),
-                    onPressed: () async {
+                    icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
+                    label: const Text('We are here', style: TextStyle(fontSize: 12.5)),
+                    onPressed: squadService.isPlanMutationPending ? null : () async {
                       HapticFeedback.selectionClick();
                       await squadService.advanceToNextPandalStop();
                     },
                   ),
-                  const SizedBox(width: 6),
-                  IconButton(
-                    tooltip: 'End hopping',
-                    icon: const Icon(Icons.stop_circle_outlined, color: Colors.redAccent, size: 22),
-                    onPressed: () async {
-                      HapticFeedback.selectionClick();
-                      await squadService.endSquadHopping();
-                    },
-                  ),
                 ],
               ),
+              Row(children: [
+                TextButton.icon(
+                  icon: const Icon(Icons.skip_next_rounded, size: 16),
+                  label: const Text('Skip stop'),
+                  onPressed: squadService.isPlanMutationPending
+                      ? null : () => squadService.skipCurrentPandalStop(),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  icon: const Icon(Icons.stop_circle_outlined, size: 16),
+                  label: const Text('End hopping'),
+                  onPressed: squadService.isPlanMutationPending
+                      ? null : () => squadService.endSquadHopping(),
+                ),
+              ]),
             ],
           ),
         ),
@@ -1457,6 +1514,23 @@ class _GroupScreenState extends State<GroupScreen> {
               ),
             ),
             const SizedBox(height: 8),
+            if (squadService.isSharingLocation && !squadService.isLocationTracking) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.semanticAlert.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.location_disabled_rounded, color: AppColors.semanticAlert, size: 18),
+                  const SizedBox(width: 8),
+                  const Expanded(child: Text('GPS is not updating. Friends may see an old location.',
+                      style: TextStyle(fontSize: 11.5))),
+                  TextButton(onPressed: squadService.retryLocationTracking, child: const Text('Retry')),
+                ]),
+              ),
+              const SizedBox(height: 8),
+            ],
             // Pandal Hopping Mode (Battery Saver)
             Consumer<LocationService>(
               builder: (context, locService, _) => Container(
@@ -1639,11 +1713,17 @@ class _GroupScreenState extends State<GroupScreen> {
   ) {
     String? subtitleText;
     if (!m.isUser) {
-      if (userMember != null) {
+      final hasFreshLocation = m.markerState == MemberMarkerState.fresh ||
+          m.markerState == MemberMarkerState.stale;
+      if (userMember != null && hasFreshLocation) {
         final dist = haversineMeters(userMember.latitude, userMember.longitude, m.latitude, m.longitude);
-        subtitleText = '${formatDistance(dist)} away · ${m.status}';
+        subtitleText = '${formatDistance(dist)} away · ${m.lastSeenText}';
       } else {
-        subtitleText = m.status;
+        subtitleText = switch (m.markerState) {
+          MemberMarkerState.notSharing => 'Location sharing paused',
+          MemberMarkerState.offline => 'Offline · last seen ${m.lastSeenText}',
+          _ => 'Last location ${m.lastSeenText} · may be outdated',
+        };
       }
     }
 
@@ -1679,7 +1759,11 @@ class _GroupScreenState extends State<GroupScreen> {
                 width: 9,
                 height: 9,
                 decoration: BoxDecoration(
-                  color: m.isOnline ? AppColors.semanticLive : Colors.grey,
+                  color: switch (m.markerState) {
+                    MemberMarkerState.fresh => AppColors.semanticLive,
+                    MemberMarkerState.stale => AppColors.accentGold,
+                    _ => Colors.grey,
+                  },
                   shape: BoxShape.circle,
                   border: Border.all(color: isDark ? const Color(0xFF1E1E1E) : Colors.white, width: 1.5),
                 ),
@@ -1701,7 +1785,8 @@ class _GroupScreenState extends State<GroupScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Compass button (shows direction to member)
-            if (!m.isUser && m.shareLocation && m.isOnline)
+            if (!m.isUser &&
+                (m.markerState == MemberMarkerState.fresh || m.markerState == MemberMarkerState.stale))
               SquadCompassButton(
                 squadMembers: squadService.members,
                 onPressed: () => _openARCompass(context, m),
@@ -1750,6 +1835,17 @@ class _GroupScreenState extends State<GroupScreen> {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
+        if (squadService.lastError != null) ...[
+          Card(
+            color: AppColors.semanticAlert.withValues(alpha: 0.12),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(squadService.lastError!,
+                  style: const TextStyle(color: AppColors.semanticAlert)),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
         const SizedBox(height: 20),
         Center(
           child: Column(

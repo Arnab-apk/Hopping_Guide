@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kolkata_puja/models/app_user.dart';
 import 'package:kolkata_puja/models/pandal.dart';
 import 'package:kolkata_puja/models/squad_pandal_stop.dart';
+import 'package:kolkata_puja/models/squad_member.dart';
+import 'package:kolkata_puja/repositories/squad_firestore_repository.dart';
 import 'package:kolkata_puja/screens/group_screen.dart';
 import 'package:kolkata_puja/services/auth_service.dart';
 import 'package:kolkata_puja/services/custom_hopping_trail_service.dart';
@@ -278,17 +282,139 @@ void main() {
 
       // 6. Verify Live Hopping Banner activates
       expect(squadService.isHoppingActive, isTrue);
-      expect(find.text('LIVE HOPPING'), findsOneWidget);
+      expect(find.text('HOPPING'), findsOneWidget);
       expect(find.textContaining('NEXT STOP'), findsOneWidget);
       expect(find.text('Skip stop'), findsOneWidget);
 
-      // 7. Advance stop via "Skip stop"
+      // 7. Skipping advances without claiming a visit.
       await tester.tap(find.text('Skip stop'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(squadService.visitedPandalsCount, 1);
+      expect(squadService.visitedPandalsCount, 0);
       expect(squadService.activeHoppingStopIndex, 1);
+      await tester.tap(find.text('We are here'));
+      await tester.pump();
+      expect(squadService.visitedPandalsCount, 1);
     });
   });
+
+  test('two members adding stops together keep both changes', () async {
+    final repo = _InMemoryPlanRepository();
+    final first = await SquadService.create(repo: repo);
+    await first.createSquad('Friends', 'North gate');
+    final second = await SquadService.create(repo: repo);
+    expect(await second.joinSquad('PUJATEST'), isTrue);
+
+    Pandal pandal(String id) => Pandal(
+      id: id,
+      name: id,
+      lat: 22.60,
+      lng: 88.36,
+      zone: KolkataZone.northKolkata,
+      timings: '24h',
+      theme: 'Traditional',
+      imageUrl: '',
+      description: '',
+    );
+
+    await Future.wait([
+      first.addPandalToSquad(pandal('stop_a')),
+      second.addPandalToSquad(pandal('stop_b')),
+    ]);
+    expect(repo.stopIds, containsAll(['stop_a', 'stop_b']));
+    await first.leaveSquad();
+    await second.leaveSquad();
+    first.dispose();
+    second.dispose();
+    await repo.close();
+  });
+
+  test('failed cloud creation never exposes an invite code', () async {
+    final service = await SquadService.create(repo: _FailingCreateRepository());
+    await service.createSquad('Friends', 'North gate');
+    expect(service.hasActiveSquad, isFalse);
+    expect(service.squadCode, isNull);
+    expect(service.lastError, contains('Could not create'));
+    service.dispose();
+  });
+}
+
+class _FailingCreateRepository extends SquadFirestoreRepository {
+  @override
+  bool get isAvailable => true;
+
+  @override
+  Future<Map<String, dynamic>> createSquad({
+    required String name,
+    required String meetupPointName,
+    required double meetupLat,
+    required double meetupLng,
+    required int separationThresholdMeters,
+    required SquadMember host,
+  }) async {
+    throw StateError('Network unavailable');
+  }
+}
+
+class _InMemoryPlanRepository extends SquadFirestoreRepository {
+  final _events = StreamController<Map<String, dynamic>>.broadcast();
+  Map<String, dynamic> _plan = {
+    'squadId': 'sq_shared',
+    'squadCode': 'PUJATEST',
+    'name': 'Friends',
+    'meetupPointName': 'North gate',
+    'meetupLat': 22.60,
+    'meetupLng': 88.36,
+    'membersUid': <String>[],
+    'chosenPandals': <Map<String, dynamic>>[],
+    'isHoppingActive': false,
+    'activeStopIndex': 0,
+    'planRevision': 0,
+  };
+
+  @override
+  bool get isAvailable => true;
+
+  List<String> get stopIds => (_plan['chosenPandals'] as List)
+      .map((item) => (item as Map)['id'] as String).toList();
+
+  @override
+  Future<Map<String, dynamic>> createSquad({
+    required String name,
+    required String meetupPointName,
+    required double meetupLat,
+    required double meetupLng,
+    required int separationThresholdMeters,
+    required SquadMember host,
+  }) async => _plan;
+
+  @override
+  Future<Map<String, dynamic>?> findSquadByCode(String code) async => _plan;
+
+  @override
+  Future<bool> joinSquad({required String squadId, required SquadMember member}) async => true;
+
+  @override
+  Stream<Map<String, dynamic>?> streamSquad(String squadId) async* {
+    yield {..._plan};
+    yield* _events.stream;
+  }
+
+  @override
+  Future<Map<String, dynamic>> mutateSquadPlan({
+    required String squadId,
+    required Map<String, dynamic> Function(Map<String, dynamic>) change,
+  }) async {
+    await Future<void>.delayed(Duration.zero);
+    _plan = {
+      ..._plan,
+      ...change({..._plan}),
+      'planRevision': (_plan['planRevision'] as int) + 1,
+    };
+    _events.add({..._plan});
+    return {..._plan};
+  }
+
+  Future<void> close() => _events.close();
 }
