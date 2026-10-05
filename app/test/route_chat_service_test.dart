@@ -135,7 +135,7 @@ void main() {
 
       final reply = await service.ask('What is the police emergency helpline number?');
       expect(reply.answer, contains('Kolkata Police Emergency: 100 / 112'));
-      expect(reply.answer, contains('Kolkata Traffic Control'));
+      expect(reply.answer, contains('Traffic Police Control'));
       expect(reply.usedLlm, isFalse);
     });
 
@@ -201,7 +201,7 @@ void main() {
 
       final reply = await service.ask('kothay bhir kom?');
       expect(reply.answer, contains('Kolkata Pujo Bhir er Advisory o Best Timing'));
-      expect(reply.answer, contains('Shobcheye kom bhir: Dupur 1:00 theke Bikel 4:30'));
+      expect(reply.answer, contains('Shobcheye kom bhir (Golden Window): Dupur 1:00 theke Bikel 4:30'));
       expect(reply.suggestions, contains('Metro timings'));
     });
 
@@ -211,7 +211,7 @@ void main() {
 
       final reply = await service.ask('কোন মণ্ডপে ভিড় কম?');
       expect(reply.answer, contains('কলকাতা পূজা ভিড় সংক্রান্ত তথ্য ও সেরা সময়'));
-      expect(reply.answer, contains('সবচেয়ে কম ভিড়: দুপুর ১:০০ – বিকেল ৪:৩০'));
+      expect(reply.answer, contains('সবচেয়ে কম ভিড় (গোল্ডেন উইন্ডো): দুপুর ১:০০ – বিকেল ৪:৩০'));
       expect(reply.suggestions, contains('সেরা মণ্ডপসমূহ'));
     });
 
@@ -222,6 +222,17 @@ void main() {
       final reply = await service.ask('nomoshkar kemon acho');
       expect(reply.answer, contains('Shubho Sharodiya! Ami UMA, apnar Kolkata Durga Puja route companion'));
       expect(reply.suggestions, contains('Kothay bhir kom?'));
+    });
+
+    test('Offline fallback returns rich realistic food recommendations for pandal query', () async {
+      final mockClient = MockClient((request) async => throw http.ClientException('Offline'));
+      final service = ChatService(client: mockClient, deviceId: 'test_food_1');
+
+      final reply = await service.ask('bagbazar e bhalo khabar kothay?');
+      expect(reply.answer, contains('Bagbazar'));
+      expect(reply.answer, contains('Golbari'));
+      expect(reply.answer, contains('khabar'));
+      expect(reply.usedLlm, isFalse);
     });
   });
 }

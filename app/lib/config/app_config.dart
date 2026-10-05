@@ -35,8 +35,10 @@ class AppConfig {
   static const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
   /// Gemini model used by the route assistant.
+  /// Free-tier Flash models: 'gemini-3.5-flash' (recommended for reasoning & multilingual facts)
+  /// or 'gemini-3.1-flash-lite' (for high-throughput speed).
   static const String geminiModel = String.fromEnvironment(
     'GEMINI_MODEL',
-    defaultValue: 'gemini-3.8-flash',
+    defaultValue: 'gemini-3.5-flash',
   );
 }
