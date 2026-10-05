@@ -164,4 +164,64 @@ void main() {
       expect(reply.usedLlm, isFalse);
     });
   });
+
+  group('ChatService Multilingual Support (Bengali, Benglish, English)', () {
+    test('detectLanguage classifies Bengali script, Benglish, and English accurately', () {
+      expect(ChatService.detectLanguage('কোন মণ্ডপে ভিড় কম?'), QueryLanguage.bengali);
+      expect(ChatService.detectLanguage('কাছের মেট্রো কোনটা?'), QueryLanguage.bengali);
+      expect(ChatService.detectLanguage('পুলিশের জরুরি হেল্পলাইন নম্বর'), QueryLanguage.bengali);
+      expect(ChatService.detectLanguage('শুভ শারদীয়া কেমন আছেন?'), QueryLanguage.bengali);
+
+      expect(ChatService.detectLanguage('kothay bhir kom?'), QueryLanguage.benglish);
+      expect(ChatService.detectLanguage('bagbazar er kacher metro konta?'), QueryLanguage.benglish);
+      expect(ChatService.detectLanguage('police er phn number dao'), QueryLanguage.benglish);
+      expect(ChatService.detectLanguage('nomoshkar kemon acho'), QueryLanguage.benglish);
+      expect(ChatService.detectLanguage('rasta bondho ache kina'), QueryLanguage.benglish);
+      expect(ChatService.detectLanguage('bhalo pujo kon gulo'), QueryLanguage.benglish);
+
+      expect(ChatService.detectLanguage('Where is the least crowd?'), QueryLanguage.english);
+      expect(ChatService.detectLanguage('Nearest metro station to Bagbazar'), QueryLanguage.english);
+      expect(ChatService.detectLanguage('Police emergency helpline'), QueryLanguage.english);
+    });
+
+    test('Offline fallback returns Bengali script for Bengali helpline query', () async {
+      final mockClient = MockClient((request) async => throw http.ClientException('Offline'));
+      final service = ChatService(client: mockClient, deviceId: 'test_bn_1');
+
+      final reply = await service.ask('পুলিশের জরুরি হেল্পলাইন নম্বর');
+      expect(reply.answer, contains('কলকাতা পূজা জরুরি হেল্পলাইন'));
+      expect(reply.answer, contains('কলকাতা পুলিশ ইমার্জেন্সি: ১০০ / ১১২'));
+      expect(reply.answer, contains('মেডিকেল অ্যাম্বুলেন্স: ১০২ / ১০৮'));
+      expect(reply.suggestions, contains('নিকটবর্তী মেট্রো স্টেশন'));
+    });
+
+    test('Offline fallback returns Benglish for Benglish crowd query', () async {
+      final mockClient = MockClient((request) async => throw http.ClientException('Offline'));
+      final service = ChatService(client: mockClient, deviceId: 'test_beng_1');
+
+      final reply = await service.ask('kothay bhir kom?');
+      expect(reply.answer, contains('Kolkata Pujo Bhir er Advisory o Best Timing'));
+      expect(reply.answer, contains('Shobcheye kom bhir: Dupur 1:00 theke Bikel 4:30'));
+      expect(reply.suggestions, contains('Metro timings'));
+    });
+
+    test('Offline fallback returns Bengali script for Bengali crowd query', () async {
+      final mockClient = MockClient((request) async => throw http.ClientException('Offline'));
+      final service = ChatService(client: mockClient, deviceId: 'test_bn_2');
+
+      final reply = await service.ask('কোন মণ্ডপে ভিড় কম?');
+      expect(reply.answer, contains('কলকাতা পূজা ভিড় সংক্রান্ত তথ্য ও সেরা সময়'));
+      expect(reply.answer, contains('সবচেয়ে কম ভিড়: দুপুর ১:০০ – বিকেল ৪:৩০'));
+      expect(reply.suggestions, contains('সেরা মণ্ডপসমূহ'));
+    });
+
+    test('Offline fallback returns Benglish for Benglish greeting query', () async {
+      final mockClient = MockClient((request) async => throw http.ClientException('Offline'));
+      final service = ChatService(client: mockClient, deviceId: 'test_beng_2');
+
+      final reply = await service.ask('nomoshkar kemon acho');
+      expect(reply.answer, contains('Shubho Sharodiya! Ami UMA, apnar Kolkata Durga Puja route companion'));
+      expect(reply.suggestions, contains('Kothay bhir kom?'));
+    });
+  });
 }

@@ -135,16 +135,36 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       }
 
       final reply = await ChatService.instance.ask(cleanQuery, route: routeSummary);
+      final queryLang = ChatService.detectLanguage(cleanQuery);
 
       final buffer = StringBuffer(reply.answer.trim());
 
       for (final block in reply.blocks) {
         if (block is BlockageBlock) {
-          buffer.writeln('\n⚠️ ${block.kind} near ${block.near} (${block.source})');
+          if (queryLang == QueryLanguage.bengali) {
+            buffer.writeln('\n⚠️ ${block.near}-এর কাছে ${block.kind} (${block.source})');
+          } else if (queryLang == QueryLanguage.benglish) {
+            buffer.writeln('\n⚠️ ${block.near}-er kache ${block.kind} (${block.source})');
+          } else {
+            buffer.writeln('\n⚠️ ${block.kind} near ${block.near} (${block.source})');
+          }
         } else if (block is StationBlock) {
-          buffer.writeln('\n🚇 Transit: ${block.name} (${block.kind}, ~${(block.distanceM / 1000).toStringAsFixed(1)} km away)');
+          final distKm = (block.distanceM / 1000).toStringAsFixed(1);
+          if (queryLang == QueryLanguage.bengali) {
+            buffer.writeln('\n🚇 যাতায়াত: ${block.name} (${block.kind}, প্রায় $distKm কিমি দূরে)');
+          } else if (queryLang == QueryLanguage.benglish) {
+            buffer.writeln('\n🚇 Transit: ${block.name} (${block.kind}, pray $distKm km dure)');
+          } else {
+            buffer.writeln('\n🚇 Transit: ${block.name} (${block.kind}, ~$distKm km away)');
+          }
         } else if (block is CrowdBlock) {
-          buffer.writeln('\n👥 Crowd: ${block.levelLabel} at ${block.place}');
+          if (queryLang == QueryLanguage.bengali) {
+            buffer.writeln('\n👥 ভিড়: ${block.place}-এ ${block.levelLabel}');
+          } else if (queryLang == QueryLanguage.benglish) {
+            buffer.writeln('\n👥 Bhir: ${block.place}-e ${block.levelLabel}');
+          } else {
+            buffer.writeln('\n👥 Crowd: ${block.levelLabel} at ${block.place}');
+          }
         }
       }
 
@@ -158,11 +178,17 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       );
     } catch (e) {
       debugPrint('[SquadChat] Puja Bot error: $e');
+      final queryLang = ChatService.detectLanguage(userQuery);
+      final fallbackMsg = queryLang == QueryLanguage.bengali
+          ? 'জয় মা দুর্গা! 🙏 সাময়িক সংযোগ সমস্যা হয়েছে, অনুগ্রহ করে স্কোয়াড ট্রেইল ট্যাব দেখে পরবর্তী মণ্ডপ চেক করুন।'
+          : queryLang == QueryLanguage.benglish
+              ? 'Joy Maa Durga! 🙏 Somoyik network somoshya hocche, apni amader squad trail tab theke next pandal check korte paren!'
+              : 'Joy Maa Durga! 🙏 I had a brief network glitch, but you can check our squad trail tab for the next pandal stops!';
       await SquadChatService.instance.sendText(
         widget.squadId,
         senderId: 'system_pujo',
         senderName: 'Puja Bot 🪈',
-        text: 'Joy Maa Durga! 🙏 I had a brief network glitch, but you can check our squad trail tab for the next pandal stops!',
+        text: fallbackMsg,
       );
     } finally {
       if (mounted) {
@@ -646,24 +672,34 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
         },
       ),
       (
+        icon: Icons.people_alt_outlined,
+        label: 'Kothay bhir kom?',
+        action: () => _sendMessage(customText: '@bot Kothay bhir kom ache ekhon?'),
+      ),
+      (
+        icon: Icons.subway_outlined,
+        label: 'Kacher metro?',
+        action: () => _sendMessage(customText: '@bot Kacher metro station konta?'),
+      ),
+      (
+        icon: Icons.local_activity_outlined,
+        label: '🌸 সেরা পুজো?',
+        action: () => _sendMessage(customText: '@bot কলকাতার সেরা পুজো কোনগুলো?'),
+      ),
+      (
+        icon: Icons.traffic_outlined,
+        label: 'Rasta bondho kina?',
+        action: () => _sendMessage(customText: '@bot Rasta bondho ba police barricade ache kina?'),
+      ),
+      (
         icon: Icons.directions_walk_rounded,
         label: 'Next pandal route?',
         action: () => _sendMessage(customText: '@bot What is the best route and traffic condition to the next pandal?'),
       ),
       (
-        icon: Icons.people_alt_outlined,
-        label: 'Crowd update',
-        action: () => _sendMessage(customText: '@bot Are there heavy crowds or long queues right now?'),
-      ),
-      (
-        icon: Icons.subway_outlined,
-        label: 'Nearest metro',
-        action: () => _sendMessage(customText: '@bot Which metro station is closest to us and how do we get there?'),
-      ),
-      (
-        icon: Icons.traffic_outlined,
-        label: 'Road blockages',
-        action: () => _sendMessage(customText: '@bot Are there any police barricades or road closures on our way?'),
+        icon: Icons.emergency_outlined,
+        label: 'জরুরি হেল্পলাইন',
+        action: () => _sendMessage(customText: '@bot পুলিশের জরুরি হেল্পলাইন নম্বর'),
       ),
     ];
 
