@@ -3,7 +3,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 /// Material 3 inspired breakpoints for adaptive layouts.
 class AppBreakpoints {
@@ -474,8 +473,7 @@ extension AdaptiveContext on BuildContext {
     EdgeInsetsGeometry? xl,
   }) {
     final bp = breakpoint;
-    if (bp == Breakpoint.xl)
-      return xl ?? lg ?? md ?? sm ?? xs ?? EdgeInsets.zero;
+    if (bp == Breakpoint.xl) return xl ?? lg ?? md ?? sm ?? xs ?? EdgeInsets.zero;
     if (bp == Breakpoint.lg) return lg ?? md ?? sm ?? xs ?? EdgeInsets.zero;
     if (bp == Breakpoint.md) return md ?? sm ?? xs ?? EdgeInsets.zero;
     if (bp == Breakpoint.sm) return sm ?? xs ?? EdgeInsets.zero;

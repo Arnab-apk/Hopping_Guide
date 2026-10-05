@@ -116,220 +116,195 @@ class AppAnimations {
   AppAnimations._();
 
   /// Standard fade-in for content appearance.
-  static AnimateConfig<Widget> fadeIn({
+  static List<Effect> fadeIn({
     Duration duration = AppDurations.standard,
     Curve curve = AppCurves.standardEaseOut,
     Duration delay = Duration.zero,
-  }) => AnimateConfig(
-    effects: [FadeEffect(duration: duration, curve: curve, delay: delay)],
-  );
+  }) => [FadeEffect(duration: duration, curve: curve, delay: delay)];
 
   /// Fade in with subtle slide up.
-  static AnimateConfig<Widget> fadeSlideUp({
+  static List<Effect> fadeSlideUp({
     Duration duration = AppDurations.standard,
     Curve curve = AppCurves.standardEaseOut,
     Duration delay = Duration.zero,
     double beginOffset = 0.2,
-  }) => AnimateConfig(
-    effects: [
-      FadeEffect(duration: duration, curve: curve, delay: delay),
-      SlideEffect(
-        begin: Offset(0, beginOffset),
-        end: Offset.zero,
-        duration: duration,
-        curve: curve,
-        delay: delay,
-      ),
-    ],
-  );
+  }) => [
+    FadeEffect(duration: duration, curve: curve, delay: delay),
+    SlideEffect(
+      begin: Offset(0, beginOffset),
+      end: Offset.zero,
+      duration: duration,
+      curve: curve,
+      delay: delay,
+    ),
+  ];
 
   /// Scale up from center (for modals, dialogs, FABs).
-  static AnimateConfig<Widget> scaleUp({
+  static List<Effect> scaleUp({
     Duration duration = AppDurations.medium,
     Curve curve = AppCurves.emphasizedDecelerate,
     Duration delay = Duration.zero,
     double beginScale = 0.9,
-  }) => AnimateConfig(
-    effects: [
-      ScaleEffect(
-        begin: Offset(beginScale, beginScale),
-        end: const Offset(1.0, 1.0),
-        duration: duration,
-        curve: curve,
-        delay: delay,
-      ),
-      FadeEffect(duration: duration, curve: curve, delay: delay),
-    ],
-  );
+  }) => [
+    ScaleEffect(
+      begin: Offset(beginScale, beginScale),
+      end: const Offset(1.0, 1.0),
+      duration: duration,
+      curve: curve,
+      delay: delay,
+    ),
+    FadeEffect(duration: duration, curve: curve, delay: delay),
+  ];
 
   /// Spring-scale for delightful micro-interactions (tap feedback).
-  static AnimateConfig<Widget> springTap({
+  static List<Effect> springTap({
     Duration duration = AppDurations.quick,
     Curve curve = Curves.easeOutBack,
-  }) => AnimateConfig(
-    effects: [
-      ScaleEffect(
-        begin: const Offset(0.95, 0.95),
-        end: const Offset(1.0, 1.0),
-        duration: duration,
-        curve: curve,
-      ),
-    ],
-  );
+  }) => [
+    ScaleEffect(
+      begin: const Offset(0.95, 0.95),
+      end: const Offset(1.0, 1.0),
+      duration: duration,
+      curve: curve,
+    ),
+  ];
 
   /// Shimmer sweep for loading states.
-  static AnimateConfig<Widget> shimmerSweep({
+  static List<Effect> shimmerSweep({
     Duration duration = const Duration(milliseconds: 1500),
     Curve curve = Curves.linear,
-  }) => AnimateConfig(
-    effects: [
-      ShimmerEffect(
-        duration: duration,
-        curve: curve,
-        colors: const [Color(0xFFE0E0E0), Color(0xFFF5F5F5), Color(0xFFE0E0E0)],
-      ),
-    ],
-  );
+  }) => [
+    ShimmerEffect(
+      duration: duration,
+      curve: curve,
+      colors: const [Color(0xFFE0E0E0), Color(0xFFF5F5F5), Color(0xFFE0E0E0)],
+    ),
+  ];
 
   /// Pulse for attention-grabbing elements (notifications, badges).
-  static AnimateConfig<Widget> pulse({
+  static List<Effect> pulse({
     Duration duration = const Duration(milliseconds: 1000),
-    int count = 3,
-  }) => AnimateConfig(
-    effects: [
-      ScaleEffect(
-        begin: const Offset(1.0, 1.0),
-        end: const Offset(1.05, 1.05),
-        duration: duration ~/ 2,
-        curve: Curves.easeInOut,
-      ),
-      ScaleEffect(
-        begin: const Offset(1.05, 1.05),
-        end: const Offset(1.0, 1.0),
-        duration: duration ~/ 2,
-        curve: Curves.easeInOut,
-      ),
-    ],
-  ).repeat(count: count);
+  }) => [
+    ScaleEffect(
+      begin: const Offset(1.0, 1.0),
+      end: const Offset(1.05, 1.05),
+      duration: duration ~/ 2,
+      curve: Curves.easeInOut,
+    ),
+    ScaleEffect(
+      begin: const Offset(1.05, 1.05),
+      end: const Offset(1.0, 1.0),
+      duration: duration ~/ 2,
+      curve: Curves.easeInOut,
+    ),
+  ];
 
   /// Slide in from bottom (for bottom sheets, snackbars).
-  static AnimateConfig<Widget> slideUpBottom({
+  static List<Effect> slideUpBottom({
     Duration duration = AppDurations.pageTransition,
     Curve curve = AppCurves.brandEaseOut,
     Duration delay = Duration.zero,
-  }) => AnimateConfig(
-    effects: [
-      SlideEffect(
-        begin: const Offset(0, 1),
-        end: Offset.zero,
-        duration: duration,
-        curve: curve,
-        delay: delay,
-      ),
-      FadeEffect(duration: duration, curve: curve, delay: delay),
-    ],
-  );
+  }) => [
+    SlideEffect(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+      duration: duration,
+      curve: curve,
+      delay: delay,
+    ),
+    FadeEffect(duration: duration, curve: curve, delay: delay),
+  ];
 
   /// Slide in from right (for navigation push).
-  static AnimateConfig<Widget> slideFromRight({
+  static List<Effect> slideFromRight({
     Duration duration = AppDurations.pageTransition,
     Curve curve = AppCurves.brandEaseOut,
-  }) => AnimateConfig(
-    effects: [
-      SlideEffect(
-        begin: const Offset(1, 0),
-        end: Offset.zero,
-        duration: duration,
-        curve: curve,
-      ),
-      FadeEffect(duration: duration, curve: curve),
-    ],
-  );
+  }) => [
+    SlideEffect(
+      begin: const Offset(1, 0),
+      end: Offset.zero,
+      duration: duration,
+      curve: curve,
+    ),
+    FadeEffect(duration: duration, curve: curve),
+  ];
 
   /// Slide out to left (for navigation pop).
-  static AnimateConfig<Widget> slideToLeft({
+  static List<Effect> slideToLeft({
     Duration duration = AppDurations.pageTransition,
     Curve curve = AppCurves.brandEaseInOut,
-  }) => AnimateConfig(
-    effects: [
-      SlideEffect(
-        begin: Offset.zero,
-        end: const Offset(-1, 0),
-        duration: duration,
-        curve: curve,
-      ),
-      FadeEffect(duration: duration, curve: curve),
-    ],
-  );
+  }) => [
+    SlideEffect(
+      begin: Offset.zero,
+      end: const Offset(-1, 0),
+      duration: duration,
+      curve: curve,
+    ),
+    FadeEffect(duration: duration, curve: curve),
+  ];
 
   /// Shared axis transition (for list-detail, master-detail).
-  static AnimateConfig<Widget> sharedAxisHorizontal({
+  static List<Effect> sharedAxisHorizontal({
     Duration duration = AppDurations.pageTransition,
     Curve curve = AppCurves.brandEaseInOut,
     bool forward = true,
-  }) => AnimateConfig(
-    effects: [
-      SlideEffect(
-        begin: Offset(forward ? 0.3 : -0.3, 0),
-        end: Offset.zero,
-        duration: duration,
-        curve: curve,
-      ),
-      FadeEffect(duration: duration, curve: curve),
-      ScaleEffect(
-        begin: const Offset(0.98, 0.98),
-        end: const Offset(1.0, 1.0),
-        duration: duration,
-        curve: curve,
-      ),
-    ],
-  );
+  }) => [
+    SlideEffect(
+      begin: Offset(forward ? 0.3 : -0.3, 0),
+      end: Offset.zero,
+      duration: duration,
+      curve: curve,
+    ),
+    FadeEffect(duration: duration, curve: curve),
+    ScaleEffect(
+      begin: const Offset(0.98, 0.98),
+      end: const Offset(1.0, 1.0),
+      duration: duration,
+      curve: curve,
+    ),
+  ];
 
   /// Celebration burst (confetti, favorite added, achievement).
-  static AnimateConfig<Widget> celebrationBurst({
+  static List<Effect> celebrationBurst({
     Duration duration = AppDurations.celebration,
-  }) => AnimateConfig(
-    effects: [
-      ScaleEffect(
-        begin: const Offset(0.5, 0.5),
-        end: const Offset(1.1, 1.1),
-        duration: duration * 2 ~/ 3,
-        curve: Curves.elasticOut,
-      ),
-      ScaleEffect(
-        begin: const Offset(1.1, 1.1),
-        end: const Offset(1.0, 1.0),
-        duration: duration ~/ 3,
-        curve: Curves.easeOutCubic,
-      ),
-      RotateEffect(
-        begin: -0.1,
-        end: 0,
-        duration: duration,
-        curve: Curves.elasticOut,
-      ),
-    ],
-  );
+  }) => [
+    ScaleEffect(
+      begin: const Offset(0.5, 0.5),
+      end: const Offset(1.1, 1.1),
+      duration: duration * 2 ~/ 3,
+      curve: Curves.elasticOut,
+    ),
+    ScaleEffect(
+      begin: const Offset(1.1, 1.1),
+      end: const Offset(1.0, 1.0),
+      duration: duration ~/ 3,
+      curve: Curves.easeOutCubic,
+    ),
+    RotateEffect(
+      begin: -0.1,
+      end: 0,
+      duration: duration,
+      curve: Curves.elasticOut,
+    ),
+  ];
 
   /// Subtle shake for errors/validation.
-  static AnimateConfig<Widget> shake({
+  static List<Effect> shake({
     Duration duration = AppDurations.standard,
-  }) => AnimateConfig(
-    effects: [
-      ShakeEffect(
-        duration: duration,
-        curve: Curves.easeInOut,
-        offset: 10,
-        rotations: 3,
-      ),
-    ],
-  );
+  }) => [
+    ShakeEffect(
+      duration: duration,
+      curve: Curves.easeInOut,
+      offset: const Offset(10, 0),
+      hz: 3,
+    ),
+  ];
 }
 
 /// Extension for cleaner animate() calls with pre-built configs.
 extension AppAnimateExtension on Widget {
   /// Apply a pre-built animation config.
-  Widget animateWith(AppAnimations config) => animate().then(config);
+  Widget animateWith(List<Effect> effects) => animate(effects: effects);
 
   /// Quick fade in.
   Widget fadeIn({Duration? delay}) => animate(

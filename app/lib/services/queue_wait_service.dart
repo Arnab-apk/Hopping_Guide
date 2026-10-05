@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'squad_service.dart';
 
 /// Service for crowdsourced pandal queue wait times
@@ -55,7 +55,7 @@ class QueueWaitService {
       debugPrint('[QueueWaitService] Firestore persist error: $e');
     });
 
-    debugPrint('[QueueWaitService] 📝 Queue report: $pandalId = ${waitMinutes}min (${source})');
+    debugPrint('[QueueWaitService] 📝 Queue report: $pandalId = ${waitMinutes}min ($source)');
   }
 
   /// Get current wait estimate for a pandal
@@ -299,7 +299,7 @@ class QueueWaitEstimate {
 
   String get formattedWait {
     if (estimatedWaitMinutes < 1) return 'No wait';
-    if (estimatedWaitMinutes < 60) return '${estimatedWaitMinutes} min';
+    if (estimatedWaitMinutes < 60) return '$estimatedWaitMinutes min';
     final hrs = estimatedWaitMinutes ~/ 60;
     final mins = estimatedWaitMinutes % 60;
     return mins == 0 ? '${hrs}h' : '${hrs}h ${mins}m';
