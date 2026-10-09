@@ -16,8 +16,9 @@ import {
 } from './handlers';
 import { v4 as uuidv4 } from 'uuid';
 import { handleChatRequest, handleStatusRequest } from './chat/routes';
+import { handleVideoRequest } from './video';
 
-dotenv.config();
+dotenv.config({ path: process.env.DOTENV_CONFIG_PATH || '.env' });
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -207,6 +208,15 @@ const server = http.createServer(async (req, res) => {
 
   try {
     // Health & Stats
+    const videoRoute = pathname.match(/^\/api\/squads\/([^/]+)\/video\/session$/);
+    if (videoRoute) {
+      if (method !== 'POST') {
+        sendHttpJson(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'Use POST.' } });
+        return;
+      }
+      await handleVideoRequest(req, res, videoRoute[1], firebaseApp, sendHttpJson);
+      return;
+    }
     if (pathname === '/health') {
       sendHttpJson(res, 200, {
         status: 'ok',
