@@ -342,15 +342,15 @@ class ChatService {
     _directRequestInFlight = true;
 
     try {
-      final nvidiaKey = AppConfig.nvidiaApiKey;
-      if (nvidiaKey.isNotEmpty) {
-        final reply = await _callNvidiaDirect(question, route, queryLang, nvidiaKey);
-        if (reply != null) return reply;
-      }
-
       final geminiKey = AppConfig.geminiApiKey;
       if (geminiKey.isNotEmpty) {
         final reply = await _callGeminiDirect(question, route, queryLang, geminiKey);
+        if (reply != null) return reply;
+      }
+
+      final nvidiaKey = AppConfig.nvidiaApiKey;
+      if (nvidiaKey.isNotEmpty) {
+        final reply = await _callNvidiaDirect(question, route, queryLang, nvidiaKey);
         if (reply != null) return reply;
       }
 
@@ -731,23 +731,22 @@ Answer the user directly with realistic, detailed local Kolkata knowledge based 
         },
       };
 
-      // Candidate models tried in sequence: configured model -> gemini-3.5-flash -> gemini-3.1-flash-lite -> gemini-2.5-flash
+      // Prefer the configured model, then Google's supported Flash aliases.
       final candidateModels = <String>[
         AppConfig.geminiModel,
-        if (AppConfig.geminiModel != 'gemini-3.5-flash') 'gemini-3.5-flash',
-        'gemini-3-flash-preview',
-        'gemini-3.1-flash-lite',
-        'gemini-2.5-flash',
+        if (AppConfig.geminiModel != 'gemini-flash-latest') 'gemini-flash-latest',
+        if (AppConfig.geminiModel != 'gemini-flash-lite-latest')
+          'gemini-flash-lite-latest',
       ];
 
       for (final model in candidateModels) {
         final endpoint = Uri.parse(
-          'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey',
+          'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent',
         );
 
         final response = await _client.post(
           endpoint,
-          headers: {'Content-Type': 'application/json'},
+          headers: {'Content-Type': 'application/json', 'x-goog-api-key': apiKey},
           body: jsonEncode(payload),
         ).timeout(const Duration(seconds: 8));
 
@@ -789,7 +788,7 @@ Answer the user directly with realistic, detailed local Kolkata knowledge based 
         }
       }
     } catch (e) {
-      debugPrint('[ChatService] Gemini direct error: $e');
+      debugPrint('[ChatService] Gemini request failed (${e.runtimeType})');
     }
     return null;
   }

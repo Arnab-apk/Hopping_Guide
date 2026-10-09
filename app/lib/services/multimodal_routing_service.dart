@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
+import '../models/navigation_step.dart';
+import '../models/route_polyline_segment.dart';
+export '../models/route_polyline_segment.dart';
 import '../models/station.dart';
 import '../repositories/metro_repository.dart';
 import '../repositories/railway_repository.dart';
@@ -56,10 +59,12 @@ class WalkLeg extends RouteLeg {
     required super.instructions,
     required this.points,
     this.isFallback = false,
+    this.steps = const [],
   });
 
   final List<LatLng> points;
   final bool isFallback;
+  final List<NavigationStep> steps;
 
   String get modeLabel => 'Walk';
   String get modeIcon => '🚶';
@@ -257,25 +262,6 @@ class MultimodalRoute {
   }
 }
 
-/// Polyline segment for map rendering with style metadata
-class RoutePolylineSegment {
-  const RoutePolylineSegment({
-    required this.points,
-    required this.type,
-    required this.color,
-    this.line,
-    this.isFallback = false,
-  });
-
-  final List<LatLng> points;
-  final RouteSegmentType type;
-  final Color color;
-  final KolkataMetroLine? line;
-  final bool isFallback;
-}
-
-enum RouteSegmentType { walk, metro, train }
-
 /// Multimodal routing service: compares Road vs Metro vs Suburban Train
 /// and determines the SHORTEST distance and most optimal travel option with realistic track alignments.
 class MultimodalRoutingService {
@@ -462,6 +448,7 @@ class MultimodalRoutingService {
           durationSeconds: walkRoute.durationSeconds,
           instructions: 'Direct road route to ${destinationName ?? 'destination'}',
           points: walkRoute.points,
+          steps: walkRoute.steps,
           isFallback: walkRoute.isFallback,
         )
       ],

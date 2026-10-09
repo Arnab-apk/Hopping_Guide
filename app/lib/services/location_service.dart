@@ -1,8 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_compass/flutter_compass.dart';
+
+import '../utils/navigation_heading.dart';
 
 /// Power profile for adaptive GPS/battery management
 enum PowerProfile { normal, pandalHopping, emergency }
@@ -24,6 +27,17 @@ class LocationService extends ChangeNotifier {
   StreamSubscription<Position>? _positionStreamSub;
   StreamSubscription<CompassEvent>? _compassStreamSub;
   bool _isPaused = false;
+  bool _navigationMode = false;
+  void setNavigationMode(bool active) {
+    if (_navigationMode == active) return;
+    _navigationMode = active;
+    _lastBroadcastTime = null;
+    _throttleInterval = active
+        ? const Duration(seconds: 1)
+        : const Duration(milliseconds: 1500);
+    if (_positionStreamSub != null && !enableTestMode) _restartPositionStream();
+  }
+
   DateTime? _lastBroadcastTime;
   Duration _throttleInterval = const Duration(milliseconds: 1500);
   static bool enableTestMode = false;
@@ -43,18 +57,20 @@ class LocationService extends ChangeNotifier {
   /// Call this when user toggles "Pandal Hopping Mode" in settings
   Future<void> setPowerProfile(PowerProfile profile) async {
     if (_powerProfile == profile) return;
-    
-    debugPrint('[LocationService] 🔋 Power profile: ${_powerProfile.name} → ${profile.name}');
+
+    debugPrint(
+      '[LocationService] 🔋 Power profile: ${_powerProfile.name} → ${profile.name}',
+    );
     _powerProfile = profile;
-    
+
     // Restart position stream with new settings
     if (_positionStreamSub != null && !enableTestMode) {
       _restartPositionStream();
     }
-    
+
     // Manage wake lock
     await _manageWakeLock();
-    
+
     notifyListeners();
   }
 
@@ -66,7 +82,9 @@ class LocationService extends ChangeNotifier {
       case PowerProfile.emergency:
         // Acquire partial wake lock - keep CPU alive for GPS
         // await WakelockPlus.enable();
-        debugPrint('[LocationService] 🔒 Wake lock ACQUIRED for ${_powerProfile.name}');
+        debugPrint(
+          '[LocationService] 🔒 Wake lock ACQUIRED for ${_powerProfile.name}',
+        );
         break;
       case PowerProfile.normal:
         // Release wake lock
@@ -92,8 +110,13 @@ class LocationService extends ChangeNotifier {
             now.difference(_lastBroadcastTime!) < _throttleInterval) {
           final last = _currentPosition;
           if (last != null &&
-              Geolocator.distanceBetween(last.latitude, last.longitude,
-                  position.latitude, position.longitude) < 12.0) {
+              Geolocator.distanceBetween(
+                    last.latitude,
+                    last.longitude,
+                    position.latitude,
+                    position.longitude,
+                  ) <
+                  12.0) {
             return;
           }
         }
@@ -121,11 +144,24 @@ class LocationService extends ChangeNotifier {
   }
 
   LocationSettings _getLocationSettingsForProfile() {
+    if (_navigationMode) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        return AndroidSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 0,
+          intervalDuration: const Duration(seconds: 1),
+        );
+      }
+      return const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0,
+      );
+    }
     switch (_powerProfile) {
       case PowerProfile.normal:
         return const LocationSettings(
           accuracy: LocationAccuracy.high,
-          distanceFilter: 2,  // 2 meters
+          distanceFilter: 2, // 2 meters
         );
       case PowerProfile.pandalHopping:
         return const LocationSettings(
@@ -155,6 +191,24 @@ class LocationService extends ChangeNotifier {
   double? get currentHeading => _fusedHeading ?? _currentPosition?.heading;
   double? get rawGpsHeading => _currentPosition?.heading;
   double? get compassHeading => _lastCompassHeading;
+  double? get facingHeading => navigationHeading(
+    compass: _lastCompassHeading,
+    compassFresh:
+        _lastCompassUpdate != null &&
+        DateTime.now().difference(_lastCompassUpdate!).inSeconds < 5,
+    gps: _currentPosition?.heading,
+    speed: _currentPosition?.speed ?? 0,
+  );
+
+  @visibleForTesting
+  void emitTestHeading(double heading) {
+    if (!enableTestMode) return;
+    _lastCompassHeading = heading;
+    _lastCompassUpdate = DateTime.now();
+    _updateFusedHeading();
+    notifyListeners();
+  }
+
   double? get currentAccuracy => _currentPosition?.accuracy;
 
   /// Async getter for location compatibility
@@ -213,7 +267,7 @@ class LocationService extends ChangeNotifier {
     Duration throttleInterval = const Duration(milliseconds: 1500),
   }) async {
     _trackingRefCount++;
-    _throttleInterval = throttleInterval;
+    _throttleInterval = _navigationMode ? const Duration(seconds: 1) : throttleInterval;
     if (callbackKey != null && onLocationChanged != null) {
       _locationListeners[callbackKey] = onLocationChanged;
     }
@@ -257,19 +311,21 @@ class LocationService extends ChangeNotifier {
 
       // Initial fast fix
       Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 6),
-        ),
-      ).then((pos) {
-        _currentPosition = pos;
-        notifyListeners();
-        for (final cb in _locationListeners.values.toList()) {
-          try {
-            cb(pos);
-          } catch (_) {}
-        }
-      }).catchError((_) {});
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              timeLimit: Duration(seconds: 6),
+            ),
+          )
+          .then((pos) {
+            _currentPosition = pos;
+            notifyListeners();
+            for (final cb in _locationListeners.values.toList()) {
+              try {
+                cb(pos);
+              } catch (_) {}
+            }
+          })
+          .catchError((_) {});
 
       _listenToPositionStream();
 
@@ -328,7 +384,8 @@ class LocationService extends ChangeNotifier {
     // Fall back to compass if GPS not reliable
     if (fused == null && compassHeading != null && !compassHeading.isNaN) {
       final compassAge = now.difference(_lastCompassUpdate ?? now).inSeconds;
-      if (compassAge < 5) { // Compass reading is fresh
+      if (compassAge < 5) {
+        // Compass reading is fresh
         fused = compassHeading;
       }
     }
@@ -346,7 +403,7 @@ class LocationService extends ChangeNotifier {
       _locationListeners.remove(callbackKey);
     }
     _trackingRefCount = (_trackingRefCount - 1).clamp(0, 100);
-    
+
     // Only actually stop the GPS stream when no more consumers
     if (_trackingRefCount == 0) {
       if (enableTestMode) {
@@ -359,7 +416,7 @@ class LocationService extends ChangeNotifier {
       _compassStreamSub = null;
       // Note: We don't clear _locationListeners here to preserve callbacks
       // for components that may still need the last known position
-      
+
       // Release wake lock when tracking fully stops
       _manageWakeLock();
     }
@@ -420,15 +477,12 @@ class LocationService extends ChangeNotifier {
 
   /// Calculates real distance in meters between user position and a target coordinate
   double distanceToMeters(double targetLat, double targetLng) {
-    final startLat = _currentPosition?.latitude ?? defaultKolkataCenter.latitude;
-    final startLng = _currentPosition?.longitude ?? defaultKolkataCenter.longitude;
+    final startLat =
+        _currentPosition?.latitude ?? defaultKolkataCenter.latitude;
+    final startLng =
+        _currentPosition?.longitude ?? defaultKolkataCenter.longitude;
 
-    return Geolocator.distanceBetween(
-      startLat,
-      startLng,
-      targetLat,
-      targetLng,
-    );
+    return Geolocator.distanceBetween(startLat, startLng, targetLat, targetLng);
   }
 
   /// Formatted human-readable distance (e.g. "350 m", "2.4 km")

@@ -351,16 +351,18 @@ class _RoutesScreenState extends State<RoutesScreen> {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
             child: Row(
               children: [
-                Text(
-                  'Curated Circuits',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                    letterSpacing: -0.2,
+                Expanded(
+                  child: Text(
+                    'Curated Circuits',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 12),
                 Text(
                   '${displayRoutes.length} available',
                   style: GoogleFonts.plusJakartaSans(

@@ -706,7 +706,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
     if (waypoints.length < 2) return;
 
     try {
-      debugPrint('[TrailService] Calling multi-stop OSRM route with ${waypoints.length} waypoints');
+      debugPrint('[TrailService] Requesting walking directions with ${waypoints.length} waypoints');
       final route = requireLive
           ? await RoutingService.instance.getLiveMultiStopRoute(
               waypoints: waypoints,

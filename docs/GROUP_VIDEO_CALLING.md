@@ -40,6 +40,10 @@ Room IDs include the Firestore document creation timestamp, so recreating an old
 
 ### Free Render hosting
 
+The deployed service is **https://uma-group-calling.onrender.com** in Singapore on Render's Free plan. It uses the `deploy/stream-group-video` branch, with automatic deployment disabled. Firebase Admin credentials and Stream credentials are Render secret files at `/etc/secrets/firebase-admin.json` and `/etc/secrets/stream-video.env`. `GOOGLE_APPLICATION_CREDENTIALS` and `DOTENV_CONFIG_PATH` reference those paths.
+
+Release v0.1.5 (Android build 2003) was built with this HTTPS origin. The hosted authentication/privacy test and a three-client synthetic WebRTC audio/video test passed. The release signing certificate was verified, and the APK installed on the connected Motorola edge 50. Physical media quality and routing across multiple phones remain unverified.
+
 `render.yaml` defines the `uma-group-calling` free Node web service. It builds only `server/`, uses Node 22 and checks `/health`. In Render, connect this GitHub repository and deploy the Blueprint from the branch containing the calling implementation. Set `STREAM_API_KEY`, `STREAM_API_SECRET` and `FIREBASE_SERVICE_ACCOUNT_JSON` as private service environment variables. The last value is the entire Firebase Admin JSON file, not its local Windows path. Do not put these values in the Blueprint or Git.
 
 For manual setup: choose Web Service, Node, Free plan, root directory `server`, build command `npm ci && npm run build`, start command `npm start`, and Node version 22. The app's group membership stays in Firestore; the calling endpoint does not depend on the server's in-memory Neon demo store.

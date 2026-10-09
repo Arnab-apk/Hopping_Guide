@@ -25,6 +25,11 @@ import '../repositories/supplementary_repository.dart';
 import '../services/auth_service.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
+import '../services/live_tracking_enhancements.dart';
+import '../services/navigation_session.dart';
+import '../widgets/navigation_overlay.dart';
+import '../widgets/mapbox_navigation_guidance.dart';
+import '../widgets/route_polylines.dart';
 import '../services/multimodal_routing_service.dart' hide haversineMeters;
 import '../services/position_interpolator.dart';
 import '../services/routing_service.dart';
@@ -35,6 +40,7 @@ import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/pandal_spatial_cluster.dart';
 import '../utils/responsive.dart';
+import '../utils/navigation_heading.dart';
 import '../widgets/custom_trail_planner_dialog.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/pandal_search_autocomplete.dart';
@@ -115,7 +121,8 @@ class MapScreen extends StatefulWidget {
     null,
   );
 
-  static final ValueNotifier<String?> pendingAssistantRouteQuery = ValueNotifier<String?>(null);
+  static final ValueNotifier<String?> pendingAssistantRouteQuery =
+      ValueNotifier<String?>(null);
 
   static void requestAssistantRoute(BuildContext context, String query) {
     pendingAssistantRouteQuery.value = query;
@@ -230,9 +237,22 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   // Live Location & Path Highlight States
-  WalkingRoute? _highlightedRoute;
+  WalkingRoute? _displayedRoute;
+  WalkingRoute? get _highlightedRoute => _displayedRoute;
+  set _highlightedRoute(WalkingRoute? route) {
+    _displayedRoute = route;
+    _navigation.preview(route);
+  }
+
+  final _navigation = NavigationSession.instance;
+  bool _wasNavigating = false;
+  bool _mapTrackingStarted = false;
   bool _isCalculatingRoute = false;
   bool _followUser = false;
+  bool _headingUp = false;
+  late final AnimationController _headingRotationController;
+  Tween<double> _headingRotationTween = Tween(begin: 0, end: 0);
+  Timer? _headingRotationThrottle;
   double _mapRotation = 0.0;
   String? _lastFramedTrailId;
   late final PositionInterpolator _positionInterpolator;
@@ -255,7 +275,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Timer? _contextualTimer;
 
   void _handleSearchFocusOrTextChange() {
-    final active = _mapSearchFocusNode.hasFocus || _mapSearchController.text.isNotEmpty;
+    final active =
+        _mapSearchFocusNode.hasFocus || _mapSearchController.text.isNotEmpty;
     if (_isSearchActive != active) {
       if (mounted) {
         setState(() => _isSearchActive = active);
@@ -340,7 +361,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           .withValues(alpha: 0.96),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: color ?? PujaColors.festivalGold.withValues(alpha: 0.6),
+                        color:
+                            color ??
+                            PujaColors.festivalGold.withValues(alpha: 0.6),
                         width: 1.2,
                       ),
                       boxShadow: [
@@ -370,7 +393,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white : const Color(0xFF1E1E24),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF1E1E24),
                             ),
                           ),
                         ),
@@ -400,12 +425,26 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _navigation.addListener(_onNavigationChanged);
+    LiveTrackingEngine.instance.onRouteRecalculated = _onRouteRecalculated;
     _positionInterpolator = PositionInterpolator();
     _mapSearchController = TextEditingController();
     _mapSearchFocusNode = FocusNode();
     _mapSearchFocusNode.addListener(_handleSearchFocusOrTextChange);
     _mapSearchController.addListener(_handleSearchFocusOrTextChange);
     _mapController = MapController();
+    _headingRotationController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 180),
+        )..addListener(() {
+          if (!mounted || !_followUser || !_headingUp) return;
+          _mapController.rotate(
+            _headingRotationTween.transform(
+              Curves.easeOut.transform(_headingRotationController.value),
+            ),
+          );
+        });
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
@@ -431,41 +470,136 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         (_) => _onPendingMetroStationAction(),
       );
     }
-    MapScreen.pendingToiletAction.addListener(
-      _onPendingToiletAction,
-    );
+    MapScreen.pendingToiletAction.addListener(_onPendingToiletAction);
     if (MapScreen.pendingToiletAction.value != null) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _onPendingToiletAction(),
       );
     }
-    MapScreen.pendingAssistantRouteQuery.addListener(_onPendingAssistantRouteQuery);
+    MapScreen.pendingAssistantRouteQuery.addListener(
+      _onPendingAssistantRouteQuery,
+    );
     if (MapScreen.pendingAssistantRouteQuery.value != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _onPendingAssistantRouteQuery());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _onPendingAssistantRouteQuery(),
+      );
     }
     _loadData();
-    _startContinuousTracking();
+    _startTrackingIfPermitted();
     // Listen to heading changes for real-time compass arrow updates
     LocationService.instance.addListener(_onHeadingChanged);
   }
 
   void _onHeadingChanged() {
     if (mounted) {
+      _rotateToFacingDirection();
       setState(() {}); // Rebuild to update compass arrow
     }
   }
 
+  void _rotateToFacingDirection({bool force = false}) {
+    if (!_followUser || !_headingUp) return;
+    final heading = LocationService.instance.facingHeading;
+    if (heading == null) return;
+    if (!force && (_headingRotationThrottle?.isActive ?? false)) {
+      return;
+    }
+    final current = _mapController.camera.rotation;
+    final delta = shortestHeadingTurn(current, -heading);
+    if (!force && delta.abs() < 2) return;
+    _headingRotationThrottle?.cancel();
+    _headingRotationThrottle = Timer(const Duration(milliseconds: 100), () {});
+    _headingRotationTween = Tween(begin: current, end: current + delta);
+    _headingRotationController.forward(from: 0);
+  }
+
+  void _onRouteRecalculated(WalkingRoute route) {
+    if (mounted) setState(() => _displayedRoute = route);
+  }
+
+  void _onNavigationChanged() {
+    if (!mounted) return;
+    final entering = _navigation.active && !_wasNavigating;
+    final ending = !_navigation.active && _wasNavigating;
+    setState(() {
+      if (_navigation.active) {
+        final fix = LocationService.instance.currentPositionSync;
+        if (fix != null && fix.accuracy <= 50) _userPosition = fix;
+        _displayedRoute = _navigation.route;
+        _followUser = _navigation.following;
+        _headingUp = _followUser;
+        _selectedPandal = null;
+        _selectedFoodSpot = null;
+        _selectedSquadMember = null;
+        _selectedMetroStation = null;
+        _selectedToilet = null;
+        _selectedStation = null;
+      }
+      if (_navigation.hasPreview) _displayedRoute = _navigation.route;
+      if (ending) {
+        _displayedRoute = null;
+        _followUser = false;
+        _headingUp = false;
+      }
+      _wasNavigating = _navigation.active;
+    });
+    if (entering) {
+      _startContinuousTracking();
+      _mapSearchFocusNode.unfocus();
+      _mapSearchController.clear();
+      _statusOverlayEntry?.remove();
+      _statusOverlayEntry = null;
+      _statusOverlayTimer?.cancel();
+      final pos = LocationService.instance.currentPositionSync;
+      if (pos != null) {
+        _animatedMapMove(LatLng(pos.latitude, pos.longitude), 17.0);
+      }
+      _rotateToFacingDirection(force: true);
+    }
+  }
+
+  Future<void> _endNavigation() async {
+    if (_navigation.active) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('End navigation?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Keep going'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('End'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
+    _clearRoute();
+  }
+
   @override
   void dispose() {
+    LocationService.instance.removeListener(_onHeadingChanged);
+    _navigation.removeListener(_onNavigationChanged);
+    _navigation.end(notify: false);
+    LocationService.instance.removeListener(_onHeadingChanged);
+    _headingRotationController.dispose();
+    _headingRotationThrottle?.cancel();
+    LiveTrackingEngine.instance.onRouteRecalculated = null;
+    LiveTrackingEngine.instance.stopTracking();
     MapScreen.pendingFoodSpotAction.removeListener(_onPendingFoodSpotAction);
     MapScreen.pendingPandalAction.removeListener(_onPendingPandalAction);
     MapScreen.pendingMetroStationAction.removeListener(
       _onPendingMetroStationAction,
     );
-    MapScreen.pendingToiletAction.removeListener(
-      _onPendingToiletAction,
+    MapScreen.pendingToiletAction.removeListener(_onPendingToiletAction);
+    MapScreen.pendingAssistantRouteQuery.removeListener(
+      _onPendingAssistantRouteQuery,
     );
-    MapScreen.pendingAssistantRouteQuery.removeListener(_onPendingAssistantRouteQuery);
     _statusOverlayTimer?.cancel();
     _contextualTimer?.cancel();
     _contextualTimer = null;
@@ -476,7 +610,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _mapSearchFocusNode.dispose();
     _mapSearchController.dispose();
     LocationService.instance.removeListener(_onHeadingChanged);
-    LocationService.instance.stopLiveTracking(callbackKey: this);
+    if (_mapTrackingStarted) {
+      LocationService.instance.stopLiveTracking(callbackKey: this);
+    }
     _cameraMoveController?.stop();
     _cameraMoveController?.dispose();
     _cameraMoveController = null;
@@ -493,7 +629,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     Pandal? pandal;
     for (final candidate in _pandals) {
       if (normalized.contains(candidate.name.toLowerCase()) ||
-          (candidate.area != null && normalized.contains(candidate.area!.toLowerCase()))) {
+          (candidate.area != null &&
+              normalized.contains(candidate.area!.toLowerCase()))) {
         pandal = candidate;
         break;
       }
@@ -507,7 +644,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     for (final candidate in stations) {
       final name = candidate.name.toLowerCase();
       final code = candidate.code?.toLowerCase() ?? '';
-      if (normalized.contains(name) || (code.isNotEmpty && normalized.contains(code))) {
+      if (normalized.contains(name) ||
+          (code.isNotEmpty && normalized.contains(code))) {
         station = candidate;
         break;
       }
@@ -516,11 +654,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       await _highlightRouteToStation(station);
       return;
     }
-    _showStatusPill('Choose a pandal or station on the map to build this route', icon: Icons.route_rounded);
+    _showStatusPill(
+      'Choose a pandal or station on the map to build this route',
+      icon: Icons.route_rounded,
+    );
   }
 
   Future<void> _highlightRouteToStation(Station station) async {
-    final current = _effectiveUserLocation ?? LocationService.defaultKolkataCenter;
+    final current =
+        _effectiveUserLocation ?? LocationService.defaultKolkataCenter;
     setState(() {
       _isCalculatingRoute = true;
       _selectedPandal = null;
@@ -539,16 +681,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         _isCalculatingRoute = false;
       });
       if (route.points.length > 1) {
-        _mapController.fitCamera(CameraFit.bounds(
-          bounds: LatLngBounds.fromPoints(route.points),
-          padding: const EdgeInsets.fromLTRB(48, 160, 48, 240),
-        ));
+        _mapController.fitCamera(
+          CameraFit.bounds(
+            bounds: LatLngBounds.fromPoints(route.points),
+            padding: const EdgeInsets.fromLTRB(48, 160, 48, 240),
+          ),
+        );
       }
     } catch (error) {
       if (mounted) {
         setState(() => _isCalculatingRoute = false);
-        final message =
-            error is StateError ? error.message : 'Live route unavailable right now';
+        final message = error is StateError
+            ? error.message
+            : 'Live route unavailable right now';
         _showStatusPill(message, icon: Icons.warning_amber_rounded);
       }
     }
@@ -675,7 +820,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
 
     final controller = AnimationController(
-      duration: const Duration(milliseconds: 550),
+      duration: Duration(milliseconds: _navigation.active ? 800 : 550),
       vsync: this,
     );
     _cameraMoveController = controller;
@@ -721,12 +866,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   void _startContinuousTracking() {
+    if (_mapTrackingStarted || !mounted) return;
+    _mapTrackingStarted = true;
     LocationService.instance.startLiveTracking(
       callbackKey: this,
       onLocationChanged: (pos) {
         if (!mounted) return;
+        if (_navigation.active && pos.accuracy > 50) return;
         setState(() => _userPosition = pos);
-        _positionInterpolator.updatePosition(LatLng(pos.latitude, pos.longitude));
+        _positionInterpolator.updatePosition(
+          LatLng(pos.latitude, pos.longitude),
+        );
         SquadService.instance.updateUserLocation(pos.latitude, pos.longitude);
         if (_followUser) {
           _animatedMapMove(
@@ -740,11 +890,25 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _startTrackingIfPermitted() async {
+    if (LocationService.enableTestMode) {
+      _startContinuousTracking();
+      return;
+    }
+    final permission = await LocationService.resolvePermissionStatus();
+    if (mounted &&
+        (permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always)) {
+      _startContinuousTracking();
+    }
+  }
+
   Future<void> _tryGetLocation() async {
     try {
       final pos = await LocationService.instance.currentPosition();
       if (!mounted) return;
       setState(() => _userPosition = pos);
+      if (pos != null) _startContinuousTracking();
     } catch (_) {
       // Permission denied or services disabled; non-fatal in demo/desktop
     }
@@ -760,13 +924,16 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     if (_userPosition != null) {
       setState(() => _followUser = !_followUser);
+      _headingUp = _followUser;
+      if (!_followUser) _headingRotationController.stop();
       if (_followUser) {
+        _rotateToFacingDirection(force: true);
         _animatedMapMove(
           LatLng(_userPosition!.latitude, _userPosition!.longitude),
           16.0,
         );
         _showStatusPill(
-          '🧭 Live Tracking: Following your location',
+          'Following your location and facing direction',
           icon: Icons.my_location_rounded,
         );
       } else {
@@ -932,8 +1099,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
-    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null)
+        ? AppConfig.defaultLat
+        : userLat;
+    final refLng = (isFarAway || userPos == null)
+        ? AppConfig.defaultLng
+        : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(station.latitude, station.longitude);
 
@@ -980,7 +1151,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _highlightRouteTo(Pandal pandal, {bool requireLive = false}) async {
+  Future<void> _highlightRouteTo(
+    Pandal pandal, {
+    bool requireLive = true,
+  }) async {
     HapticFeedback.mediumImpact();
     FocusScope.of(context).unfocus();
     var userPos = _userPosition;
@@ -997,8 +1171,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
-    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null)
+        ? AppConfig.defaultLat
+        : userLat;
+    final refLng = (isFarAway || userPos == null)
+        ? AppConfig.defaultLng
+        : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(pandal.lat, pandal.lng);
 
@@ -1016,19 +1194,29 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     try {
-      // Evaluate all 3 modes (Road, Metro, Train) and pick the shortest/optimal one automatically!
-      final multimodal = await MultimodalRoutingService.instance.computeRoute(
-        origin: start,
-        destination: dest,
-        destinationName: pandal.name,
-        targetPandal: pandal,
-      );
+      WalkingRoute route;
+      if (requireLive) {
+        route = await RoutingService.instance.getLiveWalkingRouteToPoint(
+          start: start,
+          destination: dest,
+          destinationName: pandal.name,
+          targetPandal: pandal,
+        );
+      } else {
+        // Preserve multimodal previews for callers explicitly requesting them.
+        final multimodal = await MultimodalRoutingService.instance.computeRoute(
+          origin: start,
+          destination: dest,
+          destinationName: pandal.name,
+          targetPandal: pandal,
+        );
 
-      final route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
-      if (requireLive && route.isFallback) {
-        throw StateError('Live street routing is unavailable');
+        route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
+        if (requireLive && route.isFallback) {
+          throw StateError('Live street routing is unavailable');
+        }
+        _showMultimodalRouteInfo(multimodal);
       }
-      _showMultimodalRouteInfo(multimodal);
 
       if (!mounted) return;
       setState(() {
@@ -1075,13 +1263,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       drivingDurationSeconds: multimodal.metroLegs.isNotEmpty
           ? multimodal.metroLegs.first.durationSeconds
           : (multimodal.trainLegs.isNotEmpty
-              ? multimodal.trainLegs.first.durationSeconds
-              : null),
+                ? multimodal.trainLegs.first.durationSeconds
+                : null),
       isFallback: multimodal.isFallback,
       segments: multimodal.polylines,
-      transitMode: multimodal.isTrain ? 'train' : (multimodal.isMetro ? 'metro' : 'walk'),
+      transitMode: multimodal.isTrain
+          ? 'train'
+          : (multimodal.isMetro ? 'metro' : 'walk'),
       bestModeBadge: multimodal.bestModeBadge,
       summary: multimodal.summary,
+      steps: multimodal.legs.length == 1 && multimodal.walkLegs.length == 1
+          ? multimodal.walkLegs.first.steps
+          : const [],
     );
   }
 
@@ -1089,8 +1282,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final icon = route.isTrain
         ? Icons.train_rounded
         : (route.isMetro
-            ? Icons.subway_rounded
-            : Icons.directions_walk_rounded);
+              ? Icons.subway_rounded
+              : Icons.directions_walk_rounded);
     _showStatusPill(
       '${route.bestModeBadge ?? "Route"}: ${route.summary}',
       icon: icon,
@@ -1115,8 +1308,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
-    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null)
+        ? AppConfig.defaultLat
+        : userLat;
+    final refLng = (isFarAway || userPos == null)
+        ? AppConfig.defaultLng
+        : userLng;
     final refPoint = LatLng(refLat, refLng);
 
     // Find all pandals within 10 km (10,000 meters)
@@ -1187,8 +1384,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
-    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null)
+        ? AppConfig.defaultLat
+        : userLat;
+    final refLng = (isFarAway || userPos == null)
+        ? AppConfig.defaultLng
+        : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(member.latitude, member.longitude);
 
@@ -1255,8 +1456,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
-    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null)
+        ? AppConfig.defaultLat
+        : userLat;
+    final refLng = (isFarAway || userPos == null)
+        ? AppConfig.defaultLng
+        : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(spot.lat, spot.lng);
 
@@ -1328,8 +1533,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
     final bool isFarAway = distToKolkata > 70000;
 
-    final refLat = (isFarAway || userPos == null) ? AppConfig.defaultLat : userLat;
-    final refLng = (isFarAway || userPos == null) ? AppConfig.defaultLng : userLng;
+    final refLat = (isFarAway || userPos == null)
+        ? AppConfig.defaultLat
+        : userLat;
+    final refLng = (isFarAway || userPos == null)
+        ? AppConfig.defaultLng
+        : userLng;
     final start = LatLng(refLat, refLng);
     final dest = LatLng(toilet.lat, toilet.lng);
 
@@ -1605,27 +1814,29 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Uma Map'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline_rounded),
-            tooltip: 'Feature status',
-            onPressed: () => FeatureStatusNotice.show(context),
-          ),
-          // Map Marker Legend (Explains cluster numbers and marker types)
-          IconButton(
-            icon: const Icon(Icons.info_outline_rounded),
-            tooltip: 'Map Legend',
-            onPressed: () => _showMapLegendSheet(context, isDark),
-          ),
-          // Pinned User Profile Avatar
-          Padding(
-            padding: const EdgeInsets.only(right: 12, left: 4),
-            child: _buildProfileAvatarButton(context, isDark),
-          ),
-        ],
-      ),
+      appBar: _navigation.active
+          ? null
+          : AppBar(
+              title: const Text('Uma Map'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.info_outline_rounded),
+                  tooltip: 'Feature status',
+                  onPressed: () => FeatureStatusNotice.show(context),
+                ),
+                // Map Marker Legend (Explains cluster numbers and marker types)
+                IconButton(
+                  icon: const Icon(Icons.info_outline_rounded),
+                  tooltip: 'Map Legend',
+                  onPressed: () => _showMapLegendSheet(context, isDark),
+                ),
+                // Pinned User Profile Avatar
+                Padding(
+                  padding: const EdgeInsets.only(right: 12, left: 4),
+                  child: _buildProfileAvatarButton(context, isDark),
+                ),
+              ],
+            ),
       body: Stack(
         children: [
           FlutterMap(
@@ -1663,8 +1874,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               },
               onPositionChanged: (camera, hasGesture) {
                 if (hasGesture && _followUser) {
+                  _headingRotationController.stop();
+                  _cameraMoveController?.stop();
+                  _headingUp = false;
                   setState(() => _followUser = false);
                 }
+                if (hasGesture && _navigation.active) _navigation.panAway();
                 if (camera.rotation != _mapRotation) {
                   setState(() => _mapRotation = camera.rotation);
                 }
@@ -1684,7 +1899,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   // Keep a small nearby cache to avoid retaining a large tile grid.
                   keepBuffer: 2, // Keeps nearby tiles in RAM without retaining a large grid
                   panBuffer: 1, // Pre-loads one tile ahead of the pan direction
-
                   // 4. HARDWARE ACCELERATED DARK MODE: Applies your matrix at the GPU level
                   tileBuilder: (context, tileWidget, tile) {
                     if (isDark) {
@@ -1701,323 +1915,797 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
 
-              // 10 km Radius Boundary Layer (shows 10km radius when Nearest filter is active)
-              if (_filterNearby10Km)
-                RepaintBoundary(
-                  child: CircleLayer(
-                    circles: [
-                      CircleMarker(
-                        point: _get10KmReferenceCenter(),
-                        radius: 10000,
-                        useRadiusInMeter: true,
-                        color: PujaColors.festivalGold.withValues(alpha: 0.08),
-                        borderColor: PujaColors.festivalGold.withValues(
-                          alpha: 0.85,
-                        ),
-                        borderStrokeWidth: 2.0,
+              if (_navigation.active) ...[
+                if (_navigation.route != null)
+                  PolylineLayer(
+                    polylines: buildHighlightedRoutePolylines(
+                      _navigation.route!,
+                      isDark,
+                      navigation: true,
+                    ),
+                  ),
+                if (_navigation.guidance?.snappedPoint != null &&
+                    _navigation.guidance!.deviationMeters > 5 &&
+                    _userPosition != null &&
+                    _userPosition!.accuracy <= 50)
+                  PolylineLayer(
+                    polylines: [
+                      Polyline(
+                        points: [
+                          LatLng(
+                            _userPosition!.latitude,
+                            _userPosition!.longitude,
+                          ),
+                          _navigation.guidance!.snappedPoint!,
+                        ],
+                        color: const Color(0xFF9AA0A6),
+                        strokeWidth: 2,
+                        pattern: StrokePattern.dashed(segments: const [4, 6]),
                       ),
                     ],
                   ),
-                ),
-
-              // GPS Accuracy Circle Layer
-              if (_userPosition != null &&
-                  _userPosition!.accuracy > 0 &&
-                  _userPosition!.accuracy < 300 &&
-                  _effectiveUserLocation != null &&
-                  (_effectiveUserLocation!.latitude == _userPosition!.latitude &&
-                   _effectiveUserLocation!.longitude == _userPosition!.longitude))
-                RepaintBoundary(
-                  child: CircleLayer(
-                    circles: [
-                      CircleMarker(
-                        point: LatLng(
-                          _userPosition!.latitude,
-                          _userPosition!.longitude,
-                        ),
-                        radius: _userPosition!.accuracy,
-                        useRadiusInMeter: true,
-                        color: const Color(0xFF2979FF).withValues(alpha: 0.12),
-                        borderColor: const Color(0xFF2979FF)
-                            .withValues(alpha: 0.35),
-                        borderStrokeWidth: 1.2,
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Nearest / Selected Pandal Walking & Transit Route Polyline
-              if (_highlightedRoute != null &&
-                  _highlightedRoute!.points.isNotEmpty)
-                RepaintBoundary(
-                  child: PolylineLayer(
-                    polylines: _buildHighlightedRoutePolylines(
-                      _highlightedRoute!,
-                      isDark,
-                    ),
-                  ),
-                ),
-
-              // Dual-Segment Trail Path Layer (Trail Mode)
-              if (isTrailActive && activeTrail != null && activeTrail.stops.isNotEmpty)
-                RepaintBoundary(
-                  child: PolylineLayer(
-                    polylines: _buildTrailPolylines(
-                      activeTrail,
-                      _effectiveUserLocation,
-                      isDark,
-                    ),
-                  ),
-                ),
-
-              // Food / Bhog Spot Markers (Leaflet Restaurant Pins)
-              if (_showFoodSpots && !isTrailActive)
-                RepaintBoundary(
-                  child: MarkerLayer(
-                    markers: _visibleFoodSpots.map((f) {
-                      final isSelected = _selectedFoodSpot?.id == f.id;
-                      return Marker(
-                        rotate: true,
-                        point: LatLng(f.lat, f.lng),
-                        width: isSelected ? 44 : 34,
-                        height: isSelected ? 56 : 44,
-                        alignment: Alignment.topCenter,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() {
-                              _selectedFoodSpot = f;
-                              _selectedPandal = null;
-                              _selectedMetroStation = null;
-                              _highlightedRoute = null;
-                            });
-                            _animatedMapMove(
-                              LatLng(f.lat, f.lng),
-                              (_mapController.camera.zoom < 15.5
-                                  ? 15.5
-                                  : _mapController.camera.zoom),
-                            );
-                          },
-                          child: LeafletMarkerPin.restaurant(
-                            isSelected: isSelected,
-                            pulseAnimation: isSelected ? _pulseController : null,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-
-              // Full Kolkata Metro & Railway Stations Network Layer (Leaflet Metro Pins)
-              if ((_showMetroStations || _showRailwayStations) && !isTrailActive)
-                RepaintBoundary(
-                  child: MarkerLayer(
-                    markers: (StationRepository.instance.all.isNotEmpty
-                            ? StationRepository.instance.all
-                            : MetroRepository.allStations.map((stn) => Station(
-                                  id: stn.id,
-                                  name: stn.name,
-                                  nameBn: stn.nameBn,
-                                  code: stn.code,
-                                  kind: stn.name.toLowerCase().contains('railway') ? 'rail' : 'metro',
-                                  lat: stn.latitude,
-                                  lon: stn.longitude,
-                                )))
-                        .where((stn) {
-                          if (stn.isRail) return _showRailwayStations;
-                          return _showMetroStations;
-                        })
-                        .map((stn) {
-                      final isStationSelected = _selectedStation?.id == stn.id;
-                      final isRailway = stn.isRail;
-                      final lineColor = isRailway ? PujaColors.railwayPurple : const Color(0xFF00897B);
-                      return Marker(
-                        rotate: true,
-                        point: LatLng(stn.lat, stn.lon),
-                        width: isStationSelected ? 44 : 34,
-                        height: isStationSelected ? 56 : 44,
-                        alignment: Alignment.topCenter,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() {
-                              _selectedStation = stn;
-                              _selectedMetroStation = null;
-                              _selectedPandal = null;
-                              _selectedFoodSpot = null;
-                              _highlightedRoute = null;
-                            });
-                            _animatedMapMove(
-                              LatLng(stn.lat, stn.lon),
-                              _mapController.camera.zoom < 15.0
-                                  ? 15.0
-                                  : _mapController.camera.zoom,
-                            );
-                            StationDetailSheet.show(
-                              context,
-                              station: stn,
-                              onRouteToPandal: (pandal) {
-                                _highlightRouteTo(pandal);
-                              },
-                            );
-                          },
-                          child: LeafletMarkerPin.metro(
-                            isSelected: isStationSelected,
-                            lineColor: lineColor,
-                            isRailway: isRailway,
-                            pulseAnimation: isStationSelected ? _pulseController : null,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-              // Public Toilets Layer (Leaflet Toilet Pins)
-              if (_showToilets && !isTrailActive)
-                RepaintBoundary(
-                  child: MarkerLayer(
-                    markers: _uniqueToilets.map((t) {
-                      final isSelected = _selectedToilet?.id == t.id;
-                      return Marker(
-                        rotate: true,
-                        point: LatLng(t.lat, t.lng),
-                        width: isSelected ? 44 : 32,
-                        height: isSelected ? 56 : 40,
-                        alignment: Alignment.topCenter,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() {
-                              _selectedToilet = t;
-                              _selectedPandal = null;
-                              _selectedFoodSpot = null;
-                              _selectedMetroStation = null;
-                              _highlightedRoute = null;
-                            });
-                            _animatedMapMove(
-                              LatLng(t.lat, t.lng),
-                              (_mapController.camera.zoom < 16.0
-                                  ? 16.0
-                                  : _mapController.camera.zoom),
-                            );
-                          },
-                          child: LeafletMarkerPin.toilet(
-                            isMale: t.male,
-                            isFemale: t.female,
-                            isSelected: isSelected,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-              // Clustered Pandal Markers Layer in Browse Mode vs Trail Stop Markers in Trail Mode
-              if (!isTrailActive)
-                RepaintBoundary(
-                  child: _ClusteredPandalLayer(
-                    visiblePandals: visible,
-                    selectedPandal: _selectedPandal,
-                    pulseController: _pulseController,
-                    onSelectPandal: (p) {
-                      if (_followUser) {
-                        setState(() => _followUser = false);
-                      }
-                      setState(() {
-                        _selectedPandal = p;
-                        _selectedSquadMember = null;
-                        _highlightedRoute = null;
-                      });
-                      _animatedMapMove(
-                        LatLng(p.lat, p.lng),
-                        (_mapController.camera.zoom < 15.0
-                            ? 15.0
-                            : _mapController.camera.zoom),
-                      );
-                    },
-                    onZoomToCluster: (point, targetZoom) {
-                      _animatedMapMove(point, targetZoom);
-                    },
-                  ),
-                )
-              else if (activeTrail != null && activeTrail.stops.isNotEmpty)
-                // Active Trail Stop Markers (Numbered Pins ①②③... with Visit Progress)
-                RepaintBoundary(
-                  child: MarkerLayer(
-                    markers: _buildTrailMarkers(context, activeTrail, isDark),
-                  ),
-                ),
-
-              // Designated Squad Meet-up Landmark Flag Marker (Enlarged)
-              if (squadService.hasActiveSquad && squadService.showSquadOnMap && (!isTrailActive || squadService.isHoppingActive))
-                RepaintBoundary(
-                  child: MarkerLayer(
+                if (_navigation.guidance?.snappedPoint != null)
+                  MarkerLayer(
                     markers: [
                       Marker(
-                        rotate: true,
-                        point: squadService.meetupPointCoords,
-                        width: 56,
-                        height: 56,
-                        alignment: Alignment.center,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '🚩 Designated Squad Meet-up: ${squadService.meetupPointName}',
-                                ),
-                                behavior: SnackBarBehavior.floating,
+                        point: _navigation.guidance!.deviationMeters < 15
+                            ? _navigation.guidance!.snappedPoint!
+                            : LatLng(
+                                _userPosition!.latitude,
+                                _userPosition!.longitude,
                               ),
-                            );
-                          },
+                        width: 36,
+                        height: 36,
+                        rotate: true,
+                        child: Transform.rotate(
+                          angle:
+                              ((LocationService.instance.facingHeading ?? 0) +
+                                  _mapRotation) *
+                              math.pi /
+                              180,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2F6FE4),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                            ),
+                            child: const Icon(
+                              Icons.navigation_rounded,
+                              size: 22,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              ] else ...[
+                // 10 km Radius Boundary Layer (shows 10km radius when Nearest filter is active)
+                if (_filterNearby10Km)
+                  RepaintBoundary(
+                    child: CircleLayer(
+                      circles: [
+                        CircleMarker(
+                          point: _get10KmReferenceCenter(),
+                          radius: 10000,
+                          useRadiusInMeter: true,
+                          color: PujaColors.festivalGold.withValues(
+                            alpha: 0.08,
+                          ),
+                          borderColor: PujaColors.festivalGold.withValues(
+                            alpha: 0.85,
+                          ),
+                          borderStrokeWidth: 2.0,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // GPS Accuracy Circle Layer
+                if (_userPosition != null &&
+                    _userPosition!.accuracy > 0 &&
+                    _userPosition!.accuracy < 300 &&
+                    _effectiveUserLocation != null &&
+                    (_effectiveUserLocation!.latitude ==
+                            _userPosition!.latitude &&
+                        _effectiveUserLocation!.longitude ==
+                            _userPosition!.longitude))
+                  RepaintBoundary(
+                    child: CircleLayer(
+                      circles: [
+                        CircleMarker(
+                          point: LatLng(
+                            _userPosition!.latitude,
+                            _userPosition!.longitude,
+                          ),
+                          radius: _userPosition!.accuracy,
+                          useRadiusInMeter: true,
+                          color: const Color(0xFF2979FF)
+                              .withValues(alpha: 0.12),
+                          borderColor: const Color(0xFF2979FF)
+                              .withValues(alpha: 0.35),
+                          borderStrokeWidth: 1.2,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Nearest / Selected Pandal Walking & Transit Route Polyline
+                if (_highlightedRoute != null &&
+                    _highlightedRoute!.points.isNotEmpty)
+                  RepaintBoundary(
+                    child: PolylineLayer(
+                      polylines: buildHighlightedRoutePolylines(
+                        _highlightedRoute!,
+                        isDark,
+                        navigation: _navigation.hasPreview,
+                      ),
+                    ),
+                  ),
+
+                // Dual-Segment Trail Path Layer (Trail Mode)
+                if (isTrailActive &&
+                    activeTrail != null &&
+                    activeTrail.stops.isNotEmpty)
+                  RepaintBoundary(
+                    child: PolylineLayer(
+                      polylines: _buildTrailPolylines(
+                        activeTrail,
+                        _effectiveUserLocation,
+                        isDark,
+                      ),
+                    ),
+                  ),
+
+                // Food / Bhog Spot Markers (Leaflet Restaurant Pins)
+                if (_showFoodSpots && !isTrailActive)
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers: _visibleFoodSpots.map((f) {
+                        final isSelected = _selectedFoodSpot?.id == f.id;
+                        return Marker(
+                          rotate: true,
+                          point: LatLng(f.lat, f.lng),
+                          width: isSelected ? 44 : 34,
+                          height: isSelected ? 56 : 44,
+                          alignment: Alignment.topCenter,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() {
+                                _selectedFoodSpot = f;
+                                _selectedPandal = null;
+                                _selectedMetroStation = null;
+                                _highlightedRoute = null;
+                              });
+                              _animatedMapMove(
+                                LatLng(f.lat, f.lng),
+                                (_mapController.camera.zoom < 15.5
+                                    ? 15.5
+                                    : _mapController.camera.zoom),
+                              );
+                            },
+                            child: LeafletMarkerPin.restaurant(
+                              isSelected: isSelected,
+                              pulseAnimation: isSelected
+                                  ? _pulseController
+                                  : null,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                // Full Kolkata Metro & Railway Stations Network Layer (Leaflet Metro Pins)
+                if ((_showMetroStations || _showRailwayStations) &&
+                    !isTrailActive)
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers:
+                          (StationRepository.instance.all.isNotEmpty
+                                  ? StationRepository.instance.all
+                                  : MetroRepository.allStations.map(
+                                      (stn) => Station(
+                                        id: stn.id,
+                                        name: stn.name,
+                                        nameBn: stn.nameBn,
+                                        code: stn.code,
+                                        kind:
+                                            stn.name.toLowerCase().contains(
+                                              'railway',
+                                            )
+                                            ? 'rail'
+                                            : 'metro',
+                                        lat: stn.latitude,
+                                        lon: stn.longitude,
+                                      ),
+                                    ))
+                              .where((stn) {
+                                if (stn.isRail) return _showRailwayStations;
+                                return _showMetroStations;
+                              })
+                              .map((stn) {
+                                final isStationSelected =
+                                    _selectedStation?.id == stn.id;
+                                final isRailway = stn.isRail;
+                                final lineColor = isRailway
+                                    ? PujaColors.railwayPurple
+                                    : const Color(0xFF00897B);
+                                return Marker(
+                                  rotate: true,
+                                  point: LatLng(stn.lat, stn.lon),
+                                  width: isStationSelected ? 44 : 34,
+                                  height: isStationSelected ? 56 : 44,
+                                  alignment: Alignment.topCenter,
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () {
+                                      HapticFeedback.selectionClick();
+                                      setState(() {
+                                        _selectedStation = stn;
+                                        _selectedMetroStation = null;
+                                        _selectedPandal = null;
+                                        _selectedFoodSpot = null;
+                                        _highlightedRoute = null;
+                                      });
+                                      _animatedMapMove(
+                                        LatLng(stn.lat, stn.lon),
+                                        _mapController.camera.zoom < 15.0
+                                            ? 15.0
+                                            : _mapController.camera.zoom,
+                                      );
+                                      StationDetailSheet.show(
+                                        context,
+                                        station: stn,
+                                        onRouteToPandal: (pandal) {
+                                          _highlightRouteTo(pandal);
+                                        },
+                                      );
+                                    },
+                                    child: LeafletMarkerPin.metro(
+                                      isSelected: isStationSelected,
+                                      lineColor: lineColor,
+                                      isRailway: isRailway,
+                                      pulseAnimation: isStationSelected
+                                          ? _pulseController
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList(),
+                    ),
+                  ),
+
+                // Public Toilets Layer (Leaflet Toilet Pins)
+                if (_showToilets && !isTrailActive)
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers: _uniqueToilets.map((t) {
+                        final isSelected = _selectedToilet?.id == t.id;
+                        return Marker(
+                          rotate: true,
+                          point: LatLng(t.lat, t.lng),
+                          width: isSelected ? 44 : 32,
+                          height: isSelected ? 56 : 40,
+                          alignment: Alignment.topCenter,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() {
+                                _selectedToilet = t;
+                                _selectedPandal = null;
+                                _selectedFoodSpot = null;
+                                _selectedMetroStation = null;
+                                _highlightedRoute = null;
+                              });
+                              _animatedMapMove(
+                                LatLng(t.lat, t.lng),
+                                (_mapController.camera.zoom < 16.0
+                                    ? 16.0
+                                    : _mapController.camera.zoom),
+                              );
+                            },
+                            child: LeafletMarkerPin.toilet(
+                              isMale: t.male,
+                              isFemale: t.female,
+                              isSelected: isSelected,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                // Clustered Pandal Markers Layer in Browse Mode vs Trail Stop Markers in Trail Mode
+                if (!isTrailActive)
+                  RepaintBoundary(
+                    child: _ClusteredPandalLayer(
+                      visiblePandals: visible,
+                      selectedPandal: _selectedPandal,
+                      pulseController: _pulseController,
+                      onSelectPandal: (p) {
+                        if (_followUser) {
+                          setState(() => _followUser = false);
+                        }
+                        setState(() {
+                          _selectedPandal = p;
+                          _selectedSquadMember = null;
+                          _highlightedRoute = null;
+                        });
+                        _animatedMapMove(
+                          LatLng(p.lat, p.lng),
+                          (_mapController.camera.zoom < 15.0
+                              ? 15.0
+                              : _mapController.camera.zoom),
+                        );
+                      },
+                      onZoomToCluster: (point, targetZoom) {
+                        _animatedMapMove(point, targetZoom);
+                      },
+                    ),
+                  )
+                else if (activeTrail != null && activeTrail.stops.isNotEmpty)
+                  // Active Trail Stop Markers (Numbered Pins ①②③... with Visit Progress)
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers: _buildTrailMarkers(context, activeTrail, isDark),
+                    ),
+                  ),
+
+                // Designated Squad Meet-up Landmark Flag Marker (Enlarged)
+                if (squadService.hasActiveSquad &&
+                    squadService.showSquadOnMap &&
+                    (!isTrailActive || squadService.isHoppingActive))
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers: [
+                        Marker(
+                          rotate: true,
+                          point: squadService.meetupPointCoords,
+                          width: 56,
+                          height: 56,
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '🚩 Designated Squad Meet-up: ${squadService.meetupPointName}',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            child: RepaintBoundary(
+                              child: AnimatedBuilder(
+                                animation: _pulseController,
+                                builder: (context, _) {
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width:
+                                            36 + (10 * _pulseController.value),
+                                        height:
+                                            36 + (10 * _pulseController.value),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: PujaColors.festivalGold
+                                              .withValues(
+                                                alpha:
+                                                    0.3 *
+                                                    (1.0 -
+                                                        _pulseController.value),
+                                              ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: PujaColors.festivalGold,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2.2,
+                                          ),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Colors.black45,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.flag_rounded,
+                                          color: Colors.black87,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Live Squad Members MarkerLayer (Stable Glowing DP - Enlarged)
+                if (squadService.hasActiveSquad &&
+                    squadService.showSquadOnMap &&
+                    (!isTrailActive || squadService.isHoppingActive))
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers: squadService.companionMembers.map((member) {
+                        final isSelected =
+                            _selectedSquadMember?.id == member.id;
+                        final avatarColor = member.avatarColor;
+                        final size = isSelected ? 46.0 : 40.0;
+                        return Marker(
+                          rotate: true,
+                          point: LatLng(member.latitude, member.longitude),
+                          width: size + 20,
+                          height: size + 20,
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              _animatedMapMove(
+                                LatLng(member.latitude, member.longitude),
+                                (_mapController.camera.zoom < 15.5
+                                    ? 15.5
+                                    : _mapController.camera.zoom),
+                              );
+                              setState(() {
+                                _selectedSquadMember = member;
+                                _selectedPandal = null;
+                              });
+                            },
+                            child: RepaintBoundary(
+                              child: Center(
+                                child: Container(
+                                  width: size,
+                                  height: size,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: avatarColor,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? const Color(0xFF00E5FF)
+                                          : Colors.white,
+                                      width: isSelected ? 2.8 : 2.2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isSelected
+                                            ? const Color(0xFF00E5FF)
+                                                  .withValues(alpha: 0.6)
+                                            : avatarColor.withValues(
+                                                alpha: 0.45,
+                                              ),
+                                        blurRadius: isSelected ? 12 : 6,
+                                        spreadRadius: isSelected ? 2 : 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      // 1. Google Avatar or Clean Letter Fallback
+                                      ClipOval(
+                                        child:
+                                            (member.photoUrl != null &&
+                                                member.photoUrl!.isNotEmpty)
+                                            ? Image.network(
+                                                member.photoUrl!,
+                                                width: size,
+                                                height: size,
+                                                fit: BoxFit.cover,
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => Center(
+                                                      child: Text(
+                                                        member.initials,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w900,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ),
+                                              )
+                                            : Container(
+                                                color: avatarColor,
+                                                child: Center(
+                                                  child: Text(
+                                                    member.initials,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                      ),
+                                      // Online active dot
+                                      Positioned(
+                                        right: -1,
+                                        bottom: -1,
+                                        child: Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF00E676),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 1.2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+
+                // User Location Marker with Animated Radar Pulse & Directional Navigation Arrow
+                if (_effectiveUserLocation != null)
+                  RepaintBoundary(
+                    child: MarkerLayer(
+                      markers: [
+                        Marker(
+                          rotate: true,
+                          point: _effectiveUserLocation!,
+                          width: 64,
+                          height: 64,
+                          alignment: Alignment.center,
                           child: RepaintBoundary(
                             child: AnimatedBuilder(
                               animation: _pulseController,
-                              builder: (context, _) {
+                              builder: (context, child) {
+                                final pulse = _pulseController.value;
+                                final userLatLng = _effectiveUserLocation!;
+
+                                // Calculate directional bearing towards destination pandal, squad member, food spot, or metro
+                                double? arrowBearing;
+                                bool isNavigatingToTarget = false;
+
+                                if (_selectedPandal != null) {
+                                  arrowBearing = calculateBearing(
+                                    userLatLng.latitude,
+                                    userLatLng.longitude,
+                                    _selectedPandal!.lat,
+                                    _selectedPandal!.lng,
+                                  );
+                                  isNavigatingToTarget = true;
+                                } else if (_selectedSquadMember != null) {
+                                  arrowBearing = calculateBearing(
+                                    userLatLng.latitude,
+                                    userLatLng.longitude,
+                                    _selectedSquadMember!.latitude,
+                                    _selectedSquadMember!.longitude,
+                                  );
+                                  isNavigatingToTarget = true;
+                                } else if (_selectedFoodSpot != null) {
+                                  arrowBearing = calculateBearing(
+                                    userLatLng.latitude,
+                                    userLatLng.longitude,
+                                    _selectedFoodSpot!.lat,
+                                    _selectedFoodSpot!.lng,
+                                  );
+                                  isNavigatingToTarget = true;
+                                } else if (_selectedMetroStation != null) {
+                                  arrowBearing = calculateBearing(
+                                    userLatLng.latitude,
+                                    userLatLng.longitude,
+                                    _selectedMetroStation!.latitude,
+                                    _selectedMetroStation!.longitude,
+                                  );
+                                  isNavigatingToTarget = true;
+                                } else {
+                                  // Use fused heading (GPS + compass) from LocationService
+                                  // Works when stationary (compass) and moving (GPS)
+                                  final fusedHeading =
+                                      LocationService.instance.currentHeading;
+                                  if (fusedHeading != null) {
+                                    arrowBearing = fusedHeading;
+                                  }
+                                }
+
                                 return Stack(
                                   alignment: Alignment.center,
                                   children: [
+                                    // Pulsing radar wave
                                     Container(
-                                      width: 36 + (10 * _pulseController.value),
-                                      height: 36 + (10 * _pulseController.value),
+                                      width: 30 + (28 * pulse),
+                                      height: 30 + (28 * pulse),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: PujaColors.festivalGold.withValues(
-                                          alpha:
-                                              0.3 *
-                                              (1.0 - _pulseController.value),
-                                        ),
+                                        color:
+                                            (isNavigatingToTarget
+                                                    ? PujaColors.festivalGold
+                                                    : const Color(0xFF2979FF))
+                                                .withValues(
+                                                  alpha: 0.35 * (1.0 - pulse),
+                                                ),
                                       ),
                                     ),
+                                    // Directional Navigation Arrow pointing towards target or forward heading
+                                    if (arrowBearing != null)
+                                      Transform.rotate(
+                                        angle:
+                                            ((arrowBearing + _mapRotation) *
+                                            math.pi /
+                                            180),
+                                        child: Transform.translate(
+                                          offset: const Offset(0, -20),
+                                          child: Icon(
+                                            Icons.navigation_rounded,
+                                            size: 26,
+                                            color: isNavigatingToTarget
+                                                ? PujaColors.goldBright
+                                                : const Color(0xFF2979FF),
+                                            shadows: const [
+                                              Shadow(
+                                                color: Colors.black54,
+                                                blurRadius: 5,
+                                                offset: Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    // Inner location core with golden outline & prominent Google DP
                                     Container(
-                                      width: 38,
-                                      height: 38,
+                                      width: 32,
+                                      height: 32,
                                       decoration: BoxDecoration(
-                                        color: PujaColors.festivalGold,
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color(0xFF2979FF),
+                                            Color(0xFF1565C0),
+                                          ],
+                                        ),
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: Colors.white,
-                                          width: 2.2,
+                                          color: isNavigatingToTarget
+                                              ? PujaColors.goldBright
+                                              : Colors.white,
+                                          width: 2.6,
                                         ),
-                                        boxShadow: const [
+                                        boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black45,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 2),
+                                            color:
+                                                (isNavigatingToTarget
+                                                        ? PujaColors.goldBright
+                                                        : const Color(
+                                                            0xFF2979FF,
+                                                          ))
+                                                    .withValues(alpha: 0.55),
+                                            blurRadius: 8,
+                                            spreadRadius: 1,
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
-                                      child: const Icon(
-                                        Icons.flag_rounded,
-                                        color: Colors.black87,
-                                        size: 20,
+                                      child: ClipOval(
+                                        child: Builder(
+                                          builder: (context) {
+                                            AuthService? auth;
+                                            try {
+                                              auth = context
+                                                  .watch<AuthService>();
+                                            } catch (_) {
+                                              auth = null;
+                                            }
+                                            final user =
+                                                auth?.currentUserModel ??
+                                                AuthService
+                                                    .instance
+                                                    .currentUserModel;
+                                            final userPhoto = user?.photoUrl;
+                                            final name =
+                                                user?.displayName ?? '';
+                                            final initial =
+                                                name.trim().isNotEmpty
+                                                ? name.trim()[0].toUpperCase()
+                                                : 'U';
+
+                                            if (userPhoto != null &&
+                                                userPhoto.isNotEmpty) {
+                                              return Image.network(
+                                                userPhoto,
+                                                width: 32,
+                                                height: 32,
+                                                fit: BoxFit.cover,
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stack,
+                                                    ) => Center(
+                                                      child: Text(
+                                                        initial,
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 13,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                loadingBuilder:
+                                                    (
+                                                      context,
+                                                      child,
+                                                      loadingProgress,
+                                                    ) {
+                                                      if (loadingProgress ==
+                                                          null) {
+                                                        return child;
+                                                      }
+                                                      return Center(
+                                                        child: Text(
+                                                          initial,
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 13,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                              );
+                                            }
+
+                                            return Center(
+                                              child: name.trim().isNotEmpty
+                                                  ? Text(
+                                                      initial,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13,
+                                                      ),
+                                                    )
+                                                  : const Icon(
+                                                      Icons.person_rounded,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -2026,774 +2714,518 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+
+                // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, Metro Stations, and Toilets
+                if (_selectedPandal != null ||
+                    _selectedFoodSpot != null ||
+                    _selectedMetroStation != null ||
+                    _selectedToilet != null)
+                  MarkerLayer(
+                    markers: [
+                      if (_selectedPandal != null)
+                        Marker(
+                          rotate: true,
+                          point: LatLng(
+                            _selectedPandal!.lat,
+                            _selectedPandal!.lng,
+                          ),
+                          width: 290,
+                          height: 220,
+                          alignment: const Alignment(0.0, -1.24),
+                          child: LeafletMapPopup.pandal(
+                            pandal: _selectedPandal!,
+                            isDark: isDark,
+                            isHopped:
+                                context
+                                    .watch<PandalUserStateService?>()
+                                    ?.isVisited(_selectedPandal!.id) ??
+                                false,
+                            onClose: () {
+                              setState(() {
+                                _selectedPandal = null;
+                              });
+                            },
+                            onDirections: () {
+                              _highlightRouteTo(_selectedPandal!);
+                            },
+                            onDetails: () {
+                              PandalDetailSheet.show(context, _selectedPandal!);
+                            },
+                            onToggleHopped: () {
+                              context
+                                  .read<PandalUserStateService?>()
+                                  ?.toggleVisited(_selectedPandal!.id);
+                            },
+                          ),
+                        )
+                      else if (_selectedFoodSpot != null)
+                        Marker(
+                          rotate: true,
+                          point: LatLng(
+                            _selectedFoodSpot!.lat,
+                            _selectedFoodSpot!.lng,
+                          ),
+                          width: 290,
+                          height: 200,
+                          alignment: const Alignment(0.0, -1.24),
+                          child: LeafletMapPopup.restaurant(
+                            spot: _selectedFoodSpot!,
+                            isDark: isDark,
+                            onClose: () {
+                              setState(() {
+                                _selectedFoodSpot = null;
+                              });
+                            },
+                            onDirections: () {
+                              _highlightRouteToFoodSpot(_selectedFoodSpot!);
+                            },
+                            onDetails: () {
+                              _showFoodSpotSheet(_selectedFoodSpot!, isDark);
+                            },
+                          ),
+                        )
+                      else if (_selectedMetroStation != null)
+                        Marker(
+                          rotate: true,
+                          point: LatLng(
+                            _selectedMetroStation!.latitude,
+                            _selectedMetroStation!.longitude,
+                          ),
+                          width: 300,
+                          height: 215,
+                          alignment: const Alignment(0.0, -1.24),
+                          child: LeafletMapPopup.metro(
+                            station: _selectedMetroStation!,
+                            isDark: isDark,
+                            onClose: () {
+                              setState(() {
+                                _selectedMetroStation = null;
+                              });
+                            },
+                            onDirections: () {
+                              _highlightRouteToMetroStation(
+                                _selectedMetroStation!,
+                              );
+                            },
+                          ),
+                        )
+                      else if (_selectedToilet != null)
+                        Marker(
+                          rotate: true,
+                          point: LatLng(
+                            _selectedToilet!.lat,
+                            _selectedToilet!.lng,
+                          ),
+                          width: 290,
+                          height: 180,
+                          alignment: const Alignment(0.0, -1.24),
+                          child: LeafletMapPopup.toilet(
+                            toilet: _selectedToilet!,
+                            isDark: isDark,
+                            onClose: () {
+                              setState(() {
+                                _selectedToilet = null;
+                              });
+                            },
+                            onDirections: () {
+                              _highlightRouteToToilet(_selectedToilet!);
+                            },
+                          ),
+                        ),
                     ],
                   ),
-                ),
-
-              // Live Squad Members MarkerLayer (Stable Glowing DP - Enlarged)
-              if (squadService.hasActiveSquad && squadService.showSquadOnMap && (!isTrailActive || squadService.isHoppingActive))
-                RepaintBoundary(
-                  child: MarkerLayer(
-                    markers: squadService.companionMembers.map((member) {
-                      final isSelected = _selectedSquadMember?.id == member.id;
-                      final avatarColor = member.avatarColor;
-                      final size = isSelected ? 46.0 : 40.0;
-                      return Marker(
-                        rotate: true,
-                        point: LatLng(member.latitude, member.longitude),
-                        width: size + 20,
-                        height: size + 20,
-                        alignment: Alignment.center,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            _animatedMapMove(
-                              LatLng(member.latitude, member.longitude),
-                              (_mapController.camera.zoom < 15.5
-                                  ? 15.5
-                                  : _mapController.camera.zoom),
-                            );
-                            setState(() {
-                              _selectedSquadMember = member;
-                              _selectedPandal = null;
-                            });
-                          },
-                          child: RepaintBoundary(
-                            child: Center(
-                              child: Container(
-                                width: size,
-                                height: size,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: avatarColor,
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? const Color(0xFF00E5FF)
-                                        : Colors.white,
-                                    width: isSelected ? 2.8 : 2.2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: isSelected
-                                          ? const Color(0xFF00E5FF).withValues(alpha: 0.6)
-                                          : avatarColor.withValues(alpha: 0.45),
-                                      blurRadius: isSelected ? 12 : 6,
-                                      spreadRadius: isSelected ? 2 : 1,
-                                    ),
-                                  ],
-                                ),
-                                child: Stack(
-                                  children: [
-                                    // 1. Google Avatar or Clean Letter Fallback
-                                    ClipOval(
-                                      child: (member.photoUrl != null &&
-                                              member.photoUrl!.isNotEmpty)
-                                          ? Image.network(
-                                              member.photoUrl!,
-                                              width: size,
-                                              height: size,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) =>
-                                                      Center(
-                                                child: Text(
-                                                  member.initials,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w900,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                          : Container(
-                                            color: avatarColor,
-                                            child: Center(
-                                              child: Text(
-                                                member.initials,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                    ),
-                                    // Online active dot
-                                    Positioned(
-                                      right: -1,
-                                      bottom: -1,
-                                      child: Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF00E676),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 1.2,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+              ],
+              // Keep the route endpoint visible even when navigation hides
+              // the normal place pins and clusters.
+              if (_highlightedRoute?.points.isNotEmpty ?? false)
+                MarkerLayer(
+                  key: const ValueKey('route-destination-layer'),
+                  markers: [
+                    Marker(
+                      point: _highlightedRoute!.points.last,
+                      width: 40,
+                      height: 40,
+                      rotate: true,
+                      child: Tooltip(
+                        message: _highlightedRoute!.destinationTitle,
+                        child: Semantics(
+                          label:
+                              'Destination: ${_highlightedRoute!.destinationTitle}',
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE0443E),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 3),
+                              boxShadow: const [
+                                BoxShadow(color: Colors.black38, blurRadius: 6),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.flag_rounded,
+                              color: Colors.white,
+                              size: 23,
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-              // User Location Marker with Animated Radar Pulse & Directional Navigation Arrow
-              if (_effectiveUserLocation != null)
-                RepaintBoundary(
-                  child: MarkerLayer(
-                  markers: [
-                    Marker(
-                      rotate: true,
-                      point: _effectiveUserLocation!,
-                      width: 64,
-                      height: 64,
-                      alignment: Alignment.center,
-                      child: RepaintBoundary(
-                        child: AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, child) {
-                            final pulse = _pulseController.value;
-                            final userLatLng = _effectiveUserLocation!;
-
-                            // Calculate directional bearing towards destination pandal, squad member, food spot, or metro
-                            double? arrowBearing;
-                            bool isNavigatingToTarget = false;
-
-                            if (_selectedPandal != null) {
-                              arrowBearing = calculateBearing(
-                                userLatLng.latitude,
-                                userLatLng.longitude,
-                                _selectedPandal!.lat,
-                                _selectedPandal!.lng,
-                              );
-                              isNavigatingToTarget = true;
-                            } else if (_selectedSquadMember != null) {
-                              arrowBearing = calculateBearing(
-                                userLatLng.latitude,
-                                userLatLng.longitude,
-                                _selectedSquadMember!.latitude,
-                                _selectedSquadMember!.longitude,
-                              );
-                              isNavigatingToTarget = true;
-                            } else if (_selectedFoodSpot != null) {
-                              arrowBearing = calculateBearing(
-                                userLatLng.latitude,
-                                userLatLng.longitude,
-                                _selectedFoodSpot!.lat,
-                                _selectedFoodSpot!.lng,
-                              );
-                              isNavigatingToTarget = true;
-                            } else if (_selectedMetroStation != null) {
-                              arrowBearing = calculateBearing(
-                                userLatLng.latitude,
-                                userLatLng.longitude,
-                                _selectedMetroStation!.latitude,
-                                _selectedMetroStation!.longitude,
-                              );
-                              isNavigatingToTarget = true;
-                            } else {
-                              // Use fused heading (GPS + compass) from LocationService
-                              // Works when stationary (compass) and moving (GPS)
-                              final fusedHeading = LocationService.instance.currentHeading;
-                              if (fusedHeading != null) {
-                                arrowBearing = fusedHeading;
-                              }
-                            }
-
-                            return Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                // Pulsing radar wave
-                                Container(
-                                  width: 30 + (28 * pulse),
-                                  height: 30 + (28 * pulse),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color:
-                                        (isNavigatingToTarget
-                                                ? PujaColors.festivalGold
-                                                : const Color(0xFF2979FF))
-                                            .withValues(
-                                              alpha: 0.35 * (1.0 - pulse),
-                                            ),
-                                  ),
-                                ),
-                                // Directional Navigation Arrow pointing towards target or forward heading
-                                if (arrowBearing != null)
-                                  Transform.rotate(
-                                    angle: ((arrowBearing - _mapRotation) * math.pi / 180),
-                                    child: Transform.translate(
-                                      offset: const Offset(0, -20),
-                                      child: Icon(
-                                        Icons.navigation_rounded,
-                                        size: 26,
-                                        color: isNavigatingToTarget
-                                            ? PujaColors.goldBright
-                                            : const Color(0xFF2979FF),
-                                        shadows: const [
-                                          Shadow(
-                                            color: Colors.black54,
-                                            blurRadius: 5,
-                                            offset: Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                // Inner location core with golden outline & prominent Google DP
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Color(0xFF2979FF),
-                                        Color(0xFF1565C0),
-                                      ],
-                                    ),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: isNavigatingToTarget
-                                          ? PujaColors.goldBright
-                                          : Colors.white,
-                                      width: 2.6,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: (isNavigatingToTarget
-                                                ? PujaColors.goldBright
-                                                : const Color(0xFF2979FF))
-                                            .withValues(alpha: 0.55),
-                                        blurRadius: 8,
-                                        spreadRadius: 1,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipOval(
-                                    child: Builder(
-                                      builder: (context) {
-                                        AuthService? auth;
-                                        try {
-                                          auth = context.watch<AuthService>();
-                                        } catch (_) {
-                                          auth = null;
-                                        }
-                                        final user = auth?.currentUserModel ??
-                                            AuthService.instance.currentUserModel;
-                                        final userPhoto = user?.photoUrl;
-                                        final name = user?.displayName ?? '';
-                                        final initial = name.trim().isNotEmpty
-                                            ? name.trim()[0].toUpperCase()
-                                            : 'U';
-
-                                        if (userPhoto != null && userPhoto.isNotEmpty) {
-                                          return Image.network(
-                                            userPhoto,
-                                            width: 32,
-                                            height: 32,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stack) =>
-                                                Center(
-                                              child: Text(
-                                                initial,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 13,
-                                                ),
-                                              ),
-                                            ),
-                                            loadingBuilder:
-                                                (context, child, loadingProgress) {
-                                              if (loadingProgress == null) return child;
-                                              return Center(
-                                                child: Text(
-                                                  initial,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-
-                                        return Center(
-                                          child: name.trim().isNotEmpty
-                                              ? Text(
-                                                  initial,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13,
-                                                  ),
-                                                )
-                                              : const Icon(
-                                                  Icons.person_rounded,
-                                                  size: 18,
-                                                  color: Colors.white,
-                                                ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, Metro Stations, and Toilets
-              if (_selectedPandal != null ||
-                  _selectedFoodSpot != null ||
-                  _selectedMetroStation != null ||
-                  _selectedToilet != null)
-                MarkerLayer(
-                  markers: [
-                    if (_selectedPandal != null)
-                      Marker(
-                        rotate: true,
-                        point: LatLng(_selectedPandal!.lat, _selectedPandal!.lng),
-                        width: 290,
-                        height: 220,
-                        alignment: const Alignment(0.0, -1.24),
-                        child: LeafletMapPopup.pandal(
-                          pandal: _selectedPandal!,
-                          isDark: isDark,
-                          isHopped: context
-                                  .watch<PandalUserStateService?>()
-                                  ?.isVisited(_selectedPandal!.id) ??
-                              false,
-                          onClose: () {
-                            setState(() {
-                              _selectedPandal = null;
-                            });
-                          },
-                          onDirections: () {
-                            _highlightRouteTo(_selectedPandal!);
-                          },
-                          onDetails: () {
-                            PandalDetailSheet.show(context, _selectedPandal!);
-                          },
-                          onToggleHopped: () {
-                            context
-                                .read<PandalUserStateService?>()
-                                ?.toggleVisited(_selectedPandal!.id);
-                          },
-                        ),
-                      )
-                    else if (_selectedFoodSpot != null)
-                      Marker(
-                        rotate: true,
-                        point: LatLng(_selectedFoodSpot!.lat, _selectedFoodSpot!.lng),
-                        width: 290,
-                        height: 200,
-                        alignment: const Alignment(0.0, -1.24),
-                        child: LeafletMapPopup.restaurant(
-                          spot: _selectedFoodSpot!,
-                          isDark: isDark,
-                          onClose: () {
-                            setState(() {
-                              _selectedFoodSpot = null;
-                            });
-                          },
-                          onDirections: () {
-                            _highlightRouteToFoodSpot(_selectedFoodSpot!);
-                          },
-                          onDetails: () {
-                            _showFoodSpotSheet(_selectedFoodSpot!, isDark);
-                          },
-                        ),
-                      )
-                    else if (_selectedMetroStation != null)
-                      Marker(
-                        rotate: true,
-                        point: LatLng(
-                          _selectedMetroStation!.latitude,
-                          _selectedMetroStation!.longitude,
-                        ),
-                        width: 300,
-                        height: 215,
-                        alignment: const Alignment(0.0, -1.24),
-                        child: LeafletMapPopup.metro(
-                          station: _selectedMetroStation!,
-                          isDark: isDark,
-                          onClose: () {
-                            setState(() {
-                              _selectedMetroStation = null;
-                            });
-                          },
-                          onDirections: () {
-                            _highlightRouteToMetroStation(_selectedMetroStation!);
-                          },
-                        ),
-                      )
-                    else if (_selectedToilet != null)
-                      Marker(
-                        rotate: true,
-                        point: LatLng(
-                          _selectedToilet!.lat,
-                          _selectedToilet!.lng,
-                        ),
-                        width: 290,
-                        height: 180,
-                        alignment: const Alignment(0.0, -1.24),
-                        child: LeafletMapPopup.toilet(
-                          toilet: _selectedToilet!,
-                          isDark: isDark,
-                          onClose: () {
-                            setState(() {
-                              _selectedToilet = null;
-                            });
-                          },
-                          onDirections: () {
-                            _highlightRouteToToilet(_selectedToilet!);
-                          },
-                        ),
-                      ),
                   ],
                 ),
             ],
           ),
 
-          // Floating Zone Filter & Locate Bar (Responsive, Pinned & Never Cut Out)
-          Positioned(
-            top: 10,
-            left: 12,
-            right: 12,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                PandalSearchAutocomplete(
-                  controller: _mapSearchController,
-                  focusNode: _mapSearchFocusNode,
-                  pandals: _pandals,
-                  foodSpots: _foodSpots,
-                  metroStations: MetroRepository.allStations,
-                  railStations: StationRepository.instance.railStations,
-                  userLat: _userPosition?.latitude,
-                  userLng: _userPosition?.longitude,
-                  isFloatingOnMap: true,
-                  hintText: 'Search pandals, trains, metro, food spots...',
-                  onPandalSelected: _onPandalSelectedFromSearch,
-                  onMetroSelected: _onMetroSelectedFromSearch,
-                  onStationSelected: _onStationSelectedFromSearch,
-                  onFoodSpotSelected: _onFoodSpotSelectedFromSearch,
-                  onSubmitted: (_) {
-                    FocusScope.of(context).unfocus();
-                  },
-                ),
-                const SizedBox(height: 8),
-                if (!_isSearchActive) ...[
-                  // Trail-active: keep in a single summary bar
-                  if (isTrailActive && activeTrail != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: (isDark ? PujaColors.nightCard : Colors.white)
-                            .withValues(alpha: 0.96),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.18),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.45),
-                          width: 1.3,
-                        ),
-                      ),
-                      child: _buildTrailSummaryBar(
-                        context,
-                        activeTrail,
-                        trailService,
-                        isDark,
-                      ),
-                    )
-                  else
-                    // Individual floating chips — no outer bar container
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      child: Row(
-                        children: [
-                          _buildRegionMenuButton(isDark),
-                          _buildNearbyChip(isDark),
-                          _buildCustomTrailChip(isDark),
-                          _buildMetroToggleChip(isDark),
-                          _buildTrainToggleChip(isDark),
-                          _buildFoodToggleChip(isDark),
-                          _buildToiletToggleChip(isDark),
-                          if (squadService.hasActiveSquad)
-                            _buildSquadStatusChip(isDark, squadService),
-                          _buildThemeToggleChip(context, isDark),
-                        ],
-                      ),
-                    ),
-                  if (_contextualMessage != null) ...[
-                    const SizedBox(height: 6),
-                    _buildContextualBanner(isDark),
-                  ],
-                ],
-              ],
-            ),
-          ),
-
-          // Top Floating Route HUD Banner
-          if (_highlightedRoute != null)
+          if (!_navigation.active) ...[
+            // Floating Zone Filter & Locate Bar (Responsive, Pinned & Never Cut Out)
             Positioned(
-              top: 122,
-              left: 14,
-              right: 14,
-              child: AnimatedFadeSlide(
-                duration: const Duration(milliseconds: 280),
-                offset: const Offset(0, -0.15),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
+              top: 10,
+              left: 12,
+              right: 12,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PandalSearchAutocomplete(
+                    controller: _mapSearchController,
+                    focusNode: _mapSearchFocusNode,
+                    pandals: _pandals,
+                    foodSpots: _foodSpots,
+                    metroStations: MetroRepository.allStations,
+                    railStations: StationRepository.instance.railStations,
+                    userLat: _userPosition?.latitude,
+                    userLng: _userPosition?.longitude,
+                    isFloatingOnMap: true,
+                    hintText: 'Search pandals, trains, metro, food spots...',
+                    onPandalSelected: _onPandalSelectedFromSearch,
+                    onMetroSelected: _onMetroSelectedFromSearch,
+                    onStationSelected: _onStationSelectedFromSearch,
+                    onFoodSpotSelected: _onFoodSpotSelectedFromSearch,
+                    onSubmitted: (_) {
+                      FocusScope.of(context).unfocus();
+                    },
                   ),
-                  decoration: BoxDecoration(
-                    color: (isDark ? const Color(0xFF1E1E1E) : Colors.white)
-                        .withValues(alpha: 0.96),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF00E5FF).withValues(alpha: 0.45)
-                          : PujaColors.durgaRed.withValues(alpha: 0.35),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.45 : 0.15,
-                        ),
-                        blurRadius: 14,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
+                  const SizedBox(height: 8),
+                  if (!_isSearchActive) ...[
+                    // Trail-active: keep in a single summary bar
+                    if (isTrailActive && activeTrail != null)
                       Container(
-                        padding: const EdgeInsets.all(7),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: (_highlightedRoute!.isTrain
-                                  ? PujaColors.railwayPurple
-                                  : (_highlightedRoute!.isMetro
-                                      ? PujaColors.metroBlue
-                                      : (isDark
-                                          ? const Color(0xFF00E5FF)
-                                          : PujaColors.durgaRed)))
-                              .withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
+                          color: (isDark ? PujaColors.nightCard : Colors.white)
+                              .withValues(alpha: 0.96),
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.18),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: PujaColors.festivalGold.withValues(
+                              alpha: 0.45,
+                            ),
+                            width: 1.3,
+                          ),
                         ),
-                        child: Icon(
-                          _highlightedRoute!.isTrain
-                              ? Icons.train_rounded
-                              : (_highlightedRoute!.isMetro
-                                  ? Icons.subway_rounded
-                                  : Icons.directions_walk_rounded),
-                          size: 19,
-                          color: _highlightedRoute!.isTrain
-                              ? PujaColors.railwayPurple
-                              : (_highlightedRoute!.isMetro
-                                  ? PujaColors.metroBlue
-                                  : (isDark
-                                      ? const Color(0xFF00E5FF)
-                                      : PujaColors.durgaRed)),
+                        child: _buildTrailSummaryBar(
+                          context,
+                          activeTrail,
+                          trailService,
+                          isDark,
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
+                      )
+                    else
+                      // Individual floating chips — no outer bar container
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _highlightedRoute!.destinationTitle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                if (_highlightedRoute!.bestModeBadge != null) ...[
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: (_highlightedRoute!.isTrain
-                                              ? PujaColors.railwayPurple
-                                              : (_highlightedRoute!.isMetro
-                                                  ? PujaColors.metroBlue
-                                                  : Colors.green))
-                                          .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      _highlightedRoute!.bestModeBadge!,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: _highlightedRoute!.isTrain
-                                            ? PujaColors.railwayPurple
-                                            : (_highlightedRoute!.isMetro
-                                                ? PujaColors.metroBlue
-                                                : Colors.green.shade700),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${_highlightedRoute!.formattedDistance} · ${_highlightedRoute!.formattedDuration}${_highlightedRoute!.summary != null ? " · ${_highlightedRoute!.summary}" : ""}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? const Color(0xFF00E5FF)
-                                    : PujaColors.durgaRed,
-                              ),
-                            ),
+                            _buildRegionMenuButton(isDark),
+                            _buildNearbyChip(isDark),
+                            _buildCustomTrailChip(isDark),
+                            _buildMetroToggleChip(isDark),
+                            _buildTrainToggleChip(isDark),
+                            _buildFoodToggleChip(isDark),
+                            _buildToiletToggleChip(isDark),
+                            if (squadService.hasActiveSquad)
+                              _buildSquadStatusChip(isDark, squadService),
+                            _buildThemeToggleChip(context, isDark),
                           ],
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.fit_screen_rounded, size: 20),
-                        tooltip: 'Fit Route in View',
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          final bounds = LatLngBounds.fromPoints(
-                            _highlightedRoute!.points,
-                          );
-                          _mapController.fitCamera(
-                            CameraFit.bounds(
-                              bounds: bounds,
-                              padding: const EdgeInsets.fromLTRB(
-                                48,
-                                140,
-                                48,
-                                240,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded, size: 20),
-                        tooltip: 'Clear Route',
-                        onPressed: _clearRoute,
-                      ),
+                    if (_contextualMessage != null) ...[
+                      const SizedBox(height: 6),
+                      _buildContextualBanner(isDark),
                     ],
-                  ),
-                ),
+                  ],
+                ],
               ),
             ),
 
-          // (Active Trail HUD is now docked in the top bar as Trail Summary Bar)
-
-          // Bottom Mini-Card Preview when a Squad Member is tapped
-          if (_selectedSquadMember != null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 24,
-              child: AnimatedFadeSlide(
-                duration: const Duration(milliseconds: 320),
-                offset: const Offset(0, 0.14),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF181818) : Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(
-                      color: _selectedSquadMember!.avatarColor.withValues(
-                        alpha: 0.4,
-                      ),
-                      width: 1.2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.45 : 0.12,
-                        ),
-                        blurRadius: 18,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
+            // Top Floating Route HUD Banner
+            if (_highlightedRoute != null && !_navigation.hasPreview)
+              Positioned(
+                top: 122,
+                left: 14,
+                right: 14,
+                child: AnimatedFadeSlide(
+                  duration: const Duration(milliseconds: 280),
+                  offset: const Offset(0, -0.15),
+                  child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 14.0,
+                      horizontal: 14,
+                      vertical: 10,
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    decoration: BoxDecoration(
+                      color: (isDark ? const Color(0xFF1E1E1E) : Colors.white)
+                          .withValues(alpha: 0.96),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF00E5FF).withValues(alpha: 0.45)
+                            : PujaColors.durgaRed.withValues(alpha: 0.35),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.45 : 0.15,
+                          ),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 38,
-                              height: 38,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: PujaColors.festivalGold,
-                                  width: 1.5,
+                        Container(
+                          padding: const EdgeInsets.all(7),
+                          decoration: BoxDecoration(
+                            color:
+                                (_highlightedRoute!.isTrain
+                                        ? PujaColors.railwayPurple
+                                        : (_highlightedRoute!.isMetro
+                                              ? PujaColors.metroBlue
+                                              : (isDark
+                                                    ? const Color(0xFF00E5FF)
+                                                    : PujaColors.durgaRed)))
+                                    .withValues(alpha: 0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            _highlightedRoute!.isTrain
+                                ? Icons.train_rounded
+                                : (_highlightedRoute!.isMetro
+                                      ? Icons.subway_rounded
+                                      : Icons.directions_walk_rounded),
+                            size: 19,
+                            color: _highlightedRoute!.isTrain
+                                ? PujaColors.railwayPurple
+                                : (_highlightedRoute!.isMetro
+                                      ? PujaColors.metroBlue
+                                      : (isDark
+                                            ? const Color(0xFF00E5FF)
+                                            : PujaColors.durgaRed)),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      _highlightedRoute!.destinationTitle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  if (_highlightedRoute!.bestModeBadge !=
+                                      null) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            (_highlightedRoute!.isTrain
+                                                    ? PujaColors.railwayPurple
+                                                    : (_highlightedRoute!
+                                                              .isMetro
+                                                          ? PujaColors.metroBlue
+                                                          : Colors.green))
+                                                .withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        _highlightedRoute!.bestModeBadge!,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: _highlightedRoute!.isTrain
+                                              ? PujaColors.railwayPurple
+                                              : (_highlightedRoute!.isMetro
+                                                    ? PujaColors.metroBlue
+                                                    : Colors.green.shade700),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${_highlightedRoute!.formattedDistance} · ${_highlightedRoute!.formattedDuration}${_highlightedRoute!.summary != null ? " · ${_highlightedRoute!.summary}" : ""}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? const Color(0xFF00E5FF)
+                                      : PujaColors.durgaRed,
                                 ),
                               ),
-                              child: ClipOval(
-                                child: _selectedSquadMember!.photoUrl != null &&
-                                        _selectedSquadMember!.photoUrl!.isNotEmpty
-                                    ? Image.network(
-                                        _selectedSquadMember!.photoUrl!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (ctx, err, stack) => CircleAvatar(
-                                          backgroundColor: _selectedSquadMember!.avatarColor
+                              MapboxNavigationGuidance(
+                                route: _highlightedRoute!,
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.fit_screen_rounded, size: 20),
+                          tooltip: 'Fit Route in View',
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            final bounds = LatLngBounds.fromPoints(
+                              _highlightedRoute!.points,
+                            );
+                            _mapController.fitCamera(
+                              CameraFit.bounds(
+                                bounds: bounds,
+                                padding: const EdgeInsets.fromLTRB(
+                                  48,
+                                  140,
+                                  48,
+                                  240,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 20),
+                          tooltip: 'Clear Route',
+                          onPressed: _clearRoute,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            // (Active Trail HUD is now docked in the top bar as Trail Summary Bar)
+
+            // Bottom Mini-Card Preview when a Squad Member is tapped
+            if (_selectedSquadMember != null)
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 24,
+                child: AnimatedFadeSlide(
+                  duration: const Duration(milliseconds: 320),
+                  offset: const Offset(0, 0.14),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF181818) : Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: _selectedSquadMember!.avatarColor.withValues(
+                          alpha: 0.4,
+                        ),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.45 : 0.12,
+                          ),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 14.0,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: PujaColors.festivalGold,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: ClipOval(
+                                  child:
+                                      _selectedSquadMember!.photoUrl != null &&
+                                          _selectedSquadMember!
+                                              .photoUrl!
+                                              .isNotEmpty
+                                      ? Image.network(
+                                          _selectedSquadMember!.photoUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (ctx, err, stack) =>
+                                              CircleAvatar(
+                                                backgroundColor:
+                                                    _selectedSquadMember!
+                                                        .avatarColor
+                                                        .withValues(alpha: 0.2),
+                                                foregroundColor:
+                                                    _selectedSquadMember!
+                                                        .avatarColor,
+                                                child: Text(
+                                                  _selectedSquadMember!
+                                                      .initials,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ),
+                                        )
+                                      : CircleAvatar(
+                                          backgroundColor: _selectedSquadMember!
+                                              .avatarColor
                                               .withValues(alpha: 0.2),
-                                          foregroundColor: _selectedSquadMember!.avatarColor,
+                                          foregroundColor:
+                                              _selectedSquadMember!.avatarColor,
                                           child: Text(
                                             _selectedSquadMember!.initials,
                                             style: const TextStyle(
@@ -2802,369 +3234,382 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                             ),
                                           ),
                                         ),
-                                      )
-                                    : CircleAvatar(
-                                        backgroundColor: _selectedSquadMember!.avatarColor
-                                            .withValues(alpha: 0.2),
-                                        foregroundColor: _selectedSquadMember!.avatarColor,
-                                        child: Text(
-                                          _selectedSquadMember!.initials,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          _selectedSquadMember!.name,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black87,
+                                          ),
+                                        ),
+                                        if (_selectedSquadMember!.isHost) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 1.5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.amber.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: const Text(
+                                              'HOST',
+                                              style: TextStyle(
+                                                fontSize: 9.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.amber,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      _selectedSquadMember!.status,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? Colors.white70
+                                            : Colors.black54,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.close_rounded,
+                                  size: 20,
+                                  color: isDark
+                                      ? Colors.white60
+                                      : Colors.black45,
+                                ),
+                                tooltip: 'Dismiss',
+                                onPressed: () =>
+                                    setState(() => _selectedSquadMember = null),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // Distance badge and Battery
+                          Row(
+                            children: [
+                              if (_userPosition != null) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3.5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
+                                      const Icon(
+                                        Icons.near_me_outlined,
+                                        size: 12,
+                                        color: Colors.blue,
+                                      ),
+                                      const SizedBox(width: 4),
                                       Text(
-                                        _selectedSquadMember!.name,
-                                        style: TextStyle(
-                                          fontSize: 15,
+                                        formatDistance(
+                                          haversineMeters(
+                                            _userPosition!.latitude,
+                                            _userPosition!.longitude,
+                                            _selectedSquadMember!.latitude,
+                                            _selectedSquadMember!.longitude,
+                                          ),
+                                        ),
+                                        style: const TextStyle(
+                                          fontSize: 11,
                                           fontWeight: FontWeight.bold,
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black87,
+                                          color: Colors.blue,
                                         ),
                                       ),
-                                      if (_selectedSquadMember!.isHost) ...[
-                                        const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 1.5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.amber.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'HOST',
-                                            style: TextStyle(
-                                              fontSize: 9.5,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.amber,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
                                     ],
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _selectedSquadMember!.status,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: isDark
-                                          ? Colors.white70
-                                          : Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.close_rounded,
-                                size: 20,
-                                color: isDark ? Colors.white60 : Colors.black45,
-                              ),
-                              tooltip: 'Dismiss',
-                              onPressed: () =>
-                                  setState(() => _selectedSquadMember = null),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        // Distance badge and Battery
-                        Row(
-                          children: [
-                            if (_userPosition != null) ...[
+                                ),
+                                const SizedBox(width: 8),
+                              ],
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                   vertical: 3.5,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withValues(alpha: 0.1),
+                                  color: Colors.green.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(
-                                      Icons.near_me_outlined,
+                                      Icons.battery_std_rounded,
                                       size: 12,
-                                      color: Colors.blue,
+                                      color: Colors.green,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      formatDistance(
-                                        haversineMeters(
-                                          _userPosition!.latitude,
-                                          _userPosition!.longitude,
-                                          _selectedSquadMember!.latitude,
-                                          _selectedSquadMember!.longitude,
-                                        ),
-                                      ),
+                                      '${_selectedSquadMember!.batteryLevel}% Battery',
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
+                                        color: Colors.green,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
                             ],
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.battery_std_rounded,
-                                    size: 12,
-                                    color: Colors.green,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '${_selectedSquadMember!.batteryLevel}% Battery',
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green,
+                          ),
+                          const SizedBox(height: 12),
+                          // Action buttons: Trace Path & Ping
+                          Row(
+                            children: [
+                              Expanded(
+                                child: FilledButton.icon(
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: PujaColors.durgaRed,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
                                     ),
                                   ),
-                                ],
+                                  icon: _isCalculatingRoute
+                                      ? const SizedBox(
+                                          width: 14,
+                                          height: 14,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.directions_walk_rounded,
+                                          size: 18,
+                                        ),
+                                  label: Text(
+                                    _isCalculatingRoute
+                                        ? 'Tracing...'
+                                        : 'Trace Path to ${_selectedSquadMember!.name.split(' ')[0]}',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onPressed: _isCalculatingRoute
+                                      ? null
+                                      : () => _highlightRouteToMember(
+                                          _selectedSquadMember!,
+                                        ),
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              IconButton.filledTonal(
+                                icon: const Icon(
+                                  Icons.notifications_active_outlined,
+                                  size: 20,
+                                ),
+                                tooltip: 'Ping Member',
+                                onPressed: () {
+                                  HapticFeedback.heavyImpact();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '🔔 Ping sent to ${_selectedSquadMember!.name}!',
+                                      ),
+                                      duration: const Duration(seconds: 2),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Leaflet Map Attribution Watermark (Classic "Leaflet | © OpenStreetMap contributors")
+            Positioned(
+              left: 8,
+              bottom: 8,
+              child: LeafletAttributionControl(isDark: isDark),
+            ),
+
+            if (_isLoading)
+              const Center(
+                child: CircularProgressIndicator(color: PujaColors.durgaRed),
+              ),
+
+            // Floating Action Toolbar (Zoom In/Out, Quick Tools, GPS Follow, Compass)
+            // Unified vertical stack on the right edge with matching 46x46 dimensions and smooth squircle styling
+            Positioned(
+              right: 16,
+              bottom: 24,
+              child: AnimatedSlide(
+                offset: _selectedSquadMember == null
+                    ? Offset.zero
+                    : const Offset(0, 0.04),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                child: AnimatedOpacity(
+                  opacity: _selectedSquadMember == null ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: IgnorePointer(
+                    ignoring: _selectedSquadMember != null,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Leaflet Zoom Control (Stacked + / −)
+                        LeafletZoomControl(
+                          width: 46.0,
+                          buttonHeight: 44.0,
+                          borderRadius: 16.0,
+                          iconSize: 22.0,
+                          isDark: isDark,
+                          onZoomIn: () {
+                            final currentZoom = _mapController.camera.zoom;
+                            _animatedMapMove(
+                              _mapController.camera.center,
+                              (currentZoom + 1.0).clamp(10.0, 18.0),
+                            );
+                          },
+                          onZoomOut: () {
+                            final currentZoom = _mapController.camera.zoom;
+                            _animatedMapMove(
+                              _mapController.camera.center,
+                              (currentZoom - 1.0).clamp(10.0, 18.0),
+                            );
+                          },
                         ),
                         const SizedBox(height: 12),
-                        // Action buttons: Trace Path & Ping
-                        Row(
-                          children: [
-                            Expanded(
-                              child: FilledButton.icon(
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: PujaColors.durgaRed,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                  ),
-                                ),
-                                icon: _isCalculatingRoute
-                                    ? const SizedBox(
-                                        width: 14,
-                                        height: 14,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.directions_walk_rounded,
-                                        size: 18,
-                                      ),
-                                label: Text(
-                                  _isCalculatingRoute
-                                      ? 'Tracing...'
-                                      : 'Trace Path to ${_selectedSquadMember!.name.split(' ')[0]}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                onPressed: _isCalculatingRoute
-                                    ? null
-                                    : () => _highlightRouteToMember(
-                                        _selectedSquadMember!,
-                                      ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton.filledTonal(
-                              icon: const Icon(
-                                Icons.notifications_active_outlined,
-                                size: 20,
-                              ),
-                              tooltip: 'Ping Member',
-                              onPressed: () {
-                                HapticFeedback.heavyImpact();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '🔔 Ping sent to ${_selectedSquadMember!.name}!',
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+
+                        // Secondary Quick Map Tools (Nearest radar, Theme toggle, App guide)
+                        _buildMapActionButton(
+                          icon: Icon(
+                            Icons.tune_rounded,
+                            color: isDark
+                                ? PujaColors.goldBright
+                                : const Color(0xFF1E293B),
+                            size: 20,
+                          ),
+                          onTap: () => _showMapQuickTools(context, isDark),
+                          tooltip: 'Map Tools & Settings',
+                          isDark: isDark,
                         ),
+                        const SizedBox(height: 12),
+
+                        // Center & Follow My GPS Button
+                        _buildMapActionButton(
+                          icon: Icon(
+                            _followUser
+                                ? Icons.navigation_rounded
+                                : Icons.my_location,
+                            color: _followUser
+                                ? Colors.white
+                                : (isDark ? Colors.white : Colors.black87),
+                            size: 22,
+                          ),
+                          onTap: _toggleFollowUser,
+                          tooltip: _followUser
+                              ? 'Live Tracking Active (Tap for free-roam)'
+                              : 'Center & Follow My GPS',
+                          isDark: isDark,
+                          isActive: _followUser,
+                          activeColor: const Color(0xFF2979FF),
+                        ),
+
+                        // Compass Reset-North Button (only shown when map is rotated)
+                        if (_mapRotation.abs() > 2.0) ...[
+                          const SizedBox(height: 10),
+                          _buildMapActionButton(
+                            icon: Transform.rotate(
+                              angle: -_mapRotation * math.pi / 180,
+                              child: Icon(
+                                Icons.explore_rounded,
+                                color: isDark
+                                    ? const Color(0xFF00E5FF)
+                                    : PujaColors.durgaRed,
+                                size: 22,
+                              ),
+                            ),
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              _headingUp = false;
+                              _headingRotationController.stop();
+                              _mapController.rotate(0.0);
+                              _showStatusPill(
+                                'Map re-oriented to North',
+                                icon: Icons.explore_rounded,
+                              );
+                            },
+                            tooltip: 'Reset to North',
+                            isDark: isDark,
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-
-          // Leaflet Map Attribution Watermark (Classic "Leaflet | © OpenStreetMap contributors")
-          Positioned(
-            left: 8,
-            bottom: 8,
-            child: LeafletAttributionControl(
-              isDark: isDark,
+          ],
+          if (_navigation.hasPreview || _navigation.active)
+            NavigationOverlay(
+              session: _navigation,
+              onStart: () => _navigation.begin(),
+              onEnd: _endNavigation,
+              onRecenter: () {
+                _navigation.recenter();
+                final pos = LocationService.instance.currentPositionSync;
+                if (pos != null) {
+                  _animatedMapMove(LatLng(pos.latitude, pos.longitude), 17.0);
+                }
+                _rotateToFacingDirection(force: true);
+              },
             ),
-          ),
-
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(color: PujaColors.durgaRed),
-            ),
-
-          // Floating Action Toolbar (Zoom In/Out, Quick Tools, GPS Follow, Compass)
-          // Unified vertical stack on the right edge with matching 46x46 dimensions and smooth squircle styling
-          Positioned(
-            right: 16,
-            bottom: 24,
-            child: AnimatedSlide(
-              offset: _selectedSquadMember == null
-                  ? Offset.zero
-                  : const Offset(0, 0.04),
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
-              child: AnimatedOpacity(
-                opacity: _selectedSquadMember == null ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                child: IgnorePointer(
-                  ignoring: _selectedSquadMember != null,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Leaflet Zoom Control (Stacked + / −)
-                      LeafletZoomControl(
-                        width: 46.0,
-                        buttonHeight: 44.0,
-                        borderRadius: 16.0,
-                        iconSize: 22.0,
-                        isDark: isDark,
-                        onZoomIn: () {
-                          final currentZoom = _mapController.camera.zoom;
-                          _animatedMapMove(
-                            _mapController.camera.center,
-                            (currentZoom + 1.0).clamp(10.0, 18.0),
-                          );
-                        },
-                        onZoomOut: () {
-                          final currentZoom = _mapController.camera.zoom;
-                          _animatedMapMove(
-                            _mapController.camera.center,
-                            (currentZoom - 1.0).clamp(10.0, 18.0),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Secondary Quick Map Tools (Nearest radar, Theme toggle, App guide)
-                      _buildMapActionButton(
-                        icon: Icon(
-                          Icons.tune_rounded,
-                          color: isDark
-                              ? PujaColors.goldBright
-                              : const Color(0xFF1E293B),
-                          size: 20,
-                        ),
-                        onTap: () => _showMapQuickTools(context, isDark),
-                        tooltip: 'Map Tools & Settings',
-                        isDark: isDark,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Center & Follow My GPS Button
-                      _buildMapActionButton(
-                        icon: Icon(
-                          _followUser
-                              ? Icons.navigation_rounded
-                              : Icons.my_location,
-                          color: _followUser
-                              ? Colors.white
-                              : (isDark ? Colors.white : Colors.black87),
-                          size: 22,
-                        ),
-                        onTap: _toggleFollowUser,
-                        tooltip: _followUser
-                            ? 'Live Tracking Active (Tap for free-roam)'
-                            : 'Center & Follow My GPS',
-                        isDark: isDark,
-                        isActive: _followUser,
-                        activeColor: const Color(0xFF2979FF),
-                      ),
-
-                      // Compass Reset-North Button (only shown when map is rotated)
-                      if (_mapRotation.abs() > 2.0) ...[
-                        const SizedBox(height: 10),
-                        _buildMapActionButton(
-                          icon: Transform.rotate(
-                            angle: -_mapRotation * math.pi / 180,
-                            child: Icon(
-                              Icons.explore_rounded,
-                              color: isDark
-                                  ? const Color(0xFF00E5FF)
-                                  : PujaColors.durgaRed,
-                              size: 22,
-                            ),
-                          ),
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            _mapController.rotate(0.0);
-                            _showStatusPill(
-                              'Map re-oriented to North',
-                              icon: Icons.explore_rounded,
-                            );
-                          },
-                          tooltip: 'Reset to North',
-                          isDark: isDark,
-                        ),
-                      ],
-                    ],
-                  ),
+          if (_navigation.active)
+            Positioned(
+              left: 4,
+              bottom: 2,
+              child: Text(
+                '© OpenStreetMap contributors',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: isDark ? Colors.white70 : Colors.black87,
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
-
-
 
   /// Compact, tactile map floating action button with consistent 46x46 dimensions,
   /// squircle corners, theme borders, and smooth haptic feedback.
@@ -3193,15 +3638,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: borderColor,
-            width: 1.6,
-          ),
+          border: Border.all(color: borderColor, width: 1.6),
           boxShadow: [
             BoxShadow(
               color: isActive
-                  ? (activeColor ?? const Color(0xFF2979FF))
-                      .withValues(alpha: 0.38)
+                  ? (activeColor ?? const Color(0xFF2979FF)).withValues(
+                      alpha: 0.38,
+                    )
                   : Colors.black.withValues(alpha: isDark ? 0.25 : 0.14),
               blurRadius: isActive ? 10 : 8,
               offset: const Offset(0, 2),
@@ -3251,8 +3694,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final Color border = isActive
         ? Colors.transparent
         : (isDark
-            ? Colors.white.withValues(alpha: 0.10)
-            : Colors.black.withValues(alpha: 0.08));
+              ? Colors.white.withValues(alpha: 0.10)
+              : Colors.black.withValues(alpha: 0.08));
 
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -3293,10 +3736,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     letterSpacing: -0.1,
                   ),
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 4),
-                  trailing,
-                ],
+                if (trailing != null) ...[const SizedBox(width: 4), trailing],
               ],
             ),
           ),
@@ -3328,8 +3768,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             color: hasFilter
                 ? Colors.transparent
                 : (isDark
-                    ? Colors.white.withValues(alpha: 0.10)
-                    : Colors.black.withValues(alpha: 0.08)),
+                      ? Colors.white.withValues(alpha: 0.10)
+                      : Colors.black.withValues(alpha: 0.08)),
             width: 1,
           ),
         ),
@@ -3381,7 +3821,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-
   Widget _buildNearbyChip(bool isDark) {
     final isSelected = _filterNearby10Km;
     return _buildFilterPill(
@@ -3429,23 +3868,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             CustomTrailPlannerDialog.show(
               context,
               initialLocation: _userPosition != null
-                  ? LatLng(
-                      _userPosition!.latitude,
-                      _userPosition!.longitude,
-                    )
+                  ? LatLng(_userPosition!.latitude, _userPosition!.longitude)
                   : null,
-              initialLocationLabel:
-                  _userPosition != null ? 'My Live Location' : null,
+              initialLocationLabel: _userPosition != null
+                  ? 'My Live Location'
+                  : null,
               pandals: _pandals,
               onTrailStarted: () {
                 FocusScope.of(context).unfocus();
-                final firstStop =
-                    trailService.activeTrail?.currentTargetPandal;
+                final firstStop = trailService.activeTrail?.currentTargetPandal;
                 if (firstStop != null) {
-                  _animatedMapMove(
-                    LatLng(firstStop.lat, firstStop.lng),
-                    15.5,
-                  );
+                  _animatedMapMove(LatLng(firstStop.lat, firstStop.lng), 15.5);
                 }
               },
             );
@@ -3455,8 +3888,57 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-
-
+  Future<void> _previewTrailNavigation(ActiveCustomTrail trail) async {
+    if (_isCalculatingRoute) return;
+    if (trail.hasTransitLegs) {
+      final next = trail.currentTargetPandal;
+      if (next != null) await _highlightRouteTo(next);
+      return;
+    }
+    final fix = await LocationService.instance.currentPosition();
+    if (!mounted) return;
+    if (fix == null) {
+      _showStatusPill(
+        'Turn on location to get walking directions.',
+        icon: Icons.location_off,
+      );
+      return;
+    }
+    final remaining = trail.stops
+        .where((stop) => !trail.visitedPandalIds.contains(stop.id))
+        .toList();
+    if (remaining.isEmpty) return;
+    setState(() => _isCalculatingRoute = true);
+    try {
+      final route = await RoutingService.instance.getLiveMultiStopRoute(
+        waypoints: [
+          LatLng(fix.latitude, fix.longitude),
+          for (final stop in remaining) LatLng(stop.lat, stop.lng),
+        ],
+        routeTitle: 'Custom Hopping Trail',
+      );
+      if (!mounted ||
+          CustomHoppingTrailService.instance.activeTrail?.id != trail.id) {
+        return;
+      }
+      setState(() => _highlightedRoute = route);
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: LatLngBounds.fromPoints(route.points),
+          padding: const EdgeInsets.fromLTRB(48, 140, 48, 220),
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        _showStatusPill(
+          'Could not get walking directions. Check your connection and try again.',
+          icon: Icons.warning_amber_rounded,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCalculatingRoute = false);
+    }
+  }
 
   Widget _buildTrailSummaryBar(
     BuildContext context,
@@ -3477,10 +3959,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         // If user is remote (e.g. 38.5 km away), calculate distance between the pandal stops only!
         final userLoc = _effectiveUserLocation;
         final firstStop = unvisitedStops.first;
-        final bool userIsClose = userLoc != null &&
-            haversineMeters(userLoc.latitude, userLoc.longitude, firstStop.lat, firstStop.lng) <= 2000.0;
+        final bool userIsClose =
+            userLoc != null &&
+            haversineMeters(
+                  userLoc.latitude,
+                  userLoc.longitude,
+                  firstStop.lat,
+                  firstStop.lng,
+                ) <=
+                2000.0;
 
-        LatLng prev = userIsClose ? userLoc : LatLng(firstStop.lat, firstStop.lng);
+        LatLng prev = userIsClose
+            ? userLoc
+            : LatLng(firstStop.lat, firstStop.lng);
         final startIndex = userIsClose ? 0 : 1;
 
         for (int i = startIndex; i < unvisitedStops.length; i++) {
@@ -3511,7 +4002,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     // Check if user is remotely located from the current target pandal (> 2.5 km)
     final userLoc = _effectiveUserLocation;
     final double? distToTargetKm = (userLoc != null && target != null)
-        ? haversineMeters(userLoc.latitude, userLoc.longitude, target.lat, target.lng) / 1000.0
+        ? haversineMeters(
+                userLoc.latitude,
+                userLoc.longitude,
+                target.lat,
+                target.lng,
+              ) /
+              1000.0
         : null;
     final bool isUserRemote = distToTargetKm != null && distToTargetKm > 2.5;
 
@@ -3521,10 +4018,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: (isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold).withValues(alpha: 0.18),
+            color:
+                (isSquadHopping
+                        ? AppColors.accentGold
+                        : PujaColors.festivalGold)
+                    .withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: (isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold).withValues(alpha: 0.6),
+              color:
+                  (isSquadHopping
+                          ? AppColors.accentGold
+                          : PujaColors.festivalGold)
+                      .withValues(alpha: 0.6),
               width: 1,
             ),
           ),
@@ -3534,13 +4039,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               Icon(
                 isSquadHopping ? Icons.groups_rounded : Icons.route_rounded,
                 size: 14,
-                color: isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold,
+                color: isSquadHopping
+                    ? AppColors.accentGold
+                    : PujaColors.festivalGold,
               ),
               const SizedBox(width: 4),
               Text(
                 isSquadHopping ? 'SQUAD HOPPING' : 'TRAIL',
                 style: GoogleFonts.plusJakartaSans(
-                  color: isSquadHopping ? AppColors.accentGold : PujaColors.festivalGold,
+                  color: isSquadHopping
+                      ? AppColors.accentGold
+                      : PujaColors.festivalGold,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
@@ -3610,6 +4119,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           ),
         ),
 
+        if (target != null)
+          IconButton(
+            tooltip: trail.hasTransitLegs
+                ? 'Walking directions to next stop'
+                : 'Walk this trail',
+            onPressed: _isCalculatingRoute
+                ? null
+                : () => _previewTrailNavigation(trail),
+            icon: const Icon(
+              Icons.navigation_rounded,
+              size: 20,
+              color: Color(0xFF2F6FE4),
+            ),
+          ),
         // Quick Mark-Visited Action Button (if target pending)
         if (target != null)
           IconButton(
@@ -3672,11 +4195,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: const [
-                  Icon(
-                    Icons.close_rounded,
-                    size: 13,
-                    color: Color(0xFFFF1744),
-                  ),
+                  Icon(Icons.close_rounded, size: 13, color: Color(0xFFFF1744)),
                   SizedBox(width: 3),
                   Text(
                     'Exit',
@@ -3693,97 +4212,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         ),
       ],
     );
-  }
-
-  List<Polyline> _buildHighlightedRoutePolylines(
-    WalkingRoute route,
-    bool isDark,
-  ) {
-    if (route.points.isEmpty) return const [];
-
-    // If multi-segment transit route (pedestrian walk + metro tracks + train tracks)
-    if (route.segments.isNotEmpty) {
-      final polylines = <Polyline>[];
-      for (final seg in route.segments) {
-        if (seg.points.length < 2) continue;
-
-        if (seg.isMetro) {
-          final color = seg.color ?? PujaColors.metroBlue;
-          // Glowing underlay
-          polylines.add(
-            Polyline(
-              points: seg.points,
-              strokeWidth: 9.0,
-              color: color.withValues(alpha: 0.35),
-            ),
-          );
-          // Solid Metro Line following real tracks
-          polylines.add(
-            Polyline(
-              points: seg.points,
-              strokeWidth: 5.5,
-              color: color,
-            ),
-          );
-        } else if (seg.isTrain) {
-          final color = seg.color ?? PujaColors.railwayPurple;
-          // Glowing underlay
-          polylines.add(
-            Polyline(
-              points: seg.points,
-              strokeWidth: 9.0,
-              color: color.withValues(alpha: 0.35),
-            ),
-          );
-          // Solid Suburban Railway line following track curves
-          polylines.add(
-            Polyline(
-              points: seg.points,
-              strokeWidth: 5.5,
-              color: color,
-            ),
-          );
-        } else {
-          // Walk / Pedestrian connector
-          final walkColor = isDark
-              ? const Color(0xFF00E5FF)
-              : PujaColors.durgaRed;
-          polylines.add(
-            Polyline(
-              points: seg.points,
-              strokeWidth: 7.0,
-              color: walkColor.withValues(alpha: 0.28),
-            ),
-          );
-          polylines.add(
-            Polyline(
-              points: seg.points,
-              strokeWidth: 4.2,
-              color: walkColor,
-              pattern: StrokePattern.dashed(segments: const [7, 4]),
-            ),
-          );
-        }
-      }
-      return polylines;
-    }
-
-    // Default single road / walk polyline
-    final defaultColor = isDark
-        ? const Color(0xFF00E5FF)
-        : PujaColors.durgaRed;
-    return [
-      Polyline(
-        points: route.points,
-        strokeWidth: 7.5,
-        color: defaultColor.withValues(alpha: 0.35),
-      ),
-      Polyline(
-        points: route.points,
-        strokeWidth: 4.2,
-        color: defaultColor,
-      ),
-    ];
   }
 
   List<Polyline> _buildTrailPolylines(
@@ -3807,7 +4235,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         // Multi-modal rendering: individual walk segments, authentic metro lines, and suburban train tracks
         for (final leg in trail.legs) {
           if (leg.mode == LegMode.walk) {
-            final points = (leg.roadPolyline != null && leg.roadPolyline!.length >= 2)
+            final points =
+                (leg.roadPolyline != null && leg.roadPolyline!.length >= 2)
                 ? leg.roadPolyline!
                 : [leg.from, leg.to];
             // Walking segment between consecutive pandals
@@ -3836,7 +4265,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               Polyline(
                 points: [leg.from, boardPos],
                 strokeWidth: 3.5,
-                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                color: isDark
+                    ? const Color(0xFF90A4AE)
+                    : const Color(0xFF546E7A),
                 pattern: StrokePattern.dashed(segments: const [6, 4]),
               ),
             );
@@ -3868,14 +4299,22 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               Polyline(
                 points: [alightPos, leg.to],
                 strokeWidth: 3.5,
-                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                color: isDark
+                    ? const Color(0xFF90A4AE)
+                    : const Color(0xFF546E7A),
                 pattern: StrokePattern.dashed(segments: const [6, 4]),
               ),
             );
           } else if (leg.mode == LegMode.train && leg.trainDetail != null) {
             final detail = leg.trainDetail!;
-            final boardPos = LatLng(detail.boardingStation.latitude, detail.boardingStation.longitude);
-            final alightPos = LatLng(detail.alightingStation.latitude, detail.alightingStation.longitude);
+            final boardPos = LatLng(
+              detail.boardingStation.latitude,
+              detail.boardingStation.longitude,
+            );
+            final alightPos = LatLng(
+              detail.alightingStation.latitude,
+              detail.alightingStation.longitude,
+            );
             const trainColor = PujaColors.railwayPurple;
 
             // 1. Pedestrian connection: pandal to boarding railway station (dashed)
@@ -3883,7 +4322,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               Polyline(
                 points: [leg.from, boardPos],
                 strokeWidth: 3.5,
-                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                color: isDark
+                    ? const Color(0xFF90A4AE)
+                    : const Color(0xFF546E7A),
                 pattern: StrokePattern.dashed(segments: const [6, 4]),
               ),
             );
@@ -3918,7 +4359,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               Polyline(
                 points: [alightPos, leg.to],
                 strokeWidth: 3.5,
-                color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
+                color: isDark
+                    ? const Color(0xFF90A4AE)
+                    : const Color(0xFF546E7A),
                 pattern: StrokePattern.dashed(segments: const [6, 4]),
               ),
             );
@@ -4074,7 +4517,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               isVisited: isVisited,
               trailIndex: i,
               size: (isCurrent || isSelected) ? 46 : 36,
-              pulseAnimation: (isCurrent || isSelected) ? _pulseController : null,
+              pulseAnimation: (isCurrent || isSelected)
+                  ? _pulseController
+                  : null,
             ),
           ),
         ),
@@ -4132,10 +4577,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     );
                   },
                   child: Tooltip(
-                    message: '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
+                    message:
+                        '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
                     child: LeafletMarkerPin(
                       category: LeafletPinCategory.custom,
-                      pinColor: isInterchange ? const Color(0xFFE65100) : stn.line.color,
+                      pinColor: isInterchange
+                          ? const Color(0xFFE65100)
+                          : stn.line.color,
                       customIcon: isInterchange
                           ? Icons.transfer_within_a_station_rounded
                           : Icons.subway_rounded,
@@ -4289,10 +4737,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           constraints: const BoxConstraints(maxWidth: 540),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
-            color: (isDark ? const Color(0xFF1E1E24) : Colors.white).withValues(alpha: 0.96),
+            color: (isDark ? const Color(0xFF1E1E24) : Colors.white).withValues(
+              alpha: 0.96,
+            ),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: (_contextualColor ?? PujaColors.festivalGold).withValues(alpha: 0.55),
+              color: (_contextualColor ?? PujaColors.festivalGold).withValues(
+                alpha: 0.55,
+              ),
               width: 1.1,
             ),
             boxShadow: [
@@ -4393,7 +4845,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       color: const Color(0xFFFF1744).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: PujaIcon.durgaEyes(color: const Color(0xFFFF1744), size: 28),
+                    child: PujaIcon.durgaEyes(
+                      color: const Color(0xFFFF1744),
+                      size: 28,
+                    ),
                   ),
                   title: Text(
                     'Nearest Pandal Radar',
@@ -4424,13 +4879,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      isDarkActive ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                      isDarkActive
+                          ? Icons.light_mode_rounded
+                          : Icons.dark_mode_rounded,
                       color: PujaColors.festivalGold,
                       size: 22,
                     ),
                   ),
                   title: Text(
-                    isDarkActive ? 'Switch to Light Theme' : 'Switch to Dark Theme',
+                    isDarkActive
+                        ? 'Switch to Light Theme'
+                        : 'Switch to Dark Theme',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -4457,7 +4916,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       color: const Color(0xFF2979FF).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.help_outline_rounded, color: Color(0xFF2979FF), size: 22),
+                    child: const Icon(
+                      Icons.help_outline_rounded,
+                      color: Color(0xFF2979FF),
+                      size: 22,
+                    ),
                   ),
                   title: Text(
                     'App Walkthrough & Guide',
@@ -4573,10 +5036,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     iconWidget: SizedBox(
                       width: 30,
                       height: 40,
-                      child: LeafletMarkerPin.pandal(
-                        trailIndex: 0,
-                        size: 28,
-                      ),
+                      child: LeafletMarkerPin.pandal(trailIndex: 0, size: 28),
                     ),
                     title: 'Route Stop Sequence (e.g. ①)',
                     subtitle: 'Numbered stop when navigating an active curated circuit',
@@ -4594,11 +5054,16 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Icon(Icons.flag_rounded, color: Color(0xFF5D4037), size: 18),
+                        child: Icon(
+                          Icons.flag_rounded,
+                          color: Color(0xFF5D4037),
+                          size: 18,
+                        ),
                       ),
                     ),
                     title: 'Group Meet-up Landmark',
-                    subtitle: 'Designated group rendezvous point or circuit start',
+                    subtitle:
+                        'Designated group rendezvous point or circuit start',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),
@@ -4612,10 +5077,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         color: Color(0xFF00E676),
                         shape: BoxShape.circle,
                       ),
-                      child: Center(child: PujaIcon.dhaki(color: Colors.black87, size: 20)),
+                      child: Center(
+                        child: PujaIcon.dhaki(color: Colors.black87, size: 20),
+                      ),
                     ),
                     title: 'Live Group Member',
-                    subtitle: 'Real-time GPS location of active group companions',
+                    subtitle:
+                        'Real-time GPS location of active group companions',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),
@@ -4628,7 +5096,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       child: LeafletMarkerPin.metro(width: 28, height: 38),
                     ),
                     title: 'Metro Station',
-                    subtitle: 'Kolkata Metro transit hub (Lines 1 to 6 network)',
+                    subtitle:
+                        'Kolkata Metro transit hub (Lines 1 to 6 network)',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),
@@ -4646,7 +5115,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       ),
                     ),
                     title: 'Suburban Railway Station',
-                    subtitle: 'Eastern, South Eastern & Circular Railway corridors',
+                    subtitle:
+                        'Eastern, South Eastern & Circular Railway corridors',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 14),
@@ -4672,7 +5142,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       child: LeafletMarkerPin.toilet(width: 24, height: 32),
                     ),
                     title: 'Public Toilet / Washroom',
-                    subtitle: 'Sulabh complexes & verified sanitation facilities',
+                    subtitle:
+                        'Sulabh complexes & verified sanitation facilities',
                     isDark: isDark,
                   ),
                   const SizedBox(height: 12),
@@ -4722,7 +5193,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildProfileAvatarButton(BuildContext context, bool isDark) {
-    final user = context.select<AuthService?, AppUser?>((a) => a?.currentUserModel);
+    final user = context.select<AuthService?, AppUser?>(
+      (a) => a?.currentUserModel,
+    );
     final photoUrl = user?.photoUrl;
     final isGoogle = user != null && !user.isGuest;
 
@@ -4738,7 +5211,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             UserProfileSheet.show(context);
           },
           child: Tooltip(
-            message: isGoogle ? 'Profile: ${user.displayName}' : 'Guest Profile',
+            message: isGoogle
+                ? 'Profile: ${user.displayName}'
+                : 'Guest Profile',
             child: Container(
               padding: const EdgeInsets.all(1.5),
               decoration: BoxDecoration(
@@ -4752,7 +5227,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 boxShadow: isGoogle
                     ? [
                         BoxShadow(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                          color: PujaColors.festivalGold.withValues(
+                            alpha: 0.35,
+                          ),
                           blurRadius: 6,
                           offset: const Offset(0, 1),
                         ),
@@ -4789,9 +5266,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         return Material(
           elevation: 3,
           shadowColor: Colors.black.withValues(alpha: 0.20),
-          color: isDarkActive
-              ? const Color(0xFF2A2A2A)
-              : Colors.white,
+          color: isDarkActive ? const Color(0xFF2A2A2A) : Colors.white,
           shape: const StadiumBorder(),
           child: InkWell(
             borderRadius: BorderRadius.circular(999),
@@ -4800,10 +5275,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               themeService.toggleTheme();
             },
             child: Tooltip(
-              message:
-                  isDarkActive ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+              message: isDarkActive
+                  ? 'Switch to Light Mode'
+                  : 'Switch to Dark Mode',
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -4868,10 +5347,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             _showSquadDetailsSheet(context, squadService, isDark);
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 11,
-              vertical: 6,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -4894,7 +5370,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 Text(
                   label,
                   style: TextStyle(
-                    color: isDark ? const Color(0xFF69F0AE) : const Color(0xFF1B5E20),
+                    color: isDark
+                        ? const Color(0xFF69F0AE)
+                        : const Color(0xFF1B5E20),
                     fontSize: 11.5,
                     fontWeight: FontWeight.w800,
                   ),
@@ -4907,7 +5385,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showSquadDetailsSheet(BuildContext context, SquadService squadService, bool isDark) {
+  void _showSquadDetailsSheet(
+    BuildContext context,
+    SquadService squadService,
+    bool isDark,
+  ) {
     final companions = squadService.companionMembers;
     final squadCode = squadService.squadCode ?? 'SQUAD';
     final userPos = _userPosition;
@@ -4992,9 +5474,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
               // Squad Invite Code Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.05),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: 0.05,
+                  ),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: PujaColors.festivalGold.withValues(alpha: 0.4),
@@ -5003,7 +5490,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.qr_code_rounded, size: 20, color: PujaColors.festivalGold),
+                    const Icon(
+                      Icons.qr_code_rounded,
+                      size: 20,
+                      color: PujaColors.festivalGold,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -5025,7 +5516,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               fontSize: 16,
                               fontWeight: FontWeight.w900,
                               letterSpacing: 1.2,
-                              color: isDark ? PujaColors.festivalGold : const Color(0xFFB8860B),
+                              color: isDark
+                                  ? PujaColors.festivalGold
+                                  : const Color(0xFFB8860B),
                             ),
                           ),
                         ],
@@ -5045,9 +5538,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       icon: const Icon(Icons.copy_rounded, size: 15),
                       label: const Text('Copy'),
                       style: TextButton.styleFrom(
-                        foregroundColor: isDark ? PujaColors.festivalGold : const Color(0xFFB8860B),
+                        foregroundColor: isDark
+                            ? PujaColors.festivalGold
+                            : const Color(0xFFB8860B),
                         visualDensity: VisualDensity.compact,
-                        textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
@@ -5060,8 +5558,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: (isDark ? const Color(0xFF221A22) : const Color(0xFFFFF9E6))
-                        .withValues(alpha: 0.7),
+                    color:
+                        (isDark
+                                ? const Color(0xFF221A22)
+                                : const Color(0xFFFFF9E6))
+                            .withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: PujaColors.festivalGold.withValues(alpha: 0.3),
@@ -5073,7 +5574,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: PujaColors.festivalGold.withValues(alpha: 0.18),
+                          color: PujaColors.festivalGold.withValues(
+                            alpha: 0.18,
+                          ),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
@@ -5126,7 +5629,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     shrinkWrap: true,
                     physics: const BouncingScrollPhysics(),
                     itemCount: companions.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
                     itemBuilder: (context, idx) {
                       final member = companions[idx];
                       final dist = userPos != null
@@ -5139,14 +5643,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           : null;
                       final distStr = dist != null
                           ? (dist < 1000
-                              ? '${dist.round()} m away'
-                              : '${(dist / 1000).toStringAsFixed(1)} km away')
+                                ? '${dist.round()} m away'
+                                : '${(dist / 1000).toStringAsFixed(1)} km away')
                           : 'Live location';
 
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.04),
+                          color: (isDark ? Colors.white : Colors.black)
+                              .withValues(alpha: 0.04),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isDark ? Colors.white12 : Colors.black12,
@@ -5157,10 +5665,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             CircleAvatar(
                               radius: 16,
                               backgroundColor: member.avatarColor,
-                              backgroundImage: (member.photoUrl != null && member.photoUrl!.isNotEmpty)
+                              backgroundImage:
+                                  (member.photoUrl != null &&
+                                      member.photoUrl!.isNotEmpty)
                                   ? NetworkImage(member.photoUrl!)
                                   : null,
-                              child: (member.photoUrl == null || member.photoUrl!.isEmpty)
+                              child:
+                                  (member.photoUrl == null ||
+                                      member.photoUrl!.isEmpty)
                                   ? Text(
                                       member.initials,
                                       style: const TextStyle(
@@ -5181,7 +5693,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      color: isDark
+                                          ? Colors.white
+                                          : Colors.black87,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -5203,7 +5717,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 HapticFeedback.selectionClick();
                                 _animatedMapMove(
                                   LatLng(member.latitude, member.longitude),
-                                  (_mapController.camera.zoom < 15.5 ? 15.5 : _mapController.camera.zoom),
+                                  (_mapController.camera.zoom < 15.5
+                                      ? 15.5
+                                      : _mapController.camera.zoom),
                                 );
                                 _highlightRouteToMember(member);
                               },
@@ -5212,7 +5728,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               style: TextButton.styleFrom(
                                 visualDensity: VisualDensity.compact,
                                 foregroundColor: PujaColors.festivalGold,
-                                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                textStyle: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ],
@@ -5236,12 +5755,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   icon: const Icon(Icons.groups_rounded, size: 18),
                   label: const Text(
                     'Open Hopping Group Hub',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13.5,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PujaColors.durgaRed,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
                     elevation: 2,
                   ),
                 ),
@@ -5955,68 +6479,66 @@ class _ClusteredPandalLayer extends StatelessWidget {
     return RepaintBoundary(
       child: MarkerLayer(
         markers: clusterItems.map((item) {
-        if (item.isCluster) {
-          final count = item.count;
-          final isLarge = count > 99;
+          if (item.isCluster) {
+            final count = item.count;
+            final isLarge = count > 99;
+
+            return Marker(
+              rotate: true,
+              point: item.point,
+              width: isLarge ? 50 : 44,
+              height: isLarge ? 62 : 54,
+              alignment: Alignment.topCenter,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  final nextZoom = (camera.zoom + 1.8).clamp(11.0, 16.5);
+                  onZoomToCluster(item.point, nextZoom);
+                },
+                child: LeafletMarkerPin(
+                  category: LeafletPinCategory.cluster,
+                  clusterCount: count,
+                  size: isLarge ? 48 : 42,
+                ),
+              ),
+            );
+          }
+
+          final p = item.primaryPandal ?? item.pandals.first;
+          final isSelected = selectedPandal?.id == p.id;
+
+          int trailIndex = -1;
+          bool isVisited = false;
+          if (activeTrail != null) {
+            trailIndex = activeTrail.stops.indexWhere((s) => s.id == p.id);
+            if (trailIndex != -1) {
+              isVisited = activeTrail.visitedPandalIds.contains(p.id);
+            }
+          }
 
           return Marker(
             rotate: true,
-            point: item.point,
-            width: isLarge ? 50 : 44,
-            height: isLarge ? 62 : 54,
+            point: LatLng(p.lat, p.lng),
+            width: isSelected ? 48 : 38,
+            height: isSelected ? 60 : 48,
             alignment: Alignment.topCenter,
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 HapticFeedback.selectionClick();
-                final nextZoom = (camera.zoom + 1.8).clamp(11.0, 16.5);
-                onZoomToCluster(item.point, nextZoom);
+                onSelectPandal(p);
               },
-              child: LeafletMarkerPin(
-                category: LeafletPinCategory.cluster,
-                clusterCount: count,
-                size: isLarge ? 48 : 42,
+              child: LeafletMarkerPin.pandal(
+                isSelected: isSelected,
+                isVisited: isVisited,
+                trailIndex: trailIndex != -1 ? trailIndex : null,
+                size: isSelected ? 46 : 36,
+                pulseAnimation: isSelected ? pulseController : null,
               ),
             ),
           );
-        }
-
-        final p = item.primaryPandal ?? item.pandals.first;
-        final isSelected = selectedPandal?.id == p.id;
-
-        int trailIndex = -1;
-        bool isVisited = false;
-        if (activeTrail != null) {
-          trailIndex = activeTrail.stops.indexWhere(
-            (s) => s.id == p.id,
-          );
-          if (trailIndex != -1) {
-            isVisited = activeTrail.visitedPandalIds.contains(p.id);
-          }
-        }
-
-        return Marker(
-          rotate: true,
-          point: LatLng(p.lat, p.lng),
-          width: isSelected ? 48 : 38,
-          height: isSelected ? 60 : 48,
-          alignment: Alignment.topCenter,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onSelectPandal(p);
-            },
-            child: LeafletMarkerPin.pandal(
-              isSelected: isSelected,
-              isVisited: isVisited,
-              trailIndex: trailIndex != -1 ? trailIndex : null,
-              size: isSelected ? 46 : 36,
-              pulseAnimation: isSelected ? pulseController : null,
-            ),
-          ),
-        );
-      }).toList(),
+        }).toList(),
       ),
     );
   }

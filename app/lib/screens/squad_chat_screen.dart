@@ -14,6 +14,7 @@ import '../services/auth_service.dart';
 import '../services/chat_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
+import 'group_video_call_screen.dart';
 import '../widgets/puja_icons.dart';
 
 /// Screen for private squad text chat, live crowd updates, and photo/video sharing.
@@ -62,7 +63,7 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
   void _sendMessage({String? customText}) async {
     final text = (customText ?? _textController.text).trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty || _isSending) return;
 
     final auth = Provider.of<AuthService>(context, listen: false);
     final user = auth.currentUserModel;
@@ -70,12 +71,11 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
     final senderName = user?.displayName ?? 'You';
     final photoUrl = user?.photoUrl;
 
-    if (customText == null) {
-      _textController.clear();
-    }
+    setState(() => _isSending = true);
     HapticFeedback.lightImpact();
 
-    await SquadChatService.instance.sendText(
+    try {
+      await SquadChatService.instance.sendText(
       widget.squadId,
       senderId: senderId,
       senderName: senderName,
@@ -83,8 +83,19 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       senderPhotoUrl: photoUrl,
     );
 
-    if (_shouldTriggerBot(text)) {
-      _queryPujaBot(text);
+      if (!mounted) return;
+      if (customText == null) _textController.clear();
+      if (_shouldTriggerBot(text)) {
+        _queryPujaBot(text);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Message could not be sent. Check your connection and try again.')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
@@ -299,6 +310,8 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       );
       final frame = await codec.getNextFrame();
       final byteData = await frame.image.toByteData(format: ui.ImageByteFormat.png);
+      frame.image.dispose();
+      codec.dispose();
       if (byteData != null) {
         final downsampled = byteData.buffer.asUint8List();
         if (downsampled.lengthInBytes < original.lengthInBytes) {
@@ -343,7 +356,9 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
       }
 
       final base64String = base64Encode(bytes).replaceAll(RegExp(r'\s+'), '');
-      final mediaDataUri = 'data:image/jpeg;base64,$base64String';
+      final isPng = bytes.length >= 4 && bytes[0] == 0x89 && bytes[1] == 0x50 &&
+          bytes[2] == 0x4e && bytes[3] == 0x47;
+      final mediaDataUri = 'data:image/${isPng ? 'png' : 'jpeg'};base64,$base64String';
 
       await SquadChatService.instance.sendMedia(
         widget.squadId,
@@ -495,6 +510,15 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
     final chatBody = Column(
         children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              icon: const Icon(Icons.video_call_rounded),
+              label: const Text('Group video call'),
+              onPressed: () => GroupVideoCallScreen.open(context,
+                squadId: widget.squadId, squadName: widget.squadName),
+            ),
+          ),
           // Messages List
           Expanded(
             child: StreamBuilder<List<ChatMessage>>(

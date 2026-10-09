@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -36,7 +37,7 @@ class AuthService extends ChangeNotifier {
   AuthService._([this._prefs]) {
     _loadSavedUser();
     try {
-      _auth?.authStateChanges().listen((fbUser) {
+      _authSubscription = _auth?.authStateChanges().listen((fbUser) {
         if (fbUser != null && (_currentUserModel == null || _currentUserModel!.isGuest)) {
           final appUser = AppUser(
             uid: fbUser.uid,
@@ -46,7 +47,7 @@ class AuthService extends ChangeNotifier {
             email: fbUser.email ?? _currentUserModel?.email,
             photoUrl: fbUser.photoURL ?? _currentUserModel?.photoUrl ?? defaultGoogleAvatar,
             phoneNumber: fbUser.phoneNumber ?? _currentUserModel?.phoneNumber,
-            isGuest: false,
+            isGuest: fbUser.isAnonymous,
           );
           _currentUserModel = appUser;
           _saveUser(appUser);
@@ -72,6 +73,7 @@ class AuthService extends ChangeNotifier {
   }
 
   final SharedPreferences? _prefs;
+  StreamSubscription<User?>? _authSubscription;
 
   FirebaseAuth? get _auth {
     try {
@@ -475,5 +477,11 @@ class AuthService extends ChangeNotifier {
     } catch (_) {}
     await _auth?.signOut();
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 }

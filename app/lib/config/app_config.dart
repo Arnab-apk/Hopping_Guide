@@ -7,6 +7,9 @@ class AppConfig {
   /// Pass as: --dart-define=ORS_API_KEY=...
   static const String orsApiKey = String.fromEnvironment('ORS_API_KEY');
 
+  /// Mapbox walking directions and maneuvers, supplied at build time.
+  static const String mapboxAccessToken = String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
+
   /// 100% Free, keyless OpenStreetMap raster tiles.
   /// No API key or account required; never displays "API key required" watermark.
   static const String tileUrlTemplate =
@@ -31,14 +34,12 @@ class AppConfig {
     defaultValue: 'nvidia/nemotron-3-ultra-550b-a55b',
   );
 
-  /// Google Gemini API key as secondary fallback
+  /// Google Gemini API key for the route assistant; NVIDIA is a fallback.
   static const String geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
   /// Gemini model used by the route assistant.
-  /// Free-tier Flash models: 'gemini-3.5-flash' (recommended for reasoning & multilingual facts)
-  /// or 'gemini-3.1-flash-lite' (for high-throughput speed).
   static const String geminiModel = String.fromEnvironment(
     'GEMINI_MODEL',
-    defaultValue: 'gemini-3.5-flash',
+    defaultValue: 'gemini-flash-latest',
   );
 }

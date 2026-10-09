@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
@@ -7,12 +8,18 @@ import 'package:simplify/simplify.dart';
 
 import '../config/app_config.dart';
 import '../models/pandal.dart';
+import '../models/navigation_step.dart';
+import '../models/route_polyline_segment.dart';
+import 'mapbox_directions_service.dart';
 import '../utils/haversine.dart';
 
 /// Douglas-Peucker polyline simplification (tolerance of ~5 meters / 0.00005 deg).
 /// Reduces dense multi-thousand point route coordinates to a lightweight, visually
 /// identical polyline that renders with high GPU performance.
-List<LatLng> optimizeRoute(List<LatLng> rawOrsCoordinates, {double tolerance = 0.00005}) {
+List<LatLng> optimizeRoute(
+  List<LatLng> rawOrsCoordinates, {
+  double tolerance = 0.00005,
+}) {
   if (rawOrsCoordinates.length <= 2) return rawOrsCoordinates;
 
   // Convert LatLng to Point for the simplifier (x = lng, y = lat)
@@ -21,7 +28,11 @@ List<LatLng> optimizeRoute(List<LatLng> rawOrsCoordinates, {double tolerance = 0
       .toList();
 
   // Douglas-Peucker simplification
-  final simplified = simplify(points, tolerance: tolerance, highestQuality: true);
+  final simplified = simplify(
+    points,
+    tolerance: tolerance,
+    highestQuality: true,
+  );
 
   return simplified.map((p) => LatLng(p.y, p.x)).toList();
 }
@@ -40,6 +51,8 @@ class WalkingRoute {
     this.transitMode = 'walk',
     this.bestModeBadge,
     this.summary,
+    this.steps = const [],
+    this.waypoints = const [],
   });
 
   final Pandal? targetPandal;
@@ -49,16 +62,21 @@ class WalkingRoute {
   final double durationSeconds;
   final double? drivingDurationSeconds;
   final bool isFallback;
-  final List<dynamic> segments;
+  final List<RoutePolylineSegment> segments;
   final String transitMode; // 'walk', 'metro', 'train'
   final String? bestModeBadge;
   final String? summary;
+  final List<NavigationStep> steps;
+
+  /// Provider stop order, including start; retained when rerouting a trail.
+  final List<LatLng> waypoints;
 
   bool get isTrain => transitMode == 'train';
   bool get isMetro => transitMode == 'metro';
   bool get isWalk => transitMode == 'walk';
 
-  String get destinationTitle => targetPandal?.name ?? customTitle ?? 'Destination';
+  String get destinationTitle =>
+      targetPandal?.name ?? customTitle ?? 'Destination';
 
   String get formattedDistance {
     if (distanceMeters < 1000) {
@@ -69,11 +87,18 @@ class WalkingRoute {
   }
 
   bool get isTransitRecommended =>
-      distanceMeters > 3500 && drivingDurationSeconds != null && drivingDurationSeconds! > 0;
+      distanceMeters > 3500 &&
+      drivingDurationSeconds != null &&
+      drivingDurationSeconds! > 0;
 
   String? get formattedTransitDuration {
-    if (drivingDurationSeconds == null || drivingDurationSeconds! <= 0) return null;
-    return _formatTimeString((drivingDurationSeconds! / 60).round(), 'drive/transit');
+    if (drivingDurationSeconds == null || drivingDurationSeconds! <= 0) {
+      return null;
+    }
+    return _formatTimeString(
+      (drivingDurationSeconds! / 60).round(),
+      'drive/transit',
+    );
   }
 
   /// Formatted duration with realistic walking pace (4.5 km/h).
@@ -107,17 +132,26 @@ class WalkingRoute {
 }
 
 /// Service that computes walking paths between the user's location and pandals or squad members.
-/// General map routes retain the OSRM/geodesic fallback, while live navigation
-/// uses OpenRouteService for pedestrian geometry and maneuver instructions.
+/// Configured builds use Mapbox pedestrian paths and maneuvers. Offline
+/// corridors are preview-only and are never accepted by live navigation.
 class RoutingService {
-  RoutingService({http.Client? client}) : _client = client ?? http.Client();
+  RoutingService({http.Client? client, String? mapboxAccessToken})
+    : _client = client ?? http.Client() {
+    _mapbox = MapboxDirectionsService(
+      client: _client,
+      accessToken: mapboxAccessToken ?? AppConfig.mapboxAccessToken,
+    );
+  }
 
   static final RoutingService instance = RoutingService();
   final http.Client _client;
+  late final MapboxDirectionsService _mapbox;
+  final Map<String, Future<MapboxRouteData>> _pendingMapboxRoutes = {};
 
   /// High-concurrency route cache to eliminate redundant public API requests
   /// Max 200 entries with LRU eviction to prevent memory leak
-  final Map<String, ({WalkingRoute route, DateTime timestamp})> _routeCache = {};
+  final Map<String, ({WalkingRoute route, DateTime timestamp})> _routeCache =
+      {};
   static const int _maxCacheSize = 200;
   int _consecutiveFailures = 0;
   DateTime? _circuitBreakerUntil;
@@ -133,10 +167,13 @@ class RoutingService {
 
   /// Auto-reset circuit breaker after cooldown period
   void _maybeResetCircuitBreaker() {
-    if (_circuitBreakerUntil != null && DateTime.now().isAfter(_circuitBreakerUntil!)) {
+    if (_circuitBreakerUntil != null &&
+        DateTime.now().isAfter(_circuitBreakerUntil!)) {
       _consecutiveFailures = 0;
       _circuitBreakerUntil = null;
-      debugPrint('[RoutingService] 🔄 Circuit breaker auto-reset after cooldown');
+      debugPrint(
+        '[RoutingService] 🔄 Circuit breaker auto-reset after cooldown',
+      );
     }
   }
 
@@ -180,7 +217,8 @@ class RoutingService {
 
     final cached = _routeCache[cacheKey];
     if (cached != null &&
-        DateTime.now().difference(cached.timestamp) < const Duration(minutes: 15)) {
+        DateTime.now().difference(cached.timestamp) <
+            const Duration(minutes: 15)) {
       return WalkingRoute(
         targetPandal: targetPandal ?? cached.route.targetPandal,
         customTitle: destinationName,
@@ -193,6 +231,7 @@ class RoutingService {
         transitMode: cached.route.transitMode,
         bestModeBadge: cached.route.bestModeBadge,
         summary: cached.route.summary,
+        steps: cached.route.steps,
       );
     }
 
@@ -211,6 +250,29 @@ class RoutingService {
       );
     }
 
+    if (_mapbox.isConfigured) {
+      try {
+        return await _mapboxRoute(
+          waypoints: [start, destination],
+          destinationName: destinationName,
+          targetPandal: targetPandal,
+          cacheKey: cacheKey,
+        );
+      } on MapboxRoutingException catch (e) {
+        debugPrint('[RoutingService] ${e.message}');
+        _recordFailure();
+        return _buildGeodesicFallback(
+          start: start,
+          startLat: startLat,
+          startLng: startLng,
+          destLat: destLat,
+          destLng: destLng,
+          destinationName: destinationName,
+          targetPandal: targetPandal,
+        );
+      }
+    }
+
     final url = Uri.parse(
       // OSRM's public cluster does not publish the foot profile reliably
       // (it frequently returns HTTP 400). Its road geometry is still a live,
@@ -219,13 +281,15 @@ class RoutingService {
     );
 
     try {
-      final response = await _client.get(
-        url,
-        headers: {
-          'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
-          'Accept': 'application/json',
-        },
-      ).timeout(const Duration(seconds: 8));
+      final response = await _client
+          .get(
+            url,
+            headers: {
+              'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -249,7 +313,9 @@ class RoutingService {
             final optimizedPoints = optimizeRoute(points);
 
             // Calibrated human pedestrian walking speed: 4.5 km/h = 1.25 m/s
-            final walkingDurationSeconds = distance > 0 ? (distance / 1.25) : 0.0;
+            final walkingDurationSeconds = distance > 0
+                ? (distance / 1.25)
+                : 0.0;
 
             final route = WalkingRoute(
               targetPandal: targetPandal,
@@ -267,17 +333,23 @@ class RoutingService {
             _evictOldestCacheEntryIfNeeded();
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
-            debugPrint('[RoutingService] ✅ Street route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km → $destinationName');
+            debugPrint(
+              '[RoutingService] ✅ Street route OK: ${optimizedPoints.length} pts, ${(distance / 1000).toStringAsFixed(2)} km → $destinationName',
+            );
             return route;
           }
         }
       } else {
-        debugPrint('[RoutingService] ❌ OSRM HTTP ${response.statusCode} for $destinationName');
+        debugPrint(
+          '[RoutingService] ❌ OSRM HTTP ${response.statusCode} for $destinationName',
+        );
         _recordFailure();
       }
     } catch (e) {
       // Server error, network timeout, or socket exception
-      debugPrint('[RoutingService] ❌ Exception routing to $destinationName: $e');
+      debugPrint(
+        '[RoutingService] ❌ Exception routing to $destinationName: $e',
+      );
       _recordFailure();
     }
 
@@ -302,87 +374,66 @@ class RoutingService {
     required String destinationName,
     Pandal? targetPandal,
   }) async {
-    if (AppConfig.orsApiKey.isEmpty) {
-      throw StateError(
-        'OpenRouteService API key is missing. '
-        'Build with --dart-define=ORS_API_KEY=your_key',
-      );
-    }
-
-    final route = await _getOpenRouteServiceWalkingRoute(
-      start: start,
-      destination: destination,
+    final cacheKey =
+        '${start.latitude.toStringAsFixed(4)},${start.longitude.toStringAsFixed(4)}->${destination.latitude.toStringAsFixed(4)},${destination.longitude.toStringAsFixed(4)}';
+    return _mapboxRoute(
+      waypoints: [start, destination],
       destinationName: destinationName,
       targetPandal: targetPandal,
+      cacheKey: cacheKey,
     );
-    return route;
   }
 
-  Future<WalkingRoute> _getOpenRouteServiceWalkingRoute({
-    required LatLng start,
-    required LatLng destination,
+  Future<WalkingRoute> _mapboxRoute({
+    required List<LatLng> waypoints,
     required String destinationName,
+    required String cacheKey,
     Pandal? targetPandal,
   }) async {
-    final url = Uri.https(
-      'api.openrouteservice.org',
-      '/v2/directions/foot-walking',
-      <String, String>{
-        'api_key': AppConfig.orsApiKey,
-        'start': '${start.longitude},${start.latitude}',
-        'end': '${destination.longitude},${destination.latitude}',
-      },
+    final cached = _routeCache[cacheKey];
+    if (cached != null &&
+        cached.route.steps.isNotEmpty &&
+        DateTime.now().difference(cached.timestamp) <
+            const Duration(minutes: 15)) {
+      final route = cached.route;
+      return WalkingRoute(
+        targetPandal: targetPandal,
+        customTitle: destinationName,
+        points: route.points,
+        steps: route.steps,
+        distanceMeters: route.distanceMeters,
+        durationSeconds: route.durationSeconds,
+        summary: route.summary,
+        waypoints: waypoints,
+      );
+    }
+    final pending = _pendingMapboxRoutes.putIfAbsent(
+      cacheKey,
+      () => _mapbox.walking(waypoints),
     );
-
-    final response = await _client.get(
-      url,
-      headers: const <String, String>{
-        'Accept': 'application/geo+json, application/json',
-      },
-    ).timeout(const Duration(seconds: 12));
-
-    if (response.statusCode != 200) {
-      debugPrint(
-        '[RoutingService] ORS HTTP ${response.statusCode}: '
-        '${response.body.substring(0, response.body.length.clamp(0, 240))}',
-      );
-      throw StateError('Walking route unavailable (${response.statusCode})');
+    late MapboxRouteData data;
+    try {
+      data = await pending;
+    } finally {
+      if (identical(_pendingMapboxRoutes[cacheKey], pending)) {
+        _pendingMapboxRoutes.remove(cacheKey);
+      }
     }
-
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final features = data['features'] as List?;
-    final feature =
-        features != null && features.isNotEmpty
-            ? features.first as Map<String, dynamic>
-            : null;
-    final geometry = feature?['geometry'] as Map<String, dynamic>?;
-    final coordinates = geometry?['coordinates'] as List?;
-    final properties = feature?['properties'] as Map<String, dynamic>?;
-    final summary = properties?['summary'] as Map<String, dynamic>?;
-
-    if (coordinates == null || coordinates.isEmpty) {
-      throw const FormatException('OpenRouteService returned no route geometry');
-    }
-
-    final points = coordinates.map((coordinate) {
-      final pair = coordinate as List;
-      return LatLng(
-        (pair[1] as num).toDouble(),
-        (pair[0] as num).toDouble(),
-      );
-    }).toList();
-
-    final distance = (summary?['distance'] as num?)?.toDouble() ?? 0;
-    final duration = (summary?['duration'] as num?)?.toDouble() ?? 0;
-    return WalkingRoute(
+    final route = WalkingRoute(
       targetPandal: targetPandal,
       customTitle: destinationName,
-      points: optimizeRoute(points),
-      distanceMeters: distance,
-      durationSeconds: duration,
-      isFallback: false,
-      summary: 'OpenRouteService walking route',
+      points: data.points,
+      steps: data.steps,
+      distanceMeters: data.distanceMeters,
+      durationSeconds: data.durationSeconds,
+      summary: 'Mapbox walking directions',
+      waypoints: waypoints,
     );
+    _consecutiveFailures = 0;
+    _circuitBreakerUntil = null;
+    _evictOldestCacheEntryIfNeeded();
+    _routeCache[cacheKey] = (route: route, timestamp: DateTime.now());
+    return route;
   }
 
   WalkingRoute _buildGeodesicFallback({
@@ -397,7 +448,8 @@ class RoutingService {
     final directMeters = haversineMeters(startLat, startLng, destLat, destLng);
     final estimatedStreetMeters = directMeters * 1.25;
     final walkingDurationSeconds = estimatedStreetMeters / 1.25;
-    final estimatedDrivingSeconds = estimatedStreetMeters / 11.1; // ~40 km/h driving
+    final estimatedDrivingSeconds =
+        estimatedStreetMeters / 11.1; // ~40 km/h driving
 
     return WalkingRoute(
       targetPandal: targetPandal,
@@ -407,6 +459,7 @@ class RoutingService {
       durationSeconds: walkingDurationSeconds,
       drivingDurationSeconds: estimatedDrivingSeconds,
       isFallback: true,
+      summary: 'Preview only · walking directions unavailable',
     );
   }
 
@@ -427,7 +480,7 @@ class RoutingService {
   }
 
   /// Fetches a walking route through an ordered sequence of waypoints (e.g. for custom pandal hopping trails).
-  /// Utilizes multi-stop OSRM pedestrian routing with Douglas-Peucker simplification,
+  /// Uses Mapbox walking directions when configured, preserving visit order,
   /// spatial caching, and offline geodesic fallback.
   Future<WalkingRoute> getMultiStopRoute({
     required List<LatLng> waypoints,
@@ -445,12 +498,16 @@ class RoutingService {
 
     // 1. Spatial quantization cache check
     final cacheKey = waypoints
-        .map((p) => '${p.latitude.toStringAsFixed(3)},${p.longitude.toStringAsFixed(3)}')
+        .map(
+          (p) =>
+              '${p.latitude.toStringAsFixed(4)},${p.longitude.toStringAsFixed(4)}',
+        )
         .join(';');
 
     final cached = _routeCache[cacheKey];
     if (cached != null &&
-        DateTime.now().difference(cached.timestamp) < const Duration(minutes: 15)) {
+        DateTime.now().difference(cached.timestamp) <
+            const Duration(minutes: 15)) {
       return cached.route;
     }
 
@@ -459,6 +516,20 @@ class RoutingService {
     _maybeResetCircuitBreaker();
     if (_circuitBreakerUntil != null && now.isBefore(_circuitBreakerUntil!)) {
       return _buildMultiStopGeodesicFallback(waypoints, routeTitle);
+    }
+
+    if (_mapbox.isConfigured) {
+      try {
+        return await _mapboxRoute(
+          waypoints: waypoints,
+          destinationName: routeTitle ?? 'Trail',
+          cacheKey: cacheKey,
+        );
+      } on MapboxRoutingException catch (e) {
+        debugPrint('[RoutingService] ${e.message}');
+        _recordFailure();
+        return _buildMultiStopGeodesicFallback(waypoints, routeTitle);
+      }
     }
 
     // 3. Format OSRM coordinates: lon1,lat1;lon2,lat2;lon3,lat3...
@@ -471,13 +542,15 @@ class RoutingService {
     );
 
     try {
-      final response = await _client.get(
-        url,
-        headers: {
-          'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
-          'Accept': 'application/json',
-        },
-      ).timeout(const Duration(seconds: 12));
+      final response = await _client
+          .get(
+            url,
+            headers: {
+              'User-Agent': 'KolkataPujaParikrama/1.0 (Android; Kolkata Durga Puja Hopper)',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 12));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -501,7 +574,9 @@ class RoutingService {
             final optimizedPoints = optimizeRoute(points);
 
             // Calibrated pedestrian walking speed: 4.5 km/h = 1.25 m/s
-            final walkingDurationSeconds = distance > 0 ? (distance / 1.25) : 0.0;
+            final walkingDurationSeconds = distance > 0
+                ? (distance / 1.25)
+                : 0.0;
 
             final route = WalkingRoute(
               customTitle: routeTitle ?? 'Trail',
@@ -517,12 +592,16 @@ class RoutingService {
             _evictOldestCacheEntryIfNeeded();
             _routeCache[cacheKey] = (route: route, timestamp: now);
 
-            debugPrint('[RoutingService] ✅ Multi-stop route OK: ${optimizedPoints.length} pts, ${(distance/1000).toStringAsFixed(2)} km for ${waypoints.length} stops');
+            debugPrint(
+              '[RoutingService] ✅ Multi-stop route OK: ${optimizedPoints.length} pts, ${(distance / 1000).toStringAsFixed(2)} km for ${waypoints.length} stops',
+            );
             return route;
           }
         }
       }
-      debugPrint('[RoutingService] ❌ OSRM HTTP ${response.statusCode} for multi-stop route');
+      debugPrint(
+        '[RoutingService] ❌ OSRM HTTP ${response.statusCode} for multi-stop route',
+      );
       _recordFailure();
     } catch (e) {
       debugPrint('[RoutingService] ❌ Exception for multi-stop route: $e');
@@ -536,14 +615,33 @@ class RoutingService {
     required List<LatLng> waypoints,
     String? routeTitle,
   }) async {
-    final route = await getMultiStopRoute(waypoints: waypoints, routeTitle: routeTitle);
+    if (_mapbox.isConfigured) {
+      final key = waypoints
+          .map(
+            (p) =>
+                '${p.latitude.toStringAsFixed(4)},${p.longitude.toStringAsFixed(4)}',
+          )
+          .join(';');
+      return _mapboxRoute(
+        waypoints: waypoints,
+        destinationName: routeTitle ?? 'Trail',
+        cacheKey: key,
+      );
+    }
+    final route = await getMultiStopRoute(
+      waypoints: waypoints,
+      routeTitle: routeTitle,
+    );
     if (route.isFallback) {
       throw StateError('Live street routing is unavailable');
     }
     return route;
   }
 
-  WalkingRoute _buildMultiStopGeodesicFallback(List<LatLng> waypoints, String? title) {
+  WalkingRoute _buildMultiStopGeodesicFallback(
+    List<LatLng> waypoints,
+    String? title,
+  ) {
     double totalMeters = 0.0;
     for (int i = 0; i < waypoints.length - 1; i++) {
       totalMeters += haversineMeters(
@@ -564,6 +662,7 @@ class RoutingService {
       durationSeconds: walkingDurationSeconds,
       drivingDurationSeconds: estimatedDrivingSeconds,
       isFallback: true,
+      summary: 'Preview only · walking directions unavailable',
     );
   }
 

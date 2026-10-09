@@ -58,7 +58,9 @@ service cloud.firestore {
     }
 
     match /pandals/{pandalId} {
-      allow read, write: if signedIn();
+      allow read: if true;
+      // Curated data is maintained by the Admin SDK seed scripts.
+      allow write: if false;
     }
 
     match /pandal_queue_waits/{pandalId} {

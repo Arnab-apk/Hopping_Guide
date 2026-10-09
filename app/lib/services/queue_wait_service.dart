@@ -7,14 +7,24 @@ import 'squad_service.dart';
 /// Service for crowdsourced pandal queue wait times
 /// Users report actual wait times → shared with squad + nearby users
 class QueueWaitService {
-  QueueWaitService._();
-  static final QueueWaitService instance = QueueWaitService._();
+  QueueWaitService({FirebaseFirestore? firestore}) : _injectedFirestore = firestore;
+  static final QueueWaitService instance = QueueWaitService();
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore? _injectedFirestore;
+  FirebaseFirestore? get _firestore {
+    if (_injectedFirestore != null) return _injectedFirestore;
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
   final SquadService _squad = SquadService.instance;
 
   // In-memory cache of recent reports
   final Map<String, List<QueueReport>> _reportCache = {};
+  final Map<String, QueueWaitEstimate> _serverEstimates = {};
+  final Map<String, StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>> _subscriptions = {};
   static const Duration _reportTtl = Duration(minutes: 30);
   static const int _maxReportsPerPandal = 20;
 
@@ -39,7 +49,7 @@ class QueueWaitService {
       waitMinutes: waitMinutes.clamp(0, 300), // Cap at 5 hours
       timestamp: now,
       reporterId: userId,
-      source: source!,
+      source: source ?? 'user',
     );
 
     // Add to local cache immediately for instant UI feedback
@@ -62,7 +72,11 @@ class QueueWaitService {
   QueueWaitEstimate? getEstimate(String pandalId) {
     _cleanupCache(pandalId);
     final reports = _reportCache[pandalId] ?? [];
-    if (reports.isEmpty) return null;
+    if (reports.isEmpty) {
+      final server = _serverEstimates[pandalId];
+      return server != null && DateTime.now().difference(server.lastUpdated) <= _reportTtl
+          ? server : null;
+    }
     return _computeEstimate(pandalId, reports);
   }
 
@@ -84,7 +98,10 @@ class QueueWaitService {
   }
 
   void stopListening() {
-    // Firestore listeners auto-cleanup on dispose
+    for (final subscription in _subscriptions.values) {
+      subscription.cancel();
+    }
+    _subscriptions.clear();
   }
 
   /// Receive queue report from squad member (via SquadService)
@@ -187,12 +204,14 @@ class QueueWaitService {
   }
 
   Future<void> _persistToFirestore(String pandalId) async {
+    final firestore = _firestore;
+    if (firestore == null) return;
     final reports = _reportCache[pandalId];
     if (reports == null || reports.isEmpty) return;
 
     final estimate = _computeEstimate(pandalId, reports);
     
-    await _firestore.collection('pandal_queue_waits').doc(pandalId).set({
+    await firestore.collection('pandal_queue_waits').doc(pandalId).set({
       'estimated_wait_minutes': estimate.estimatedWaitMinutes,
       'confidence': estimate.confidence.name,
       'trend': estimate.trend.name,
@@ -206,7 +225,9 @@ class QueueWaitService {
   }
 
   void _listenToPandal(String pandalId) {
-    _firestore.collection('pandal_queue_waits').doc(pandalId).snapshots().listen(
+    final firestore = _firestore;
+    if (firestore == null || _subscriptions.containsKey(pandalId)) return;
+    _subscriptions[pandalId] = firestore.collection('pandal_queue_waits').doc(pandalId).snapshots().listen(
       (snapshot) {
         if (!snapshot.exists) return;
         final data = snapshot.data()!;
@@ -239,12 +260,9 @@ class QueueWaitService {
     final cutoff = server.lastUpdated.subtract(const Duration(minutes: 5));
     final freshLocal = localReports.where((r) => r.timestamp.isAfter(cutoff)).toList();
     
-    // If server has more reports, create synthetic reports to match
-    if (server.reportCount > freshLocal.length) {
-      // We can't reconstruct individual reports, so just update the estimate
-      // The UI will show server data for older periods
-    }
-    _estimatesController.add(getEstimates(_reportCache.keys));
+    _serverEstimates[pandalId] = server;
+    if (freshLocal.isEmpty) _reportCache.remove(pandalId);
+    _estimatesController.add(getEstimates({..._reportCache.keys, ..._serverEstimates.keys}));
   }
 
   void _broadcastToSquad(QueueReport report) {
@@ -252,6 +270,7 @@ class QueueWaitService {
   }
 
   void dispose() {
+    stopListening();
     _estimatesController.close();
   }
 }

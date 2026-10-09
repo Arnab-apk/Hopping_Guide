@@ -1,6 +1,6 @@
 /// Illustrative empty states with primary actions for better UX.
 /// Provides consistent empty/error/offline states across the app.
-library empty_states;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

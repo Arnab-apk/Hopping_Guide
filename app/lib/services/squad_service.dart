@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:battery_plus/battery_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +14,7 @@ import '../models/app_user.dart';
 import '../models/pandal.dart';
 import '../models/squad_member.dart';
 import '../models/squad_pandal_stop.dart';
+import '../models/squad_group.dart';
 import '../repositories/squad_firestore_repository.dart';
 import '../utils/haversine.dart';
 import 'auth_service.dart';
@@ -104,6 +106,182 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   final List<SquadMember> _members = [];
   StreamSubscription? _membersSub;
   StreamSubscription? _squadSub;
+  StreamSubscription? _groupsSub;
+  String? _groupsOwner;
+  final Map<String, Map<String, dynamic>> _groups = {};
+  bool _groupOperationPending = false;
+  Future<void>? _saveQueue;
+
+  Future<void> _savePreferences(Map<String, Object?> values) {
+    Future<void> write() async {
+      try {
+        final prefs = _prefs ?? await SharedPreferences.getInstance();
+        for (final entry in values.entries) {
+          final value = entry.value;
+          if (value == null) { await prefs.remove(entry.key); }
+          else if (value is String) { await prefs.setString(entry.key, value); }
+          else if (value is bool) { await prefs.setBool(entry.key, value); }
+          else if (value is int) { await prefs.setInt(entry.key, value); }
+        }
+      } catch (error) { debugPrint('[SquadService] preference save error: $error'); }
+    }
+    final pending = _saveQueue;
+    return _saveQueue = pending == null ? write() : pending.then((_) => write());
+  }
+  bool get isGroupOperationPending => _groupOperationPending;
+  List<SquadGroup> get groups => List.unmodifiable(_groups.entries.map((entry) =>
+    SquadGroup(id: entry.key, code: entry.value['squadCode'] as String,
+      name: entry.value['name'] as String? ?? 'Hopping Group',
+      isHost: entry.value['hostId'] == AuthService.instance.currentUserModel?.uid)));
+
+  Map<String, dynamic> _savedGroupData(Map<String, dynamic> data) => {
+    for (final key in ['squadId', 'squadCode', 'name', 'hostId',
+      'meetupPointName', 'meetupLat', 'meetupLng', 'separationThresholdMeters',
+      'chosenPandals', 'isHoppingActive', 'activeStopIndex', 'planRevision'])
+      if (data[key] != null) key: data[key],
+  };
+
+  void _rememberActiveGroup() {
+    if (_squadId == null || _squadCode == null) return;
+    _groups[_squadId!] = {
+      'squadId': _squadId, 'squadCode': _squadCode, 'name': _squadName,
+      'hostId': _members.where((m) => m.isHost).firstOrNull?.id,
+      'meetupPointName': _meetupPointName, 'meetupLat': _meetupPointCoords.latitude,
+      'meetupLng': _meetupPointCoords.longitude,
+      'separationThresholdMeters': _separationThresholdMeters,
+      'chosenPandals': _chosenPandals.map((s) => s.toJson()).toList(),
+      'isHoppingActive': _isHoppingActive, 'activeStopIndex': _activeHoppingStopIndex,
+      'planRevision': _planRevision, 'shareLocation': _isSharingLocation,
+    };
+  }
+
+  Future<void> _loadMemberships() async {
+    final uid = AuthService.instance.currentUserModel?.uid;
+    _groupsSub?.cancel();
+    _groupsOwner = uid;
+    _groups.clear();
+    if (uid == null) { notifyListeners(); return; }
+    final prefs = _prefs ?? await SharedPreferences.getInstance();
+    if (_groupsOwner != uid) return;
+    final saved = prefs.getString('saved_groups_$uid');
+    if (saved != null) {
+      try {
+        final decoded = jsonDecode(saved) as Map<String, dynamic>;
+        for (final entry in decoded.entries) {
+          final data = Map<String, dynamic>.from(entry.value as Map);
+          if (data['squadCode'] is String) _groups[entry.key] = data;
+        }
+      } catch (_) { /* Old or incomplete local cache; cloud remains authoritative. */ }
+    }
+    _rememberActiveGroup();
+    _groupsSub = _repo.streamUserSquads(uid).listen((snapshot) {
+      if (_groupsOwner != uid) return;
+      final items = snapshot.groups;
+      final ids = <String>{};
+      for (final data in items) {
+        final id = data['squadId'] as String;
+        ids.add(id);
+        _groups[id] = {...?_groups[id], ..._savedGroupData(data)};
+      }
+      // Only authoritative snapshots may remove cached memberships.
+      if (!snapshot.fromCache) {
+        _groups.removeWhere((id, _) => !ids.contains(id));
+        if (_squadId != null && !ids.contains(_squadId) && !_groupOperationPending) {
+          _deactivateGroup();
+          _lastError = 'You are no longer a member of the selected group.';
+          _persistState();
+        }
+      }
+      _persistMemberships();
+      notifyListeners();
+    }, onError: (Object error) {
+      debugPrint('[SquadService] membership list error: $error');
+    });
+    notifyListeners();
+  }
+
+  Future<void> _persistMemberships() {
+    final uid = _groupsOwner ?? AuthService.instance.currentUserModel?.uid;
+    if (uid == null) return Future.value();
+    return _savePreferences({'saved_groups_$uid': jsonEncode(_groups)});
+  }
+
+  void _deactivateGroup() {
+    if (_isHoppingActive && CustomHoppingTrailService.instance.hasActiveTrail) {
+      CustomHoppingTrailService.instance.endTrail();
+    }
+    _membersSub?.cancel(); _membersSub = null;
+    _squadSub?.cancel(); _squadSub = null;
+    _squadId = null; _squadCode = null; _squadName = null;
+    _members.clear(); _chosenPandals.clear();
+    _isHoppingActive = false; _activeHoppingStopIndex = 0; _planRevision = 0;
+    _focusedMemberId = null; _activeSeparationAlert = null;
+    _syncState = SquadSyncState.unavailable;
+    _lastCloudLocationAt = null; _lastCloudLat = null; _lastCloudLng = null;
+    _lastObservedPosition = null;
+    if (_locationTrackingStarted) LocationService.instance.stopLiveTracking(callbackKey: this);
+    _locationTrackingStarted = false;
+  }
+
+  Future<void> _pauseActiveGroup() async {
+    _rememberActiveGroup();
+    if (_squadId != null && _repo.isAvailable) {
+      final user = await _ensureUser();
+      await _repo.pauseMemberSharing(_squadId!, user.uid);
+    }
+    _deactivateGroup();
+  }
+
+  void _activateGroup(Map<String, dynamic> data) {
+    _squadId = data['squadId'] as String;
+    _squadCode = data['squadCode'] as String;
+    _squadName = data['name'] as String? ?? 'Hopping Group';
+    _meetupPointName = data['meetupPointName'] as String? ?? 'Meet-up Landmark';
+    _meetupPointCoords = LatLng((data['meetupLat'] as num?)?.toDouble() ?? 22.5697,
+      (data['meetupLng'] as num?)?.toDouble() ?? 88.3533);
+    _separationThresholdMeters = (data['separationThresholdMeters'] as num?)?.toInt() ?? 500;
+    _isSharingLocation = data['shareLocation'] as bool? ?? true;
+    _initMembers(isHost: data['hostId'] == AuthService.instance.currentUserModel?.uid);
+    _applyPlanSnapshot(data);
+    _listenToCloud(); _startSquadLocationTracking();
+    _syncUserLocationToCloud(force: true);
+  }
+
+  Future<bool> switchGroup(String id) async {
+    if (id == _squadId) return true;
+    if (_groupOperationPending || _isPlanMutationPending || !_groups.containsKey(id)) return false;
+    _groupOperationPending = true; _lastError = null; notifyListeners();
+    try {
+      final user = await _ensureUser();
+      final data = _repo.isAvailable
+        ? await _repo.getSquadForMember(id, user.uid) : _groups[id];
+      if (data == null) {
+        _groups.remove(id); await _persistMemberships();
+        throw StateError('You are no longer a member of this group.');
+      }
+      final target = {...?_groups[id], ..._savedGroupData(data)};
+      await _pauseActiveGroup();
+      _activateGroup(target);
+      await _persistState();
+      return true;
+    } catch (error) {
+      _lastError = 'Could not switch groups. Check your connection and membership.';
+      return false;
+    } finally { _groupOperationPending = false; notifyListeners(); }
+  }
+
+  Future<bool> leaveGroup(String id) async {
+    if (id == _squadId) return leaveSquad();
+    if (_groupOperationPending || !_groups.containsKey(id)) return false;
+    _groupOperationPending = true; _lastError = null; notifyListeners();
+    try {
+      final user = await _ensureUser();
+      await _repo.leaveSquad(squadId: id, memberId: user.uid, memberName: user.displayName);
+      _groups.remove(id); await _persistMemberships();
+      return true;
+    } catch (_) { _lastError = 'Could not leave the group. Please try again.'; return false; }
+    finally { _groupOperationPending = false; notifyListeners(); }
+  }
 
   // Getters
   SquadFirestoreRepository get repository => _repo;
@@ -204,9 +382,9 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       LocationService.instance.pauseLiveTracking();
-    } else if (state == AppLifecycleState.resumed && hasActiveSquad) {
+    } else if (state == AppLifecycleState.resumed) {
       LocationService.instance.resumeLiveTracking();
-      if (!_locationTrackingStarted) _startSquadLocationTracking();
+      if (hasActiveSquad && !_locationTrackingStarted) _startSquadLocationTracking();
     }
   }
 
@@ -221,6 +399,10 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
 
   void _onAuthServiceChange() {
     final user = AuthService.instance.currentUserModel;
+    if (user?.uid != _groupsOwner) {
+      if (_groupsOwner != null) _deactivateGroup();
+      unawaited(_loadMemberships());
+    }
     if (user != null && hasActiveSquad) {
       final idx = _members.indexWhere((m) => m.isUser);
       if (idx != -1) {
@@ -300,11 +482,17 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _loadSavedState() async {
     try {
       final prefs = _prefs ?? await SharedPreferences.getInstance();
+      final owner = prefs.getString('saved_group_owner');
+      if (owner != null && owner != AuthService.instance.currentUserModel?.uid) {
+        await _loadMemberships();
+        return;
+      }
       final id = prefs.getString('saved_group_id');
       final code = prefs.getString('saved_group_code');
       final name = prefs.getString('saved_group_name');
       final meetup = prefs.getString('saved_meetup_point');
       final thresh = prefs.getInt('saved_separation_threshold');
+      _isSharingLocation = prefs.getBool('saved_group_share_location') ?? true;
 
       if (thresh != null && thresh > 0) {
         _separationThresholdMeters = thresh;
@@ -327,7 +515,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
         _squadCode = code;
         _squadName = name.replaceAll(RegExp(r',\s*s\b'), "'s");
         if (meetup != null) _meetupPointName = meetup;
-        _initMembers(isHost: true);
+        _initMembers(isHost: prefs.getString('saved_group_host_id') == AuthService.instance.currentUserModel?.uid);
         _listenToCloud();
         _syncUserLocationToCloud();
         _startSquadLocationTracking();
@@ -335,37 +523,28 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
     } catch (e) {
       debugPrint('[SquadService] _loadSavedState error: $e');
     }
+    await _loadMemberships();
   }
 
-  Future<void> _persistState() async {
-    try {
-      final prefs = _prefs ?? await SharedPreferences.getInstance();
-      await prefs.setInt('saved_separation_threshold', _separationThresholdMeters);
-      if (_squadCode != null) {
-        if (_squadId != null) {
-          await prefs.setString('saved_group_id', _squadId!);
-        }
-        await prefs.setString('saved_group_code', _squadCode!);
-        await prefs.setString('saved_group_name', _squadName ?? 'My Squad');
-        await prefs.setString('saved_meetup_point', _meetupPointName);
-        await prefs.setString(
-          'saved_squad_pandals',
-          jsonEncode(_chosenPandals.map((e) => e.toJson()).toList()),
-        );
-        await prefs.setBool('saved_squad_is_hopping', _isHoppingActive);
-        await prefs.setInt('saved_squad_hopping_stop', _activeHoppingStopIndex);
-      } else {
-        await prefs.remove('saved_group_id');
-        await prefs.remove('saved_group_code');
-        await prefs.remove('saved_group_name');
-        await prefs.remove('saved_meetup_point');
-        await prefs.remove('saved_squad_pandals');
-        await prefs.remove('saved_squad_is_hopping');
-        await prefs.remove('saved_squad_hopping_stop');
-      }
-    } catch (e) {
-      debugPrint('[SquadService] _persistState error: $e');
-    }
+  Future<void> _persistState() {
+    // Snapshot before awaiting storage: sign-out or switching can change fields.
+    _rememberActiveGroup();
+    final owner = AuthService.instance.currentUserModel?.uid;
+    final active = _squadCode != null;
+    return _savePreferences({
+      'saved_group_owner': owner,
+      if (owner != null) 'saved_groups_$owner': jsonEncode(_groups),
+      'saved_separation_threshold': _separationThresholdMeters,
+      'saved_group_id': _squadId,
+      'saved_group_code': _squadCode,
+      'saved_group_name': _squadName,
+      'saved_group_host_id': active ? _members.where((m) => m.isHost).firstOrNull?.id : null,
+      'saved_group_share_location': active ? _isSharingLocation : null,
+      'saved_meetup_point': active ? _meetupPointName : null,
+      'saved_squad_pandals': active ? jsonEncode(_chosenPandals.map((e) => e.toJson()).toList()) : null,
+      'saved_squad_is_hopping': active ? _isHoppingActive : null,
+      'saved_squad_hopping_stop': active ? _activeHoppingStopIndex : null,
+    });
   }
 
   /// Initialize members for the squad.
@@ -393,6 +572,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
         phoneNumber: user?.phoneNumber,
         isHost: isHost,
         isUser: true,
+        shareLocation: _isSharingLocation,
         batteryLevel: _currentBatteryLevel,
         avatarColorHex: 0xFFD32F2F, // Durga crimson
       ),
@@ -447,6 +627,38 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   /// Create a brand new hopping squad with real device GPS coordinates
   /// and sync directly to Google Cloud Firestore.
   Future<void> createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
+    await _runGroupChange(() async { await _createSquad(name, meetup, meetupCoords); });
+  }
+
+  Future<bool> _runGroupChange(Future<void> Function() action) async {
+    if (_groupOperationPending || _isPlanMutationPending) return false;
+    _groupOperationPending = true;
+    final previousId = _squadId;
+    _lastError = null;
+    notifyListeners();
+    try {
+      await _ensureUser();
+      if (_groupsOwner != AuthService.instance.currentUserModel?.uid) await _loadMemberships();
+      await _pauseActiveGroup();
+      await action();
+      if (!hasActiveSquad) {
+        if (previousId != null && _groups[previousId] != null) _activateGroup(_groups[previousId]!);
+        await _persistState();
+        return false;
+      }
+      await _persistState();
+      return true;
+    } catch (error) {
+      if (_squadId == null && previousId != null && _groups[previousId] != null) {
+        _activateGroup(_groups[previousId]!);
+      }
+      _lastError ??= 'Could not update your groups. Check your connection and try again.';
+      await _persistState();
+      return false;
+    } finally { _groupOperationPending = false; notifyListeners(); }
+  }
+
+  Future<void> _createSquad(String name, String meetup, [LatLng? meetupCoords]) async {
     _lastError = null;
     try {
       await _ensureUser();
@@ -551,6 +763,15 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Join an existing squad by invite code from Cloud Firestore
   Future<bool> joinSquad(String code, [LatLng? initialCoords]) async {
+    final cleanCode = code.trim().toUpperCase();
+    if (_squadCode == cleanCode) return true;
+    for (final group in groups) {
+      if (group.code == cleanCode) return switchGroup(group.id);
+    }
+    return _runGroupChange(() async { await _joinSquad(cleanCode, initialCoords); });
+  }
+
+  Future<bool> _joinSquad(String code, [LatLng? initialCoords]) async {
     _lastError = null;
     final cleanCode = code.trim().toUpperCase();
     if (cleanCode.isEmpty) {
@@ -702,22 +923,35 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Leave the current squad and clear members
   Future<bool> leaveSquad() async {
+    if (_groupOperationPending || _isPlanMutationPending) return false;
+    _groupOperationPending = true;
+    notifyListeners();
+    try { return await _leaveSquad(); }
+    finally { _groupOperationPending = false; notifyListeners(); }
+  }
+
+  Future<bool> _leaveSquad() async {
+    _lastError = null;
     final oldSquadId = _squadId;
-    final user = AuthService.instance.currentUserModel;
     if (oldSquadId != null && _repo.isAvailable) {
-      if (user == null) {
-        _lastError = 'Could not verify your account to leave the group.';
-        notifyListeners();
-        return false;
-      }
       try {
+        final user = await _ensureUser();
         await _repo.leaveSquad(
           squadId: oldSquadId,
           memberId: user.uid,
           memberName: user.displayName,
         );
       } catch (e) {
-        _lastError = 'Could not leave the group online. Check your connection and try again.';
+        debugPrint('[SquadService] leaveSquad error: $e');
+        _lastError = switch (e) {
+          FirebaseException(code: 'permission-denied') =>
+            'The server denied permission to leave this group. Please try signing in again.',
+          FirebaseException(code: 'unauthenticated') =>
+            'Your sign-in session has expired. Please sign in again to leave the group.',
+          FirebaseException(code: 'unavailable' || 'deadline-exceeded') =>
+            'Could not reach the group server. Check your connection and try again.',
+          _ => 'Could not leave the group. Please try again.',
+        };
         notifyListeners();
         return false;
       }
@@ -728,6 +962,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
     _squadSub?.cancel();
     _squadSub = null;
 
+    if (oldSquadId != null) _groups.remove(oldSquadId);
     _squadId = null;
     _squadCode = null;
     _squadName = null;
@@ -739,6 +974,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
     _planRevision = 0;
     _isPlanMutationPending = false;
     _locationTrackingStarted = false; // Reset tracking flag
+    _syncState = SquadSyncState.unavailable;
     _lastCloudLocationAt = null;
     _lastCloudLat = null;
     _lastCloudLng = null;
@@ -832,6 +1068,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   /// Toggle user's live location sharing
   void toggleLocationSharing(bool val) {
     _isSharingLocation = val;
+    _persistState();
     final idx = _members.indexWhere((m) => m.isUser);
     if (idx != -1) {
       _members[idx] = _members[idx].copyWith(shareLocation: val);
@@ -933,6 +1170,9 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
 
   @visibleForTesting
   void resetForTesting() {
+    _saveQueue = null;
+    _groupsSub?.cancel(); _groupsSub = null;
+    _groups.clear(); _groupsOwner = null; _groupOperationPending = false;
     enableTestMode = true;
     _batteryPollTimer?.cancel();
     _batterySub?.cancel();
@@ -973,10 +1213,12 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
     _syncState = _repo.isAvailable ? SquadSyncState.connecting : SquadSyncState.unavailable;
 
     final currentUserId = AuthService.instance.currentUserModel?.uid ?? 'user_self';
+    final listeningGroupId = _squadId;
 
     // 1. Listen to real-time member roster and live locations
     _membersSub = _repo.streamMembers(_squadId!, currentUserId: currentUserId).listen(
       (cloudMembers) {
+        if (_squadId != listeningGroupId) return;
         bool changed = false;
         final currentCompanions = cloudMembers.where((m) => !m.isUser).toList();
 
@@ -1022,10 +1264,12 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
     // 2. Listen to real-time squad metadata (Meetup, name, radius)
     _squadSub = _repo.streamSquad(_squadId!).listen(
       (squadData) {
+        if (_squadId != listeningGroupId) return;
         if (squadData == null) return;
         if (squadData['_exists'] == false) {
           if (squadData['_fromCache'] == true) return;
           _membersSub?.cancel();
+          _groups.remove(listeningGroupId);
           _squadId = null;
           _squadCode = null;
           _squadName = null;
@@ -1055,6 +1299,14 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
         }
 
         final newName = squadData['name'] as String?;
+        final selfIndex = _members.indexWhere((member) => member.isUser);
+        if (selfIndex >= 0 && squadData['hostId'] is String) {
+          final isHost = squadData['hostId'] == currentUserId;
+          if (_members[selfIndex].isHost != isHost) {
+            _members[selfIndex] = _members[selfIndex].copyWith(isHost: isHost);
+            changed = true;
+          }
+        }
         if (newName != null && newName.isNotEmpty && newName != _squadName) {
           _squadName = newName;
           changed = true;
@@ -1141,7 +1393,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
     Map<String, dynamic> Function(Map<String, dynamic>) change,
   ) async {
     if (_squadId == null) return false;
-    if (_isPlanMutationPending) return false;
+    if (_isPlanMutationPending || _groupOperationPending) return false;
     if (!_repo.isAvailable && !enableTestMode &&
         (kIsWeb || !Platform.environment.containsKey('FLUTTER_TEST'))) {
       _lastError = 'Group plan cannot sync right now. Try again when cloud sync is available.';
@@ -1402,6 +1654,7 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _groupsSub?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     LocationService.instance.removeListener(_onLocationServiceChange);
     AuthService.instance.removeListener(_onAuthServiceChange);
