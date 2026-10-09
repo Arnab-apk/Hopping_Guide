@@ -45,6 +45,12 @@ async function main() {
     await doc.create({ name: 'Temporary video verification', membersUid: [uid] });
     wroteDocument = true;
     const invoke = async headers => {
+      if (process.env.VIDEO_TEST_API_URL) {
+        const response = await fetch(`${process.env.VIDEO_TEST_API_URL}/api/squads/${squadId}/video/session`, {
+          method: 'POST', headers, signal: AbortSignal.timeout(90000),
+        });
+        return { status: response.status, data: await response.json() };
+      }
       let result;
       await handleVideoRequest({ headers }, { setHeader: () => {} }, squadId, app,
         (_, status, data) => { result = { status, data }; });

@@ -65,6 +65,7 @@ export async function handleVideoRequest(
   } catch {
     fail(401, 'AUTH_REQUIRED', 'Your sign-in expired. Sign in again.'); return;
   }
+  let phase = 'firestore-membership';
   try {
     const squad = await getFirestore(app).collection('squads').doc(squadId).get();
     const data = squad.data();
@@ -74,11 +75,15 @@ export async function handleVideoRequest(
     if (!process.env.STREAM_API_KEY || !process.env.STREAM_API_SECRET) {
       fail(503, 'VIDEO_NOT_CONFIGURED', 'Video calling is not configured on the server.'); return;
     }
+    phase = 'stream-call-type';
     await ensurePrivateCallType();
     // Firestore creation time distinguishes groups even if an invite code is reused.
     const callId = squadCallId(squadId, squad.createTime!.toMillis().toString());
+    phase = 'firebase-user';
     const user = await getAuth(app).getUser(uid);
+    phase = 'stream-user';
     await client().upsertUsers([{ id: uid, role: 'user', name: user.displayName || 'Group member' }]);
+    phase = 'stream-call';
     await client().video.call(CALL_TYPE, callId).getOrCreate({
       data: { created_by_id: uid, custom: { squad_id: squadId, title: data!.name || 'Group video call' } },
     });
@@ -87,7 +92,10 @@ export async function handleVideoRequest(
       token: client().generateCallToken({ user_id: uid, call_cids: [`${CALL_TYPE}:${callId}`], validity_in_seconds: TOKEN_TTL }),
       expiresIn: TOKEN_TTL,
     });
-  } catch {
+  } catch (error: any) {
+    const code = /^[A-Za-z0-9_./-]{1,64}$/.test(String(error?.code)) ? error.code : 'unknown';
+    const status = Number(error?.statusCode || error?.response?.status || 0);
+    console.warn(`[Video] ${phase} failed; code=${code}; status=${status}`);
     // Never expose upstream responses, tokens or credentials in logs/errors.
     fail(503, 'VIDEO_UNAVAILABLE', 'Could not connect to group calling. Please try again.');
   }
