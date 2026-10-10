@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
 import '../config/theme.dart';
@@ -169,6 +170,31 @@ const ColorFilter _kDarkMatrix = ColorFilter.matrix(<double>[
 ]);
 
 class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
+  static const _mapNamesPreference = 'map_more_place_names';
+  bool _moreMapNames = true;
+
+  Future<void> _restoreMapNamesPreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getBool(_mapNamesPreference) ?? true;
+      if (mounted && saved != _moreMapNames) {
+        setState(() => _moreMapNames = saved);
+      }
+    } catch (_) {
+      // Map rendering remains available if preferences cannot be read.
+    }
+  }
+
+  Future<void> _setMoreMapNames(bool value) async {
+    setState(() => _moreMapNames = value);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_mapNamesPreference, value);
+    } catch (_) {
+      // Keep the selected rendering mode for this session.
+    }
+  }
+
   late final MapController _mapController;
   late final PandalRepository _repo;
   final SupplementaryRepository _suppRepo = SupplementaryRepository();
@@ -425,6 +451,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    unawaited(_restoreMapNamesPreference());
     _navigation.addListener(_onNavigationChanged);
     LiveTrackingEngine.instance.onRouteRecalculated = _onRouteRecalculated;
     _positionInterpolator = PositionInterpolator();
@@ -1891,14 +1918,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             children: [
               RepaintBoundary(
                 child: TileLayer(
+                  key: ValueKey('osm_names_$_moreMapNames'),
                   urlTemplate: AppConfig.tileUrlTemplate,
+                  // Request the next native zoom at the same geographic extent.
+                  // flutter_map adjusts tile dimensions/coordinates together.
+                  retinaMode: _moreMapNames,
+                  maxNativeZoom: 19,
                   subdomains: AppConfig.osmSubdomains,
                   // 1. CRITICAL: Prevents OSM from blocking your app (Missing Blocks fix)
                   userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
 
                   // Keep a small nearby cache to avoid retaining a large tile grid.
-                  keepBuffer: 2, // Keeps nearby tiles in RAM without retaining a large grid
-                  panBuffer: 1, // Pre-loads one tile ahead of the pan direction
+                  keepBuffer: _moreMapNames ? 1 : 2,
+                  panBuffer: _moreMapNames ? 0 : 1,
                   // 4. HARDWARE ACCELERATED DARK MODE: Applies your matrix at the GPU level
                   tileBuilder: (context, tileWidget, tile) {
                     if (isDark) {
@@ -4811,139 +4843,154 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.black12,
-                      borderRadius: BorderRadius.circular(2),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white24 : Colors.black12,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Map Tools & Options',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF1744).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: PujaIcon.durgaEyes(
-                      color: const Color(0xFFFF1744),
-                      size: 28,
-                    ),
-                  ),
-                  title: Text(
-                    'Nearest Pandal Radar',
+                  const SizedBox(height: 16),
+                  Text(
+                    'Map Tools & Options',
                     style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : Colors.black87,
                     ),
                   ),
-                  subtitle: Text(
-                    'Locate & highlight closest pandal within 10km',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? Colors.white60 : Colors.black54,
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    secondary: const Icon(Icons.label_outline_rounded),
+                    title: const Text('More map names'),
+                    subtitle: const Text(
+                      'More street and landmark labels, with smaller text',
                     ),
+                    value: _moreMapNames,
+                    onChanged: (value) {
+                      Navigator.pop(ctx);
+                      unawaited(_setMoreMapNames(value));
+                    },
                   ),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _findAndHighlightNearestPandal();
-                  },
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: PujaColors.festivalGold.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF1744).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: PujaIcon.durgaEyes(
+                        color: const Color(0xFFFF1744),
+                        size: 28,
+                      ),
                     ),
-                    child: Icon(
+                    title: Text(
+                      'Nearest Pandal Radar',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Locate & highlight closest pandal within 10km',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _findAndHighlightNearestPandal();
+                    },
+                  ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: PujaColors.festivalGold.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        isDarkActive
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: PujaColors.festivalGold,
+                        size: 22,
+                      ),
+                    ),
+                    title: Text(
                       isDarkActive
-                          ? Icons.light_mode_rounded
-                          : Icons.dark_mode_rounded,
-                      color: PujaColors.festivalGold,
-                      size: 22,
+                          ? 'Switch to Light Theme'
+                          : 'Switch to Dark Theme',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
                     ),
+                    subtitle: Text(
+                      'Adjust display for daytime or night hopping',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      themeService.toggleTheme();
+                    },
                   ),
-                  title: Text(
-                    isDarkActive
-                        ? 'Switch to Light Theme'
-                        : 'Switch to Dark Theme',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2979FF).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.help_outline_rounded,
+                        color: Color(0xFF2979FF),
+                        size: 22,
+                      ),
                     ),
+                    title: Text(
+                      'App Walkthrough & Guide',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Learn map features, squad tracking, and shortcuts',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      AppTutorialDialog.show(context);
+                    },
                   ),
-                  subtitle: Text(
-                    'Adjust display for daytime or night hopping',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? Colors.white60 : Colors.black54,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    themeService.toggleTheme();
-                  },
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2979FF).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.help_outline_rounded,
-                      color: Color(0xFF2979FF),
-                      size: 22,
-                    ),
-                  ),
-                  title: Text(
-                    'App Walkthrough & Guide',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Learn map features, squad tracking, and shortcuts',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? Colors.white60 : Colors.black54,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    AppTutorialDialog.show(context);
-                  },
-                ),
-                const SizedBox(height: 8),
-              ],
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           ),
         );

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kolkata_puja/config/theme.dart';
@@ -102,6 +103,25 @@ void main() {
           await tester.pump();
           expect(tester.takeException(), isNull,
               reason: layoutErrors.map((details) => details.toString()).join('\n'));
+          if (screen.key == 'map' && display.key == 'phone' && dark) {
+            final originalCamera = MapCamera.of(tester.element(find.byType(TileLayer)));
+            await tester.tap(find.byTooltip('Map Tools & Settings'));
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 350));
+            expect(find.text('More map names'), findsOneWidget);
+            await tester.tap(find.text('More map names'));
+            await tester.runAsync(() async {
+              final prefs = await SharedPreferences.getInstance();
+              await Future<void>.delayed(Duration.zero);
+              expect(prefs.getBool('map_more_place_names'), isFalse);
+            });
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 350));
+            final switchedCamera = MapCamera.of(tester.element(find.byType(TileLayer)));
+            expect(switchedCamera.center, originalCamera.center);
+            expect(switchedCamera.zoom, originalCamera.zoom);
+            expect(tester.takeException(), isNull);
+          }
           if (const bool.fromEnvironment('CAPTURE_LAUNCH_VISUALS') && display.key == 'phone') {
             await tester.runAsync(() async {
               final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
