@@ -23,6 +23,8 @@ import '../widgets/squad_compass_overlay.dart';
 import '../widgets/squad_pandal_picker_sheet.dart';
 import '../widgets/user_profile_sheet.dart';
 import '../widgets/vote_avatar_stack.dart';
+import '../widgets/group_manager_sheet.dart';
+import '../widgets/group_video_call_button.dart';
 import 'main_navigation_screen.dart';
 import 'squad_chat_screen.dart';
 import 'squad_settings_screen.dart';
@@ -131,7 +133,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 );
                 final code = squadService.squadCode;
                 if (context.mounted) {
-                  if (code != null) {
+                  if (code != null && squadService.lastError == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: theme.colorScheme.primary,
@@ -524,6 +526,7 @@ class _GroupScreenState extends State<GroupScreen> {
         appBar: AppBar(
           title: const Text('Hopping Group'),
           actions: [
+            _groupManagerButton(context, squadService),
             IconButton(
               icon: const Icon(Icons.smart_toy_outlined),
               tooltip: 'Route assistant',
@@ -546,6 +549,7 @@ class _GroupScreenState extends State<GroupScreen> {
     final squadName = rawName.replaceAll(RegExp(r',\s*s\b'), "'s");
 
     return DefaultTabController(
+      key: ValueKey(squadService.squadId),
       length: 3,
       child: Scaffold(
         appBar: AppBar(
@@ -554,6 +558,7 @@ class _GroupScreenState extends State<GroupScreen> {
             style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           actions: [
+            _groupManagerButton(context, squadService),
             Builder(
               builder: (innerCtx) => IconButton(
                 tooltip: 'Route assistant',
@@ -596,6 +601,10 @@ class _GroupScreenState extends State<GroupScreen> {
         ),
         body: Column(
           children: [
+            GroupVideoCallButton(
+              squadId: squadService.squadId ?? '',
+              squadName: squadName,
+            ),
             if (squadService.lastError != null)
               Container(
                 width: double.infinity,
@@ -610,6 +619,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   _buildTrailTab(context, theme, isDark, squadService),
                   _buildPeopleTab(context, theme, isDark, squadService),
                   SquadChatScreen(
+                    key: ValueKey('chat_${squadService.squadId}'),
                     squadId: squadService.squadId ?? '',
                     squadName: squadName,
                     embedded: true,
@@ -624,6 +634,21 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   // --- PINNED HEADER BARS ---
+
+  Widget _groupManagerButton(BuildContext context, SquadService service) => IconButton(
+    tooltip: 'My groups', icon: const Icon(Icons.groups_outlined),
+    onPressed: () => showModalBottomSheet(
+      context: context, isScrollControlled: true, useSafeArea: true,
+      constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.85),
+      builder: (_) => ChangeNotifierProvider<SquadService>.value(
+        value: service,
+        child: GroupManagerSheet(
+          onCreate: () => _createGroup(context, service),
+          onJoin: () => _joinGroup(context, service),
+        ),
+      ),
+    ),
+  );
 
   Widget _buildGroupCodeBar(BuildContext context, SquadService squadService, bool isDark) {
     final code = squadService.squadCode ?? '';

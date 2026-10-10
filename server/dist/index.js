@@ -47,7 +47,8 @@ const db = __importStar(require("./db"));
 const handlers_1 = require("./handlers");
 const uuid_1 = require("uuid");
 const routes_1 = require("./chat/routes");
-dotenv_1.default.config();
+const video_1 = require("./video");
+dotenv_1.default.config({ path: process.env.DOTENV_CONFIG_PATH || '.env' });
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
 const manager = new squad_manager_1.SquadManager();
@@ -223,6 +224,15 @@ const server = http_1.default.createServer(async (req, res) => {
     const method = req.method || 'GET';
     try {
         // Health & Stats
+        const videoRoute = pathname.match(/^\/api\/squads\/([^/]+)\/video\/session$/);
+        if (videoRoute) {
+            if (method !== 'POST') {
+                sendHttpJson(res, 405, { error: { code: 'METHOD_NOT_ALLOWED', message: 'Use POST.' } });
+                return;
+            }
+            await (0, video_1.handleVideoRequest)(req, res, videoRoute[1], firebaseApp, sendHttpJson);
+            return;
+        }
         if (pathname === '/health') {
             sendHttpJson(res, 200, {
                 status: 'ok',

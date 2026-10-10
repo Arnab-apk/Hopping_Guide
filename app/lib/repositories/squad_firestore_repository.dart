@@ -29,6 +29,36 @@ class SquadFirestoreRepository {
 
   bool get isAvailable => _firestore != null;
 
+  /// Groups belong to the authenticated member, independently of the active map.
+  Stream<({List<Map<String, dynamic>> groups, bool fromCache})> streamUserSquads(String memberId) {
+    final fs = _firestore;
+    if (fs == null) return const Stream.empty();
+    return fs.collection('squads').where('membersUid', arrayContains: memberId)
+        .snapshots(includeMetadataChanges: true).map((snapshot) => (groups: snapshot.docs.map((doc) => {
+          ...doc.data(), 'squadId': doc.id,
+          '_fromCache': snapshot.metadata.isFromCache,
+        }).toList(), fromCache: snapshot.metadata.isFromCache));
+  }
+
+  Future<Map<String, dynamic>?> getSquadForMember(String squadId, String memberId) async {
+    final fs = _firestore;
+    if (fs == null) return null;
+    final doc = await fs.collection('squads').doc(squadId)
+        .get(const GetOptions(source: Source.server));
+    final data = doc.data();
+    if (data == null || !(data['membersUid'] as List? ?? []).contains(memberId)) {
+      return null;
+    }
+    return {...data, 'squadId': doc.id};
+  }
+
+  Future<void> pauseMemberSharing(String squadId, String memberId) async {
+    final fs = _firestore;
+    if (fs == null) return;
+    await fs.collection('squads').doc(squadId).collection('members').doc(memberId)
+        .update({'share_location': false, 'is_online': false});
+  }
+
   static final Random _rng = Random();
 
   /// Generates a human-friendly 8-character squad join code (e.g. PUJA7K9X)
@@ -200,6 +230,12 @@ class SquadFirestoreRepository {
     try {
       final squadDoc = fs.collection('squads').doc(squadId);
 
+      // Restored groups can outlive their server membership (or the group itself).
+      // Confirm against the server so an old local session can still be cleared.
+      final snapshot = await squadDoc.get(const GetOptions(source: Source.server));
+      final roster = snapshot.data()?['membersUid'];
+      if (!snapshot.exists || (roster is List && !roster.contains(memberId))) return;
+
       if (memberName != null && memberName.isNotEmpty) {
         final leaveMsg = ChatMessage(
           id: 'leave_${memberId}_${DateTime.now().millisecondsSinceEpoch}',
@@ -219,7 +255,18 @@ class SquadFirestoreRepository {
       final batch = fs.batch();
       batch.delete(squadDoc.collection('members').doc(memberId));
       batch.update(squadDoc, {'membersUid': FieldValue.arrayRemove([memberId])});
-      await batch.commit();
+      try {
+        await batch.commit();
+      } on FirebaseException catch (e) {
+        if (e.code != 'permission-denied' && e.code != 'not-found') rethrow;
+        // Another device may have already completed the same leave operation.
+        final latest = await squadDoc.get(const GetOptions(source: Source.server));
+        final latestRoster = latest.data()?['membersUid'];
+        if (latest.exists &&
+            !(latestRoster is List && !latestRoster.contains(memberId))) {
+          rethrow;
+        }
+      }
     } catch (e) {
       debugPrint('[SquadFirestoreRepository] leaveSquad error: $e');
       rethrow;

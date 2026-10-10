@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geolocator/geolocator.dart';
+
 import '../models/squad_member.dart';
 import '../services/location_service.dart';
 import '../services/squad_service.dart';
@@ -33,17 +35,17 @@ class _SquadCompassOverlayState extends State<SquadCompassOverlay>
   double _deviceHeading = 0; // 0 = North, degrees clockwise
   double? _userHeading; // GPS heading when moving
   Timer? _updateTimer;
-  
+
   late final AnimationController _pulseController;
   late final AnimationController _rotateController;
-  
+
   // Member to highlight (closest or selected)
   SquadMember? _highlightedMember;
 
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -51,12 +53,12 @@ class _SquadCompassOverlayState extends State<SquadCompassOverlay>
     if (!SquadService.enableTestMode) {
       _pulseController.repeat(reverse: true);
     }
-    
+
     _rotateController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _startCompass();
     _startPeriodicUpdate();
   }
@@ -80,7 +82,8 @@ class _SquadCompassOverlayState extends State<SquadCompassOverlay>
 
   void _updateUserHeading() {
     final pos = LocationService.instance.currentPositionSync;
-    if (pos != null && pos.speed > 1.0) { // Moving > 3.6 km/h
+    if (pos != null && pos.speed > 1.0) {
+      // Moving > 3.6 km/h
       setState(() {
         _userHeading = pos.heading;
       });
@@ -97,10 +100,12 @@ class _SquadCompassOverlayState extends State<SquadCompassOverlay>
     for (final member in widget.squadMembers) {
       if (!member.shareLocation || !member.isOnline) continue;
       if (member.latitude == 0 && member.longitude == 0) continue;
-      
+
       final dist = haversineMeters(
-        userPos.latitude, userPos.longitude,
-        member.latitude, member.longitude,
+        userPos.latitude,
+        userPos.longitude,
+        member.latitude,
+        member.longitude,
       );
       if (dist < minDist) {
         minDist = dist;
@@ -133,7 +138,13 @@ class _SquadCompassOverlayState extends State<SquadCompassOverlay>
   @override
   Widget build(BuildContext context) {
     final visibleMembers = widget.squadMembers
-        .where((m) => m.shareLocation && m.isOnline && m.latitude != 0 && m.longitude != 0)
+        .where(
+          (m) =>
+              m.shareLocation &&
+              m.isOnline &&
+              m.latitude != 0 &&
+              m.longitude != 0,
+        )
         .toList();
 
     if (visibleMembers.isEmpty) {
@@ -224,12 +235,17 @@ class _CompassPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
       );
-      
+
       for (int i = 0; i < 4; i++) {
         final dir = ['N', 'E', 'S', 'W'][i];
         final angle = (i * 90 - deviceHeading) * math.pi / 180;
-        final pos = center + Offset(math.cos(angle) * (radius + 22), math.sin(angle) * (radius + 22));
-        
+        final pos =
+            center +
+            Offset(
+              math.cos(angle) * (radius + 22),
+              math.sin(angle) * (radius + 22),
+            );
+
         textPainter.text = TextSpan(
           text: dir,
           style: const TextStyle(
@@ -240,44 +256,65 @@ class _CompassPainter extends CustomPainter {
           ),
         );
         textPainter.layout();
-        textPainter.paint(canvas, pos - Offset(textPainter.width / 2, textPainter.height / 2));
+        textPainter.paint(
+          canvas,
+          pos - Offset(textPainter.width / 2, textPainter.height / 2),
+        );
       }
     }
   }
 
-  void _drawMemberIndicator(Canvas canvas, Offset center, double radius, SquadMember member) {
+  void _drawMemberIndicator(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    SquadMember member,
+  ) {
     final userPos = LocationService.instance.currentPositionSync;
     if (userPos == null) return;
 
     final bearing = Geolocator.bearingBetween(
-      userPos.latitude, userPos.longitude,
-      member.latitude, member.longitude,
+      userPos.latitude,
+      userPos.longitude,
+      member.latitude,
+      member.longitude,
     );
-    
+
     final dist = haversineMeters(
-      userPos.latitude, userPos.longitude,
-      member.latitude, member.longitude,
+      userPos.latitude,
+      userPos.longitude,
+      member.latitude,
+      member.longitude,
     );
 
     // Angle relative to device heading (0 = straight ahead)
     final relativeAngle = (bearing - deviceHeading) * math.pi / 180;
-    
+
     final isHighlighted = highlightedMember?.id == member.id;
-    final pulse = isHighlighted ? (1 + 0.3 * math.sin(pulseValue * 2 * math.pi)) : 1.0;
+    final pulse = isHighlighted
+        ? (1 + 0.3 * math.sin(pulseValue * 2 * math.pi))
+        : 1.0;
 
     // Distance-based radius (closer = inner ring, farther = outer ring)
     double indicatorRadius;
-    if (dist < 100) indicatorRadius = radius * 0.3;
-    else if (dist < 300) indicatorRadius = radius * 0.5;
-    else if (dist < 800) indicatorRadius = radius * 0.7;
-    else indicatorRadius = radius * 0.95;
+    if (dist < 100) {
+      indicatorRadius = radius * 0.3;
+    } else if (dist < 300) {
+      indicatorRadius = radius * 0.5;
+    } else if (dist < 800) {
+      indicatorRadius = radius * 0.7;
+    } else {
+      indicatorRadius = radius * 0.95;
+    }
 
     indicatorRadius *= pulse;
 
-    final indicatorCenter = center + Offset(
-      math.cos(relativeAngle) * indicatorRadius,
-      math.sin(relativeAngle) * indicatorRadius,
-    );
+    final indicatorCenter =
+        center +
+        Offset(
+          math.cos(relativeAngle) * indicatorRadius,
+          math.sin(relativeAngle) * indicatorRadius,
+        );
 
     // Draw line from center to indicator
     final linePaint = Paint()
@@ -313,7 +350,10 @@ class _CompassPainter extends CustomPainter {
       ),
     );
     textPainter.layout();
-    textPainter.paint(canvas, indicatorCenter - Offset(textPainter.width / 2, textPainter.height / 2));
+    textPainter.paint(
+      canvas,
+      indicatorCenter - Offset(textPainter.width / 2, textPainter.height / 2),
+    );
 
     // Distance label (outside ring)
     if (!compact) {
@@ -332,17 +372,24 @@ class _CompassPainter extends CustomPainter {
         ),
       );
       labelPainter.layout();
-      
-      final labelPos = indicatorCenter + Offset(
-        math.cos(relativeAngle) * 18,
-        math.sin(relativeAngle) * 18,
+
+      final labelPos =
+          indicatorCenter +
+          Offset(math.cos(relativeAngle) * 18, math.sin(relativeAngle) * 18);
+      labelPainter.paint(
+        canvas,
+        labelPos - Offset(labelPainter.width / 2, labelPainter.height / 2),
       );
-      labelPainter.paint(canvas, labelPos - Offset(labelPainter.width / 2, labelPainter.height / 2));
     }
 
     // Battery indicator (tiny)
     if (!compact) {
-      _drawBatteryIndicator(canvas, indicatorCenter, avatarRadius + 8, member.batteryLevel);
+      _drawBatteryIndicator(
+        canvas,
+        indicatorCenter,
+        avatarRadius + 8,
+        member.batteryLevel,
+      );
     }
   }
 
@@ -350,7 +397,8 @@ class _CompassPainter extends CustomPainter {
     // Pulsing center dot
     final pulseRadius = 8 + 4 * math.sin(pulseValue * 2 * math.pi);
     final paint = Paint()
-      ..color = const Color(0xFFFFD700) // Festival Gold
+      ..color =
+          const Color(0xFFFFD700) // Festival Gold
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, pulseRadius, paint);
 
@@ -359,7 +407,12 @@ class _CompassPainter extends CustomPainter {
     canvas.drawCircle(center, 3, whitePaint);
   }
 
-  void _drawBatteryIndicator(Canvas canvas, Offset center, double radius, int batteryLevel) {
+  void _drawBatteryIndicator(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    int batteryLevel,
+  ) {
     final paint = Paint()
       ..color = batteryLevel > 20 ? Colors.green : Colors.red
       ..style = PaintingStyle.fill;
@@ -435,7 +488,7 @@ class _SquadCompassButtonState extends State<SquadCompassButton>
     if (!SquadService.enableTestMode) {
       _pulseController.repeat(reverse: true);
     }
-    
+
     _compassSub = FlutterCompass.events?.listen((event) {
       if (event.heading != null && !event.heading!.isNaN) {
         setState(() => _deviceHeading = event.heading!);
@@ -454,8 +507,10 @@ class _SquadCompassButtonState extends State<SquadCompassButton>
     for (final m in widget.squadMembers) {
       if (!m.shareLocation || !m.isOnline) continue;
       final dist = haversineMeters(
-        userPos.latitude, userPos.longitude,
-        m.latitude, m.longitude,
+        userPos.latitude,
+        userPos.longitude,
+        m.latitude,
+        m.longitude,
       );
       if (dist < minDist) {
         minDist = dist;
@@ -486,12 +541,16 @@ class _SquadCompassButtonState extends State<SquadCompassButton>
 
     final userPos = LocationService.instance.currentPositionSync!;
     final bearing = Geolocator.bearingBetween(
-      userPos.latitude, userPos.longitude,
-      _closestMember!.latitude, _closestMember!.longitude,
+      userPos.latitude,
+      userPos.longitude,
+      _closestMember!.latitude,
+      _closestMember!.longitude,
     );
     final dist = haversineMeters(
-      userPos.latitude, userPos.longitude,
-      _closestMember!.latitude, _closestMember!.longitude,
+      userPos.latitude,
+      userPos.longitude,
+      _closestMember!.latitude,
+      _closestMember!.longitude,
     );
     final relativeAngle = bearing - _deviceHeading;
 
@@ -519,7 +578,11 @@ class _SquadCompassButtonState extends State<SquadCompassButton>
               backgroundColor: _getMemberColor(_closestMember!),
               child: Text(
                 _getInitials(_closestMember!.name),
-                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             // Distance badge
@@ -527,14 +590,21 @@ class _SquadCompassButtonState extends State<SquadCompassButton>
               Positioned(
                 bottom: -4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     _formatDistance(dist),
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -590,12 +660,19 @@ class _CompassButtonPainter extends CustomPainter {
     final indicatorPaint = Paint()
       ..color = memberColor
       ..style = PaintingStyle.fill;
-    
-    final tip = center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
-    final base1 = center + Offset(math.cos(angle + 2.5) * 10, math.sin(angle + 2.5) * 10);
-    final base2 = center + Offset(math.cos(angle - 2.5) * 10, math.sin(angle - 2.5) * 10);
-    
-    final path = ui.Path()..moveTo(tip.dx, tip.dy)..lineTo(base1.dx, base1.dy)..lineTo(base2.dx, base2.dy)..close();
+
+    final tip =
+        center + Offset(math.cos(angle) * radius, math.sin(angle) * radius);
+    final base1 =
+        center + Offset(math.cos(angle + 2.5) * 10, math.sin(angle + 2.5) * 10);
+    final base2 =
+        center + Offset(math.cos(angle - 2.5) * 10, math.sin(angle - 2.5) * 10);
+
+    final path = ui.Path()
+      ..moveTo(tip.dx, tip.dy)
+      ..lineTo(base1.dx, base1.dy)
+      ..lineTo(base2.dx, base2.dy)
+      ..close();
     canvas.drawPath(path, indicatorPaint);
 
     // Pulse ring when aligned (within 15 degrees)

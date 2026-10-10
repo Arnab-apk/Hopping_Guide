@@ -1,0 +1,8 @@
+{
+  "id": "srv-db4m33psrm7s7387ri80",
+  "name": "uma-group-calling",
+  "url": "https://uma-group-calling.onrender.com",
+  "plan": "free",
+  "dashboardUrl": "https://dashboard.render.com/web/srv-db4m33psrm7s7387ri80",
+  "branch": "deploy/stream-group-video"
+}

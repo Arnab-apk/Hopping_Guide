@@ -1,6 +1,7 @@
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
@@ -15,8 +16,10 @@ import 'services/notification_progress_service.dart';
 import 'services/offline_map_service.dart';
 import 'services/pandal_user_state_service.dart';
 import 'services/squad_service.dart';
+import 'services/smart_notification_service.dart';
 import 'services/theme_service.dart';
 import 'services/voice_navigation_service.dart';
+import 'utils/app_deep_link.dart';
 
 import 'package:magiclane_maps_flutter/magiclane_maps_flutter.dart';
 
@@ -28,6 +31,7 @@ Uri? _pendingDeepLink;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Initialize Magic Lane GemKit SDK (if available and configured)
   await _initializeGemKit();
@@ -49,11 +53,12 @@ void main() async {
   final userStateService = await PandalUserStateService.create();
   final themeService = await ThemeService.create();
   final squadService = await SquadService.create();
-  final locationService = LocationService();
+  final locationService = LocationService.instance;
   final trailService = CustomHoppingTrailService.instance..attachUserStateService(userStateService);
 
   // Initialize notifications
-  NotificationProgressService.instance.initialize();
+  await NotificationProgressService.instance.initialize();
+  await SmartNotificationService.instance.initialize();
 
   // Proactively fetch device location if permitted
   locationService.updateLiveLocation();
@@ -83,6 +88,10 @@ void main() async {
 
   // Flush any pending cold-start deep link once initial frame is rendered
   WidgetsBinding.instance.addPostFrameCallback((_) {
+    SmartNotificationService.instance.onNavigateToTab = (index) {
+      MainNavigationScreen.switchToTab(index);
+    };
+    SmartNotificationService.instance.handlePendingTap();
     _processPendingDeepLink(squadService);
   });
 }
@@ -123,6 +132,11 @@ DateTime? _lastHandledTime;
 
 /// Process incoming deep link URI and execute appropriate flow
 Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
+  if (!AppDeepLink.isSupported(uri)) return;
+  if (rootNavigatorKey.currentState == null) {
+    _pendingDeepLink = uri;
+    return;
+  }
   final uriString = uri.toString();
   final now = DateTime.now();
   if (_lastHandledUri == uriString &&
@@ -186,7 +200,9 @@ Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    success ? 'Joined Group $squadCode!' : 'Group $squadCode ready!',
+                    success
+                        ? 'Joined Group $squadCode!'
+                        : (squadService.lastError ?? 'Could not join Group $squadCode. Please try again.'),
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ),

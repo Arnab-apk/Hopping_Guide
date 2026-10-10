@@ -1,23 +1,35 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../models/squad_member.dart';
 import '../services/squad_service.dart';
 import '../services/live_tracking_enhancements.dart';
 
 /// Smart notification service for arrival, separation, battery, and route alerts
 class SmartNotificationService {
-  SmartNotificationService._();
-  static final SmartNotificationService instance = SmartNotificationService._();
+  SmartNotificationService({
+    FlutterLocalNotificationsPlugin? notifications,
+    SquadService? squad,
+    LiveTrackingEngine? tracking,
+  }) : _notifications = notifications ?? FlutterLocalNotificationsPlugin(),
+       _squad = squad ?? SquadService.instance,
+       _tracking = tracking ?? LiveTrackingEngine.instance;
+  static final SmartNotificationService instance = SmartNotificationService();
 
-  final FlutterLocalNotificationsPlugin _notifications =
-      FlutterLocalNotificationsPlugin();
-  final SquadService _squad = SquadService.instance;
-  final LiveTrackingEngine _tracking = LiveTrackingEngine.instance;
+  final FlutterLocalNotificationsPlugin _notifications;
+  final SquadService _squad;
+  final LiveTrackingEngine _tracking;
 
   bool _initialized = false;
   Timer? _batteryCheckTimer;
   Timer? _separationCheckTimer;
+  String? _notifiedSeparatedMember;
+  bool _lowBatteryNotified = false;
+  int? _lastEtaMinutes;
+  Future<void>? _initialization;
+  void Function(int tabIndex)? onNavigateToTab;
+  NotificationResponse? _pendingTap;
+
+  bool get isInitialized => _initialized;
 
   static const String _channelId = 'puja_smart_alerts';
   static const String _channelName = 'Puja Smart Alerts';
@@ -27,9 +39,25 @@ class SmartNotificationService {
   /// Initialize notification channels and listeners
   Future<void> initialize() async {
     if (_initialized) return;
+    final pending = _initialization;
+    if (pending != null) return pending;
+    final initialization = _initialize();
+    _initialization = initialization;
+    try {
+      await initialization;
+    } finally {
+      _initialization = null;
+    }
+  }
+
+  Future<void> _initialize() async {
+    if (kIsWeb || (defaultTargetPlatform != TargetPlatform.android &&
+        defaultTargetPlatform != TargetPlatform.iOS)) {
+      return;
+    }
 
     try {
-      const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidInit = AndroidInitializationSettings('ic_notification');
       const iosInit = DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -53,15 +81,22 @@ class SmartNotificationService {
                 playSound: true,
               ));
 
+      await _notifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+
       _initialized = true;
+      final launch = await _notifications.getNotificationAppLaunchDetails();
+      if (launch?.didNotificationLaunchApp == true) {
+        _pendingTap = launch?.notificationResponse;
+      }
       _attachListeners();
       _startPeriodicChecks();
 
       debugPrint('[SmartNotifications] ✅ Initialized');
     } catch (e) {
       // In test environment, platform implementations may not be available
-      debugPrint('[SmartNotifications] Init skipped in test env: $e');
-      _initialized = true; // Mark as initialized to avoid repeated attempts
+      debugPrint('[SmartNotifications] Initialization failed: $e');
     }
   }
 
@@ -92,6 +127,7 @@ class SmartNotificationService {
   // --- Alert Handlers ---
 
   void _onArrival(ArrivalAlert alert) {
+    _lastEtaMinutes = null;
     _showNotification(
       id: 100,
       title: '🎉 Arrived!',
@@ -115,13 +151,34 @@ class SmartNotificationService {
   }
 
   void _onEtaSignificantChange(LiveWalkingMetrics metrics) {
-    // Notify on significant ETA changes (> 5 min difference)
-    // Could be implemented with previous ETA tracking
+    final eta = metrics.etaToDestination?.inMinutes;
+    if (eta == null) {
+      _lastEtaMinutes = null;
+      return;
+    }
+    final previous = _lastEtaMinutes;
+    if (previous == null) {
+      _lastEtaMinutes = eta;
+    } else if ((eta - previous).abs() >= 5) {
+      _lastEtaMinutes = eta;
+      _showNotification(
+        id: 104,
+        title: 'Walking ETA updated',
+        body: 'Your destination is now about $eta minutes away.',
+        payload: 'eta:$eta',
+        priority: Priority.defaultPriority,
+      );
+    }
   }
 
   void _checkSquadSeparation() {
     final alert = _squad.activeSeparationAlert;
-    if (alert != null && !alert.isCleared) {
+    if (alert == null || alert.isCleared) {
+      _notifiedSeparatedMember = null;
+      return;
+    }
+    if (_notifiedSeparatedMember == alert.memberId) return;
+    _notifiedSeparatedMember = alert.memberId;
       _showNotification(
         id: 102,
         title: '👥 Squad Separation',
@@ -130,32 +187,20 @@ class SmartNotificationService {
         payload: 'separation:${alert.memberId}',
         priority: Priority.max,
       );
-    }
   }
 
-  void _checkBatteryLevel() {
-    final userMember = _squad.members.firstWhere(
-      (m) => m.isUser,
-      orElse: () => SquadMember(
-        id: 'user',
-        name: 'You',
-        latitude: 0,
-        longitude: 0,
-        status: '',
-        lastSeen: DateTime.now(),
-        isUser: true,
-        batteryLevel: 100,
-        avatarColorHex: 0xFFD32F2F,
-      ),
-    );
-
-    if (userMember.batteryLevel <= 20 && userMember.batteryLevel > 0) {
+  Future<void> _checkBatteryLevel() async {
+    final level = await _squad.refreshBatteryLevel();
+    if (!_initialized) return;
+    if (level > 20) _lowBatteryNotified = false;
+    if (level <= 20 && level >= 0 && !_lowBatteryNotified) {
+      _lowBatteryNotified = true;
       _showNotification(
         id: 103,
         title: '🔋 Low Battery',
         body:
-            'Your battery is at ${userMember.batteryLevel}%. Consider enabling battery saver mode.',
-        payload: 'battery:${userMember.batteryLevel}',
+            'Your battery is at $level%. Consider enabling battery saver mode.',
+        payload: 'battery:$level',
         priority: Priority.defaultPriority,
       );
     }
@@ -170,7 +215,9 @@ class SmartNotificationService {
     required String payload,
     required Priority priority,
   }) async {
-    await _notifications.show(
+    if (!_initialized) return;
+    try {
+      await _notifications.show(
       id,
       title,
       body,
@@ -181,11 +228,11 @@ class SmartNotificationService {
           channelDescription: _channelDesc,
           importance: Importance.high,
           priority: priority,
-          icon: '@mipmap/ic_launcher',
+          icon: 'ic_notification',
           enableVibration: true,
           playSound: true,
           category: AndroidNotificationCategory.alarm,
-          visibility: NotificationVisibility.public,
+          visibility: NotificationVisibility.private,
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
@@ -196,6 +243,9 @@ class SmartNotificationService {
       ),
       payload: payload,
     );
+    } catch (e) {
+      debugPrint('[SmartNotifications] Could not show alert: $e');
+    }
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -207,7 +257,17 @@ class SmartNotificationService {
       final memberId = payload.split(':')[1];
       _squad.focusMember(memberId);
     }
-    // Add more handlers as needed
+    if (onNavigateToTab == null) {
+      _pendingTap = response;
+    } else {
+      onNavigateToTab!(payload.startsWith('separation:') ? 3 : 0);
+    }
+  }
+
+  void handlePendingTap() {
+    final response = _pendingTap;
+    _pendingTap = null;
+    if (response != null) _onNotificationTap(response);
   }
 
   String _formatDistance(int meters) {
@@ -221,6 +281,7 @@ class SmartNotificationService {
     required String body,
     String? payload,
   }) async {
+    await initialize();
     await _showNotification(
       id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title: title,
@@ -237,5 +298,9 @@ class SmartNotificationService {
     _tracking.onArrivalAlert = null;
     _tracking.onDeviationAlert = null;
     _tracking.onEtaUpdate = null;
+    _initialized = false;
+    _notifiedSeparatedMember = null;
+    _lowBatteryNotified = false;
+    _lastEtaMinutes = null;
   }
 }

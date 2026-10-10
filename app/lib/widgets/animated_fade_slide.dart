@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 /// Reusable staggered entrance animation widget that smoothly fades and slides
@@ -28,6 +29,7 @@ class _AnimatedFadeSlideState extends State<AnimatedFadeSlide>
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
   bool _started = false;
+  Timer? _delayTimer;
 
   @override
   void initState() {
@@ -49,7 +51,7 @@ class _AnimatedFadeSlideState extends State<AnimatedFadeSlide>
       _started = true;
       _controller.forward();
     } else {
-      Future.delayed(widget.delay, () {
+      _delayTimer = Timer(widget.delay, () {
         if (mounted) {
           setState(() => _started = true);
           _controller.forward();
@@ -60,12 +62,14 @@ class _AnimatedFadeSlideState extends State<AnimatedFadeSlide>
 
   @override
   void dispose() {
+    _delayTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return widget.child;
     if (!_started && widget.delay > Duration.zero) {
       return Visibility(
         visible: false,

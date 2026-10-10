@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+
 import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../models/toilet.dart';
@@ -39,7 +40,8 @@ class PandalDetailSheet extends StatelessWidget {
   void _sharePandal() {
     SharePlus.instance.share(
       ShareParams(
-        text: '🌟 Explore ${pandal.name} (${pandal.zone.label}) during Durga Puja 2026!\n'
+        text:
+            '🌟 Explore ${pandal.name} (${pandal.zone.label}) during Durga Puja 2026!\n'
             '📍 Location: https://maps.google.com/?q=${pandal.latitude},${pandal.longitude}\n'
             '🚇 Nearest Metro: ${pandal.nearestMetro ?? "Available on Map"}\n'
             'Discovered via Uma App.',
@@ -114,12 +116,19 @@ class PandalDetailSheet extends StatelessWidget {
                       children: [
                         // Zone Tag
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 3.5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.5,
+                            vertical: 3.5,
+                          ),
                           decoration: BoxDecoration(
-                            color: PujaColors.durgaRed.withValues(alpha: isDark ? 0.22 : 0.08),
+                            color: PujaColors.durgaRed.withValues(
+                              alpha: isDark ? 0.22 : 0.08,
+                            ),
                             borderRadius: BorderRadius.circular(7),
                             border: Border.all(
-                              color: PujaColors.durgaRed.withValues(alpha: isDark ? 0.35 : 0.20),
+                              color: PujaColors.durgaRed.withValues(
+                                alpha: isDark ? 0.35 : 0.20,
+                              ),
                               width: 0.8,
                             ),
                           ),
@@ -141,7 +150,9 @@ class PandalDetailSheet extends StatelessWidget {
                           isDark: isDark,
                           onTap: () {
                             HapticFeedback.selectionClick();
-                            context.read<PandalUserStateService?>()?.toggleFavorite(pandal.id);
+                            context
+                                .read<PandalUserStateService?>()
+                                ?.toggleFavorite(pandal.id);
                           },
                           child: AnimatedScale(
                             scale: isFav ? 1.2 : 1.0,
@@ -154,7 +165,9 @@ class PandalDetailSheet extends StatelessWidget {
                                   )
                                 : Icon(
                                     Icons.bookmark_border_rounded,
-                                    color: isDark ? Colors.white70 : Colors.black54,
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.black54,
                                     size: 24,
                                   ),
                           ),
@@ -222,12 +235,16 @@ class PandalDetailSheet extends StatelessWidget {
                         if (distanceLabel != null) ...[
                           if (pandal.area != null && pandal.area!.isNotEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                              ),
                               child: Text(
                                 '•',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: isDark ? Colors.white38 : Colors.black38,
+                                  color: isDark
+                                      ? Colors.white38
+                                      : Colors.black38,
                                 ),
                               ),
                             ),
@@ -253,9 +270,14 @@ class PandalDetailSheet extends StatelessWidget {
 
                     // Consolidated Quick Stats Bar (Rating, Hours, Entry)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8.5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8.5,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1D1D20) : const Color(0xFFF7F7F9),
+                        color: isDark
+                            ? const Color(0xFF1D1D20)
+                            : const Color(0xFFF7F7F9),
                         borderRadius: BorderRadius.circular(13),
                         border: Border.all(
                           color: isDark
@@ -284,20 +306,25 @@ class PandalDetailSheet extends StatelessWidget {
                             flex: 4,
                             child: _buildStatItem(
                               icon: Icons.schedule_rounded,
-                              iconColor: isDark ? Colors.white54 : Colors.black45,
+                              iconColor: isDark
+                                  ? Colors.white54
+                                  : Colors.black45,
                               value: _formatTimings(pandal.timings),
                               label: 'Visiting Hours',
                               isDark: isDark,
                               context: context,
                             ),
                           ),
-                          if (pandal.entryFee != null && pandal.entryFee!.isNotEmpty) ...[
+                          if (pandal.entryFee != null &&
+                              pandal.entryFee!.isNotEmpty) ...[
                             _buildStatDivider(isDark),
                             Expanded(
                               flex: 3,
                               child: _buildStatItem(
                                 icon: Icons.confirmation_number_outlined,
-                                iconColor: isDark ? Colors.white54 : Colors.black45,
+                                iconColor: isDark
+                                    ? Colors.white54
+                                    : Colors.black45,
                                 value: pandal.entryFee!,
                                 label: 'Entry',
                                 isDark: isDark,
@@ -321,7 +348,8 @@ class PandalDetailSheet extends StatelessWidget {
                           final state = context.read<PandalUserStateService?>();
                           await state?.toggleVisited(pandal.id);
                           if (context.mounted) {
-                            final nowVisited = state?.isVisited(pandal.id) ?? false;
+                            final nowVisited =
+                                state?.isVisited(pandal.id) ?? false;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -341,8 +369,12 @@ class PandalDetailSheet extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
                             color: isVis
-                                ? (isDark ? Colors.green.withValues(alpha: 0.16) : const Color(0xFFE8F5E9))
-                                : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF5F5F7)),
+                                ? (isDark
+                                      ? Colors.green.withValues(alpha: 0.16)
+                                      : const Color(0xFFE8F5E9))
+                                : (isDark
+                                      ? Colors.white.withValues(alpha: 0.05)
+                                      : const Color(0xFFF5F5F7)),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isVis
@@ -355,21 +387,34 @@ class PandalDetailSheet extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               isVis
-                                  ? PujaIcon.shankha(size: 22, color: Colors.green)
+                                  ? PujaIcon.shankha(
+                                      size: 22,
+                                      color: Colors.green,
+                                    )
                                   : Icon(
                                       Icons.radio_button_unchecked_rounded,
-                                      color: (isDark ? Colors.white54 : Colors.black45),
+                                      color: (isDark
+                                          ? Colors.white54
+                                          : Colors.black45),
                                       size: 20,
                                     ),
                               const SizedBox(width: 7),
                               Text(
-                                isVis ? 'Visited & Hopped! (Tap to unmark)' : 'Mark as Visited / Hopped',
+                                isVis
+                                    ? 'Visited & Hopped! (Tap to unmark)'
+                                    : 'Mark as Visited / Hopped',
                                 style: TextStyle(
                                   fontSize: context.dynamicFont(12.5),
-                                  fontWeight: isVis ? FontWeight.w700 : FontWeight.w600,
+                                  fontWeight: isVis
+                                      ? FontWeight.w700
+                                      : FontWeight.w600,
                                   color: isVis
-                                      ? (isDark ? Colors.greenAccent : const Color(0xFF2E7D32))
-                                      : (isDark ? Colors.white70 : Colors.black87),
+                                      ? (isDark
+                                            ? Colors.greenAccent
+                                            : const Color(0xFF2E7D32))
+                                      : (isDark
+                                            ? Colors.white70
+                                            : Colors.black87),
                                 ),
                               ),
                             ],
@@ -410,7 +455,8 @@ class PandalDetailSheet extends StatelessWidget {
                         color: isDark ? Colors.white : Colors.black87,
                       ),
                     ),
-                    if (pandal.description.isNotEmpty && pandal.description != pandal.theme) ...[
+                    if (pandal.description.isNotEmpty &&
+                        pandal.description != pandal.theme) ...[
                       const SizedBox(height: 4),
                       Text(
                         pandal.description,
@@ -447,9 +493,14 @@ class PandalDetailSheet extends StatelessWidget {
                     const SizedBox(height: 8),
 
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1A1A1C) : const Color(0xFFF8F8FA),
+                        color: isDark
+                            ? const Color(0xFF1A1A1C)
+                            : const Color(0xFFF8F8FA),
                         borderRadius: BorderRadius.circular(13),
                         border: Border.all(
                           color: isDark
@@ -460,7 +511,8 @@ class PandalDetailSheet extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          if (pandal.nearestMetro != null && pandal.nearestMetro!.isNotEmpty) ...[
+                          if (pandal.nearestMetro != null &&
+                              pandal.nearestMetro!.isNotEmpty) ...[
                             _buildTransitRow(
                               context: context,
                               icon: Icons.directions_subway_rounded,
@@ -470,8 +522,10 @@ class PandalDetailSheet extends StatelessWidget {
                               isDark: isDark,
                             ),
                           ],
-                          if (pandal.circularRailway != null && pandal.circularRailway!.isNotEmpty) ...[
-                            if (pandal.nearestMetro != null && pandal.nearestMetro!.isNotEmpty)
+                          if (pandal.circularRailway != null &&
+                              pandal.circularRailway!.isNotEmpty) ...[
+                            if (pandal.nearestMetro != null &&
+                                pandal.nearestMetro!.isNotEmpty)
                               _buildTransitRowDivider(isDark),
                             _buildTransitRow(
                               context: context,
@@ -482,14 +536,16 @@ class PandalDetailSheet extends StatelessWidget {
                               isDark: isDark,
                             ),
                           ],
-                          if (pandal.nearestMetro != null || pandal.circularRailway != null)
+                          if (pandal.nearestMetro != null ||
+                              pandal.circularRailway != null)
                             _buildTransitRowDivider(isDark),
                           _buildTransitRow(
                             context: context,
                             icon: Icons.place_outlined,
                             iconColor: PujaColors.durgaRed,
                             label: 'GPS Coordinates',
-                            value: '${pandal.latitude.toStringAsFixed(4)}, ${pandal.longitude.toStringAsFixed(4)}',
+                            value:
+                                '${pandal.latitude.toStringAsFixed(4)}, ${pandal.longitude.toStringAsFixed(4)}',
                             isDark: isDark,
                             trailing: Icon(
                               Icons.copy_rounded,
@@ -497,13 +553,18 @@ class PandalDetailSheet extends StatelessWidget {
                               color: isDark ? Colors.white38 : Colors.black38,
                             ),
                             onTap: () {
-                              Clipboard.setData(ClipboardData(
-                                text: '${pandal.latitude}, ${pandal.longitude}',
-                              ));
+                              Clipboard.setData(
+                                ClipboardData(
+                                  text:
+                                      '${pandal.latitude}, ${pandal.longitude}',
+                                ),
+                              );
                               HapticFeedback.lightImpact();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('Coordinates copied to clipboard'),
+                                  content: Text(
+                                    'Coordinates copied to clipboard',
+                                  ),
                                   duration: Duration(seconds: 1),
                                   behavior: SnackBarBehavior.floating,
                                 ),
@@ -540,7 +601,8 @@ class PandalDetailSheet extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFC62828).withValues(alpha: 0.30),
+                            color: const Color(0xFFC62828)
+                                .withValues(alpha: 0.30),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -609,7 +671,9 @@ class PandalDetailSheet extends StatelessWidget {
                   ? Colors.white.withValues(alpha: 0.08)
                   : Colors.black.withValues(alpha: 0.05),
               border: Border.all(
-                color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                color: isDark
+                    ? Colors.white10
+                    : Colors.black.withValues(alpha: 0.06),
                 width: 0.8,
               ),
             ),
@@ -705,9 +769,7 @@ class PandalDetailSheet extends StatelessWidget {
               color: iconColor.withValues(alpha: isDark ? 0.20 : 0.12),
               shape: BoxShape.circle,
             ),
-            child: Center(
-              child: Icon(icon, size: 14, color: iconColor),
-            ),
+            child: Center(child: Icon(icon, size: 14, color: iconColor)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -735,10 +797,7 @@ class PandalDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[
-            const SizedBox(width: 6),
-            trailing,
-          ],
+          if (trailing != null) ...[const SizedBox(width: 6), trailing],
         ],
       ),
     );
@@ -780,7 +839,8 @@ class PandalDetailSheet extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final isSameFacility = male != null &&
+        final isSameFacility =
+            male != null &&
             female != null &&
             (male.id == female.id ||
                 (male.name == female.name && male.distM == female.distM));
@@ -793,7 +853,9 @@ class PandalDetailSheet extends StatelessWidget {
             color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+              color: isDark
+                  ? Colors.white10
+                  : Colors.black.withValues(alpha: 0.06),
               width: 0.9,
             ),
           ),
@@ -967,9 +1029,7 @@ class PandalDetailSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF252A36) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: genderColor.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: genderColor.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -1068,7 +1128,9 @@ class PandalDetailSheet extends StatelessWidget {
               color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                color: isDark
+                    ? Colors.white10
+                    : Colors.black.withValues(alpha: 0.06),
                 width: 0.9,
               ),
             ),
@@ -1109,13 +1171,24 @@ class PandalDetailSheet extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _reportQueueWait(context),
-                        icon: const Icon(Icons.add_circle_outline_rounded, size: 16),
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 16,
+                        ),
                         label: const Text('Report Wait Time'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          foregroundColor: isDark ? Colors.amber : Colors.orange.shade800,
-                          side: BorderSide(color: isDark ? Colors.amber : Colors.orange.shade800),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          foregroundColor: isDark
+                              ? Colors.amber
+                              : Colors.orange.shade800,
+                          side: BorderSide(
+                            color: isDark
+                                ? Colors.amber
+                                : Colors.orange.shade800,
+                          ),
                         ),
                       ),
                     ),
@@ -1127,7 +1200,9 @@ class PandalDetailSheet extends StatelessWidget {
                         label: const Text('How this works'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       ),
                     ),
@@ -1192,7 +1267,10 @@ class PandalDetailSheet extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: estimate.confidenceColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
@@ -1218,9 +1296,15 @@ class PandalDetailSheet extends StatelessWidget {
                       label: const Text('Update Wait'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        foregroundColor: isDark ? Colors.amber : Colors.orange.shade800,
-                        side: BorderSide(color: isDark ? Colors.amber : Colors.orange.shade800),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        foregroundColor: isDark
+                            ? Colors.amber
+                            : Colors.orange.shade800,
+                        side: BorderSide(
+                          color: isDark ? Colors.amber : Colors.orange.shade800,
+                        ),
                       ),
                     ),
                   ),
@@ -1232,7 +1316,9 @@ class PandalDetailSheet extends StatelessWidget {
                       label: const Text('Details'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),
@@ -1252,9 +1338,14 @@ class PandalDetailSheet extends StatelessWidget {
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 20, right: 20, top: 20,
+          left: 20,
+          right: 20,
+          top: 20,
         ),
-        child: _QueueWaitReportSheet(pandalId: pandal.id, pandalName: pandal.name),
+        child: _QueueWaitReportSheet(
+          pandalId: pandal.id,
+          pandalName: pandal.name,
+        ),
       ),
     );
   }
@@ -1273,28 +1364,62 @@ class PandalDetailSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
-              Text('Queue Wait Details', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Queue Wait Details',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 16),
               if (estimate != null) ...[
                 _buildDetailRow('Current Estimate', estimate.formattedWait),
                 _buildDetailRow('Confidence', estimate.confidenceLabel),
-                _buildDetailRow('Trend', '${estimate.trendIcon} ${estimate.trend.name}'),
+                _buildDetailRow(
+                  'Trend',
+                  '${estimate.trendIcon} ${estimate.trend.name}',
+                ),
                 _buildDetailRow('Total Reports', '${estimate.reportCount}'),
                 _buildDetailRow('Your Reports', '${estimate.userReports}'),
                 _buildDetailRow('Squad Reports', '${estimate.squadReports}'),
                 _buildDetailRow('Public Reports', '${estimate.publicReports}'),
-                _buildDetailRow('Last Updated', '${estimate.lastUpdated.hour}:${estimate.lastUpdated.minute.toString().padLeft(2, '0')}'),
+                _buildDetailRow(
+                  'Last Updated',
+                  '${estimate.lastUpdated.hour}:${estimate.lastUpdated.minute.toString().padLeft(2, '0')}',
+                ),
               ] else ...[
-                Text('No queue data available yet.', style: TextStyle(color: Colors.grey.shade600)),
+                Text(
+                  'No queue data available yet.',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
               ],
               const SizedBox(height: 16),
-              Text('How it works:', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600)),
+              Text(
+                'How it works:',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
-              const Text('• Users at the pandal report actual wait time via "Report Wait Time"'),
+              const Text(
+                '• Users at the pandal report actual wait time via "Report Wait Time"',
+              ),
               const Text('• Squad members\' reports are shared instantly'),
-              const Text('• Estimates use weighted average (recent reports count more)'),
+              const Text(
+                '• Estimates use weighted average (recent reports count more)',
+              ),
               const Text('• Data expires after 30 minutes'),
               const Text('• More reports = higher confidence'),
             ],
@@ -1309,7 +1434,9 @@ class PandalDetailSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(color: Colors.grey))),
+          Expanded(
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
           Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
@@ -1320,7 +1447,10 @@ class PandalDetailSheet extends StatelessWidget {
 class _QueueWaitReportSheet extends StatefulWidget {
   final String pandalId;
   final String pandalName;
-  const _QueueWaitReportSheet({required this.pandalId, required this.pandalName});
+  const _QueueWaitReportSheet({
+    required this.pandalId,
+    required this.pandalName,
+  });
 
   @override
   State<_QueueWaitReportSheet> createState() => _QueueWaitReportSheetState();
@@ -1338,28 +1468,53 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
-          Text('Report Queue Wait Time', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'Report Queue Wait Time',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 8),
-          Text('${widget.pandalName}', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+          Text(
+            widget.pandalName,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
           const SizedBox(height: 20),
           // Wait time selector
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                onPressed: _waitMinutes > 0 ? () => setState(() => _waitMinutes = (_waitMinutes - 5).clamp(0, 300)) : null,
+                onPressed: _waitMinutes > 0
+                    ? () => setState(
+                        () => _waitMinutes = (_waitMinutes - 5).clamp(0, 300),
+                      )
+                    : null,
                 icon: const Icon(Icons.remove_circle_outline_rounded, size: 28),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  _waitMinutes == 0 ? 'No wait' : '${_waitMinutes} min',
+                  _waitMinutes == 0 ? 'No wait' : '$_waitMinutes min',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -1368,7 +1523,11 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
                 ),
               ),
               IconButton(
-                onPressed: _waitMinutes < 300 ? () => setState(() => _waitMinutes = (_waitMinutes + 5).clamp(0, 300)) : null,
+                onPressed: _waitMinutes < 300
+                    ? () => setState(
+                        () => _waitMinutes = (_waitMinutes + 5).clamp(0, 300),
+                      )
+                    : null,
                 icon: const Icon(Icons.add_circle_outline_rounded, size: 28),
               ),
             ],
@@ -1379,16 +1538,29 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
             spacing: 8,
             runSpacing: 8,
             alignment: WrapAlignment.center,
-            children: [5, 15, 30, 45, 60, 90, 120].map((m) => OutlinedButton(
-              onPressed: () => setState(() => _waitMinutes = m),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                foregroundColor: _waitMinutes == m ? theme.colorScheme.onPrimary : theme.colorScheme.primary,
-                backgroundColor: _waitMinutes == m ? theme.colorScheme.primary : null,
-              ),
-              child: Text('${m} min'),
-            )).toList(),
+            children: [5, 15, 30, 45, 60, 90, 120]
+                .map(
+                  (m) => OutlinedButton(
+                    onPressed: () => setState(() => _waitMinutes = m),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      foregroundColor: _waitMinutes == m
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.primary,
+                      backgroundColor: _waitMinutes == m
+                          ? theme.colorScheme.primary
+                          : null,
+                    ),
+                    child: Text('$m min'),
+                  ),
+                )
+                .toList(),
           ),
           const SizedBox(height: 20),
           Row(
@@ -1398,7 +1570,9 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
                   onPressed: _submitting ? null : () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: const Text('Cancel'),
                 ),
@@ -1409,11 +1583,23 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
                   onPressed: _submitting ? null : _submit,
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _submitting
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Submit', style: TextStyle(fontWeight: FontWeight.w700)),
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                 ),
               ),
             ],
@@ -1440,14 +1626,13 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Queue wait reported: ${_waitMinutes} min')),
+          SnackBar(content: Text('Queue wait reported: $_waitMinutes min')),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to report: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to report: $e')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);

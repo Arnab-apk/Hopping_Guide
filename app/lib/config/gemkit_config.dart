@@ -29,7 +29,6 @@ class GemKitConfig {
   /// ```
   static const String apiToken = String.fromEnvironment(
     'MAGIC_LANE_API_KEY',
-    defaultValue: 'mldl_4PBYz9yRTYCmavG5LIuKgAEeK3AIZPBWZqouGgrK0Cr',
   );
 
   /// Check if API token is configured

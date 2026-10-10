@@ -195,9 +195,11 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
           );
         }
       },
-      listenFor: const Duration(seconds: 30),
-      pauseFor: const Duration(seconds: 3),
-      partialResults: true,
+      listenOptions: SpeechListenOptions(
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
+        partialResults: true,
+      ),
     );
   }
 
@@ -999,8 +1001,10 @@ class _VoiceSearchButtonState extends State<VoiceSearchButton>
           if (mounted) setState(() => _isListening = false);
         }
       },
-      listenFor: const Duration(seconds: 30),
-      pauseFor: const Duration(seconds: 3),
+      listenOptions: SpeechListenOptions(
+        listenFor: const Duration(seconds: 30),
+        pauseFor: const Duration(seconds: 3),
+      ),
     );
   }
 

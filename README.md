@@ -193,7 +193,7 @@
 ### 🗺️ 8. Google Maps-Level Live Tracking & Smart Navigation
 * **LiveTrackingEngine (`LiveTrackingEngine`):** Industrial-grade real-time walking metrics engine computing current speed, average pace (min/km), distance traveled, ETA to destination, bearing to next waypoint, and route deviation — all updated at 2Hz from live GPS stream.
 * **Dynamic ETA & Pace Display:** Live updating ETA recalculated from actual walking speed (not static 4.5 km/h assumption); pace displayed in min/km format matching Google Maps.
-* **Route Deviation Auto-Recalculation:** Detects off-route deviations >25m; after 3 consecutive deviations, silently recalculates route from current position via OSRM with cached fallback.
+* **Route Deviation Auto-Recalculation:** Detects off-route deviations >25m; after 3 consecutive deviations, requests updated Mapbox walking directions. Failed requests keep the last route and show an error; preview corridors never supply turn instructions.
 * **Arrival Detection & Celebration:** 30m arrival threshold triggers haptic feedback, celebration animation, and HUD auto-dismiss — matches Google Maps arrival experience.
 * **Crowd Density Heatmap (`CrowdDensityLayer`):** Real-time peer-to-peer crowd density from squad members; 5-level scale (None → Very High) with radial gradient visualization centered on each reporting member.
 * **SmartNotificationService:** Native Android/iOS notifications for arrival, route deviation, squad separation (>500m/1km thresholds), and low battery (≤20%) — time-sensitive iOS interruptions for critical alerts.
@@ -405,10 +405,10 @@ flutter analyze
 flutter test
 
 # 5. Launch the app on a connected Android phone or emulator
-flutter run
+flutter run --dart-define-from-file=.env.mapbox.json
 
 # 6. Build the production release APK
-flutter build apk --release
+flutter build apk --release --dart-define-from-file=.env.mapbox.json
 ```
 
 <br/>

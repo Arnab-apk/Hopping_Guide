@@ -13,11 +13,20 @@ plugins {
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-} else {
-    val altFile = file("../key.properties")
-    if (altFile.exists()) {
-        keystoreProperties.load(FileInputStream(altFile))
+    FileInputStream(keystorePropertiesFile).use { keystoreProperties.load(it) }
+}
+val signingFields = listOf("keyAlias", "keyPassword", "storeFile", "storePassword")
+val hasReleaseSigning = signingFields.all { !keystoreProperties.getProperty(it).isNullOrBlank() }
+val releaseStoreFile = keystoreProperties.getProperty("storeFile")?.let { path ->
+    val appRelative = file(path)
+    if (appRelative.exists()) appRelative else rootProject.file(path)
+}
+
+// Distribution builds must use the owner's signing identity.
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.project == project && it.name.contains("Release") } &&
+        (!hasReleaseSigning || releaseStoreFile?.exists() != true)) {
+        throw GradleException("Release signing is missing. Configure android/key.properties and its keystore before building a distribution APK.")
     }
 }
 
@@ -41,32 +50,23 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String? ?: "pujoparikrama"
-            keyPassword = keystoreProperties["keyPassword"] as String? ?: "PujoParikrama2026!"
-            val storeFilePath = keystoreProperties["storeFile"] as String? ?: "release-keystore.jks"
-            storeFile = if (file(storeFilePath).exists()) {
-                file(storeFilePath)
-            } else if (file("../$storeFilePath").exists()) {
-                file("../$storeFilePath")
-            } else {
-                file("release-keystore.jks")
+        if (hasReleaseSigning) {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = releaseStoreFile
+                storePassword = keystoreProperties.getProperty("storePassword")
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
             }
-            storePassword = keystoreProperties["storePassword"] as String? ?: "PujoParikrama2026!"
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-            enableV4Signing = true
         }
     }
 
     buildTypes {
         release {
-            signingConfig = if (keystorePropertiesFile.exists() || file("release-keystore.jks").exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             isShrinkResources = false
         }

@@ -5,10 +5,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// Manages native Android ongoing notification shade updates
 /// with a progress bar, current location, and next pandal in list.
 class NotificationProgressService {
-  static final NotificationProgressService instance = NotificationProgressService._();
-  NotificationProgressService._();
+  static final NotificationProgressService instance = NotificationProgressService();
+  NotificationProgressService({FlutterLocalNotificationsPlugin? notifications})
+      : _notificationsPlugin = notifications ?? FlutterLocalNotificationsPlugin();
 
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notificationsPlugin;
   bool _isInitialized = false;
 
   static const int _trailNotificationId = 7701;
@@ -16,12 +17,14 @@ class NotificationProgressService {
   static const String _trailChannelName = 'Pujo Trail Live Progress';
   static const String _trailChannelDescription =
       'Shows live pandal hopping progress bar, current pandal, and next target';
+  static const String _completionChannelId = 'pujo_trail_completion';
 
   /// Initializes notification plugin and requests permissions on Android 13+
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    const androidSettings = AndroidInitializationSettings('ic_notification');
     const initSettings = InitializationSettings(android: androidSettings);
 
     try {
@@ -55,6 +58,9 @@ class NotificationProgressService {
   }) async {
     if (!_isInitialized) await initialize();
     if (!_isInitialized) return;
+
+    totalSteps = totalSteps < 0 ? 0 : totalSteps;
+    currentStep = currentStep.clamp(0, totalSteps);
 
     final percent = totalSteps > 0 ? ((currentStep / totalSteps) * 100).round() : 0;
     final distStr = distanceToNextMeters != null
@@ -124,8 +130,8 @@ class NotificationProgressService {
     if (!_isInitialized) return;
 
     final androidDetails = AndroidNotificationDetails(
-      _trailChannelId,
-      _trailChannelName,
+      _completionChannelId,
+      'Pujo Trail Completion',
       channelDescription: _trailChannelDescription,
       importance: Importance.defaultImportance,
       priority: Priority.defaultPriority,

@@ -181,6 +181,7 @@ class SquadChatService {
             .set(message.toJson());
       } catch (e) {
         debugPrint('[SquadChatService] Firestore sendText note: $e');
+        rethrow;
       }
     }
   }
@@ -250,8 +251,7 @@ class SquadChatService {
   }
 
   /// Upload media to Cloudinary using an unsigned upload preset.
-  /// Automatically falls back to a high-quality festive sample URL if network or preset fails,
-  /// ensuring 100% demo resilience and zero crash risk.
+  /// A failed upload must never replace the user's media with a sample file.
   Future<String> uploadSquadMedia({
     required Uint8List bytes,
     required String fileName,
@@ -287,15 +287,10 @@ class SquadChatService {
           return secureUrl;
         }
       }
+      throw StateError('Media upload failed. Please check your connection and try again.');
     } catch (e) {
-      debugPrint('[SquadChatService] Cloudinary upload note: $e (using festive fallback)');
+      debugPrint('[SquadChatService] Cloudinary upload failed: $e');
+      rethrow;
     }
-
-    // Demo / offline fallback
-    if (isVideo) {
-      return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-    }
-    final pickIdx = DateTime.now().millisecond % sampleFestivalPhotos.length;
-    return sampleFestivalPhotos[pickIdx];
   }
 }

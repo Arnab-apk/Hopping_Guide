@@ -1,0 +1,25 @@
+{
+  "participants": 3,
+  "stats": [
+    {
+      "participants": 3,
+      "videoFrames": 101,
+      "audioPackets": 275
+    },
+    {
+      "participants": 3,
+      "videoFrames": 97,
+      "audioPackets": 309
+    },
+    {
+      "participants": 3,
+      "videoFrames": 38,
+      "audioPackets": 241
+    }
+  ],
+  "cameraMicrophoneToggle": true,
+  "leave": true,
+  "syntheticMedia": true,
+  "hostedBackend": true,
+  "verifiedAt": "2026-10-09T21:57:32.985Z"
+}
