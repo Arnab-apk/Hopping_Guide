@@ -24,6 +24,7 @@ import '../widgets/squad_pandal_picker_sheet.dart';
 import '../widgets/user_profile_sheet.dart';
 import '../widgets/vote_avatar_stack.dart';
 import '../widgets/group_manager_sheet.dart';
+import '../widgets/group_video_call_button.dart';
 import 'main_navigation_screen.dart';
 import 'squad_chat_screen.dart';
 import 'squad_settings_screen.dart';
@@ -600,6 +601,10 @@ class _GroupScreenState extends State<GroupScreen> {
         ),
         body: Column(
           children: [
+            GroupVideoCallButton(
+              squadId: squadService.squadId ?? '',
+              squadName: squadName,
+            ),
             if (squadService.lastError != null)
               Container(
                 width: double.infinity,

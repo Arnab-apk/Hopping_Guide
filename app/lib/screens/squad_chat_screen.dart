@@ -14,7 +14,7 @@ import '../services/auth_service.dart';
 import '../services/chat_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
-import 'group_video_call_screen.dart';
+import '../widgets/group_video_call_button.dart';
 import '../widgets/puja_icons.dart';
 
 /// Screen for private squad text chat, live crowd updates, and photo/video sharing.
@@ -510,15 +510,11 @@ class _SquadChatScreenState extends State<SquadChatScreen> {
 
     final chatBody = Column(
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              icon: const Icon(Icons.video_call_rounded),
-              label: const Text('Group video call'),
-              onPressed: () => GroupVideoCallScreen.open(context,
-                squadId: widget.squadId, squadName: widget.squadName),
+          if (!widget.embedded)
+            GroupVideoCallButton(
+              squadId: widget.squadId,
+              squadName: widget.squadName,
             ),
-          ),
           // Messages List
           Expanded(
             child: StreamBuilder<List<ChatMessage>>(

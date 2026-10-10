@@ -1,6 +1,6 @@
 # Group video calling
 
-Open **Groups → Chat → Group video call**. Choose camera on/off and tap **Join group call**. Other signed-in members open the same group's call to join the room. Stream supplies the participant layout, mute, camera toggle, camera flip, speaker and leave controls.
+Open **Groups → Group video call** using the large button above the Trail, People and Chat content. Standalone chat has the same button. Choose camera on/off and tap **Join group call**. Other signed-in members open the same group's call to join the room. Stream supplies the participant layout, mute, camera toggle, camera flip, speaker and leave controls.
 
 This is a foreground call room. Calls leave when the app moves into the background; rejoin from the group when returning. There are no closed-app ringing notifications. The repository has no iOS runner, so the implemented native permissions and build verification cover Android.
 

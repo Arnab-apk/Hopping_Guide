@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kolkata_puja/models/app_user.dart';
 import 'package:kolkata_puja/models/squad_member.dart';
 import 'package:kolkata_puja/screens/group_screen.dart';
+import 'package:kolkata_puja/screens/group_video_call_screen.dart';
 import 'package:kolkata_puja/screens/squad_settings_screen.dart';
 import 'package:kolkata_puja/services/auth_service.dart';
 import 'package:kolkata_puja/services/location_service.dart';
@@ -74,6 +75,14 @@ void main() {
       expect(find.text('Separation Alert Distance'), findsNothing);
       expect(find.byIcon(Icons.edit_outlined), findsNothing);
       expect(find.text('Hopping as Guest Hopper'), findsNothing);
+
+      // The call is reachable directly from the default Trail tab.
+      final callButton = find.widgetWithText(FilledButton, 'Group video call');
+      expect(callButton, findsOneWidget);
+      await tester.tap(callButton);
+      await tester.pumpAndSettle();
+      expect(find.byType(GroupVideoCallScreen), findsOneWidget);
+      expect(find.text('Join group call'), findsOneWidget);
     });
 
     testWidgets('tapping settings gear opens SquadSettingsScreen with configuration items', (tester) async {
