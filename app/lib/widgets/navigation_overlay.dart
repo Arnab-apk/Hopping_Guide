@@ -137,6 +137,12 @@ class NavigationOverlay extends StatelessWidget {
                             style: const TextStyle(color: muted, fontSize: 14),
                           ),
                           Text(
+                            session.route?.isDriving == true
+                                ? 'Car/taxi directions'
+                                : 'Walking directions',
+                            style: const TextStyle(color: muted, fontSize: 12),
+                          ),
+                          Text(
                             'to ${session.route?.destinationTitle ?? 'Destination'}',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,

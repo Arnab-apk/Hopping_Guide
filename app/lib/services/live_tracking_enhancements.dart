@@ -1,3 +1,5 @@
+import 'route_deviation_monitor.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -86,11 +88,15 @@ class LiveWalkingMetrics {
 class LiveTrackingEngine extends ChangeNotifier {
   static final LiveTrackingEngine instance = LiveTrackingEngine._();
 
-  LiveTrackingEngine._() : _routing = RoutingService.instance;
+  LiveTrackingEngine._()
+    : _routing = RoutingService.instance,
+      _now = DateTime.now;
   @visibleForTesting
-  LiveTrackingEngine.forTesting(this._routing);
+  LiveTrackingEngine.forTesting(this._routing, {DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   // Dependencies
+  final DateTime Function() _now;
   final LocationService _location = LocationService.instance;
   final RoutingService _routing;
   final SquadService _squad = SquadService.instance;
@@ -114,8 +120,8 @@ class LiveTrackingEngine extends ChangeNotifier {
   // Route deviation
   static const double _deviationThresholdMeters = 30.0;
   Timer? _deviationCheckTimer;
-  int _consecutiveDeviations = 0;
-  static const int _maxDeviationsBeforeRecalc = 3;
+  final _deviationMonitor = RouteDeviationMonitor();
+  Future<WalkingRoute?> Function(LatLng origin)? replanJourney;
 
   // Arrival detection
   static const double _arrivalThresholdMeters = 20.0;
@@ -206,7 +212,7 @@ class LiveTrackingEngine extends ChangeNotifier {
     _destinationName = destinationName;
     _targetPandal = targetPandal;
     _arrivalAnnounced = false;
-    _consecutiveDeviations = 0;
+    _deviationMonitor.reset();
     _recentPositions.clear();
     _emaSpeed = 0;
 
@@ -254,7 +260,7 @@ class LiveTrackingEngine extends ChangeNotifier {
             pos.timestamp.isAfter(_lastGuidanceFix!))) {
       _lastGuidanceFix = pos.timestamp;
       _addPosition(pos);
-      _updateGuidance(pos);
+      _updateGuidance(_location.currentPositionSync ?? pos);
       _checkArrival(pos);
       _checkDeviation();
     }
@@ -498,23 +504,15 @@ class LiveTrackingEngine extends ChangeNotifier {
 
   // --- Deviation Monitoring ---
   void _checkDeviation() {
-    if (_activeRoute == null || _guidance == null || _guidance!.arrived) return;
-
-    if (_guidance!.deviationMeters > _deviationThresholdMeters) {
-      _consecutiveDeviations++;
-      if (_consecutiveDeviations >= _maxDeviationsBeforeRecalc) {
-        _triggerRecalculation();
-      } else {
-        onDeviationAlert?.call(
-          RouteDeviationAlert(
-            deviationMeters: _guidance!.deviationMeters,
-            consecutiveCount: _consecutiveDeviations,
-            thresholdMeters: _deviationThresholdMeters,
-          ),
-        );
-      }
-    } else {
-      _consecutiveDeviations = 0;
+    final fix = _location.currentPositionSync;
+    if (fix == null ||
+        _activeRoute == null ||
+        _guidance?.arrived == true ||
+        _isRecalculating) {
+      return;
+    }
+    if (_deviationMonitor.update(fix, _activeRoute!.points, now: _now())) {
+      _triggerRecalculation();
     }
   }
 
@@ -534,7 +532,6 @@ class LiveTrackingEngine extends ChangeNotifier {
     debugPrint(
       '[LiveTrackingEngine] 🔄 Route deviation detected, recalculating...',
     );
-    _consecutiveDeviations = 0;
 
     try {
       final stops = _activeRoute?.waypoints ?? const <LatLng>[];
@@ -542,21 +539,40 @@ class LiveTrackingEngine extends ChangeNotifier {
       final remainingStops = stops.length > 2
           ? stops.skip(leg + 1).toList()
           : const <LatLng>[];
-      final newRoute = remainingStops.length > 1
-          ? await _routing.getLiveMultiStopRoute(
-              waypoints: [
-                LatLng(pos.latitude, pos.longitude),
-                ...remainingStops,
-              ],
-              routeTitle: _destinationName ?? 'Trail',
-            )
-          : await _routing.getLiveWalkingRouteToPoint(
-              start: LatLng(pos.latitude, pos.longitude),
-              destination: _destination!,
-              destinationName: _destinationName ?? 'Destination',
-              targetPandal: _targetPandal,
-            );
-      if (generation != _trackingGeneration || newRoute.isFallback) return;
+      final WalkingRoute? newRoute;
+      if (replanJourney != null) {
+        newRoute = await replanJourney!(LatLng(pos.latitude, pos.longitude));
+      } else if (_activeRoute?.isDriving == true) {
+        newRoute = await _routing.getLiveDrivingRouteToPoint(
+          start: LatLng(pos.latitude, pos.longitude),
+          destination: _destination!,
+          destinationName: _destinationName ?? 'Destination',
+          targetPandal: _targetPandal,
+        );
+      } else {
+        newRoute = remainingStops.length > 1
+            ? await _routing.getLiveMultiStopRoute(
+                waypoints: [
+                  LatLng(pos.latitude, pos.longitude),
+                  ...remainingStops,
+                ],
+                routeTitle: _destinationName ?? 'Trail',
+              )
+            : await _routing.getLiveWalkingRouteToPoint(
+                start: LatLng(pos.latitude, pos.longitude),
+                destination: _destination!,
+                destinationName: _destinationName ?? 'Destination',
+                targetPandal: _targetPandal,
+              );
+      }
+      if (generation != _trackingGeneration ||
+          newRoute == null ||
+          newRoute.isFallback) {
+        return;
+      }
+      _destination = newRoute.points.last;
+      _destinationName = newRoute.destinationTitle;
+      _targetPandal = newRoute.targetPandal;
       _activeRoute = newRoute;
       _guidance = null;
       _navigationError = null;
@@ -702,7 +718,7 @@ class LiveTrackingEngine extends ChangeNotifier {
     _destinationName = null;
     _targetPandal = null;
     _arrivalAnnounced = false;
-    _consecutiveDeviations = 0;
+    _deviationMonitor.reset();
     _recentPositions.clear();
     _emaSpeed = 0;
     _updateMetrics(LiveWalkingMetrics.stationary());

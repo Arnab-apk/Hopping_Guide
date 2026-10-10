@@ -11,8 +11,10 @@ class JourneyCard extends StatelessWidget {
     required this.onTransitArrival,
     required this.onDetails,
     required this.onClose,
+    this.updating = false,
   });
   final JourneySession session;
+  final bool updating;
   final VoidCallback onDirections, onTransitArrival, onDetails, onClose;
 
   @override
@@ -49,7 +51,9 @@ class JourneyCard extends StatelessWidget {
               ],
             ),
             Text(
-              leg.instructions,
+              updating
+                  ? 'Comparing routes from your location…'
+                  : leg.instructions,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -64,7 +68,11 @@ class JourneyCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 FilledButton.icon(
-                  onPressed: walk ? onDirections : onTransitArrival,
+                  onPressed: updating
+                      ? null
+                      : walk
+                      ? onDirections
+                      : onTransitArrival,
                   icon: Icon(walk ? Icons.navigation : Icons.train),
                   label: Text(
                     walk ? 'Turn-by-turn directions' : 'I’m at $exit',
@@ -74,6 +82,12 @@ class JourneyCard extends StatelessWidget {
                   onPressed: onDetails,
                   child: const Text('Full itinerary'),
                 ),
+                if (!walk)
+                  TextButton.icon(
+                    onPressed: updating ? null : onDirections,
+                    icon: const Icon(Icons.alt_route),
+                    label: const Text('Change route from here'),
+                  ),
               ],
             ),
           ],

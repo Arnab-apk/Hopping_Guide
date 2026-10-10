@@ -62,6 +62,35 @@ String _response(List<LatLng> points) => jsonEncode({
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test(
+    'driving uses the automotive traffic profile and retains maneuvers',
+    () async {
+      final requests = <Uri>[];
+      final routing = RoutingService(
+        mapboxAccessToken: 'test',
+        client: MockClient((request) async {
+          requests.add(request.url);
+          return http.Response(_response([_start, _turn, _end]), 200);
+        }),
+      );
+      await routing.getLiveWalkingRouteToPoint(
+        start: _start,
+        destination: _end,
+        destinationName: 'Walk',
+      );
+      final drive = await routing.getLiveDrivingRouteToPoint(
+        start: _start,
+        destination: _end,
+        destinationName: 'Taxi',
+      );
+      expect(requests.last.path, contains('/driving-traffic/'));
+      expect(requests.length, 2);
+      expect(drive.isDriving, true);
+      expect(drive.steps.length, 3);
+      expect(RouteGuidance.at(drive, _turn), isNotNull);
+    },
+  );
+
   testWidgets(
     'the final leg guides toward the destination until arrival is confirmed',
     (tester) async {
@@ -178,7 +207,7 @@ void main() {
       Position position(double latitude, int second) => Position(
         latitude: latitude,
         longitude: 88.352,
-        timestamp: DateTime(2026, 10, 10, 0, 0, second),
+        timestamp: DateTime.now().add(Duration(seconds: second)),
         accuracy: 5,
         altitude: 0,
         altitudeAccuracy: 0,
@@ -193,8 +222,8 @@ void main() {
         precomputedRoute: route,
       );
       LocationService.instance.emitTestPosition(position(22.55, 0));
-      LocationService.instance.emitTestPosition(position(22.5501, 2));
-      LocationService.instance.emitTestPosition(position(22.5502, 3));
+      LocationService.instance.emitTestPosition(position(22.5501, 3));
+      LocationService.instance.emitTestPosition(position(22.5502, 6));
       await tester.pump(const Duration(seconds: 16));
       expect(calls, 1);
       engine.stopTracking();

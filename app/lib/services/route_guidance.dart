@@ -34,7 +34,7 @@ class RouteGuidance {
     int? segmentHint,
   }) {
     if (route.isFallback ||
-        !route.isWalk ||
+        !route.isNavigable ||
         route.steps.isEmpty ||
         route.points.length < 2) {
       return null;

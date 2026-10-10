@@ -315,6 +315,13 @@ void main() {
       expect(session.walkingRoute!.targetPandal, first);
       expect(session.advance(), first);
       expect(session.target, second);
+      final revision = session.revision;
+      session.replaceCurrent(walk);
+      expect(session.revision, greaterThan(revision));
+      expect(session.stopIndex, 1);
+      expect(session.stops, [first, second]);
+      expect(session.routes.first, same(ride));
+      expect(session.walking, false);
       expect(session.advance(), second);
       expect(session.active, isFalse);
       session.dispose();

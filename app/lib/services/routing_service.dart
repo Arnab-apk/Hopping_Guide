@@ -74,6 +74,8 @@ class WalkingRoute {
   bool get isTrain => transitMode == 'train';
   bool get isMetro => transitMode == 'metro';
   bool get isWalk => transitMode == 'walk';
+  bool get isDriving => transitMode == 'drive';
+  bool get isNavigable => isWalk || isDriving;
 
   String get destinationTitle =>
       targetPandal?.name ?? customTitle ?? 'Destination';
@@ -104,6 +106,9 @@ class WalkingRoute {
   /// Formatted duration with realistic walking pace (4.5 km/h).
   /// For long distances (> 3.5 km), displays both driving/transit and walk times.
   String get formattedDuration {
+    if (isDriving) {
+      return _formatTimeString((durationSeconds / 60).round(), 'car/taxi');
+    }
     final walkMins = (durationSeconds / 60).round();
     final walkStr = _formatTimeString(walkMins, 'walk');
 
@@ -381,6 +386,25 @@ class RoutingService {
       destinationName: destinationName,
       targetPandal: targetPandal,
       cacheKey: cacheKey,
+    );
+  }
+
+  Future<WalkingRoute> getLiveDrivingRouteToPoint({
+    required LatLng start,
+    required LatLng destination,
+    required String destinationName,
+    Pandal? targetPandal,
+  }) async {
+    final data = await _mapbox.driving([start, destination]);
+    return WalkingRoute(
+      points: data.points,
+      steps: data.steps,
+      distanceMeters: data.distanceMeters,
+      durationSeconds: data.durationSeconds,
+      customTitle: destinationName,
+      targetPandal: targetPandal,
+      transitMode: 'drive',
+      waypoints: [start, destination],
     );
   }
 

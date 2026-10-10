@@ -12,12 +12,24 @@ class JourneySession extends ChangeNotifier {
   int stopIndex = 0;
   int legIndex = 0;
   bool walking = false;
+  bool allowMetro = true, allowTrain = true, allowDriving = true;
+  int revision = 0;
   bool get active => stopIndex < routes.length;
   Pandal? get target => active ? stops[stopIndex] : null;
   MultimodalRoute? get route => active ? routes[stopIndex] : null;
   RouteLeg? get leg => active ? route!.legs[legIndex] : null;
 
-  void load(List<Pandal> targets, List<MultimodalRoute> journeys) {
+  void load(
+    List<Pandal> targets,
+    List<MultimodalRoute> journeys, {
+    bool metro = true,
+    bool train = true,
+    bool driving = true,
+  }) {
+    revision++;
+    allowMetro = metro;
+    allowTrain = train;
+    allowDriving = driving;
     if (targets.length != journeys.length ||
         journeys.any((r) => r.legs.isEmpty)) {
       throw ArgumentError('Each stop needs a connected journey.');
@@ -36,6 +48,7 @@ class JourneySession extends ChangeNotifier {
       return null;
     }
     return WalkingRoute(
+      transitMode: current is DriveLeg ? 'drive' : 'walk',
       points: current.points,
       distanceMeters: current.distanceMeters,
       durationSeconds: current.durationSeconds,
@@ -44,6 +57,20 @@ class JourneySession extends ChangeNotifier {
       targetPandal: legIndex == route!.legs.length - 1 ? target : null,
       waypoints: [current.startPoint, current.endPoint],
     );
+  }
+
+  void replaceCurrent(MultimodalRoute next) {
+    if (!active || next.legs.isEmpty) return;
+    revision++;
+    routes = List.unmodifiable([
+      ...routes.take(stopIndex),
+      next,
+      ...routes.skip(stopIndex + 1),
+    ]);
+    legIndex = 0;
+    walking = false;
+    _skipEmptyWalks();
+    notifyListeners();
   }
 
   void beginWalking() {
@@ -61,6 +88,7 @@ class JourneySession extends ChangeNotifier {
     if (!active) return null;
     walking = false;
     Pandal? completed;
+    revision++;
     legIndex++;
     if (legIndex >= route!.legs.length) {
       completed = target;
@@ -82,6 +110,7 @@ class JourneySession extends ChangeNotifier {
   }
 
   void end() {
+    revision++;
     walking = false;
     stops = const [];
     routes = const [];

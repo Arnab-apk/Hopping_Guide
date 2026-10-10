@@ -9,6 +9,7 @@ import '../services/journey_session.dart';
 import '../services/location_service.dart';
 import '../services/multimodal_routing_service.dart' hide haversineMeters;
 import '../widgets/route_polylines.dart';
+import '../widgets/journey_map_markers.dart';
 import '../services/routing_service.dart';
 
 class TrailRouteScreen extends StatefulWidget {
@@ -33,20 +34,24 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
   String? _error;
   int _loaded = 0;
   int _generation = 0;
+  bool _includeDriving = true;
   @override
   void initState() {
     super.initState();
+    if (widget.existingRoutes != null) {
+      _includeDriving = JourneySession.instance.allowDriving;
+    }
     _load();
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool refresh = false}) async {
     final generation = ++_generation;
     setState(() {
       _error = null;
       _routes = null;
       _loaded = 0;
     });
-    if (widget.existingRoutes != null) {
+    if (widget.existingRoutes != null && !refresh) {
       setState(() => _routes = widget.existingRoutes);
       return;
     }
@@ -73,6 +78,7 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
             targetPandal: stop,
             allowMetro: widget.allowMetro,
             allowTrain: widget.allowTrain,
+            allowDriving: _includeDriving,
           ),
         );
         if (!mounted || generation != _generation) return;
@@ -96,7 +102,13 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
     final routes = _routes;
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      appBar: AppBar(title: const Text('Pandal trail route')),
+      appBar: AppBar(
+        title: Text(
+          widget.stops.length == 1
+              ? 'Route to ${widget.stops.first.name}'
+              : 'Pandal trail route',
+        ),
+      ),
       body: routes == null
           ? Center(
               child: _error != null
@@ -164,43 +176,10 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                         ],
                       ),
                       MarkerLayer(
-                        markers: [
-                          for (var i = 0; i < widget.stops.length; i++)
-                            Marker(
-                              point: LatLng(
-                                widget.stops[i].lat,
-                                widget.stops[i].lng,
-                              ),
-                              width: 40,
-                              height: 40,
-                              child: Tooltip(
-                                message: widget.stops[i].name,
-                                child: CircleAvatar(child: Text('${i + 1}')),
-                              ),
-                            ),
-                          for (final route in routes)
-                            for (final leg in route.legs)
-                              if (leg is! WalkLeg) ...[
-                                Marker(
-                                  point: leg.startPoint,
-                                  width: 32,
-                                  height: 32,
-                                  child: const Icon(
-                                    Icons.train,
-                                    color: Colors.deepPurple,
-                                  ),
-                                ),
-                                Marker(
-                                  point: leg.endPoint,
-                                  width: 32,
-                                  height: 32,
-                                  child: const Icon(
-                                    Icons.train,
-                                    color: Colors.deepPurple,
-                                  ),
-                                ),
-                              ],
-                        ],
+                        markers: buildJourneyMarkers(
+                          stops: widget.stops,
+                          routes: routes,
+                        ),
                       ),
                       const RichAttributionWidget(
                         attributions: [
@@ -214,6 +193,17 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                   flex: 4,
                   child: ListView(
                     children: [
+                      SwitchListTile(
+                        title: const Text('Include car/taxi'),
+                        subtitle: const Text(
+                          'Choose the fastest estimated route, including walking, trains and metro.',
+                        ),
+                        value: _includeDriving,
+                        onChanged: (value) {
+                          _includeDriving = value;
+                          _load(refresh: true);
+                        },
+                      ),
                       const Padding(
                         padding: EdgeInsets.all(12),
                         child: Text(
@@ -231,7 +221,9 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                           ListTile(
                             dense: true,
                             leading: Icon(
-                              leg is WalkLeg
+                              leg is DriveLeg
+                                  ? Icons.local_taxi
+                                  : leg is WalkLeg
                                   ? Icons.directions_walk
                                   : leg is MetroLeg
                                   ? Icons.subway
@@ -256,8 +248,15 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                         icon: const Icon(Icons.navigation),
                         label: const Text('Directions to next destination'),
                         onPressed: () {
-                          if (widget.existingRoutes == null) {
-                            JourneySession.instance.load(widget.stops, routes);
+                          if (widget.existingRoutes == null ||
+                              !identical(routes, widget.existingRoutes)) {
+                            JourneySession.instance.load(
+                              widget.stops,
+                              routes,
+                              metro: widget.allowMetro,
+                              train: widget.allowTrain,
+                              driving: _includeDriving,
+                            );
                           }
                           Navigator.pop(context);
                           widget.onUseJourney();

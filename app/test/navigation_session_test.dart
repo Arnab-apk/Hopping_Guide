@@ -178,7 +178,7 @@ void main() {
   testWidgets(
     'simulator preview/start/turn/three fixes/reroute/arrival cleans up',
     (tester) async {
-      var clock = DateTime(2026, 10, 10, 12);
+      var clock = DateTime.now();
       final response = Completer<http.Response>();
       var calls = 0;
       final routing = RoutingService(
@@ -188,11 +188,11 @@ void main() {
           return response.future;
         }),
       );
-      final engine = LiveTrackingEngine.forTesting(routing);
+      final engine = LiveTrackingEngine.forTesting(routing, now: () => clock);
       final session = NavigationSession(engine: engine, now: () => clock);
       final simulator = NavigationSimulator(fixture());
       void emit(double along, {double lateral = 0, double accuracy = 8}) {
-        clock = clock.add(const Duration(seconds: 1));
+        clock = clock.add(const Duration(seconds: 3));
         LocationService.instance.emitTestPosition(
           simulator.fixAt(
             along,
@@ -267,7 +267,7 @@ void main() {
       session.preview(fixture());
       await session.begin();
       for (var i = 0; i < 3; i++) {
-        clock = clock.add(const Duration(seconds: 1));
+        clock = clock.add(const Duration(seconds: 3));
         LocationService.instance.emitTestPosition(
           simulator.fixAt(80, clock, lateralMeters: 60),
         );
@@ -313,7 +313,7 @@ void main() {
     session.preview(route);
     await session.begin();
     for (var i = 0; i < 3; i++) {
-      clock = clock.add(const Duration(seconds: 1));
+      clock = clock.add(const Duration(seconds: 3));
       LocationService.instance.emitTestPosition(
         simulator.fixAt(80, clock, lateralMeters: 60),
       );

@@ -39,6 +39,7 @@ class NavigationSession extends ChangeNotifier {
   bool starting = false;
   bool _ownsLocation = false;
   int _generation = 0;
+  int get generation => _generation;
   Timer? _freshnessTimer, _arrivalTimer;
 
   bool get active =>
@@ -85,7 +86,7 @@ class NavigationSession extends ChangeNotifier {
     end(notify: false);
     if (next == null ||
         next.isFallback ||
-        !next.isWalk ||
+        !next.isNavigable ||
         next.steps.isEmpty ||
         next.points.length < 2) {
       notifyListeners();

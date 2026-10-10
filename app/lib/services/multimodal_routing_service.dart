@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+
 import '../models/metro_station.dart';
 import '../models/pandal.dart';
 import '../models/navigation_step.dart';
@@ -70,6 +72,21 @@ class WalkLeg extends RouteLeg {
   String get modeIcon => '🚶';
 }
 
+/// A road leg with automotive maneuvers; shares geometry storage with WalkLeg.
+class DriveLeg extends WalkLeg {
+  const DriveLeg({
+    required super.startPoint,
+    required super.endPoint,
+    required super.distanceMeters,
+    required super.durationSeconds,
+    required super.instructions,
+    required super.points,
+    required super.steps,
+  });
+  @override
+  String get modeLabel => 'Car/taxi';
+}
+
 /// Metro leg using Kolkata Metro network with authentic sequential track curves
 class MetroLeg extends RouteLeg {
   const MetroLeg({
@@ -101,7 +118,8 @@ class MetroLeg extends RouteLeg {
   String get modeIcon => '🚇';
 
   String get lineLabel => line.label;
-  String get lineColorHex => '#${line.color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
+  String get lineColorHex =>
+      '#${line.color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
 }
 
 /// Suburban train leg using Eastern / South Eastern / Circular Railway network
@@ -163,20 +181,24 @@ class MultimodalRoute {
   /// Total walking distance across all walk legs
   double get totalWalkDistanceMeters => legs
       .whereType<WalkLeg>()
+      .where((leg) => leg is! DriveLeg)
       .fold(0.0, (sum, leg) => sum + leg.distanceMeters);
 
   /// Total metro distance across all metro legs
-  double get totalMetroDistanceMeters => legs
-      .whereType<MetroLeg>()
-      .fold(0.0, (sum, leg) => sum + leg.distanceMeters);
+  double get totalMetroDistanceMeters => legs.whereType<MetroLeg>().fold(
+    0.0,
+    (sum, leg) => sum + leg.distanceMeters,
+  );
 
   /// Total train distance across all train legs
-  double get totalTrainDistanceMeters => legs
-      .whereType<TrainLeg>()
-      .fold(0.0, (sum, leg) => sum + leg.distanceMeters);
+  double get totalTrainDistanceMeters => legs.whereType<TrainLeg>().fold(
+    0.0,
+    (sum, leg) => sum + leg.distanceMeters,
+  );
 
   /// Walk legs only
-  List<WalkLeg> get walkLegs => legs.whereType<WalkLeg>().toList();
+  List<WalkLeg> get walkLegs =>
+      legs.whereType<WalkLeg>().where((leg) => leg is! DriveLeg).toList();
 
   /// Metro legs only
   List<MetroLeg> get metroLegs => legs.whereType<MetroLeg>().toList();
@@ -235,33 +257,41 @@ class MultimodalRoute {
     final segments = <RoutePolylineSegment>[];
     for (final leg in legs) {
       if (leg is WalkLeg) {
-        segments.add(RoutePolylineSegment(
-          points: leg.points,
-          type: RouteSegmentType.walk,
-          color: const Color(0xFFFFD700), // Festival Gold
-          isFallback: leg.isFallback,
-        ));
+        segments.add(
+          RoutePolylineSegment(
+            points: leg.points,
+            type: RouteSegmentType.walk,
+            color: leg is DriveLeg
+                ? const Color(0xFF1976D2)
+                : const Color(0xFFFFD700),
+            isFallback: leg.isFallback,
+          ),
+        );
       } else if (leg is MetroLeg) {
         final pts = leg.trackPoints.isNotEmpty
             ? leg.trackPoints
             : [leg.entryStation.toLatLng(), leg.exitStation.toLatLng()];
-        segments.add(RoutePolylineSegment(
-          points: pts,
-          type: RouteSegmentType.metro,
-          color: leg.line.color,
-          line: leg.line,
-          isFallback: leg.geometryEstimated,
-        ));
+        segments.add(
+          RoutePolylineSegment(
+            points: pts,
+            type: RouteSegmentType.metro,
+            color: leg.line.color,
+            line: leg.line,
+            isFallback: leg.geometryEstimated,
+          ),
+        );
       } else if (leg is TrainLeg) {
         final pts = leg.trackPoints.isNotEmpty
             ? leg.trackPoints
             : [leg.entryStation.toLatLng(), leg.exitStation.toLatLng()];
-        segments.add(RoutePolylineSegment(
-          points: pts,
-          type: RouteSegmentType.train,
-          color: const Color(0xFF7B1FA2), // Railway Purple
-          isFallback: leg.geometryEstimated,
-        ));
+        segments.add(
+          RoutePolylineSegment(
+            points: pts,
+            type: RouteSegmentType.train,
+            color: const Color(0xFF7B1FA2), // Railway Purple
+            isFallback: leg.geometryEstimated,
+          ),
+        );
       }
     }
     return segments;
@@ -291,8 +321,10 @@ class MultimodalRoutingService {
 
     for (final station in MetroRepository.allStations) {
       final dist = haversineMeters(
-        position.latitude, position.longitude,
-        station.latitude, station.longitude,
+        position.latitude,
+        position.longitude,
+        station.latitude,
+        station.longitude,
       );
       if (dist < minDist) {
         minDist = dist;
@@ -306,23 +338,38 @@ class MultimodalRoutingService {
   List<MetroStation> findNearestStations(LatLng position, int k) {
     final stationsWithDist = MetroRepository.allStations.map((s) {
       final dist = haversineMeters(
-        position.latitude, position.longitude,
-        s.latitude, s.longitude,
+        position.latitude,
+        position.longitude,
+        s.latitude,
+        s.longitude,
       );
       return (station: s, distance: dist);
-    }).toList()
-      ..sort((a, b) => a.distance.compareTo(b.distance));
+    }).toList()..sort((a, b) => a.distance.compareTo(b.distance));
     return stationsWithDist.take(k).map((e) => e.station).toList();
   }
 
   /// Find nearest suburban train station to a coordinate
-  RailwayStationInfo? findNearestTrainStation(LatLng position, {double maxDistanceKm = 3.5}) {
-    return RailwayRepository.instance.findNearestStation(position, maxDistanceKm: maxDistanceKm);
+  RailwayStationInfo? findNearestTrainStation(
+    LatLng position, {
+    double maxDistanceKm = 3.5,
+  }) {
+    return RailwayRepository.instance.findNearestStation(
+      position,
+      maxDistanceKm: maxDistanceKm,
+    );
   }
 
   /// Find k-nearest suburban train stations
-  List<RailwayStationInfo> findNearestTrainStations(LatLng position, int k, {double maxDistanceKm = 3.5}) {
-    return RailwayRepository.instance.findNearestStations(position, k, maxDistanceKm: maxDistanceKm);
+  List<RailwayStationInfo> findNearestTrainStations(
+    LatLng position,
+    int k, {
+    double maxDistanceKm = 3.5,
+  }) {
+    return RailwayRepository.instance.findNearestStations(
+      position,
+      k,
+      maxDistanceKm: maxDistanceKm,
+    );
   }
 
   /// Compute shortest metro path between two stations using Dijkstra
@@ -337,14 +384,33 @@ class MultimodalRoutingService {
         final a = stations[i];
         final b = stations[i + 1];
         final dist = haversineMeters(
-          a.latitude, a.longitude, b.latitude, b.longitude,
+          a.latitude,
+          a.longitude,
+          b.latitude,
+          b.longitude,
         );
         final travelTime = (dist / _metroSpeedMps) + _stationDwellSeconds;
 
-        adj.putIfAbsent(a.id, () => []).add(MetroEdge(
-          toId: b.id, line: line, distance: dist, duration: travelTime));
-        adj.putIfAbsent(b.id, () => []).add(MetroEdge(
-          toId: a.id, line: line, distance: dist, duration: travelTime));
+        adj
+            .putIfAbsent(a.id, () => [])
+            .add(
+              MetroEdge(
+                toId: b.id,
+                line: line,
+                distance: dist,
+                duration: travelTime,
+              ),
+            );
+        adj
+            .putIfAbsent(b.id, () => [])
+            .add(
+              MetroEdge(
+                toId: a.id,
+                line: line,
+                distance: dist,
+                duration: travelTime,
+              ),
+            );
       }
     }
 
@@ -353,12 +419,29 @@ class MultimodalRoutingService {
       if (station.isInterchange) {
         for (final otherLine in station.connectingLines) {
           final otherStations = MetroRepository.getStationsForLine(otherLine);
-          final match = otherStations.where((s) =>
-            haversineMeters(s.latitude, s.longitude,
-              station.latitude, station.longitude) < 100).toList();
+          final match = otherStations
+              .where(
+                (s) =>
+                    haversineMeters(
+                      s.latitude,
+                      s.longitude,
+                      station.latitude,
+                      station.longitude,
+                    ) <
+                    100,
+              )
+              .toList();
           for (final m in match) {
-            adj.putIfAbsent(station.id, () => []).add(MetroEdge(
-              toId: m.id, line: otherLine, distance: 0, duration: _interchangePenaltySeconds));
+            adj
+                .putIfAbsent(station.id, () => [])
+                .add(
+                  MetroEdge(
+                    toId: m.id,
+                    line: otherLine,
+                    distance: 0,
+                    duration: _interchangePenaltySeconds,
+                  ),
+                );
           }
         }
       }
@@ -401,7 +484,12 @@ class MultimodalRoutingService {
       edges.add(prev[curr]!);
       String? prevId;
       for (final e in adj.entries) {
-        if (e.value.any((ed) => ed.toId == curr && ed.line == prev[curr]!.line && ed.distance == prev[curr]!.distance)) {
+        if (e.value.any(
+          (ed) =>
+              ed.toId == curr &&
+              ed.line == prev[curr]!.line &&
+              ed.distance == prev[curr]!.distance,
+        )) {
           prevId = e.key;
           break;
         }
@@ -452,15 +540,17 @@ class MultimodalRoutingService {
           endPoint: destination,
           distanceMeters: walkRoute.distanceMeters,
           durationSeconds: walkRoute.durationSeconds,
-          instructions: 'Direct road route to ${destinationName ?? 'destination'}',
+          instructions:
+              'Direct road route to ${destinationName ?? 'destination'}',
           points: walkRoute.points,
           steps: walkRoute.steps,
           isFallback: walkRoute.isFallback,
-        )
+        ),
       ],
       totalDistanceMeters: walkRoute.distanceMeters,
       totalDurationSeconds: walkRoute.durationSeconds,
-      summary: 'Walk ${walkRoute.formattedDistance} (${walkRoute.formattedDuration})',
+      summary:
+          'Walk ${walkRoute.formattedDistance} (${walkRoute.formattedDuration})',
       primaryMode: TransitMode.road,
       bestModeBadge: '🚶 Shortest: Direct Road',
       isFallback: walkRoute.isFallback,
@@ -506,56 +596,74 @@ class MultimodalRoutingService {
         final legs = <RouteLeg>[];
 
         // Walk to entry
-        legs.add(WalkLeg(
-          startPoint: origin,
-          endPoint: entryStation.toLatLng(),
-          distanceMeters: walkToEntry.distanceMeters,
-          durationSeconds: walkToEntry.durationSeconds,
-          instructions: 'Walk to ${entryStation.name} Metro (${entryStation.line.label})',
-          points: walkToEntry.points,
-          isFallback: walkToEntry.isFallback,
-        ));
+        legs.add(
+          WalkLeg(
+            startPoint: origin,
+            endPoint: entryStation.toLatLng(),
+            distanceMeters: walkToEntry.distanceMeters,
+            durationSeconds: walkToEntry.durationSeconds,
+            instructions:
+                'Walk to ${entryStation.name} Metro (${entryStation.line.label})',
+            points: walkToEntry.points,
+            isFallback: walkToEntry.isFallback,
+          ),
+        );
 
         // Metro legs with realistic curves and sequential stations
         for (final leg in metroPath.legs) {
           final legStart = leg.edges.first;
           final legEnd = leg.edges.last;
-          final entrySt = MetroRepository.findById(legStart.toId) ?? entryStation;
+          final entrySt =
+              MetroRepository.findById(legStart.toId) ?? entryStation;
           final exitSt = MetroRepository.findById(legEnd.toId) ?? exitStation;
 
           // Extract sequenced track coordinates without straight lines
-          final trackPoints = MetroRepository.getTrackPolylineBetween(entrySt, exitSt);
+          final trackPoints = MetroRepository.getTrackPolylineBetween(
+            entrySt,
+            exitSt,
+          );
 
-          legs.add(MetroLeg(
-            startPoint: entrySt.toLatLng(),
-            endPoint: exitSt.toLatLng(),
-            distanceMeters: leg.edges.fold(0.0, (s, e) => s + e.distance),
-            durationSeconds: leg.edges.fold(0.0, (s, e) => s + e.duration),
-            instructions: 'Take ${leg.line.label} ${entrySt.name} → ${exitSt.name} (${leg.edges.length} stops)',
-            entryStation: entrySt,
-            exitStation: exitSt,
-            line: leg.line,
-            stationCount: leg.edges.length,
-            trackPoints: trackPoints,
-            isInterchange: leg != metroPath.legs.first,
-            connectingLine: leg != metroPath.legs.first ? metroPath.legs[metroPath.legs.indexOf(leg) - 1].line : null,
-          ));
+          legs.add(
+            MetroLeg(
+              startPoint: entrySt.toLatLng(),
+              endPoint: exitSt.toLatLng(),
+              distanceMeters: leg.edges.fold(0.0, (s, e) => s + e.distance),
+              durationSeconds: leg.edges.fold(0.0, (s, e) => s + e.duration),
+              instructions:
+                  'Take ${leg.line.label} ${entrySt.name} → ${exitSt.name} (${leg.edges.length} stops)',
+              entryStation: entrySt,
+              exitStation: exitSt,
+              line: leg.line,
+              stationCount: leg.edges.length,
+              trackPoints: trackPoints,
+              isInterchange: leg != metroPath.legs.first,
+              connectingLine: leg != metroPath.legs.first
+                  ? metroPath.legs[metroPath.legs.indexOf(leg) - 1].line
+                  : null,
+            ),
+          );
         }
 
         // Walk from exit
-        legs.add(WalkLeg(
-          startPoint: exitStation.toLatLng(),
-          endPoint: destination,
-          distanceMeters: walkFromExit.distanceMeters,
-          durationSeconds: walkFromExit.durationSeconds,
-          instructions: 'Walk from ${exitStation.name} Metro to ${destinationName ?? 'destination'}',
-          points: walkFromExit.points,
-          isFallback: walkFromExit.isFallback,
-        ));
+        legs.add(
+          WalkLeg(
+            startPoint: exitStation.toLatLng(),
+            endPoint: destination,
+            distanceMeters: walkFromExit.distanceMeters,
+            durationSeconds: walkFromExit.durationSeconds,
+            instructions:
+                'Walk from ${exitStation.name} Metro to ${destinationName ?? 'destination'}',
+            points: walkFromExit.points,
+            isFallback: walkFromExit.isFallback,
+          ),
+        );
 
         final totalDist = legs.fold(0.0, (s, l) => s + l.distanceMeters);
         final totalDuration = legs.fold(0.0, (s, l) => s + l.durationSeconds);
-        final walkDist = legs.whereType<WalkLeg>().fold(0.0, (s, l) => s + l.distanceMeters);
+        final walkDist = legs.whereType<WalkLeg>().fold(
+          0.0,
+          (s, l) => s + l.distanceMeters,
+        );
 
         final score = totalDuration + (walkDist * 0.4);
 
@@ -584,8 +692,16 @@ class MultimodalRoutingService {
     Pandal? targetPandal,
     double maxWalkDistanceKm = 2.5,
   }) async {
-    final originStations = findNearestTrainStations(origin, 3, maxDistanceKm: maxWalkDistanceKm);
-    final destStations = findNearestTrainStations(destination, 3, maxDistanceKm: maxWalkDistanceKm);
+    final originStations = findNearestTrainStations(
+      origin,
+      3,
+      maxDistanceKm: maxWalkDistanceKm,
+    );
+    final destStations = findNearestTrainStations(
+      destination,
+      3,
+      maxDistanceKm: maxWalkDistanceKm,
+    );
 
     MultimodalRoute? bestTrain;
     double bestScore = double.infinity;
@@ -594,7 +710,10 @@ class MultimodalRoutingService {
       for (final exitStation in destStations) {
         if (entryStation.code == exitStation.code) continue;
 
-        final trainPath = RailwayRepository.instance.computeTrainPath(entryStation, exitStation);
+        final trainPath = RailwayRepository.instance.computeTrainPath(
+          entryStation,
+          exitStation,
+        );
         if (trainPath == null) continue;
 
         final walkToEntry = await _routing.getWalkingRouteToPoint(
@@ -615,44 +734,56 @@ class MultimodalRoutingService {
         final legs = <RouteLeg>[];
 
         // Walk to train station
-        legs.add(WalkLeg(
-          startPoint: origin,
-          endPoint: entryStation.toLatLng(),
-          distanceMeters: walkToEntry.distanceMeters,
-          durationSeconds: walkToEntry.durationSeconds,
-          instructions: 'Walk to ${entryStation.name} Station (${entryStation.code})',
-          points: walkToEntry.points,
-          isFallback: walkToEntry.isFallback,
-        ));
+        legs.add(
+          WalkLeg(
+            startPoint: origin,
+            endPoint: entryStation.toLatLng(),
+            distanceMeters: walkToEntry.distanceMeters,
+            durationSeconds: walkToEntry.durationSeconds,
+            instructions:
+                'Walk to ${entryStation.name} Station (${entryStation.code})',
+            points: walkToEntry.points,
+            isFallback: walkToEntry.isFallback,
+          ),
+        );
 
         // Suburban Train leg with real track coordinates and stop-by-stop line path
-        legs.add(TrainLeg(
-          startPoint: entryStation.toLatLng(),
-          endPoint: exitStation.toLatLng(),
-          distanceMeters: trainPath.totalDistanceMeters,
-          durationSeconds: trainPath.totalDurationSeconds,
-          instructions: 'Take ${trainPath.corridorName} ${entryStation.name} → ${exitStation.name} (${trainPath.stationCount} stops)',
-          entryStation: entryStation,
-          exitStation: exitStation,
-          corridorName: trainPath.corridorName,
-          stationCount: trainPath.stationCount,
-          trackPoints: trainPath.trackPoints,
-        ));
+        legs.add(
+          TrainLeg(
+            startPoint: entryStation.toLatLng(),
+            endPoint: exitStation.toLatLng(),
+            distanceMeters: trainPath.totalDistanceMeters,
+            durationSeconds: trainPath.totalDurationSeconds,
+            instructions:
+                'Take ${trainPath.corridorName} ${entryStation.name} → ${exitStation.name} (${trainPath.stationCount} stops)',
+            entryStation: entryStation,
+            exitStation: exitStation,
+            corridorName: trainPath.corridorName,
+            stationCount: trainPath.stationCount,
+            trackPoints: trainPath.trackPoints,
+          ),
+        );
 
         // Walk from exit station to destination
-        legs.add(WalkLeg(
-          startPoint: exitStation.toLatLng(),
-          endPoint: destination,
-          distanceMeters: walkFromExit.distanceMeters,
-          durationSeconds: walkFromExit.durationSeconds,
-          instructions: 'Walk from ${exitStation.name} to ${destinationName ?? 'destination'}',
-          points: walkFromExit.points,
-          isFallback: walkFromExit.isFallback,
-        ));
+        legs.add(
+          WalkLeg(
+            startPoint: exitStation.toLatLng(),
+            endPoint: destination,
+            distanceMeters: walkFromExit.distanceMeters,
+            durationSeconds: walkFromExit.durationSeconds,
+            instructions:
+                'Walk from ${exitStation.name} to ${destinationName ?? 'destination'}',
+            points: walkFromExit.points,
+            isFallback: walkFromExit.isFallback,
+          ),
+        );
 
         final totalDist = legs.fold(0.0, (s, l) => s + l.distanceMeters);
         final totalDuration = legs.fold(0.0, (s, l) => s + l.durationSeconds);
-        final walkDist = legs.whereType<WalkLeg>().fold(0.0, (s, l) => s + l.distanceMeters);
+        final walkDist = legs.whereType<WalkLeg>().fold(
+          0.0,
+          (s, l) => s + l.distanceMeters,
+        );
 
         final score = totalDuration + (walkDist * 0.4);
 
@@ -683,11 +814,15 @@ class MultimodalRoutingService {
     bool preferMetro = true,
     double maxWalkDistanceKm = 3.0,
   }) async {
-    debugPrint('[MultimodalRouting] Computing best shortest route from $origin to $destination');
+    debugPrint(
+      '[MultimodalRouting] Computing best shortest route from $origin to $destination',
+    );
 
     final directWalkDist = haversineMeters(
-      origin.latitude, origin.longitude,
-      destination.latitude, destination.longitude,
+      origin.latitude,
+      origin.longitude,
+      destination.latitude,
+      destination.longitude,
     );
 
     // 1. Direct road route
@@ -700,7 +835,9 @@ class MultimodalRoutingService {
 
     // If close (< 900m), road walking is virtually always the shortest and fastest
     if (directWalkDist < 900) {
-      debugPrint('[MultimodalRouting] Short distance (${(directWalkDist/1000).toStringAsFixed(2)} km) -> Direct Road');
+      debugPrint(
+        '[MultimodalRouting] Short distance (${(directWalkDist / 1000).toStringAsFixed(2)} km) -> Direct Road',
+      );
       return roadRoute;
     }
 
@@ -744,8 +881,10 @@ class MultimodalRoutingService {
     for (final candidate in candidates) {
       if (candidate == roadRoute) continue;
 
-      final isDistanceShorter = candidate.totalDistanceMeters < best.totalDistanceMeters * 1.05;
-      final isTimeShorter = candidate.totalDurationSeconds < best.totalDurationSeconds * 0.75;
+      final isDistanceShorter =
+          candidate.totalDistanceMeters < best.totalDistanceMeters * 1.05;
+      final isTimeShorter =
+          candidate.totalDurationSeconds < best.totalDurationSeconds * 0.75;
 
       if (isDistanceShorter || isTimeShorter) {
         // If distance is very close, pick the one with less fatigue / faster duration
@@ -756,7 +895,9 @@ class MultimodalRoutingService {
       }
     }
 
-    debugPrint('[MultimodalRouting] ✅ Best choice: ${best.bestModeBadge ?? best.summary}');
+    debugPrint(
+      '[MultimodalRouting] ✅ Best choice: ${best.bestModeBadge ?? best.summary}',
+    );
     return best;
   }
 
@@ -766,9 +907,13 @@ class MultimodalRoutingService {
       if (leg is WalkLeg) {
         parts.add('🚶 ${leg.formattedDistance} (${leg.formattedDuration})');
       } else if (leg is MetroLeg) {
-        parts.add('🚇 ${leg.line.label} ${leg.stationCount} stops (${leg.formattedDuration})');
+        parts.add(
+          '🚇 ${leg.line.label} ${leg.stationCount} stops (${leg.formattedDuration})',
+        );
       } else if (leg is TrainLeg) {
-        parts.add('🚆 ${leg.corridorName} ${leg.stationCount} stops (${leg.formattedDuration})');
+        parts.add(
+          '🚆 ${leg.corridorName} ${leg.stationCount} stops (${leg.formattedDuration})',
+        );
       }
     }
     return parts.join(' → ');
@@ -879,9 +1024,12 @@ double haversineMeters(double lat1, double lon1, double lat2, double lon2) {
   const double r = 6371000;
   final dLat = _toRad(lat2 - lat1);
   final dLon = _toRad(lon2 - lon1);
-  final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-      math.cos(_toRad(lat1)) * math.cos(_toRad(lat2)) *
-      math.sin(dLon / 2) * math.sin(dLon / 2);
+  final a =
+      math.sin(dLat / 2) * math.sin(dLat / 2) +
+      math.cos(_toRad(lat1)) *
+          math.cos(_toRad(lat2)) *
+          math.sin(dLon / 2) *
+          math.sin(dLon / 2);
   final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
   return r * c;
 }

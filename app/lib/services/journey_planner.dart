@@ -23,10 +23,13 @@ typedef JourneyRoadLoader = Future<WalkingRoute> Function({
 class JourneyPlanner {
   JourneyPlanner({
     JourneyRoadLoader? roadLoader,
+    JourneyRoadLoader? drivingLoader,
     Map<KolkataMetroLine, List<MetroStation>>? metroLines,
     Map<String, List<RailwayStationInfo>>? trainLines,
   }) : _roadLoader =
            roadLoader ?? RoutingService.instance.getLiveWalkingRouteToPoint,
+       _drivingLoader =
+           drivingLoader ?? RoutingService.instance.getLiveDrivingRouteToPoint,
        _metroLines =
            metroLines ??
            {
@@ -37,6 +40,7 @@ class JourneyPlanner {
 
   static final instance = JourneyPlanner();
   final JourneyRoadLoader _roadLoader;
+  final JourneyRoadLoader _drivingLoader;
   final Map<KolkataMetroLine, List<MetroStation>> _metroLines;
   final Map<String, List<RailwayStationInfo>> _trainLines;
 
@@ -47,6 +51,7 @@ class JourneyPlanner {
     Pandal? targetPandal,
     bool allowMetro = true,
     bool allowTrain = true,
+    bool allowDriving = false,
   }) async {
     final roadCache = <String, Future<WalkLeg>>{};
     Future<WalkLeg> walk(
@@ -223,12 +228,54 @@ class JourneyPlanner {
           }
           final route = _route(legs);
           if (best == null ||
-              route.totalDurationSeconds < best.totalDurationSeconds * .9) {
+              route.totalDurationSeconds < best.totalDurationSeconds) {
             best = route;
           }
         } catch (_) {
           // Reject the entire disconnected candidate, never invent a road connector.
         }
+      }
+    }
+    if (allowDriving) {
+      try {
+        final drive = await _drivingLoader(
+          start: origin,
+          destination: destination,
+          destinationName: destinationName,
+          targetPandal: targetPandal,
+        );
+        if (!drive.isFallback &&
+            drive.points.length >= 2 &&
+            drive.steps.isNotEmpty) {
+          final driveEnd = drive.points.last;
+          final driveStart = drive.points.first;
+          final needsAccess = _meters(origin, driveStart) > 25;
+          final candidate = _route([
+            if (needsAccess)
+              await walk(
+                origin,
+                driveStart,
+                'Walk to the car/taxi pickup point',
+              ),
+            DriveLeg(
+              startPoint: needsAccess ? driveStart : origin,
+              endPoint: driveEnd,
+              distanceMeters: drive.distanceMeters,
+              durationSeconds: drive.durationSeconds,
+              instructions: 'Drive or take a taxi to $destinationName',
+              points: drive.points,
+              steps: drive.steps,
+            ),
+            if (_meters(driveEnd, destination) > 25)
+              await walk(driveEnd, destination, 'Walk to $destinationName'),
+          ]);
+          if (best == null ||
+              candidate.totalDurationSeconds < best.totalDurationSeconds) {
+            best = candidate;
+          }
+        }
+      } catch (_) {
+        /* Retain the connected walking/transit option. */
       }
     }
     if (best == null) {
@@ -260,6 +307,8 @@ class JourneyPlanner {
           ? 'Train + Walk'
           : metro
           ? 'Metro + Walk'
+          : legs.any((leg) => leg is DriveLeg)
+          ? 'Car/taxi'
           : 'Walk',
       summary: legs.map((leg) => leg.instructions).join(' → '),
     );
