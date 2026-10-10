@@ -218,12 +218,19 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
       await CustomHoppingTrailService.instance.startTrail(trail, requireLiveRoute: true);
     } catch (e) {
       debugPrint('Error starting custom trail: $e');
+      if (mounted) {
+        setState(() => _isGenerating = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Could not load the trail route. Check your connection and retry.'),
+        ));
+      }
+      return;
     }
 
     if (mounted) {
       Navigator.of(context).pop();
       widget.onTrailStarted?.call();
-      final totalStops = trail?.totalStops ?? selectedList.length;
+      final totalStops = trail.totalStops;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: PujaColors.durgaRed,

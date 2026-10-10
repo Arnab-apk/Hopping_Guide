@@ -17,10 +17,8 @@ import '../models/app_user.dart';
 import '../models/pandal.dart';
 import '../models/squad_member.dart';
 import '../models/toilet.dart';
-import '../models/trail_leg.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/metro_repository.dart';
-import '../repositories/railway_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../services/auth_service.dart';
@@ -28,6 +26,10 @@ import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
 import '../services/live_tracking_enhancements.dart';
 import '../services/navigation_session.dart';
+import '../services/journey_session.dart';
+import '../widgets/journey_card.dart';
+import '../widgets/trail_navigation_prompt.dart';
+import 'trail_route_screen.dart';
 import '../widgets/navigation_overlay.dart';
 import '../widgets/mapbox_navigation_guidance.dart';
 import '../widgets/route_polylines.dart';
@@ -62,6 +64,29 @@ class MapScreen extends StatefulWidget {
 
   final PandalRepository? repository;
   final VoidCallback? onMapReady;
+  static final journeyStart = ValueNotifier<int>(0);
+
+  static void openTrailRoute(
+    BuildContext context,
+    List<Pandal> stops, {
+    bool allowMetro = true,
+    bool allowTrain = true,
+  }) {
+    if (stops.isEmpty) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TrailRouteScreen(
+          stops: stops,
+          allowMetro: allowMetro,
+          allowTrain: allowTrain,
+          onUseJourney: () {
+            MainNavigationScreen.switchTab(context, 0);
+            journeyStart.value++;
+          },
+        ),
+      ),
+    );
+  }
 
   /// Global notifier to request an in-app walking route or centering on a target food spot.
   static final ValueNotifier<({FoodSpot spot, bool traceRoute})?>
@@ -271,6 +296,129 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   final _navigation = NavigationSession.instance;
+  final _journey = JourneySession.instance;
+
+  void _onJourneyChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onJourneyStart() {
+    unawaited(_startJourneyWalking());
+  }
+
+  Future<void> _startJourneyWalking() async {
+    if (!_journey.active || _isCalculatingRoute) return;
+    final leg = _journey.leg;
+    if (leg is! WalkLeg) {
+      setState(() {});
+      return;
+    }
+    setState(() => _isCalculatingRoute = true);
+    try {
+      var fix = await LocationService.instance.currentPosition();
+      if (fix != null &&
+          DateTime.now().difference(fix.timestamp).abs() >
+              const Duration(seconds: 30)) {
+        fix = await LocationService.instance.updateLiveLocation();
+      }
+      if (fix == null) throw StateError('Location is unavailable');
+      final origin = LatLng(fix.latitude, fix.longitude);
+      if (haversineMeters(
+                origin.latitude,
+                origin.longitude,
+                leg.endPoint.latitude,
+                leg.endPoint.longitude,
+              ) <
+              15 &&
+          fix.accuracy <= 30 &&
+          DateTime.now().difference(fix.timestamp).abs() <=
+              const Duration(seconds: 10)) {
+        await _advanceJourney();
+        return;
+      }
+      final route = await RoutingService.instance.getLiveWalkingRouteToPoint(
+        start: origin,
+        destination: leg.endPoint,
+        destinationName: leg.instructions,
+        targetPandal: _journey.legIndex == _journey.route!.legs.length - 1
+            ? _journey.target
+            : null,
+      );
+      if (!mounted || !identical(leg, _journey.leg)) return;
+      _highlightedRoute = route;
+      _journey.beginWalking();
+      await _navigation.begin();
+      if (!_navigation.active) _journey.cancelWalking();
+    } catch (_) {
+      if (mounted) {
+        _showStatusPill(
+          'Could not start walking directions. Check location and connection, then retry.',
+          icon: Icons.warning_amber,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCalculatingRoute = false);
+    }
+  }
+
+  Future<void> _advanceJourney() async {
+    final completed = _journey.advance();
+    if (completed == null) return;
+    final trailService = CustomHoppingTrailService.instance;
+    if (trailService.currentTarget?.id == completed.id &&
+        !trailService.activeTrail!.visitedPandalIds.contains(completed.id)) {
+      await trailService.recordAutoVisit(completed);
+    }
+    if (!mounted) return;
+    final squad = context.read<SquadService>();
+    if (squad.isHoppingActive &&
+        squad.currentHoppingTarget?.id == completed.id) {
+      await squad.advanceToNextPandalStop();
+    }
+  }
+
+  Future<void> _confirmTransitArrival() async {
+    final leg = _journey.leg;
+    if (leg == null || leg is WalkLeg) return;
+    var fix = await LocationService.instance.currentPosition();
+    if (fix != null &&
+        DateTime.now().difference(fix.timestamp).abs() >
+            const Duration(seconds: 30)) {
+      fix = await LocationService.instance.updateLiveLocation();
+    }
+    if (!mounted || !identical(leg, _journey.leg)) return;
+    if (fix == null ||
+        fix.accuracy > 60 ||
+        DateTime.now().difference(fix.timestamp).abs() >
+            const Duration(seconds: 30) ||
+        haversineMeters(
+              fix.latitude,
+              fix.longitude,
+              leg.endPoint.latitude,
+              leg.endPoint.longitude,
+            ) >
+            250) {
+      _showStatusPill(
+        'Reach the alighting station with location enabled before continuing.',
+        icon: Icons.location_on,
+      );
+      return;
+    }
+    await _advanceJourney();
+  }
+
+  void _showJourneyDetails() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TrailRouteScreen(
+          stops: _journey.stops.sublist(_journey.stopIndex),
+          existingRoutes: _journey.routes.sublist(_journey.stopIndex),
+          onUseJourney: _onJourneyStart,
+        ),
+      ),
+    );
+  }
+
   bool _wasNavigating = false;
   bool _mapTrackingStarted = false;
   bool _isCalculatingRoute = false;
@@ -452,6 +600,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     unawaited(_restoreMapNamesPreference());
+    _journey.addListener(_onJourneyChanged);
+    MapScreen.journeyStart.addListener(_onJourneyStart);
     _navigation.addListener(_onNavigationChanged);
     LiveTrackingEngine.instance.onRouteRecalculated = _onRouteRecalculated;
     _positionInterpolator = PositionInterpolator();
@@ -546,6 +696,23 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   void _onNavigationChanged() {
     if (!mounted) return;
+    if (_navigation.state == NavigationState.arrived && _journey.walking) {
+      final destination = _navigation.route?.points.last;
+      final leg = _journey.leg;
+      if (destination != null &&
+          leg is WalkLeg &&
+          haversineMeters(
+                destination.latitude,
+                destination.longitude,
+                leg.endPoint.latitude,
+                leg.endPoint.longitude,
+              ) <
+              75) {
+        unawaited(_advanceJourney());
+      } else {
+        _journey.cancelWalking();
+      }
+    }
     final entering = _navigation.active && !_wasNavigating;
     final ending = !_navigation.active && _wasNavigating;
     setState(() {
@@ -605,11 +772,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       );
       if (confirmed != true || !mounted) return;
     }
+    _journey.cancelWalking();
     _clearRoute();
   }
 
   @override
   void dispose() {
+    _journey.removeListener(_onJourneyChanged);
+    MapScreen.journeyStart.removeListener(_onJourneyStart);
     LocationService.instance.removeListener(_onHeadingChanged);
     _navigation.removeListener(_onNavigationChanged);
     _navigation.end(notify: false);
@@ -1947,6 +2117,55 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
 
+              if (_journey.active) ...[
+                PolylineLayer(
+                  polylines: [
+                    for (final journey in _journey.routes.skip(
+                      _journey.stopIndex,
+                    ))
+                      ...buildHighlightedRoutePolylines(
+                        WalkingRoute(
+                          points: journey.allDisplayPoints,
+                          distanceMeters: journey.totalDistanceMeters,
+                          durationSeconds: journey.totalDurationSeconds,
+                          segments: journey.polylines,
+                        ),
+                        isDark,
+                      ),
+                  ],
+                ),
+                MarkerLayer(
+                  markers: [
+                    for (final route in _journey.routes.skip(
+                      _journey.stopIndex,
+                    ))
+                      for (final leg in route.legs)
+                        if (leg is! WalkLeg) ...[
+                          Marker(
+                            point: leg.startPoint,
+                            width: 32,
+                            height: 32,
+                            child: Tooltip(
+                              message: leg.instructions,
+                              child: const Icon(
+                                Icons.train,
+                                color: Colors.deepPurple,
+                              ),
+                            ),
+                          ),
+                          Marker(
+                            point: leg.endPoint,
+                            width: 32,
+                            height: 32,
+                            child: const Icon(
+                              Icons.train,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ],
+                  ],
+                ),
+              ],
               if (_navigation.active) ...[
                 if (_navigation.route != null)
                   PolylineLayer(
@@ -2077,6 +2296,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
                 // Dual-Segment Trail Path Layer (Trail Mode)
                 if (isTrailActive &&
+                    !_journey.active &&
                     activeTrail != null &&
                     activeTrail.stops.isNotEmpty)
                   RepaintBoundary(
@@ -3612,10 +3832,35 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             ),
           ],
+          if (_journey.active && !_navigation.active && !_navigation.hasPreview)
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 12,
+              child: SafeArea(
+                top: false,
+                child: JourneyCard(
+                  session: _journey,
+                  onDirections: _onJourneyStart,
+                  onTransitArrival: () => _confirmTransitArrival(),
+                  onDetails: _showJourneyDetails,
+                  onClose: () {
+                    _journey.end();
+                    _clearRoute();
+                  },
+                ),
+              ),
+            ),
           if (_navigation.hasPreview || _navigation.active)
             NavigationOverlay(
               session: _navigation,
-              onStart: () => _navigation.begin(),
+              onStart: () async {
+                if (_journey.active && _journey.leg is WalkLeg) {
+                  await _startJourneyWalking();
+                } else {
+                  await _navigation.begin();
+                }
+              },
               onEnd: _endNavigation,
               onRecenter: () {
                 _navigation.recenter();
@@ -3897,6 +4142,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               : 'Custom Trail',
           onTap: () {
             HapticFeedback.selectionClick();
+            if (hasActive) {
+              unawaited(_previewTrailNavigation(trail!));
+              return;
+            }
             CustomTrailPlannerDialog.show(
               context,
               initialLocation: _userPosition != null
@@ -3911,6 +4160,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 final firstStop = trailService.activeTrail?.currentTargetPandal;
                 if (firstStop != null) {
                   _animatedMapMove(LatLng(firstStop.lat, firstStop.lng), 15.5);
+                  unawaited(_offerActiveTrailDirections());
                 }
               },
             );
@@ -3920,56 +4170,27 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _offerActiveTrailDirections() async {
+    final trail = CustomHoppingTrailService.instance.activeTrail;
+    final target = trail?.currentTargetPandal;
+    if (target != null &&
+        await offerTrailNavigation(context, target.name) &&
+        mounted) {
+      await _previewTrailNavigation(trail!);
+    }
+  }
+
   Future<void> _previewTrailNavigation(ActiveCustomTrail trail) async {
-    if (_isCalculatingRoute) return;
-    if (trail.hasTransitLegs) {
-      final next = trail.currentTargetPandal;
-      if (next != null) await _highlightRouteTo(next);
-      return;
-    }
-    final fix = await LocationService.instance.currentPosition();
-    if (!mounted) return;
-    if (fix == null) {
-      _showStatusPill(
-        'Turn on location to get walking directions.',
-        icon: Icons.location_off,
-      );
-      return;
-    }
     final remaining = trail.stops
+        .skip(trail.currentStopIndex)
         .where((stop) => !trail.visitedPandalIds.contains(stop.id))
         .toList();
-    if (remaining.isEmpty) return;
-    setState(() => _isCalculatingRoute = true);
-    try {
-      final route = await RoutingService.instance.getLiveMultiStopRoute(
-        waypoints: [
-          LatLng(fix.latitude, fix.longitude),
-          for (final stop in remaining) LatLng(stop.lat, stop.lng),
-        ],
-        routeTitle: 'Custom Hopping Trail',
-      );
-      if (!mounted ||
-          CustomHoppingTrailService.instance.activeTrail?.id != trail.id) {
-        return;
-      }
-      setState(() => _highlightedRoute = route);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: LatLngBounds.fromPoints(route.points),
-          padding: const EdgeInsets.fromLTRB(48, 140, 48, 220),
-        ),
-      );
-    } catch (_) {
-      if (mounted) {
-        _showStatusPill(
-          'Could not get walking directions. Check your connection and try again.',
-          icon: Icons.warning_amber_rounded,
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isCalculatingRoute = false);
-    }
+    MapScreen.openTrailRoute(
+      context,
+      remaining,
+      allowMetro: trail.allowMetro,
+      allowTrain: trail.allowTrain,
+    );
   }
 
   Widget _buildTrailSummaryBar(
@@ -4251,230 +4472,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     LatLng? liveLoc,
     bool isDark,
   ) {
-    if (trail.stops.isEmpty) return const [];
-
-    final startCoord = trail.startPoint;
-
-    // 1. Memoized Core Trail Polylines (Glow + Brand Gold Primary Line)
-    // Only reconstructed when the trail ID, routed polyline geometry, or theme changes,
-    // completely eliminating map stutter and tile-loading lag caused by continuous GPS ticks.
-    final String coreKey =
-        '${trail.id}_${trail.routedPolyline?.length ?? 0}_${trail.hasTransitLegs}_$isDark';
-    if (_cachedTrailCoreKey != coreKey || _cachedTrailCorePolylines == null) {
-      final corePolylines = <Polyline>[];
-
-      if (trail.hasTransitLegs) {
-        // Multi-modal rendering: individual walk segments, authentic metro lines, and suburban train tracks
-        for (final leg in trail.legs) {
-          if (leg.mode == LegMode.walk) {
-            final points =
-                (leg.roadPolyline != null && leg.roadPolyline!.length >= 2)
-                ? leg.roadPolyline!
-                : [leg.from, leg.to];
-            // Walking segment between consecutive pandals
-            corePolylines.add(
-              Polyline(
-                points: points,
-                strokeWidth: 8.0,
-                color: PujaColors.festivalGold.withValues(alpha: 0.3),
-              ),
-            );
-            corePolylines.add(
-              Polyline(
-                points: points,
-                strokeWidth: 5.0,
-                color: PujaColors.festivalGold,
-              ),
-            );
-          } else if (leg.mode == LegMode.metro && leg.metroDetail != null) {
-            final detail = leg.metroDetail!;
-            final boardPos = detail.boardingStation.toLatLng();
-            final alightPos = detail.alightingStation.toLatLng();
-            final metroColor = detail.boardingStation.line.color;
-
-            // 1. Pedestrian connection: pandal to boarding station (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [leg.from, boardPos],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-
-            // 2. Metro rail track: curved track points following actual line alignment!
-            final metroPoints = MetroRepository.getTrackPolylineBetween(
-              detail.boardingStation,
-              detail.alightingStation,
-            );
-            // Glowing underlay
-            corePolylines.add(
-              Polyline(
-                points: metroPoints,
-                strokeWidth: 9.0,
-                color: metroColor.withValues(alpha: 0.35),
-              ),
-            );
-            // Solid brand transit line
-            corePolylines.add(
-              Polyline(
-                points: metroPoints,
-                strokeWidth: 5.5,
-                color: metroColor,
-              ),
-            );
-
-            // 3. Pedestrian connection: alighting station to pandal (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [alightPos, leg.to],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-          } else if (leg.mode == LegMode.train && leg.trainDetail != null) {
-            final detail = leg.trainDetail!;
-            final boardPos = LatLng(
-              detail.boardingStation.latitude,
-              detail.boardingStation.longitude,
-            );
-            final alightPos = LatLng(
-              detail.alightingStation.latitude,
-              detail.alightingStation.longitude,
-            );
-            const trainColor = PujaColors.railwayPurple;
-
-            // 1. Pedestrian connection: pandal to boarding railway station (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [leg.from, boardPos],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-
-            // 2. Railway track: curved track points tracing real alignment!
-            final trainPoints = detail.trackPoints.length >= 2
-                ? detail.trackPoints
-                : RailwayRepository.getTrackPolylineBetween(
-                    detail.boardingStation,
-                    detail.alightingStation,
-                  );
-
-            // Glowing underlay
-            corePolylines.add(
-              Polyline(
-                points: trainPoints,
-                strokeWidth: 9.0,
-                color: trainColor.withValues(alpha: 0.35),
-              ),
-            );
-            // Solid railway transit line
-            corePolylines.add(
-              Polyline(
-                points: trainPoints,
-                strokeWidth: 5.5,
-                color: trainColor,
-              ),
-            );
-
-            // 3. Pedestrian connection: alighting railway station to pandal (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [alightPos, leg.to],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-          }
-        }
-      } else {
-        final List<LatLng> trailCoords;
-        if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
-          trailCoords = trail.routedPolyline!;
-        } else {
-          final coords = <LatLng>[];
-          final firstStop = trail.stops.first;
-          final double distToFirst = haversineMeters(
-            startCoord.latitude,
-            startCoord.longitude,
-            firstStop.lat,
-            firstStop.lng,
-          );
-          // Only include startCoord if within reasonable walking reach (<= 2000m)
-          if (distToFirst > 15.0 && distToFirst <= 2000.0) {
-            coords.add(startCoord);
-          }
-          for (final s in trail.stops) {
-            coords.add(LatLng(s.lat, s.lng));
-          }
-          trailCoords = coords;
-        }
-
-        if (trailCoords.length >= 2) {
-          // Glow/underglow line
-          corePolylines.add(
-            Polyline(
-              points: trailCoords,
-              strokeWidth: 8.5,
-              color: PujaColors.festivalGold.withValues(alpha: 0.3),
+    final key =
+        '${trail.id}_${identityHashCode(trail)}_${trail.routeRevision}_$isDark';
+    if (_cachedTrailCoreKey != key || _cachedTrailCorePolylines == null) {
+      _cachedTrailCoreKey = key;
+      _cachedTrailCorePolylines = [
+        for (final journey in trail.routedJourneys)
+          ...buildHighlightedRoutePolylines(
+            WalkingRoute(
+              points: journey.allDisplayPoints,
+              distanceMeters: journey.totalDistanceMeters,
+              durationSeconds: journey.totalDurationSeconds,
+              segments: journey.polylines,
             ),
-          );
-          // Solid brand gold primary line
-          corePolylines.add(
-            Polyline(
-              points: trailCoords,
-              strokeWidth: 5.0,
-              color: PujaColors.festivalGold,
-            ),
-          );
-        }
-      }
-
-      _cachedTrailCorePolylines = corePolylines;
-      _cachedTrailCoreKey = coreKey;
-    }
-
-    final polylines = <Polyline>[];
-
-    // 2. Segment 1: "Getting there" (Live location -> Trail's start point)
-    // Thin, dashed, muted color (blueGrey). Only drawn if liveLoc is within walking reach (<= 2500m) and separated by > 60m.
-    if (liveLoc != null) {
-      final double distMeters = haversineMeters(
-        liveLoc.latitude,
-        liveLoc.longitude,
-        startCoord.latitude,
-        startCoord.longitude,
-      );
-      if (distMeters > 60.0 && distMeters <= 2500.0) {
-        polylines.add(
-          Polyline(
-            points: [liveLoc, startCoord],
-            strokeWidth: 2.8,
-            color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
-            pattern: StrokePattern.dashed(segments: const [8, 6]),
+            isDark,
           ),
-        );
-      }
+      ];
     }
-
-    // Add cached core lines
-    if (_cachedTrailCorePolylines != null) {
-      polylines.addAll(_cachedTrailCorePolylines!);
-    }
-
-    return polylines;
+    return _cachedTrailCorePolylines!;
   }
 
   List<Marker> _buildTrailMarkers(
@@ -4558,74 +4573,26 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       );
     }
 
-    // Station badges for metro-assisted legs
-    if (trail.hasMetroLegs) {
-      final addedStationIds = <String>{};
-      for (final leg in trail.legs) {
-        if (leg.mode == LegMode.metro && leg.metroDetail != null) {
-          final detail = leg.metroDetail!;
-          final stationsToMark = <MetroStation>[
-            detail.boardingStation,
-            if (detail.requiresInterchange && detail.interchangeStation != null)
-              detail.interchangeStation!,
-            detail.alightingStation,
-          ];
-
-          for (final stn in stationsToMark) {
-            if (addedStationIds.contains(stn.id)) continue;
-            addedStationIds.add(stn.id);
-
-            final bool isInterchange = stn.id == detail.interchangeStation?.id;
-            markers.add(
-              Marker(
-                rotate: true,
-                point: stn.toLatLng(),
-                width: 36,
-                height: 46,
-                alignment: Alignment.topCenter,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() {
-                      _selectedMetroStation = stn;
-                      _selectedPandal = null;
-                      _selectedSquadMember = null;
-                      _selectedFoodSpot = null;
-                      _selectedToilet = null;
-                    });
-                    _animatedMapMove(
-                      stn.toLatLng(),
-                      _mapController.camera.zoom < 16.0
-                          ? 16.0
-                          : _mapController.camera.zoom,
-                    );
-                    _showStatusPill(
-                      '${isInterchange ? "🔄 Interchange" : "🚇 Metro"}: ${stn.name} (${stn.line.label})',
-                      icon: isInterchange
-                          ? Icons.transfer_within_a_station_rounded
-                          : Icons.subway_rounded,
-                      color: stn.line.color,
-                    );
-                  },
-                  child: Tooltip(
-                    message:
-                        '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
-                    child: LeafletMarkerPin(
-                      category: LeafletPinCategory.custom,
-                      pinColor: isInterchange
-                          ? const Color(0xFFE65100)
-                          : stn.line.color,
-                      customIcon: isInterchange
-                          ? Icons.transfer_within_a_station_rounded
-                          : Icons.subway_rounded,
-                      size: 32,
-                    ),
-                  ),
+    // Boarding and alighting markers come from the connected itinerary.
+    final stationPoints = <String>{};
+    for (final journey in trail.routedJourneys) {
+      for (final leg in journey.legs.where((leg) => leg is! WalkLeg)) {
+        for (final point in [leg.startPoint, leg.endPoint]) {
+          if (!stationPoints.add(point.toString())) continue;
+          markers.add(
+            Marker(
+              point: point,
+              width: 32,
+              height: 32,
+              child: Tooltip(
+                message: leg.instructions,
+                child: Icon(
+                  leg is MetroLeg ? Icons.subway : Icons.train,
+                  color: Colors.deepPurple,
                 ),
               ),
-            );
-          }
+            ),
+          );
         }
       }
     }

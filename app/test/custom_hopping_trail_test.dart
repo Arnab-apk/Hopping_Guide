@@ -184,7 +184,7 @@ void main() {
       await service.endTrail();
     });
 
-    test('generateOptimizedTrail sanitizes remote user location (> 2.5 km away) and does not inflate trail distance', () {
+    test('optimized trail retains the real origin and includes its first connection', () {
       final service = CustomHoppingTrailService.instance;
       // Remote user position ~38.5 km north (e.g., near Kalyani / Barrackpore)
       const remoteUserPos = LatLng(22.9500, 88.3712);
@@ -195,13 +195,10 @@ void main() {
         selectedPandals: [mockPandals[0], mockPandals[1]], // Hatibagan Sarbojanin & Kashi Bose Lane
       );
 
-      // Trail metrics MUST NOT include the 38.5 km cross-district march!
-      // The two pandals in Hatibagan are ~250m apart.
-      expect(trail.totalDistanceKm, lessThan(3.0));
-      // Total estimated time must be realistic (~30-35 mins), not 580 minutes!
-      expect(trail.totalEstimatedMinutes, lessThan(60));
-      // Starting location is anchored at the first pandal, not the remote GPS
-      expect(trail.startingLocation.latitude, closeTo(mockPandals[0].lat, 0.01));
+      expect(trail.totalDistanceKm, greaterThan(30));
+      expect(trail.startingLocation, remoteUserPos);
+      expect(trail.startingAddress, 'Home (Remote GPS)');
+      expect(trail.legs.first.from, remoteUserPos);
     });
 
     test('RoutingService getMultiStopRoute computes valid route across waypoints', () async {

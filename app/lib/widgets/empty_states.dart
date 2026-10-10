@@ -10,26 +10,37 @@ import 'package:lottie/lottie.dart';
 enum EmptyStateType {
   /// No pandals found for search/filter
   noPandals,
+
   /// No food spots found
   noFoodSpots,
+
   /// No routes available
   noRoutes,
+
   /// No squad/group members
   noSquad,
+
   /// No favorites saved
   noFavorites,
+
   /// No visited pandals
   noVisited,
+
   /// Search returned no results
   noSearchResults,
+
   /// Offline mode
   offline,
+
   /// Network error
   networkError,
+
   /// Generic empty
   generic,
+
   /// Location permission needed
   locationPermission,
+
   /// No notifications
   noNotifications,
 }
@@ -81,7 +92,8 @@ class EmptyStateConfig {
         return EmptyStateConfig(
           type: type,
           title: 'No Food Spots Nearby',
-          message: 'Explore the map to discover local delicacies around pandals.',
+          message:
+              'Explore the map to discover local delicacies around pandals.',
           actionLabel: 'Explore Map',
           icon: Icons.restaurant_outlined,
         );
@@ -170,11 +182,7 @@ class EmptyStateConfig {
 
 /// Main empty state widget with illustration and actions.
 class EmptyState extends StatelessWidget {
-  const EmptyState({
-    super.key,
-    required this.config,
-    this.customIllustration,
-  });
+  const EmptyState({super.key, required this.config, this.customIllustration});
 
   final EmptyStateConfig config;
   final Widget? customIllustration;
@@ -189,7 +197,8 @@ class EmptyState extends StatelessWidget {
     final effectiveActionLabel = config.actionLabel ?? defaults.actionLabel;
     final effectiveIcon = config.icon ?? defaults.icon;
     final effectiveLottie = config.lottieAsset ?? defaults.lottieAsset;
-    final effectiveColor = config.illustrationColor ??
+    final effectiveColor =
+        config.illustrationColor ??
         defaults.illustrationColor ??
         theme.colorScheme.primary;
 
@@ -264,11 +273,7 @@ class EmptyState extends StatelessWidget {
       return SizedBox(
         width: config.compact ? 80 : 120,
         height: config.compact ? 80 : 120,
-        child: Lottie.asset(
-          lottieAsset,
-          fit: BoxFit.contain,
-          repeat: true,
-        ),
+        child: Lottie.asset(lottieAsset, fit: BoxFit.contain, repeat: true),
       );
     }
 
@@ -347,112 +352,105 @@ class EmptyStates {
     String? message,
     VoidCallback? onClearFilters,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noPandals,
-          message: message,
-          actionLabel: 'Clear Filters',
-          onAction: onClearFilters,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noPandals,
+      message: message,
+      actionLabel: 'Clear Filters',
+      onAction: onClearFilters,
+    ),
+  );
 
   /// No food spots.
   static Widget noFoodSpots({
     String? message,
     VoidCallback? onExploreMap,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noFoodSpots,
-          message: message,
-          actionLabel: 'Explore Map',
-          onAction: onExploreMap,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noFoodSpots,
+      message: message,
+      actionLabel: 'Explore Map',
+      onAction: onExploreMap,
+    ),
+  );
 
   /// No routes.
   static Widget noRoutes({
     String? message,
     VoidCallback? onCreateTrail,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noRoutes,
-          message: message,
-          actionLabel: 'Create Trail',
-          onAction: onCreateTrail,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noRoutes,
+      message: message,
+      actionLabel: 'Create Trail',
+      onAction: onCreateTrail,
+    ),
+  );
 
   /// No squad.
   static Widget noSquad({
     String? message,
     VoidCallback? onCreateSquad,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noSquad,
-          message: message,
-          actionLabel: 'Create Squad',
-          onAction: onCreateSquad,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noSquad,
+      message: message,
+      actionLabel: 'Create Squad',
+      onAction: onCreateSquad,
+    ),
+  );
 
   /// No favorites.
   static Widget noFavorites({
     String? message,
     VoidCallback? onExplore,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noFavorites,
-          message: message,
-          actionLabel: 'Explore Pandals',
-          onAction: onExplore,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noFavorites,
+      message: message,
+      actionLabel: 'Explore Pandals',
+      onAction: onExplore,
+    ),
+  );
 
   /// No visited.
   static Widget noVisited({
     String? message,
     VoidCallback? onStartHopping,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noVisited,
-          message: message,
-          actionLabel: 'Start Hopping',
-          onAction: onStartHopping,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noVisited,
+      message: message,
+      actionLabel: 'Start Hopping',
+      onAction: onStartHopping,
+    ),
+  );
 
   /// No search results.
   static Widget noSearchResults({
     String? message,
     VoidCallback? onClearSearch,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.noSearchResults,
-          message: message,
-          actionLabel: 'Clear Search',
-          onAction: onClearSearch,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.noSearchResults,
+      message: message,
+      actionLabel: 'Clear Search',
+      onAction: onClearSearch,
+    ),
+  );
 
   /// Offline state.
   static Widget offline({
@@ -460,51 +458,48 @@ class EmptyStates {
     VoidCallback? onRetry,
     VoidCallback? onUseCached,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.offline,
-          message: message,
-          actionLabel: 'Retry',
-          onAction: onRetry,
-          secondaryActionLabel: 'Use Cached Data',
-          onSecondaryAction: onUseCached,
-          showSecondaryAction: true,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.offline,
+      message: message,
+      actionLabel: 'Retry',
+      onAction: onRetry,
+      secondaryActionLabel: 'Use Cached Data',
+      onSecondaryAction: onUseCached,
+      showSecondaryAction: true,
+    ),
+  );
 
   /// Network error.
   static Widget networkError({
     String? message,
     VoidCallback? onRetry,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.networkError,
-          message: message,
-          actionLabel: 'Try Again',
-          onAction: onRetry,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.networkError,
+      message: message,
+      actionLabel: 'Try Again',
+      onAction: onRetry,
+    ),
+  );
 
   /// Location permission needed.
   static Widget locationPermission({
     String? message,
     VoidCallback? onOpenSettings,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.locationPermission,
-          message: message,
-          actionLabel: 'Open Settings',
-          onAction: onOpenSettings,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.locationPermission,
+      message: message,
+      actionLabel: 'Open Settings',
+      onAction: onOpenSettings,
+    ),
+  );
 
   /// Generic empty state.
   static Widget generic({
@@ -514,36 +509,35 @@ class EmptyStates {
     String? actionLabel,
     VoidCallback? onAction,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: EmptyStateType.generic,
-          title: title,
-          message: message,
-          icon: icon,
-          actionLabel: actionLabel,
-          onAction: onAction,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: EmptyStateType.generic,
+      title: title,
+      message: message,
+      icon: icon,
+      actionLabel: actionLabel,
+      onAction: onAction,
+    ),
+  );
 
   /// Compact version for inline usage.
-  static Widget compact(EmptyStateType type, {
+  static Widget compact(
+    EmptyStateType type, {
     String? message,
     String? actionLabel,
     VoidCallback? onAction,
     Key? key,
-  }) =>
-      EmptyState(
-        key: key,
-        config: EmptyStateConfig(
-          type: type,
-          message: message,
-          actionLabel: actionLabel,
-          onAction: onAction,
-          compact: true,
-        ),
-      );
+  }) => EmptyState(
+    key: key,
+    config: EmptyStateConfig(
+      type: type,
+      message: message,
+      actionLabel: actionLabel,
+      onAction: onAction,
+      compact: true,
+    ),
+  );
 }
 
 /// Error state with retry (for list/grid items).
@@ -613,7 +607,10 @@ class ErrorState extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text('Try Again', style: TextStyle(fontSize: compact ? 13 : 14)),
+                  child: Text(
+                    'Try Again',
+                    style: TextStyle(fontSize: compact ? 13 : 14),
+                  ),
                 ),
               ),
             ],
@@ -787,7 +784,10 @@ class OfflineBanner extends StatelessWidget {
                   onPressed: onRetry,
                   style: TextButton.styleFrom(
                     foregroundColor: theme.colorScheme.onErrorContainer,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -805,7 +805,10 @@ class OfflineBanner extends StatelessWidget {
                     color: theme.colorScheme.onErrorContainer,
                   ),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                  ),
                 ),
               ],
             ],

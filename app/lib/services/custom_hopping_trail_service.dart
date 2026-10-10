@@ -1,16 +1,17 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../models/pandal.dart';
-import '../repositories/metro_repository.dart';
 import '../utils/haversine.dart';
 import 'location_service.dart';
 import 'notification_progress_service.dart';
 import 'pandal_user_state_service.dart';
-import 'routing_service.dart';
 import 'trail_optimizer.dart';
+import 'journey_planner.dart';
+import 'multimodal_routing_service.dart' hide haversineMeters;
 
 /// User's preferred vibe / hopping style
 enum HoppingStyle {
@@ -18,35 +19,40 @@ enum HoppingStyle {
     id: 'heritage',
     title: 'Art & Heritage',
     bengaliTitle: 'সাবেকি ও সাবেকিয়ানা',
-    description: 'Bonedi Baris, clay artisan idols & traditional cultural decor',
+    description:
+        'Bonedi Baris, clay artisan idols & traditional cultural decor',
     iconEmoji: '🏛️',
   ),
   blockbuster(
     id: 'blockbuster',
     title: 'Blockbuster & Mega Theme',
     bengaliTitle: 'মেগা পুজো ও আলো',
-    description: 'Crowd-pullers, grand architecture, dazzling lights & big themes',
+    description:
+        'Crowd-pullers, grand architecture, dazzling lights & big themes',
     iconEmoji: '🌟',
   ),
   serene(
     id: 'serene',
     title: 'Peaceful & Low Queue',
     bengaliTitle: 'শান্ত পরিবেশ ও স্বল্প ভিড়',
-    description: 'Neighborhood gems with scenic ambiance and faster pandal entry',
+    description:
+        'Neighborhood gems with scenic ambiance and faster pandal entry',
     iconEmoji: '🌿',
   ),
   foodie(
     id: 'foodie',
     title: 'Foodie & Bhog Trail',
     bengaliTitle: 'খাবার ও ভোগের মেলা',
-    description: 'Famous street food stalls, phuchka corners & bhog distribution',
+    description:
+        'Famous street food stalls, phuchka corners & bhog distribution',
     iconEmoji: '🍲',
   ),
   express(
     id: 'express',
     title: 'Express Hopper',
     bengaliTitle: 'দ্রুত পরিক্রমা',
-    description: 'Tightly clustered pandals for maximum visits in minimum distance',
+    description:
+        'Tightly clustered pandals for maximum visits in minimum distance',
     iconEmoji: '⚡',
   );
 
@@ -67,21 +73,9 @@ enum HoppingStyle {
 
 /// Preferred mode of travel
 enum HoppingTransitMode {
-  walking(
-    label: 'Walking Only',
-    avgSpeedKmh: 4.5,
-    maxRadiusKm: 3.5,
-  ),
-  metroTransit(
-    label: 'Metro & Walking',
-    avgSpeedKmh: 16.0,
-    maxRadiusKm: 8.0,
-  ),
-  cabAuto(
-    label: 'Cab / Auto',
-    avgSpeedKmh: 18.0,
-    maxRadiusKm: 12.0,
-  );
+  walking(label: 'Walking Only', avgSpeedKmh: 4.5, maxRadiusKm: 3.5),
+  metroTransit(label: 'Metro & Walking', avgSpeedKmh: 16.0, maxRadiusKm: 8.0),
+  cabAuto(label: 'Cab / Auto', avgSpeedKmh: 18.0, maxRadiusKm: 12.0);
 
   const HoppingTransitMode({
     required this.label,
@@ -110,8 +104,8 @@ class ActiveCustomTrail {
     this.allowTrain = false,
     this.legs = const [],
     DateTime? startedAt,
-  })  : startedAt = startedAt ?? DateTime.now(),
-        visitedPandalIds = {};
+  }) : startedAt = startedAt ?? DateTime.now(),
+       visitedPandalIds = {};
 
   /// Factory constructor for custom trails created via the Custom Trail Builder
   factory ActiveCustomTrail.custom({
@@ -158,15 +152,19 @@ class ActiveCustomTrail {
   final bool allowTrain;
   final List<TrailLeg> legs;
   final DateTime startedAt;
+  List<MultimodalRoute> routedJourneys = const [];
+  bool isRouting = false;
+  String? routeError;
+  int routeRevision = 0;
 
   bool get hasMetroLegs => legs.any((l) => l.mode == LegMode.metro);
   bool get hasTrainLegs => legs.any((l) => l.mode == LegMode.train);
   bool get hasTransitLegs => hasMetroLegs || hasTrainLegs;
 
-  /// Real road-routed distance in kilometers computed via GemKit native RoutingService.
+  /// Real road-routed distance in kilometers computed via the connected journey planner.
   double? routedDistanceKm;
 
-  /// Real road-routed duration in minutes (including dwelling time) computed via GemKit native RoutingService.
+  /// Real road-routed duration in minutes (including dwelling time) computed via the connected journey planner.
   int? routedEstimatedMinutes;
 
   /// Remaining routed distance in km for unvisited stops
@@ -175,7 +173,7 @@ class ActiveCustomTrail {
   /// Remaining routed duration in minutes for unvisited stops
   int? remainingRoutedDurationMinutes;
 
-  /// High-resolution road-following coordinates along actual streets from GemKit route calculation.
+  /// High-resolution road-following coordinates along actual streets from connected pedestrian and transit routes.
   List<LatLng>? routedPolyline;
 
   LatLng get startPoint => startingLocation;
@@ -186,10 +184,13 @@ class ActiveCustomTrail {
 
   int get totalStops => stops.length;
   int get visitedCount => visitedPandalIds.length;
-  double get progressFraction => totalStops > 0 ? (visitedCount / totalStops).clamp(0.0, 1.0) : 0.0;
+  double get progressFraction =>
+      totalStops > 0 ? (visitedCount / totalStops).clamp(0.0, 1.0) : 0.0;
 
   Pandal? get currentTargetPandal =>
-      (currentStopIndex >= 0 && currentStopIndex < stops.length) ? stops[currentStopIndex] : null;
+      (currentStopIndex >= 0 && currentStopIndex < stops.length)
+      ? stops[currentStopIndex]
+      : null;
 
   Pandal? get previousVisitedPandal {
     if (currentStopIndex > 0 && currentStopIndex <= stops.length) {
@@ -218,7 +219,8 @@ class ActiveCustomTrail {
 /// Service managing custom trail generation, active navigation state,
 /// auto-visit geofence proximity triggers, and notification bar sync.
 class CustomHoppingTrailService extends ChangeNotifier {
-  static final CustomHoppingTrailService instance = CustomHoppingTrailService._();
+  static final CustomHoppingTrailService instance =
+      CustomHoppingTrailService._();
   CustomHoppingTrailService._();
 
   ActiveCustomTrail? _activeTrail;
@@ -232,7 +234,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
   bool get hasActiveTrail => _activeTrail != null && !_activeTrail!.isCompleted;
   Pandal? get currentTarget => _activeTrail?.currentTargetPandal;
 
-  /// Updates the active trail with real road-following metrics calculated by GemKit RoutingService.
+  /// Updates the active trail with real road-following metrics calculated by the connected journey planner.
   void updateRoutedStats({
     required double distanceKm,
     required int durationMinutes,
@@ -280,20 +282,7 @@ class CustomHoppingTrailService extends ChangeNotifier {
       );
     }
 
-    // Check if startPos is in walking vicinity of any selected pandal (<= 2500m).
-    // If user is remote (e.g. at home 38.5 km away), anchor the shortest-path
-    // optimizer at the first pandal so the trail metrics and ordering reflect
-    // the pandal hopping circuit itself, not a 38 km cross-district march.
-    double minDistToPandals = double.infinity;
-    for (final p in selectedPandals) {
-      final d = haversineMeters(startPos.latitude, startPos.longitude, p.lat, p.lng);
-      if (d < minDistToPandals) minDistToPandals = d;
-    }
-
-    final bool isUserClose = minDistToPandals <= 2500.0;
-    final effectiveStart = isUserClose
-        ? startPos
-        : LatLng(selectedPandals.first.lat, selectedPandals.first.lng);
+    final effectiveStart = startPos;
 
     final result = TrailOptimizer.optimizePandalStops(
       start: effectiveStart,
@@ -304,14 +293,13 @@ class CustomHoppingTrailService extends ChangeNotifier {
 
     // Estimate dwell time (~15 mins per pandal) + walk/metro/train duration
     final totalEstMinutes =
-        (result.totalDurationMinutes + (result.orderedStops.length * 15)).round();
+        (result.totalDurationMinutes + (result.orderedStops.length * 15))
+            .round();
 
     return ActiveCustomTrail.custom(
       id: 'custom_trail_${DateTime.now().millisecondsSinceEpoch}',
-      startingLocation: isUserClose
-          ? startPos
-          : LatLng(result.orderedStops.first.lat, result.orderedStops.first.lng),
-      startingAddress: isUserClose ? startLabel : result.orderedStops.first.name,
+      startingLocation: startPos,
+      startingAddress: startLabel,
       stops: result.orderedStops,
       totalDistanceKm: result.totalDistanceKm,
       totalEstimatedMinutes: totalEstMinutes,
@@ -334,7 +322,9 @@ class CustomHoppingTrailService extends ChangeNotifier {
     // 1. Filter pandals by realistic travel radius from starting point
     final maxRadius = transitMode.maxRadiusKm;
     final candidates = allPandals.where((p) {
-      final d = haversineMeters(startPos.latitude, startPos.longitude, p.lat, p.lng) / 1000.0;
+      final d =
+          haversineMeters(startPos.latitude, startPos.longitude, p.lat, p.lng) /
+          1000.0;
       return d <= maxRadius;
     }).toList();
 
@@ -363,7 +353,10 @@ class CustomHoppingTrailService extends ChangeNotifier {
         case HoppingStyle.blockbuster:
           if (p.crowdLevel == 'high' || p.crowdLevel == 'extreme') score += 25;
           if (score >= 43) score += 20;
-          if (themeLower.contains('lighting') || themeLower.contains('extravaganza')) score += 20;
+          if (themeLower.contains('lighting') ||
+              themeLower.contains('extravaganza')) {
+            score += 20;
+          }
           break;
 
         case HoppingStyle.serene:
@@ -373,7 +366,11 @@ class CustomHoppingTrailService extends ChangeNotifier {
           break;
 
         case HoppingStyle.foodie:
-          if (p.specialFeatures.any((f) => f.toLowerCase().contains('bhog') || f.toLowerCase().contains('food')) ||
+          if (p.specialFeatures.any(
+                (f) =>
+                    f.toLowerCase().contains('bhog') ||
+                    f.toLowerCase().contains('food'),
+              ) ||
               descLower.contains('food') ||
               descLower.contains('bhog')) {
             score += 35;
@@ -406,9 +403,17 @@ class CustomHoppingTrailService extends ChangeNotifier {
       double bestDist = 0;
 
       for (final p in pool) {
-        final dist = haversineMeters(currentLoc.latitude, currentLoc.longitude, p.lat, p.lng) / 1000.0;
+        final dist =
+            haversineMeters(
+              currentLoc.latitude,
+              currentLoc.longitude,
+              p.lat,
+              p.lng,
+            ) /
+            1000.0;
         // Distance penalty to favor close next pandals
-        final distPenalty = dist * (style == HoppingStyle.express ? 25.0 : 12.0);
+        final distPenalty =
+            dist * (style == HoppingStyle.express ? 25.0 : 12.0);
         final totalCandidateScore = scorePandal(p) - distPenalty;
 
         if (totalCandidateScore > bestScore) {
@@ -434,7 +439,8 @@ class CustomHoppingTrailService extends ChangeNotifier {
       final legTotalMins = travelMins + dwellMins;
 
       // Check if adding this pandal still fits inside budget (allowing a 15m buffer)
-      if (orderedStops.isNotEmpty && (accumulatedMinutes + legTotalMins) > (timeBudgetMinutes + 15)) {
+      if (orderedStops.isNotEmpty &&
+          (accumulatedMinutes + legTotalMins) > (timeBudgetMinutes + 15)) {
         break;
       }
 
@@ -449,12 +455,14 @@ class CustomHoppingTrailService extends ChangeNotifier {
     if (orderedStops.isEmpty && candidates.isNotEmpty) {
       orderedStops.add(candidates.first);
       accumulatedMinutes = 25.0;
-      accumulatedDistanceKm = haversineMeters(
-        startPos.latitude,
-        startPos.longitude,
-        candidates.first.lat,
-        candidates.first.lng,
-      ) / 1000.0;
+      accumulatedDistanceKm =
+          haversineMeters(
+            startPos.latitude,
+            startPos.longitude,
+            candidates.first.lat,
+            candidates.first.lng,
+          ) /
+          1000.0;
     }
 
     return ActiveCustomTrail(
@@ -472,14 +480,23 @@ class CustomHoppingTrailService extends ChangeNotifier {
 
   /// Starts the active trail session, enables continuous location listening,
   /// and displays the ongoing progress notification in the Android shade.
-  Future<void> startTrail(ActiveCustomTrail trail, {bool requireLiveRoute = false}) async {
+  Future<void> startTrail(
+    ActiveCustomTrail trail, {
+    bool requireLiveRoute = false,
+  }) async {
+    final previous = _activeTrail;
     _activeTrail = trail;
-    _activeTrail!.currentStopIndex = 0;
     _activeTrail!.isCompleted = false;
 
     // Immediately trigger asynchronous real road routing calculation
     if (requireLiveRoute) {
-      await calculateAndApplyRoadRoute(trail, requireLive: true);
+      try {
+        await calculateAndApplyRoadRoute(trail, requireLive: true);
+      } catch (_) {
+        if (identical(_activeTrail, trail)) _activeTrail = previous;
+        notifyListeners();
+        rethrow;
+      }
     } else {
       unawaited(calculateAndApplyRoadRoute(trail));
     }
@@ -505,235 +522,55 @@ class CustomHoppingTrailService extends ChangeNotifier {
   }
 
   /// Computes a real street-following pedestrian route for the active custom trail
-  /// using [RoutingService] and updates polyline, distance, and duration stats.
-  Future<void> calculateAndApplyRoadRoute(ActiveCustomTrail trail, {bool requireLive = false}) async {
+  /// with connected walking, metro and suburban railway legs.
+  Future<void> calculateAndApplyRoadRoute(
+    ActiveCustomTrail trail, {
+    bool requireLive = false,
+  }) async {
     if (trail.stops.isEmpty) return;
-
-    if (trail.hasTransitLegs) {
-      // Multi-modal trail: assemble road-routed walks and authentic transit track polylines
-      final fullPoints = <LatLng>[];
-      double totalDistanceMeters = 0.0;
-      double totalTransitSeconds = 0.0;
-
-      for (final leg in trail.legs) {
-        if (leg.mode == LegMode.walk) {
-          try {
-            debugPrint('[TrailService] Routing walk leg: ${leg.from} → ${leg.to}');
-            final legRoute = await RoutingService.instance.getWalkingRouteToPoint(
-              start: leg.from,
-              destination: leg.to,
-              destinationName: 'Walk Leg',
-            );
-            debugPrint('[TrailService] Walk leg routed: ${legRoute.points.length} pts, isFallback=${legRoute.isFallback}');
-            fullPoints.addAll(legRoute.points);
-            totalDistanceMeters += legRoute.distanceMeters;
-            totalTransitSeconds += legRoute.durationSeconds;
-          } catch (e) {
-            debugPrint('[TrailService] Walk leg FAILED, using haversine fallback: $e');
-            fullPoints.addAll([leg.from, leg.to]);
-            final d = haversineMeters(
-                  leg.from.latitude,
-                  leg.from.longitude,
-                  leg.to.latitude,
-                  leg.to.longitude,
-                ) *
-                1.25;
-            totalDistanceMeters += d;
-            totalTransitSeconds += (d / ((4.5 * 1000) / 3600));
-          }
-        } else if (leg.mode == LegMode.metro && leg.metroDetail != null) {
-          final detail = leg.metroDetail!;
-          final boardPos = detail.boardingStation.toLatLng();
-          final alightPos = detail.alightingStation.toLatLng();
-
-          // 1. Walk from leg.from to boarding station
-          try {
-            final walkToBoard = await RoutingService.instance.getWalkingRouteToPoint(
-              start: leg.from,
-              destination: boardPos,
-              destinationName: 'Walk to Metro',
-            );
-            fullPoints.addAll(walkToBoard.points);
-            totalDistanceMeters += walkToBoard.distanceMeters;
-          } catch (_) {
-            fullPoints.addAll([leg.from, boardPos]);
-            totalDistanceMeters += haversineMeters(
-              leg.from.latitude,
-              leg.from.longitude,
-              boardPos.latitude,
-              boardPos.longitude,
-            );
-          }
-
-          // 2. Metro segment line: use authentic track curve points
-          final metroTrackPoints = MetroRepository.getTrackPolylineBetween(
-            detail.boardingStation,
-            detail.alightingStation,
-          );
-          fullPoints.addAll(metroTrackPoints);
-          double metroDistM = 0;
-          for (int i = 0; i < metroTrackPoints.length - 1; i++) {
-            metroDistM += haversineMeters(
-              metroTrackPoints[i].latitude,
-              metroTrackPoints[i].longitude,
-              metroTrackPoints[i + 1].latitude,
-              metroTrackPoints[i + 1].longitude,
-            );
-          }
-          totalDistanceMeters += metroDistM;
-
-          // 3. Walk from alighting station to leg.to
-          try {
-            final walkFromAlight = await RoutingService.instance.getWalkingRouteToPoint(
-              start: alightPos,
-              destination: leg.to,
-              destinationName: 'Walk from Metro',
-            );
-            fullPoints.addAll(walkFromAlight.points);
-            totalDistanceMeters += walkFromAlight.distanceMeters;
-          } catch (_) {
-            fullPoints.addAll([alightPos, leg.to]);
-            totalDistanceMeters += haversineMeters(
-              alightPos.latitude,
-              alightPos.longitude,
-              leg.to.latitude,
-              leg.to.longitude,
-            );
-          }
-
-          totalTransitSeconds += (detail.totalMinutes * 60.0);
-        } else if (leg.mode == LegMode.train && leg.trainDetail != null) {
-          final detail = leg.trainDetail!;
-          final boardPos = detail.boardingStation.toLatLng();
-          final alightPos = detail.alightingStation.toLatLng();
-
-          // 1. Walk to rail station
-          try {
-            final walkToBoard = await RoutingService.instance.getWalkingRouteToPoint(
-              start: leg.from,
-              destination: boardPos,
-              destinationName: 'Walk to Railway',
-            );
-            fullPoints.addAll(walkToBoard.points);
-            totalDistanceMeters += walkToBoard.distanceMeters;
-          } catch (_) {
-            fullPoints.addAll([leg.from, boardPos]);
-            totalDistanceMeters += haversineMeters(
-              leg.from.latitude,
-              leg.from.longitude,
-              boardPos.latitude,
-              boardPos.longitude,
-            );
-          }
-
-          // 2. Train segment track points
-          final trainTrackPoints = detail.trackPoints.isNotEmpty
-              ? detail.trackPoints
-              : [boardPos, alightPos];
-          fullPoints.addAll(trainTrackPoints);
-          double trainDistM = 0;
-          for (int i = 0; i < trainTrackPoints.length - 1; i++) {
-            trainDistM += haversineMeters(
-              trainTrackPoints[i].latitude,
-              trainTrackPoints[i].longitude,
-              trainTrackPoints[i + 1].latitude,
-              trainTrackPoints[i + 1].longitude,
-            );
-          }
-          totalDistanceMeters += trainDistM;
-
-          // 3. Walk from alighting station to leg.to
-          try {
-            final walkFromAlight = await RoutingService.instance.getWalkingRouteToPoint(
-              start: alightPos,
-              destination: leg.to,
-              destinationName: 'Walk from Railway',
-            );
-            fullPoints.addAll(walkFromAlight.points);
-            totalDistanceMeters += walkFromAlight.distanceMeters;
-          } catch (_) {
-            fullPoints.addAll([alightPos, leg.to]);
-            totalDistanceMeters += haversineMeters(
-              alightPos.latitude,
-              alightPos.longitude,
-              leg.to.latitude,
-              leg.to.longitude,
-            );
-          }
-
-          totalTransitSeconds += (detail.totalMinutes * 60.0);
-        }
-      }
-
-      final distanceKm = double.parse((totalDistanceMeters / 1000.0).toStringAsFixed(1));
-      final dwellMinutes = trail.stops.length * 15;
-      final durationMinutes = ((totalTransitSeconds / 60.0) + dwellMinutes).round();
-
-      if (_activeTrail?.id == trail.id) {
-        updateRoutedStats(
-          distanceKm: distanceKm,
-          durationMinutes: durationMinutes,
-          polyline: fullPoints,
-          remainingDistanceKm: distanceKm,
-          remainingDurationMinutes: durationMinutes,
-        );
-      }
-      return;
-    }
-
-    final waypoints = <LatLng>[];
-
-    // Pandal-centric circuit:
-    // Only include startingLocation if it is close to the first stop (<= 2000m).
-    // If the user's starting point is remote (e.g. > 2.0 km away), do NOT route walking
-    // across districts, but keep the trail focused on the pandals.
-    final firstStop = trail.stops.first;
-    final distToFirst = haversineMeters(
-      trail.startingLocation.latitude,
-      trail.startingLocation.longitude,
-      firstStop.lat,
-      firstStop.lng,
-    );
-
-    if (distToFirst <= 2000.0 && distToFirst > 20.0) {
-      waypoints.add(trail.startingLocation);
-    }
-
-    for (final s in trail.stops) {
-      waypoints.add(LatLng(s.lat, s.lng));
-    }
-
-    if (waypoints.length < 2) return;
-
+    trail.isRouting = true;
+    trail.routeError = null;
+    if (identical(_activeTrail, trail)) notifyListeners();
     try {
-      debugPrint('[TrailService] Requesting walking directions with ${waypoints.length} waypoints');
-      final route = requireLive
-          ? await RoutingService.instance.getLiveMultiStopRoute(
-              waypoints: waypoints,
-              routeTitle: 'Custom Hopping Trail',
-            )
-          : await RoutingService.instance.getMultiStopRoute(
-              waypoints: waypoints,
-              routeTitle: 'Custom Hopping Trail',
-            );
-
-      debugPrint('[TrailService] Multi-stop route: ${route.points.length} pts, isFallback=${route.isFallback}, ${(route.distanceMeters/1000).toStringAsFixed(2)} km');
-      final distanceKm = double.parse((route.distanceMeters / 1000.0).toStringAsFixed(1));
-      final dwellMinutes = trail.stops.length * 15;
-      final durationMinutes = ((route.durationSeconds / 60.0) + dwellMinutes).round();
-
-      // Only update if this trail is still active
-      if (_activeTrail?.id == trail.id) {
-        updateRoutedStats(
-          distanceKm: distanceKm,
-          durationMinutes: durationMinutes,
-          polyline: route.points,
-          remainingDistanceKm: distanceKm,
-          remainingDurationMinutes: durationMinutes,
+      final journeys = <MultimodalRoute>[];
+      var origin = trail.startingLocation;
+      for (final stop in trail.stops) {
+        journeys.add(
+          await JourneyPlanner.instance.plan(
+            origin: origin,
+            destination: LatLng(stop.lat, stop.lng),
+            destinationName: stop.name,
+            targetPandal: stop,
+            allowMetro: trail.allowMetro,
+            allowTrain: trail.allowTrain,
+          ),
         );
+        origin = LatLng(stop.lat, stop.lng);
       }
-    } catch (e) {
-      debugPrint('[CustomHoppingTrailService] Road routing failed: $e');
+      if (!identical(_activeTrail, trail)) return;
+      trail.routedJourneys = journeys;
+      trail.routeRevision++;
+      final distance = journeys.fold<double>(
+        0,
+        (sum, route) => sum + route.totalDistanceMeters,
+      );
+      final seconds = journeys.fold<double>(
+        0,
+        (sum, route) => sum + route.totalDurationSeconds,
+      );
+      updateRoutedStats(
+        distanceKm: distance / 1000,
+        durationMinutes: (seconds / 60 + trail.stops.length * 15).ceil(),
+        polyline: [for (final journey in journeys) ...journey.allDisplayPoints],
+      );
+    } catch (_) {
+      if (identical(_activeTrail, trail)) {
+        trail.routeError = 'Could not load connected street and transit routes. Check your connection and retry.';
+      }
+      if (requireLive) rethrow;
+    } finally {
+      trail.isRouting = false;
+      if (identical(_activeTrail, trail)) notifyListeners();
     }
   }
 
@@ -763,6 +600,10 @@ class CustomHoppingTrailService extends ChangeNotifier {
   Future<void> recordAutoVisit(Pandal pandal) async {
     if (!hasActiveTrail) return;
     final trail = _activeTrail!;
+    if (trail.currentTargetPandal?.id != pandal.id ||
+        trail.visitedPandalIds.contains(pandal.id)) {
+      return;
+    }
 
     if (!trail.visitedPandalIds.contains(pandal.id)) {
       trail.visitedPandalIds.add(pandal.id);
@@ -836,7 +677,8 @@ class CustomHoppingTrailService extends ChangeNotifier {
     if (_activeTrail == null) return;
     final trail = _activeTrail!;
 
-    final currentName = trail.previousVisitedPandal?.name ?? trail.startingAddress;
+    final currentName =
+        trail.previousVisitedPandal?.name ?? trail.startingAddress;
     final nextName = trail.currentTargetPandal?.name ?? 'End of Trail';
 
     await NotificationProgressService.instance.showTrailProgress(

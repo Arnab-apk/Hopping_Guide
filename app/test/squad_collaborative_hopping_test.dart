@@ -299,6 +299,11 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
+        expect(find.text('Your trail is ready'), findsOneWidget);
+        await tester.tap(find.text('Later'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
         // 6. Verify Live Hopping Banner activates
         expect(squadService.isHoppingActive, isTrue);
         expect(find.text('HOPPING'), findsOneWidget);

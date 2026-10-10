@@ -134,6 +134,8 @@ void main() {
             });
           }
           await tester.pumpWidget(const SizedBox());
+          // Drain delayed animation starts after disposing the audited screen.
+          await tester.pump(const Duration(seconds: 1));
           userState.dispose();
           theme.dispose();
           LocationService.enableTestMode = false;

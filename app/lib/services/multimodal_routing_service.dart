@@ -85,6 +85,7 @@ class MetroLeg extends RouteLeg {
     this.trackPoints = const [],
     this.isInterchange = false,
     this.connectingLine,
+    this.geometryEstimated = true,
   });
 
   final MetroStation entryStation;
@@ -94,6 +95,7 @@ class MetroLeg extends RouteLeg {
   final List<LatLng> trackPoints;
   final bool isInterchange;
   final KolkataMetroLine? connectingLine;
+  final bool geometryEstimated;
 
   String get modeLabel => 'Metro';
   String get modeIcon => '🚇';
@@ -115,6 +117,7 @@ class TrainLeg extends RouteLeg {
     required this.corridorName,
     required this.stationCount,
     this.trackPoints = const [],
+    this.geometryEstimated = true,
   });
 
   final RailwayStationInfo entryStation;
@@ -122,6 +125,7 @@ class TrainLeg extends RouteLeg {
   final String corridorName;
   final int stationCount;
   final List<LatLng> trackPoints;
+  final bool geometryEstimated;
 
   String get modeLabel => 'Train';
   String get modeIcon => '🚆';
@@ -246,6 +250,7 @@ class MultimodalRoute {
           type: RouteSegmentType.metro,
           color: leg.line.color,
           line: leg.line,
+          isFallback: leg.geometryEstimated,
         ));
       } else if (leg is TrainLeg) {
         final pts = leg.trackPoints.isNotEmpty
@@ -255,6 +260,7 @@ class MultimodalRoute {
           points: pts,
           type: RouteSegmentType.train,
           color: const Color(0xFF7B1FA2), // Railway Purple
+          isFallback: leg.geometryEstimated,
         ));
       }
     }

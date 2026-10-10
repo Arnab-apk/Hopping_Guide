@@ -25,6 +25,8 @@ import '../widgets/user_profile_sheet.dart';
 import '../widgets/vote_avatar_stack.dart';
 import '../widgets/group_manager_sheet.dart';
 import '../widgets/group_video_call_button.dart';
+import '../widgets/trail_navigation_prompt.dart';
+import 'map_screen.dart';
 import 'main_navigation_screen.dart';
 import 'squad_chat_screen.dart';
 import 'squad_settings_screen.dart';
@@ -45,6 +47,21 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
+  void _openGroupRoute(BuildContext context, SquadService squad) {
+    final stops = squad.chosenPandals
+        .skip(squad.isHoppingActive ? squad.activeHoppingStopIndex : 0)
+        .where((stop) => !stop.isVisited)
+        .map((stop) => stop.toPandal()).toList();
+    if (stops.isNotEmpty) MapScreen.openTrailRoute(context, stops);
+  }
+
+  Future<void> _offerGroupDirections(BuildContext context, SquadService squad) async {
+    final next = squad.isHoppingActive ? squad.currentHoppingTarget
+        : squad.chosenPandals.where((stop) => !stop.isVisited).firstOrNull;
+    if (next != null && await offerTrailNavigation(context, next.pandalName) && context.mounted) {
+      _openGroupRoute(context, squad);
+    }
+  }
   Timer? _freshnessTimer;
 
   @override
@@ -921,6 +938,11 @@ class _GroupScreenState extends State<GroupScreen> {
                 ),
               ),
               const Spacer(),
+              IconButton(
+                tooltip: 'Group route',
+                icon: const Icon(Icons.alt_route_rounded),
+                onPressed: () => _openGroupRoute(context, squadService),
+              ),
               if (stops.length > 1)
                 TextButton.icon(
                   style: TextButton.styleFrom(
@@ -933,9 +955,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     HapticFeedback.lightImpact();
                     final saved = await squadService.optimizeSquadRoute();
                     if (context.mounted && saved) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Suggested stop order saved for the group.')),
-                      );
+                      await _offerGroupDirections(context, squadService);
                     }
                   },
                 ),
@@ -1103,9 +1123,9 @@ class _GroupScreenState extends State<GroupScreen> {
                           ),
                           const SizedBox(width: 8),
                           ActionChip(
-                            avatar: const Icon(Icons.auto_awesome, size: 13, color: AppColors.accentGold),
+                            avatar: const Icon(Icons.alt_route, size: 13, color: AppColors.accentGold),
                             label: Text(
-                              'Ask bot about ${stops[index + 1].pandalName}',
+                              'Route to ${stops[index + 1].pandalName}',
                               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1113,7 +1133,7 @@ class _GroupScreenState extends State<GroupScreen> {
                             side: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
                             onPressed: () {
                               HapticFeedback.lightImpact();
-                              DefaultTabController.maybeOf(context)?.animateTo(2);
+                              MapScreen.openTrailRoute(context, [stops[index + 1].toPandal()]);
                             },
                           ),
                         ],
@@ -1166,9 +1186,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     HapticFeedback.lightImpact();
                     final started = await squadService.startSquadHopping();
                     if (context.mounted && started) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Live squad hopping started!')),
-                      );
+                      await _offerGroupDirections(context, squadService);
                     }
                   },
                 ),
@@ -1322,7 +1340,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       label: const Text('Open route', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                       onPressed: () {
                         HapticFeedback.lightImpact();
-                        MainNavigationScreen.switchTab(context, 0);
+                        _openGroupRoute(context, squadService);
                       },
                     ),
                   ),

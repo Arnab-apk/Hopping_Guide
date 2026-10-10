@@ -89,7 +89,7 @@ void main() {
     );
   }
 
-  testWidgets('CustomTrailPlannerDialog 3-step wizard workflow and optimization execution', (tester) async {
+  testWidgets('CustomTrailPlannerDialog keeps the wizard open when street directions fail', (tester) async {
     final trailService = CustomHoppingTrailService.instance;
 
     bool trailStartedCalled = false;
@@ -147,11 +147,13 @@ void main() {
     await tester.tap(find.text('Generate My Custom Trail'));
     await tester.pumpAndSettle();
 
-    // Dialog should dismiss and trail should be active in service
-    expect(trailStartedCalled, isTrue);
-    expect(trailService.hasActiveTrail, isTrue);
-    expect(trailService.activeTrail!.totalStops, 2);
-    expect(find.text('Custom Trail Builder'), findsNothing);
+    // An unavailable provider must never claim that a navigable trail started.
+    expect(trailStartedCalled, isFalse);
+    expect(trailService.hasActiveTrail, isFalse);
+    expect(find.text('Custom Trail Builder'), findsOneWidget);
+    expect(find.text('Could not load the trail route. Check your connection and retry.'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
   });
 
   test('ActiveCustomTrail stores routed stats and CustomHoppingTrailService updates single source of truth', () async {
