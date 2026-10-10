@@ -1,0 +1,1 @@
+const fs=require('fs');const p='scratch/publish_video_release.cjs';let s=fs.readFileSync(p,'utf8');s=s.replace("const notes=version===", "const notes=version==='v0.1.8'?'docs/TRAIL_ROUTES_RELEASE_NOTES.md':version===");s=s.replace("${version==='v0.1.7'", "${version==='v0.1.8'?'Connected trail directions':version==='v0.1.7'");fs.writeFileSync(p,s);

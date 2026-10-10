@@ -25,12 +25,15 @@ class LocationService extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   StreamSubscription<Position>? _positionStreamSub;
+  Future<void>? _positionStreamRestart;
   StreamSubscription<CompassEvent>? _compassStreamSub;
   bool _isPaused = false;
   bool _navigationMode = false;
+  int _navigationDiagnosticsRemaining = 0;
   void setNavigationMode(bool active) {
     if (_navigationMode == active) return;
     _navigationMode = active;
+    _navigationDiagnosticsRemaining = active ? 3 : 0;
     _lastBroadcastTime = null;
     _throttleInterval = active
         ? const Duration(seconds: 1)
@@ -95,10 +98,39 @@ class LocationService extends ChangeNotifier {
   }
 
   void _restartPositionStream() {
-    _positionStreamSub?.cancel();
+    final previousRestart = _positionStreamRestart;
+    final previousStream = _positionStreamSub;
     _positionStreamSub = null;
-    if (enableTestMode || _trackingRefCount == 0) return;
-    _listenToPositionStream();
+    final restart = () async {
+      if (previousRestart != null) await previousRestart;
+      await previousStream?.cancel();
+      // Geolocator clears its cached broadcast stream during cancellation.
+      // Let that teardown finish before asking for a stream with new settings.
+      await Future<void>.delayed(Duration.zero);
+      if (enableTestMode ||
+          _trackingRefCount == 0 ||
+          _positionStreamSub != null) {
+        return;
+      }
+      _listenToPositionStream();
+    }();
+    _positionStreamRestart = restart;
+    unawaited(
+      restart.then(
+        (_) {
+          if (identical(_positionStreamRestart, restart)) {
+            _positionStreamRestart = null;
+          }
+        },
+        onError: (Object error) {
+          if (identical(_positionStreamRestart, restart)) {
+            _positionStreamRestart = null;
+          }
+          _error = error.toString();
+          notifyListeners();
+        },
+      ),
+    );
   }
 
   void _listenToPositionStream() {
@@ -106,6 +138,14 @@ class LocationService extends ChangeNotifier {
       (position) {
         if (_isPaused) return;
         final now = DateTime.now();
+        if (_navigationDiagnosticsRemaining > 0) {
+          _navigationDiagnosticsRemaining--;
+          debugPrint(
+            '[LocationService] Navigation GPS: fix age '
+            '${now.difference(position.timestamp).inMilliseconds} ms, '
+            'accuracy ${position.accuracy.toStringAsFixed(1)} m',
+          );
+        }
         if (_lastBroadcastTime != null &&
             now.difference(_lastBroadcastTime!) < _throttleInterval) {
           final last = _currentPosition;
@@ -267,7 +307,9 @@ class LocationService extends ChangeNotifier {
     Duration throttleInterval = const Duration(milliseconds: 1500),
   }) async {
     _trackingRefCount++;
-    _throttleInterval = _navigationMode ? const Duration(seconds: 1) : throttleInterval;
+    _throttleInterval = _navigationMode
+        ? const Duration(seconds: 1)
+        : throttleInterval;
     if (callbackKey != null && onLocationChanged != null) {
       _locationListeners[callbackKey] = onLocationChanged;
     }
@@ -276,6 +318,13 @@ class LocationService extends ChangeNotifier {
       _testLocationCallback = onLocationChanged;
       notifyListeners();
       return true;
+    }
+    try {
+      await _positionStreamRestart;
+    } catch (error) {
+      _error = error.toString();
+      notifyListeners();
+      return _trackingStartFailed(callbackKey);
     }
     if (_positionStreamSub != null) {
       if (_currentPosition != null && onLocationChanged != null) {

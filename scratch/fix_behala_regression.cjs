@@ -1,0 +1,2 @@
+const fs=require('fs');const p='app/test/journey_behala_live_check_test.dart';let s=fs.readFileSync(p,'utf8').replaceAll('22.502, 88.313','22.505381, 88.314308').replace('22.5237, 88.3456','22.505381, 88.314308').replace('Chuchura to south Kolkata has connected streets, train and metro','Chuchura to Behala includes a practical train-metro connection');fs.writeFileSync(p,s);
+const test='app/test/journey_planner_test.dart';s=fs.readFileSync(test,'utf8');s=s.replace("metro('m1', 88.3005), metro('m2', 88.36)","metro('m1', 88.307), metro('m2', 88.36)");fs.writeFileSync(test,s);

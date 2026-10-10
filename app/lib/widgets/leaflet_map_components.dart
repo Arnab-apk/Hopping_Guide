@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../config/theme.dart';
 import '../models/food_spot.dart';
 import '../models/metro_station.dart';
@@ -777,10 +778,10 @@ class LeafletMapPopup extends StatelessWidget {
         children: [
           // 1. Popup Speech-Bubble Container (Leaflet style)
           Container(
-            width: 286,
+            width: 296,
             decoration: BoxDecoration(
               color: effectiveDark ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: effectiveDark
                     ? PujaColors.festivalGold.withValues(alpha: 0.28)
@@ -789,9 +790,9 @@ class LeafletMapPopup extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: effectiveDark ? 0.55 : 0.20),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withValues(alpha: effectiveDark ? 0.55 : 0.18),
+                  blurRadius: 18,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -808,32 +809,25 @@ class LeafletMapPopup extends StatelessWidget {
                         child: _buildCategoryBadge(effectiveDark),
                       ),
                       const SizedBox(width: 6),
-                      InkWell(
-                        onTap: onClose,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: const EdgeInsets.all(3.0),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: 18,
-                            color: effectiveDark ? Colors.white60 : Colors.black54,
-                          ),
-                        ),
+                      IconButton(
+                        tooltip: 'Close place preview',
+                        onPressed: onClose,
+                        icon: const Icon(Icons.close_rounded, size: 20),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
 
                   // Title & Details
-                  if (pandal != null) _buildPandalContent(effectiveDark),
-                  if (foodSpot != null) _buildFoodSpotContent(effectiveDark),
-                  if (metroStation != null) _buildMetroContent(effectiveDark),
-                  if (toilet != null) _buildToiletContent(effectiveDark),
+                  if (pandal != null) _buildPandalContent(context, effectiveDark),
+                  if (foodSpot != null) _buildFoodSpotContent(context, effectiveDark),
+                  if (metroStation != null) _buildMetroContent(context, effectiveDark),
+                  if (toilet != null) _buildToiletContent(context, effectiveDark),
 
                   const SizedBox(height: 10),
 
                   // Action Buttons (Directions + Details)
-                  _buildActionButtons(effectiveDark),
+                  _buildActionButtons(context, effectiveDark),
                 ],
               ),
             ),
@@ -1001,7 +995,7 @@ class LeafletMapPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildToiletContent(bool isDark) {
+  Widget _buildToiletContent(BuildContext context, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1010,7 +1004,7 @@ class LeafletMapPopup extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w800,
             fontSize: 15,
           ),
@@ -1021,7 +1015,7 @@ class LeafletMapPopup extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isDark ? Colors.white70 : Colors.black54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 12,
           ),
         ),
@@ -1074,7 +1068,7 @@ class LeafletMapPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildPandalContent(bool isDark) {
+  Widget _buildPandalContent(BuildContext context, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1083,7 +1077,7 @@ class LeafletMapPopup extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w800,
             fontSize: 15,
           ),
@@ -1095,7 +1089,7 @@ class LeafletMapPopup extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: isDark ? Colors.white70 : Colors.black54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
           ),
@@ -1109,7 +1103,7 @@ class LeafletMapPopup extends StatelessWidget {
               Text(
                 pandal!.rating!.toStringAsFixed(1),
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 11.5,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1146,7 +1140,7 @@ class LeafletMapPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildFoodSpotContent(bool isDark) {
+  Widget _buildFoodSpotContent(BuildContext context, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1155,7 +1149,7 @@ class LeafletMapPopup extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isDark ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w800,
             fontSize: 15,
           ),
@@ -1182,7 +1176,7 @@ class LeafletMapPopup extends StatelessWidget {
               Text(
                 foodSpot!.rating!.toStringAsFixed(1),
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 11.5,
                   fontWeight: FontWeight.bold,
                 ),
@@ -1220,7 +1214,7 @@ class LeafletMapPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildMetroContent(bool isDark) {
+  Widget _buildMetroContent(BuildContext context, bool isDark) {
     final stn = metroStation!;
     final subtitleText = stn.isInterchange
         ? 'Interchange (${stn.connectingLines.map((l) => l.label).join(", ")})'
@@ -1237,7 +1231,7 @@ class LeafletMapPopup extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w800,
                   fontSize: 14.5,
                 ),
@@ -1256,7 +1250,7 @@ class LeafletMapPopup extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white70 : Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -1270,7 +1264,7 @@ class LeafletMapPopup extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: isDark ? Colors.white70 : Colors.black54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 11.5,
               fontWeight: FontWeight.w500,
             ),
@@ -1282,7 +1276,7 @@ class LeafletMapPopup extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isDark ? Colors.white60 : Colors.black54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontSize: 11,
           ),
         ),
@@ -1326,7 +1320,7 @@ class LeafletMapPopup extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: isDark ? Colors.white60 : Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 11,
                 ),
               ),
@@ -1337,75 +1331,99 @@ class LeafletMapPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(bool isDark) {
+  Widget _buildActionButtons(BuildContext context, bool isDark) {
     return Row(
       children: [
         // Primary Directions Button
         Expanded(
           child: SizedBox(
-            height: 32,
+            height: 38,
             child: ElevatedButton.icon(
-              onPressed: onDirections,
-              icon: const Icon(Icons.directions_walk_rounded, size: 15),
-              label: const Text(
+              onPressed: onDirections != null
+                  ? () {
+                      HapticFeedback.selectionClick();
+                      onDirections!();
+                    }
+                  : null,
+              icon: const Icon(Icons.directions_walk_rounded, size: 16),
+              label: Text(
                 'Directions',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: PujaColors.durgaRed,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 elevation: 0,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 8),
-
-        // Secondary Info / Details Button
-        if (onDetails != null)
+        if (onDetails != null) ...[
+          const SizedBox(width: 8),
           SizedBox(
-            height: 32,
+            height: 38,
             child: OutlinedButton(
-              onPressed: onDetails,
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                onDetails!();
+              },
               style: OutlinedButton.styleFrom(
-                foregroundColor: isDark ? Colors.white : Colors.black87,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
                 side: BorderSide(
                   color: isDark
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : Colors.black.withValues(alpha: 0.2),
+                      ? Colors.white.withValues(alpha: 0.22)
+                      : Colors.black.withValues(alpha: 0.18),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Details',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
+        ],
 
         // Hopped toggle icon button for Pandals
         if (pandal != null && onToggleHopped != null) ...[
-          const SizedBox(width: 6),
-          SizedBox(
-            width: 32,
-            height: 32,
-            child: IconButton(
-              icon: Icon(
-                isHopped ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
-                size: 20,
-                color: isHopped ? const Color(0xFF00E676) : (isDark ? Colors.white60 : Colors.black45),
+          const SizedBox(width: 8),
+          Material(
+            color: isHopped
+                ? const Color(0xFF00E676).withValues(alpha: 0.15)
+                : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04)),
+            borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () {
+                HapticFeedback.lightImpact();
+                onToggleHopped!();
+              },
+              child: SizedBox(
+                width: 38,
+                height: 38,
+                child: Icon(
+                  isHopped
+                      ? Icons.check_circle_rounded
+                      : Icons.check_circle_outline_rounded,
+                  size: 22,
+                  color: isHopped
+                      ? const Color(0xFF00C853)
+                      : (isDark ? Colors.white60 : Colors.black45),
+                ),
               ),
-              tooltip: isHopped ? 'Hopped' : 'Mark as Hopped',
-              onPressed: onToggleHopped,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
             ),
           ),
         ],

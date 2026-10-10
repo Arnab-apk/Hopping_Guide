@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
+import '../widgets/app_page_intro.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
@@ -218,7 +219,13 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
         if (!didPop) unawaited(_leave());
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(widget.squadName)),
+        appBar: AppBar(
+          title: Text(
+            widget.squadName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         body: _call != null && !_joining
             ? StreamCallContent(
                 call: _call!,
@@ -226,54 +233,58 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
                 onLeaveCallTap: () => unawaited(_leave()),
               )
             : Center(
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.video_call_rounded, size: 64),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Group video call',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Members of this group join the same room.\nOpen the group call on another device to meet here.',
-                        textAlign: TextAlign.center,
-                      ),
-                      SwitchListTile(
-                        title: const Text('Camera on'),
-                        value: _camera,
-                        onChanged: _joining
-                            ? null
-                            : (value) => setState(() => _camera = value),
-                      ),
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Text(
-                            _error!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const AppIconWell(icon: Icons.videocam_outlined, size: 36),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Group video call',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Members of this group join the same room.\nOpen the group call on another device to meet here.',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        SwitchListTile(
+                          title: const Text('Camera on'),
+                          value: _camera,
+                          onChanged: _joining
+                              ? null
+                              : (value) => setState(() => _camera = value),
+                        ),
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Text(
+                              _error!,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                             ),
                           ),
-                        ),
-                      if (_joining)
-                        const CircularProgressIndicator()
-                      else
-                        FilledButton.icon(
-                          onPressed: _join,
-                          icon: const Icon(Icons.video_call),
-                          label: const Text('Join group call'),
-                        ),
-                      if (_error != null)
-                        TextButton(
-                          onPressed: openAppSettings,
-                          child: const Text('Open permission settings'),
-                        ),
-                    ],
+                        if (_joining)
+                          const CircularProgressIndicator()
+                        else
+                          FilledButton.icon(
+                            onPressed: _join,
+                            icon: const Icon(Icons.video_call),
+                            label: const Text('Join group call'),
+                          ),
+                        if (_error != null)
+                          TextButton(
+                            onPressed: openAppSettings,
+                            child: const Text('Open permission settings'),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),

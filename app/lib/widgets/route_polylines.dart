@@ -40,11 +40,13 @@ List<Polyline> buildHighlightedRoutePolylines(
             points: seg.points,
             strokeWidth: 9.0,
             color: color.withValues(alpha: 0.35),
+            pattern: seg.isFallback ? StrokePattern.dashed(segments: const [6,4]) : const StrokePattern.solid(),
           ),
         );
         // Solid Metro Line following real tracks
         polylines.add(
-          Polyline(points: seg.points, strokeWidth: 5.5, color: color),
+          Polyline(points: seg.points, strokeWidth: 5.5, color: color,
+            pattern: seg.isFallback ? StrokePattern.dashed(segments: const [6,4]) : const StrokePattern.solid()),
         );
       } else if (seg.type == RouteSegmentType.train) {
         final color = seg.color;
@@ -54,11 +56,13 @@ List<Polyline> buildHighlightedRoutePolylines(
             points: seg.points,
             strokeWidth: 9.0,
             color: color.withValues(alpha: 0.35),
+            pattern: seg.isFallback ? StrokePattern.dashed(segments: const [6,4]) : const StrokePattern.solid(),
           ),
         );
         // Solid Suburban Railway line following track curves
         polylines.add(
-          Polyline(points: seg.points, strokeWidth: 5.5, color: color),
+          Polyline(points: seg.points, strokeWidth: 5.5, color: color,
+            pattern: seg.isFallback ? StrokePattern.dashed(segments: const [6,4]) : const StrokePattern.solid()),
         );
       } else {
         // Walk / Pedestrian connector

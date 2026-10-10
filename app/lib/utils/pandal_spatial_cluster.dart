@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+
 import '../models/pandal.dart';
 import 'constants.dart';
 
@@ -20,11 +22,12 @@ class PandalClusterItem {
   });
 
   bool get isCluster => count > 1;
-  String get id => isCluster ? 'cluster_${point.latitude}_${point.longitude}' : primaryPandal!.id;
+  String get id => isCluster
+      ? 'cluster_${point.latitude}_${point.longitude}'
+      : primaryPandal!.id;
 }
 
-/// Ultra-fast spatial grid clustering, viewport culling & memoization engine.
-/// Operates in sub-millisecond time to guarantee buttery smooth 60/120 FPS map performance.
+/// Spatial grid clustering with viewport culling and cached camera results.
 class PandalSpatialClusterer {
   PandalSpatialClusterer._();
 
@@ -32,6 +35,8 @@ class PandalSpatialClusterer {
   static List<PandalClusterItem>? _cachedResult;
   static double _lastZoom = -1.0;
   static int _lastListLength = -1;
+  static List<Pandal> _lastPandals = const [];
+  static Set<String> _lastPriorityIds = const {};
   static String? _lastSelectedId;
   static int _lastPriorityHash = 0;
   static double _lastCenterLat = 0.0;
@@ -44,6 +49,8 @@ class PandalSpatialClusterer {
     _cachedResult = null;
     _lastZoom = -1.0;
     _lastListLength = -1;
+    _lastPandals = const [];
+    _lastPriorityIds = const {};
     _lastCenterLat = 0.0;
     _lastCenterLng = 0.0;
     _lastLatSpan = 0.0;
@@ -52,6 +59,14 @@ class PandalSpatialClusterer {
 
   /// Alias for invalidateCache
   static void clearCache() => invalidateCache();
+
+  static int _zoomBand(double zoom) {
+    if (zoom < 12) return 0;
+    if (zoom < 13.2) return 1;
+    if (zoom < 14) return 2;
+    if (zoom < 14.8) return 3;
+    return 4;
+  }
 
   /// Clusters pandals adaptively based on map camera zoom and visible viewport bounds.
   static List<PandalClusterItem> cluster({
@@ -79,6 +94,9 @@ class PandalSpatialClusterer {
     if (_cachedResult != null &&
         (zoom - _lastZoom).abs() < 0.08 &&
         list.length == _lastListLength &&
+        listEquals(list, _lastPandals) &&
+        setEquals(priorityPandalIds ?? const <String>{}, _lastPriorityIds) &&
+        _zoomBand(zoom) == _zoomBand(_lastZoom) &&
         selectedId == _lastSelectedId &&
         priorityHash == _lastPriorityHash &&
         _lastLatSpan > 0.0 &&
@@ -137,7 +155,10 @@ class PandalSpatialClusterer {
       }
 
       // Viewport culling against the 35% expanded buffer
-      if (p.lat < minLat || p.lat > maxLat || p.lng < minLng || p.lng > maxLng) {
+      if (p.lat < minLat ||
+          p.lat > maxLat ||
+          p.lng < minLng ||
+          p.lng > maxLng) {
         continue;
       }
 
@@ -213,6 +234,8 @@ class PandalSpatialClusterer {
     _cachedResult = result;
     _lastZoom = zoom;
     _lastListLength = list.length;
+    _lastPandals = List.of(list);
+    _lastPriorityIds = Set.of(priorityPandalIds ?? const <String>{});
     _lastSelectedId = selectedId;
     _lastPriorityHash = priorityHash;
     _lastCenterLat = centerLat;

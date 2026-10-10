@@ -1,3 +1,5 @@
+import '../widgets/app_notice.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -111,20 +113,21 @@ class PandalDetailSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top Bar: Zone & Crowd on Left, Action Circles on Right
-                    Row(
+                    // Top Bar: Zone & Hopped Tag on Left, Action Circles on Right
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 12,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         // Zone Tag
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8.5,
-                            vertical: 3.5,
+                            horizontal: 9,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: PujaColors.durgaRed.withValues(
-                              alpha: isDark ? 0.22 : 0.08,
-                            ),
-                            borderRadius: BorderRadius.circular(7),
+                            color: theme.colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: PujaColors.durgaRed.withValues(
                                 alpha: isDark ? 0.35 : 0.20,
@@ -134,71 +137,113 @@ class PandalDetailSheet extends StatelessWidget {
                           ),
                           child: Text(
                             pandal.zone.label.toUpperCase(),
-                            style: const TextStyle(
-                              color: PujaColors.durgaRed,
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimaryContainer,
                               fontSize: 10.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
                           ),
                         ),
-                        const Spacer(),
+                        if (isVis) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(
+                                alpha: isDark ? 0.20 : 0.10,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.green.withValues(
+                                  alpha: isDark ? 0.35 : 0.20,
+                                ),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                PujaIcon.shankha(
+                                  size: 14,
+                                  color: Colors.green,
+                                ),
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'HOPPED',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
 
                         // Action Buttons: Favorite, Share, Close
-                        _buildCircleButton(
-                          tooltip: isFav ? 'Remove favorite' : 'Add favorite',
-                          isDark: isDark,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            context
-                                .read<PandalUserStateService?>()
-                                ?.toggleFavorite(pandal.id);
-                          },
-                          child: AnimatedScale(
-                            scale: isFav ? 1.2 : 1.0,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOutBack,
-                            child: isFav
-                                ? PujaIcon.kalash(
-                                    size: 26,
-                                    color: PujaColors.festivalGold,
-                                  )
-                                : Icon(
-                                    Icons.bookmark_border_rounded,
-                                    color: isDark
-                                        ? Colors.white70
-                                        : Colors.black54,
-                                    size: 24,
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        _buildCircleButton(
-                          tooltip: 'Share pandal',
-                          isDark: isDark,
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            _sharePandal();
-                          },
-                          child: Icon(
-                            Icons.share_outlined,
-                            color: isDark ? Colors.white70 : Colors.black54,
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        _buildCircleButton(
-                          tooltip: 'Close',
-                          isDark: isDark,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            Navigator.of(context).pop();
-                          },
-                          child: Icon(
-                            Icons.close_rounded,
-                            color: isDark ? Colors.white70 : Colors.black54,
-                            size: 18,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildCircleButton(
+                              tooltip: isFav ? 'Remove favorite' : 'Add favorite',
+                              isDark: isDark,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                context
+                                    .read<PandalUserStateService?>()
+                                    ?.toggleFavorite(pandal.id);
+                              },
+                              child: AnimatedScale(
+                                scale: isFav ? 1.2 : 1.0,
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeOutBack,
+                                child: isFav
+                                    ? Icon(Icons.bookmark_rounded,
+                                        size: 24,
+                                        color: PujaColors.festivalGold,
+                                      )
+                                    : Icon(
+                                        Icons.bookmark_border_rounded,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        size: 22,
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildCircleButton(
+                              tooltip: 'Share pandal',
+                              isDark: isDark,
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                _sharePandal();
+                              },
+                              child: Icon(
+                                Icons.share_outlined,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildCircleButton(
+                              tooltip: 'Close',
+                              isDark: isDark,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                Navigator.of(context).pop();
+                              },
+                              child: Icon(
+                                Icons.close_rounded,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                size: 18,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -220,7 +265,10 @@ class PandalDetailSheet extends StatelessWidget {
                     const SizedBox(height: 5),
 
                     // Inline Subtitle: Area & Distance
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         if (pandal.area != null && pandal.area!.isNotEmpty) ...[
                           Text(
@@ -228,7 +276,7 @@ class PandalDetailSheet extends StatelessWidget {
                             style: TextStyle(
                               fontSize: context.dynamicFont(13),
                               fontWeight: FontWeight.w500,
-                              color: isDark ? Colors.white60 : Colors.black54,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -242,9 +290,7 @@ class PandalDetailSheet extends StatelessWidget {
                                 '•',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: isDark
-                                      ? Colors.white38
-                                      : Colors.black38,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -278,7 +324,7 @@ class PandalDetailSheet extends StatelessWidget {
                         color: isDark
                             ? const Color(0xFF1D1D20)
                             : const Color(0xFFF7F7F9),
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.08)
@@ -350,23 +396,26 @@ class PandalDetailSheet extends StatelessWidget {
                           if (context.mounted) {
                             final nowVisited =
                                 state?.isVisited(pandal.id) ?? false;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  nowVisited
-                                      ? '🎉 Marked ${pandal.name} as Visited!'
-                                      : 'Removed ${pandal.name} from Visited list.',
-                                ),
-                                duration: const Duration(seconds: 2),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
+                            if (nowVisited) {
+                              showAppSuccessNotice(
+                                context,
+                                'Marked ${pandal.name} as Visited!',
+                              );
+                            } else {
+                              showAppInfoNotice(
+                                context,
+                                'Removed ${pandal.name} from Visited list',
+                              );
+                            }
                           }
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          height: 38,
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          constraints: const BoxConstraints(minHeight: 46),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                           decoration: BoxDecoration(
                             color: isVis
                                 ? (isDark
@@ -375,7 +424,7 @@ class PandalDetailSheet extends StatelessWidget {
                                 : (isDark
                                       ? Colors.white.withValues(alpha: 0.05)
                                       : const Color(0xFFF5F5F7)),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isVis
                                   ? Colors.green.withValues(alpha: 0.45)
@@ -399,22 +448,24 @@ class PandalDetailSheet extends StatelessWidget {
                                       size: 20,
                                     ),
                               const SizedBox(width: 7),
-                              Text(
-                                isVis
-                                    ? 'Visited & Hopped! (Tap to unmark)'
-                                    : 'Mark as Visited / Hopped',
-                                style: TextStyle(
-                                  fontSize: context.dynamicFont(12.5),
-                                  fontWeight: isVis
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                  color: isVis
-                                      ? (isDark
-                                            ? Colors.greenAccent
-                                            : const Color(0xFF2E7D32))
-                                      : (isDark
-                                            ? Colors.white70
-                                            : Colors.black87),
+                              Flexible(
+                                child: Text(
+                                  isVis
+                                      ? 'Visited & Hopped! (Tap to unmark)'
+                                      : 'Mark as Visited / Hopped',
+                                  style: TextStyle(
+                                    fontSize: context.dynamicFont(12.5),
+                                    fontWeight: isVis
+                                        ? FontWeight.w700
+                                        : FontWeight.w600,
+                                    color: isVis
+                                        ? (isDark
+                                              ? Colors.greenAccent
+                                              : const Color(0xFF2E7D32))
+                                        : (isDark
+                                              ? Colors.white70
+                                              : Colors.black87),
+                                  ),
                                 ),
                               ),
                             ],
@@ -440,7 +491,7 @@ class PandalDetailSheet extends StatelessWidget {
                             fontSize: context.dynamicFont(10.5),
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.6,
-                            color: isDark ? Colors.white54 : Colors.black54,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -452,7 +503,7 @@ class PandalDetailSheet extends StatelessWidget {
                         fontSize: context.dynamicFont(13.5),
                         fontWeight: FontWeight.w600,
                         height: 1.35,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     if (pandal.description.isNotEmpty &&
@@ -463,7 +514,7 @@ class PandalDetailSheet extends StatelessWidget {
                         style: TextStyle(
                           fontSize: context.dynamicFont(12.5),
                           height: 1.45,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -485,7 +536,7 @@ class PandalDetailSheet extends StatelessWidget {
                             fontSize: context.dynamicFont(10.5),
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.6,
-                            color: isDark ? Colors.white54 : Colors.black54,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -501,7 +552,7 @@ class PandalDetailSheet extends StatelessWidget {
                         color: isDark
                             ? const Color(0xFF1A1A1C)
                             : const Color(0xFFF8F8FA),
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.08)
@@ -550,7 +601,7 @@ class PandalDetailSheet extends StatelessWidget {
                             trailing: Icon(
                               Icons.copy_rounded,
                               size: 14,
-                              color: isDark ? Colors.white38 : Colors.black38,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             onTap: () {
                               Clipboard.setData(
@@ -560,14 +611,9 @@ class PandalDetailSheet extends StatelessWidget {
                                 ),
                               );
                               HapticFeedback.lightImpact();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Coordinates copied to clipboard',
-                                  ),
-                                  duration: Duration(seconds: 1),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
+                              showAppSuccessNotice(
+                                context,
+                                'Coordinates copied to clipboard',
                               );
                             },
                           ),
@@ -588,9 +634,9 @@ class PandalDetailSheet extends StatelessWidget {
                     // Primary Route Action CTA
                     Container(
                       width: double.infinity,
-                      height: 46,
+                      constraints: const BoxConstraints(minHeight: 52),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(16),
                         gradient: const LinearGradient(
                           colors: [
                             Color(0xFFC62828), // Durga Red Light
@@ -611,30 +657,38 @@ class PandalDetailSheet extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(13),
+                          borderRadius: BorderRadius.circular(16),
                           onTap: () {
                             HapticFeedback.heavyImpact();
                             Navigator.of(context).pop();
                             MapScreen.routeToPandal(context, pandal);
                           },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              PujaIcon.shankha(
-                                color: PujaColors.goldBright,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 7),
-                              Text(
-                                'Get Turn-by-Turn Directions',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: context.dynamicFont(14),
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  letterSpacing: 0.2,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 15,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                PujaIcon.shankha(
+                                  color: PujaColors.goldBright,
+                                  size: 24,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'Get Turn-by-Turn Directions',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: context.dynamicFont(14),
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -660,11 +714,11 @@ class PandalDetailSheet extends StatelessWidget {
       child: Tooltip(
         message: tooltip,
         child: InkWell(
-          borderRadius: BorderRadius.circular(17),
+          customBorder: const CircleBorder(),
           onTap: onTap,
           child: Container(
-            width: 34,
-            height: 34,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isDark
@@ -709,7 +763,7 @@ class PandalDetailSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: context.dynamicFont(12.5),
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -791,7 +845,7 @@ class PandalDetailSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicFont(12),
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -887,7 +941,7 @@ class PandalDetailSheet extends StatelessWidget {
                           style: TextStyle(
                             fontSize: context.dynamicFont(13),
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Text(
@@ -954,7 +1008,10 @@ class PandalDetailSheet extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     _buildGenderPill('Female', const Color(0xFFAD1457)),
                     const SizedBox(width: 4),
@@ -974,7 +1031,7 @@ class PandalDetailSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicFont(12),
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -983,7 +1040,7 @@ class PandalDetailSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicFont(10),
                     fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white60 : Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -1055,7 +1112,7 @@ class PandalDetailSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicFont(12),
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -1064,7 +1121,7 @@ class PandalDetailSheet extends StatelessWidget {
                   style: TextStyle(
                     fontSize: context.dynamicFont(10),
                     fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white60 : Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -1159,7 +1216,7 @@ class PandalDetailSheet extends StatelessWidget {
                         style: TextStyle(
                           fontSize: context.dynamicFont(13),
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -1252,7 +1309,7 @@ class PandalDetailSheet extends StatelessWidget {
                           style: TextStyle(
                             fontSize: context.dynamicFont(13),
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Text(
@@ -1401,7 +1458,9 @@ class PandalDetailSheet extends StatelessWidget {
               ] else ...[
                 Text(
                   'No queue data available yet.',
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
               const SizedBox(height: 16),
@@ -1489,7 +1548,10 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
           const SizedBox(height: 8),
           Text(
             widget.pandalName,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 20),
           // Wait time selector
@@ -1607,7 +1669,10 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
           const SizedBox(height: 8),
           Text(
             'Your report helps others plan better. Updates instantly for your squad.',
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -1625,14 +1690,14 @@ class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
       );
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Queue wait reported: $_waitMinutes min')),
+        showAppSuccessNotice(
+          context,
+          'Queue wait reported: $_waitMinutes min',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed to report: $e')));
+        showAppErrorNotice(context, 'Failed to report: $e');
       }
     } finally {
       if (mounted) setState(() => _submitting = false);

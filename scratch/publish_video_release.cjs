@@ -2,7 +2,7 @@ const { spawnSync }=require('node:child_process');
 const fs=require('node:fs');
 const repo='Arnab-apk/Hopping_Guide';
 const version=process.env.UMA_RELEASE_VERSION||'v0.1.5';
-const notes=version==='v0.1.7'?'docs/MAP_NAMES_RELEASE_NOTES.md':version==='v0.1.6'?'docs/GROUP_VIDEO_ACCESS_RELEASE_NOTES.md':'docs/GROUP_VIDEO_RELEASE_NOTES.md';
+const notes=version==='v0.1.9'?'docs/ADAPTIVE_ROUTES_RELEASE_NOTES.md':version==='v0.1.8'?'docs/TRAIL_ROUTES_RELEASE_NOTES.md':version==='v0.1.7'?'docs/MAP_NAMES_RELEASE_NOTES.md':version==='v0.1.6'?'docs/GROUP_VIDEO_ACCESS_RELEASE_NOTES.md':'docs/GROUP_VIDEO_RELEASE_NOTES.md';
 const credentials=spawnSync('git',['credential','fill'],{input:`url=https://github.com/${repo}.git\n\n`,encoding:'utf8',env:{...process.env,GIT_TERMINAL_PROMPT:'0',GCM_INTERACTIVE:'never'}});
 const token=(credentials.stdout||'').split(/\r?\n/).find(line=>line.startsWith('password='))?.slice(9);
 if(!token)throw new Error('GitHub credentials unavailable');
@@ -17,7 +17,7 @@ async function main(){
   console.log('Release source pushed:',source.commit);
   let release=JSON.parse(run(['api',`repos/${repo}/releases?per_page=30`])).find(item=>item.tag_name===version);
   if(!release){
-    console.log(run(['release','create',version,'--repo',repo,'--target',source.commit,'--title',`UMA ${version} — ${version==='v0.1.7'?'More map names':version==='v0.1.6'?'Easier access to group calls':'Group video calling'}`,'--notes-file',notes,'--draft']));
+    console.log(run(['release','create',version,'--repo',repo,'--target',source.commit,'--title',`UMA ${version} — ${version==='v0.1.9'?'Adaptive directions and route pins':version==='v0.1.8'?'Connected trail directions':version==='v0.1.7'?'More map names':version==='v0.1.6'?'Easier access to group calls':'Group video calling'}`,'--notes-file',notes,'--draft']));
     for(let attempt=0;attempt<5 && !release;attempt++){
       await new Promise(resolve=>setTimeout(resolve,1000));
       release=JSON.parse(run(['api',`repos/${repo}/releases?per_page=30`])).find(item=>item.tag_name===version);

@@ -6,16 +6,16 @@ For the complete project overview, stats dashboard, architecture, and roadmap, s
 
 ## Quick Stats
 
-- **Curated Pandals:** 387 Verified Pandals (Kolkata Metro + Nadia & Hooghly Suburbs)
+- **Curated Pandals:** 338 verified pandals in the bundled dataset
 - **Covered Zones:** 8 (North, Central, South, Salt Lake, New Town, Kalyani, Chinsurah, Bandel)
-- **Kolkata Metro Network:** 41 Stations across 4 lines (Blue, Green, Purple, Orange)
+- **Kolkata Metro Network:** 55 stations across 5 operational lines
 - **Culinary Landmarks:** 66 Curated Food Spots, Sweet Shops & Heritage Cabins
 - **Map Providers:** Dual mapping engines — Free-tier `flutter_map` OpenStreetMap raster tiles + Native on-device Magic Lane GemKit vector maps & routing
 - **Routing Engine:** Real road-following pedestrian paths via GemKit native routing (`RouteTransportMode.pedestrian`) with Held-Karp / 2-opt TSP optimizer
 - **Squad Features:** Consolidated 4-card Squad Hub, Live GPS sync, 1-tap phone calling (`tel:`), and dedicated Squad Chat with photo/video sharing
 - **Framework:** Flutter (Dart 3)
 - **Static Analysis:** 0 issues (`flutter analyze` clean)
-- **Tests:** 138/138 passing across 11 test suites (`flutter test`)
+- **Tests:** 433 distinct checks passed (429 regression checks and 4 live routing checks); see [launch verification](../docs/qa/TONIGHT_LAUNCH_CHECK.md).
 
 ## Development Commands
 
@@ -28,7 +28,7 @@ flutter pub get
 # Run static analysis and lint checks (0 issues expected)
 flutter analyze
 
-# Run unit and widget tests (138 tests passing)
+# Run unit and widget tests (optional live checks need API credentials)
 flutter test
 
 # Run the application on connected device or emulator

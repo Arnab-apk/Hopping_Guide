@@ -27,7 +27,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   GoogleFonts.config.allowRuntimeFetching = false;
   const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
-  setUpAll(() {
+  setUpAll(() async {
+    if (const bool.fromEnvironment('CAPTURE_LAUNCH_VISUALS')) {
+      final iconFont = FontLoader('MaterialIcons')
+        ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
+      await iconFont.load();
+    }
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(pathProviderChannel, (call) async {
       if (call.method == 'getApplicationCacheDirectory') {
@@ -89,7 +94,10 @@ void main() {
             child: MaterialApp(
               theme: dark ? appDarkTheme : appTheme,
               builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(display.value.scale)),
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(display.value.scale),
+                  disableAnimations: const bool.fromEnvironment('CAPTURE_LAUNCH_VISUALS'),
+                ),
                 child: child!,
               ),
               home: RepaintBoundary(key: key, child: screen.value()),
@@ -123,6 +131,9 @@ void main() {
             expect(tester.takeException(), isNull);
           }
           if (const bool.fromEnvironment('CAPTURE_LAUNCH_VISUALS') && display.key == 'phone') {
+            // Allow card entrances started by the final data load to finish.
+            await tester.pump(const Duration(seconds: 1));
+            await tester.pump();
             await tester.runAsync(() async {
               final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
               final snapshot = await boundary.toImage();
@@ -134,6 +145,8 @@ void main() {
             });
           }
           await tester.pumpWidget(const SizedBox());
+          // Drain delayed animation starts after disposing the audited screen.
+          await tester.pump(const Duration(seconds: 1));
           userState.dispose();
           theme.dispose();
           LocationService.enableTestMode = false;

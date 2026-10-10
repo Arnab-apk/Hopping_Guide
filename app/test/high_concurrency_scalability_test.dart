@@ -141,7 +141,7 @@ void main() {
         );
       });
 
-      final routing = RoutingService(client: mockClient);
+      final routing = RoutingService(client: mockClient, mapboxAccessToken: '');
       routing.clearRouteCache();
 
       const start = LatLng(22.56, 88.35);

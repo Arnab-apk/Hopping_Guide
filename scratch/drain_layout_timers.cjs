@@ -1,0 +1,2 @@
+const fs=require('fs');let p='app/test/launch_layout_test.dart';let s=fs.readFileSync(p,'utf8').replace('// Flush deferred animation restarts after disposing the audited screen.\n          await tester.pump();','// Drain delayed animation starts after disposing the audited screen.\n          await tester.pump(const Duration(seconds: 1));');fs.writeFileSync(p,s);
+p='app/test/journey_live_smoke_test.dart';s=fs.readFileSync(p,'utf8').replace("import 'package:kolkata_puja/services/multimodal_routing_service.dart';\n",'');fs.writeFileSync(p,s);

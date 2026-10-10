@@ -14,8 +14,7 @@ import 'helplines_screen.dart';
 
 /// Main navigation shell housing the 5 core tabs:
 /// Map, Pandals Directory, Curated Routes, Groups, and Helplines.
-/// Features ultra-smooth animated tab switching, spring scale micro-interactions,
-/// tactile haptic feedback, and dynamic icon & label scaling.
+/// Keeps each tab mounted to preserve map state and scroll position.
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({
     super.key,
@@ -120,10 +119,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      // Ultra-smooth zero-latency tab switching with state, scroll position, and map tiles preserved
+      // Preserve screen state while changing tabs.
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: ListenableBuilder(
         listenable: NavigationSession.instance,
@@ -132,59 +129,49 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             : NavigationBar(
                 selectedIndex: _currentIndex,
                 onDestinationSelected: _onTabSelected,
-                destinations: [
+                destinations: const [
                   NavigationDestination(
-                    icon: PujaIcon.durgaEyes(
-                      size: 24,
-                      color: theme.colorScheme.onSurfaceVariant,
+                    icon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.durgaEyes, size: 24),
                     ),
-                    selectedIcon: PujaIcon.durgaEyes(
-                      size: 24,
-                      color: theme.colorScheme.primary,
+                    selectedIcon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.durgaEyes, size: 24),
                     ),
                     label: 'Map',
                   ),
                   NavigationDestination(
-                    icon: PujaIcon.durgaFace(
-                      size: 24,
-                      color: theme.colorScheme.onSurfaceVariant,
+                    icon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.durgaFace, size: 24),
                     ),
-                    selectedIcon: PujaIcon.durgaFace(
-                      size: 24,
-                      color: theme.colorScheme.primary,
+                    selectedIcon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.durgaFace, size: 24),
                     ),
                     label: 'Pandals',
                   ),
                   NavigationDestination(
-                    icon: PujaIcon.ashtabhujaVariant(
-                      size: 24,
-                      color: theme.colorScheme.onSurfaceVariant,
+                    icon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.ashtabhujaVariant, size: 24),
                     ),
-                    selectedIcon: PujaIcon.ashtabhujaVariant(
-                      size: 24,
-                      color: theme.colorScheme.primary,
+                    selectedIcon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.ashtabhujaVariant, size: 24),
                     ),
                     label: 'Routes',
                   ),
                   NavigationDestination(
-                    icon: PujaIcon.dhaki(
-                      size: 24,
-                      color: theme.colorScheme.onSurfaceVariant,
+                    icon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.dhaki, size: 24),
                     ),
-                    selectedIcon: PujaIcon.dhaki(
-                      size: 24,
-                      color: theme.colorScheme.primary,
+                    selectedIcon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.dhaki, size: 24),
                     ),
                     label: 'Group',
                   ),
                   NavigationDestination(
-                    icon: PujaIcon.trishulEyes(
-                      size: 24,
-                      color: theme.colorScheme.onSurfaceVariant,
+                    icon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.trishulEyes, size: 24),
                     ),
-                    selectedIcon: PujaIcon.trishulEyes(
-                      size: 24,
-                      color: theme.colorScheme.primary,
+                    selectedIcon: ExcludeSemantics(
+                      child: PujaIcon(PujaIconType.trishulEyes, size: 24),
                     ),
                     label: 'Helpline',
                   ),

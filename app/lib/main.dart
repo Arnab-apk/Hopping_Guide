@@ -1,3 +1,5 @@
+import 'widgets/app_notice.dart';
+
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +56,8 @@ void main() async {
   final themeService = await ThemeService.create();
   final squadService = await SquadService.create();
   final locationService = LocationService.instance;
-  final trailService = CustomHoppingTrailService.instance..attachUserStateService(userStateService);
+  final trailService = CustomHoppingTrailService.instance
+    ..attachUserStateService(userStateService);
 
   // Initialize notifications
   await NotificationProgressService.instance.initialize();
@@ -70,11 +73,15 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthService>.value(value: authService),
-        ChangeNotifierProvider<PandalUserStateService>.value(value: userStateService),
+        ChangeNotifierProvider<PandalUserStateService>.value(
+          value: userStateService,
+        ),
         ChangeNotifierProvider<ThemeService>.value(value: themeService),
         ChangeNotifierProvider<LocationService>.value(value: locationService),
         ChangeNotifierProvider<SquadService>.value(value: squadService),
-        ChangeNotifierProvider<CustomHoppingTrailService>.value(value: trailService),
+        ChangeNotifierProvider<CustomHoppingTrailService>.value(
+          value: trailService,
+        ),
         ChangeNotifierProvider<EnhancedNavigationService>.value(
           value: EnhancedNavigationService.instance,
         ),
@@ -109,22 +116,28 @@ void _initDeepLinks(SquadService squadService) {
   final appLinks = AppLinks();
 
   // Handle initial link if app was opened via deep link (cold start)
-  appLinks.getInitialLink().then((uri) {
-    if (uri != null) {
-      debugPrint('[DeepLink] Initial cold-start URI: $uri');
-      _handleDeepLink(uri, squadService);
-    }
-  }).catchError((e) {
-    debugPrint('[DeepLink] Initial link error: $e');
-  });
+  appLinks
+      .getInitialLink()
+      .then((uri) {
+        if (uri != null) {
+          debugPrint('[DeepLink] Initial cold-start URI: $uri');
+          _handleDeepLink(uri, squadService);
+        }
+      })
+      .catchError((e) {
+        debugPrint('[DeepLink] Initial link error: $e');
+      });
 
   // Handle incoming links while app is running (hot start / foreground stream)
-  appLinks.uriLinkStream.listen((uri) {
-    debugPrint('[DeepLink] Foreground stream URI: $uri');
-    _handleDeepLink(uri, squadService);
-  }, onError: (e) {
-    debugPrint('[DeepLink] Stream error: $e');
-  });
+  appLinks.uriLinkStream.listen(
+    (uri) {
+      debugPrint('[DeepLink] Foreground stream URI: $uri');
+      _handleDeepLink(uri, squadService);
+    },
+    onError: (e) {
+      debugPrint('[DeepLink] Stream error: $e');
+    },
+  );
 }
 
 String? _lastHandledUri;
@@ -148,7 +161,9 @@ Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
   _lastHandledUri = uriString;
   _lastHandledTime = now;
 
-  debugPrint('[DeepLink] Processing URI: $uri (host: "${uri.host}", path: "${uri.path}")');
+  debugPrint(
+    '[DeepLink] Processing URI: $uri (host: "${uri.host}", path: "${uri.path}")',
+  );
 
   // Check 1: Squad Invite Deep Link
   final squadCode = _extractSquadCode(uri);
@@ -189,28 +204,15 @@ Future<void> _handleDeepLink(Uri uri, SquadService squadService) async {
         }
 
         final ctx = nav.context;
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(
-            backgroundColor: const Color(0xFF8B5A5A),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            content: Row(
-              children: [
-                const Icon(Icons.group, color: Colors.white, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    success
-                        ? 'Joined Group $squadCode!'
-                        : (squadService.lastError ?? 'Could not join Group $squadCode. Please try again.'),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        if (success) {
+          showAppSuccessNotice(ctx, 'Joined Group $squadCode!');
+        } else {
+          showAppErrorNotice(
+            ctx,
+            squadService.lastError ??
+                'Could not join Group $squadCode. Please try again.',
+          );
+        }
       } else {
         _pendingDeepLink = uri;
       }
@@ -299,7 +301,7 @@ String? _extractPandalId(Uri uri) {
 const bool kFirebaseConfigured = true;
 
 /// Initialize Magic Lane GemKit SDK if available
-/// 
+///
 /// This function safely initializes GemKit without breaking the app
 /// if the SDK is not yet installed or configured.
 Future<void> _initializeGemKit() async {
@@ -312,23 +314,31 @@ Future<void> _initializeGemKit() async {
     // Check if API token is configured
     if (!GemKitConfig.isConfigured) {
       debugPrint('⚠ GemKit not configured: API token not found');
-      debugPrint('   Set MAGIC_LANE_API_KEY environment variable to enable GemKit features');
-      debugPrint('   Example: flutter run --dart-define=MAGIC_LANE_API_KEY=your_token');
+      debugPrint(
+        '   Set MAGIC_LANE_API_KEY environment variable to enable GemKit features',
+      );
+      debugPrint(
+        '   Example: flutter run --dart-define=MAGIC_LANE_API_KEY=your_token',
+      );
       return;
     }
 
     await GemKit.initialize(appAuthorization: GemKitConfig.apiToken);
     debugPrint('✓ Magic Lane GemKit initialized successfully');
     debugPrint('  Map engine: Magic Lane Maps SDK');
-    debugPrint('  Offline maps: ${GemKitConfig.enableOfflineMaps ? 'Enabled' : 'Disabled'}');
-    debugPrint('  3D buildings: ${GemKitConfig.enable3DBuildings ? 'Enabled' : 'Disabled'}');
+    debugPrint(
+      '  Offline maps: ${GemKitConfig.enableOfflineMaps ? 'Enabled' : 'Disabled'}',
+    );
+    debugPrint(
+      '  3D buildings: ${GemKitConfig.enable3DBuildings ? 'Enabled' : 'Disabled'}',
+    );
   } catch (e) {
     debugPrint('⚠ GemKit initialization note: $e');
   }
 }
 
 /// Initialize enhanced navigation services
-/// 
+///
 /// Provides Magic Lane-like features using open-source alternatives:
 /// - Turn-by-turn navigation
 /// - Voice guidance

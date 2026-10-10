@@ -1,0 +1,1 @@
+const fs=require('fs');const p='scratch/prepare_journey_release.cjs';let s=fs.readFileSync(p,'utf8').replace("'app/test/journey_live_smoke_test.dart',","'app/test/journey_live_smoke_test.dart','app/test/journey_behala_live_check_test.dart',");fs.writeFileSync(p,s);

@@ -1,0 +1,17 @@
+const fs=require('fs'),cp=require('child_process');
+const p='app/lib/screens/squad_chat_screen.dart';
+let s=cp.execFileSync('git',['show','release/group-video-v0.1.9:'+p],{encoding:'utf8'}).replace(/\r\n/g,'\n');
+s="import '../widgets/app_notice.dart';\n"+s.replace(/ScaffoldMessenger\.of\((\w+)\)\s*\.showSnackBar\(/g,'showAppSnackBar($1, ');
+const anchor=s.indexOf("'SQUAD GUIDE'");const start=s.lastIndexOf('Row(',anchor);
+if(start<0)throw Error('Missing bot heading');
+s=s.slice(0,start)+s.slice(start).replace('Row(\n                      mainAxisSize: MainAxisSize.min,','Wrap(\n                      spacing: 6, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center,');
+s=s.replace("Text(\n                          '$timeStr", "Flexible(child: Text(\n                          '$timeStr");
+const time=s.indexOf("'$timeStr"); const end=s.indexOf('                        ),\n                      ],',time);
+if(end<0)throw Error('Missing timestamp ending');
+s=s.slice(0,end)+s.slice(end).replace('                        ),\n                      ],','                        )),\n                      ],');
+s=s.replace('height: 38,', 'height: 48 + (MediaQuery.textScalerOf(context).scale(12) - 12),');
+s=s.replace('icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),', 'icon: Icon(Icons.send_rounded, color: Theme.of(context).colorScheme.onPrimary, size: 20),');
+s=s.replace('onPressed: () => _sendMessage(),','onPressed: _isSending ? null : () => _sendMessage(),');
+s=s.replace('widget.squadName,\n              style:', 'widget.squadName,\n              maxLines: 1, overflow: TextOverflow.ellipsis,\n              style:');
+s=s.replace('icon: const Icon(Icons.close, color: Colors.white),','icon: const Icon(Icons.close, color: Colors.white),\n                tooltip: \'Close photo\',');
+fs.writeFileSync(p,s);

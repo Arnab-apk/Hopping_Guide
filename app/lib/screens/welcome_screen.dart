@@ -1,3 +1,4 @@
+import '../widgets/app_notice.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import '../services/auth_service.dart';
 import '../services/puja_day_theme_service.dart';
 import '../utils/responsive.dart';
 import '../widgets/google_logo.dart';
-import '../widgets/puja_icons.dart';
 
 /// Alias for WelcomeScreen reflecting the login/authentication functionality
 typedef LoginScreen = WelcomeScreen;
@@ -133,17 +133,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
       // User dismissed the Google account prompt
     } else {
       // Real Google Sign-In failed; notify user of the exact error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: PujaColors.durgaRed,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          content: Text(
-            result.errorMessage ?? 'Google Sign-In failed. Please verify your Firebase SHA-1 setup.',
-            style: const TextStyle(color: Colors.white, fontSize: 13),
-          ),
-          duration: const Duration(seconds: 4),
-        ),
+      showAppErrorNotice(
+        context,
+        result.errorMessage ?? 'Google Sign-In failed. Please verify your connection.',
       );
     }
   }
@@ -255,9 +247,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                               // Header Group (Grand Title: Uma Asche)
                               RepaintBoundary(
                                 child: FadeTransition(
-                                  opacity: _headerFade,
+                                  opacity: MediaQuery.disableAnimationsOf(context) ? const AlwaysStoppedAnimation(1.0) : _headerFade,
                                   child: SlideTransition(
-                                    position: _headerSlide,
+                                    position: MediaQuery.disableAnimationsOf(context) ? const AlwaysStoppedAnimation(Offset.zero) : _headerSlide,
                                     child: ShaderMask(
                                       shaderCallback: (bounds) => const LinearGradient(
                                         colors: [
@@ -287,7 +279,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
 
                                   // Live Countdown Capsule (Sleek glassmorphic bar in upper calm zone)
                                   FadeTransition(
-                                    opacity: _countdownFade,
+                                    opacity: MediaQuery.disableAnimationsOf(context) ? const AlwaysStoppedAnimation(1.0) : _countdownFade,
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(16),
                                       child: Container(
@@ -322,9 +314,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                   // Login Action Card nestled into the dark lower band of Image 1
                                   RepaintBoundary(
                                     child: FadeTransition(
-                                      opacity: _cardFade,
+                                      opacity: MediaQuery.disableAnimationsOf(context) ? const AlwaysStoppedAnimation(1.0) : _cardFade,
                                       child: SlideTransition(
-                                        position: _cardSlide,
+                                        position: MediaQuery.disableAnimationsOf(context) ? const AlwaysStoppedAnimation(Offset.zero) : _cardSlide,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(22),
                                           child: BackdropFilter(
@@ -352,21 +344,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                                   Text(
                                                     'Begin Your Parikrama',
                                                     textAlign: TextAlign.center,
-                                                    style: _getSamarkanStyle(
-                                                      fontSize: context.dynamicFont(18),
-                                                      color: PujaColors.festivalGold,
-                                                      fontWeight: FontWeight.w600,
-                                                      letterSpacing: 0.3,
-                                                    ),
+                                                    style: GoogleFonts.plusJakartaSans(fontSize: 22,
+                                                      color: Colors.white, fontWeight: FontWeight.w700,
+                                                      letterSpacing: -0.5),
                                                   ),
                                                   const SizedBox(height: 4),
                                                   Text(
-                                                    'Discover 380+ Verified Pandals, real-time crowd status, walking paths & live metro routes.',
+                                                    'Discover Kolkata\'s pandals, plan your route and explore together.',
                                                     textAlign: TextAlign.center,
                                                     style: GoogleFonts.plusJakartaSans(
-                                                      fontSize: context.dynamicFont(11.8),
+                                                      fontSize: 14,
                                                       color: Colors.white.withValues(alpha: 0.72),
-                                                      height: 1.35,
+                                                      height: 1.5,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 16),
@@ -402,7 +391,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with SingleTickerProvider
                                                           : Row(
                                                               mainAxisAlignment: MainAxisAlignment.center,
                                                               children: [
-                                                                PujaIcon.shankha(size: 24, color: PujaColors.festivalGold),
+                                                                const Icon(Icons.explore_outlined, size: 24),
                                                                 const SizedBox(width: 9),
                                                                 Text(
                                                                   'Enter as Guest',

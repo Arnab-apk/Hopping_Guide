@@ -1,0 +1,1 @@
+const fs=require('fs');const p='app/lib/services/journey_planner.dart';let s=fs.readFileSync(p,'utf8').replace("final key = '$from>$to';", "final key = '$from>$to>$transfer>$instruction';");fs.writeFileSync(p,s);

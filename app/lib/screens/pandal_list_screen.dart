@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../config/app_config.dart';
-import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../models/place.dart';
 import '../repositories/local_pandal_repository.dart';
@@ -18,6 +16,8 @@ import '../services/pandal_user_state_service.dart';
 import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
+import '../widgets/app_notice.dart';
+import '../widgets/app_filter_chip.dart';
 import '../widgets/empty_states.dart';
 import '../widgets/pandal_card.dart';
 import '../widgets/pandal_detail_sheet.dart';
@@ -122,13 +122,13 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
       final pandals = category == PlaceCategory.pandal
           ? places
-              .map((p) => p.rawPandal ?? Pandal.fromMap(p.id, p.toMap()))
-              .toList()
+                .map((p) => p.rawPandal ?? Pandal.fromMap(p.id, p.toMap()))
+                .toList()
           : <Pandal>[];
       final foodSpots = category == PlaceCategory.foodSpot
           ? places
-              .map((p) => p.rawFoodSpot ?? FoodSpot.fromJson(p.toMap()))
-              .toList()
+                .map((p) => p.rawFoodSpot ?? FoodSpot.fromJson(p.toMap()))
+                .toList()
           : <FoodSpot>[];
       setState(() {
         _allPlaces = places;
@@ -327,18 +327,19 @@ class _PandalListScreenState extends State<PandalListScreen> {
             tooltip: 'Sort & Options',
             onSelected: (val) async {
               if (val == 'update_gps') {
-                final messenger = ScaffoldMessenger.of(context);
                 final pos = await locationService?.updateLiveLocation();
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      pos != null
-                          ? '📍 GPS updated! Distance calculated from your current spot.'
-                          : (locationService?.error ??
-                                'Could not acquire GPS.'),
-                    ),
-                  ),
-                );
+                if (!context.mounted) return;
+                if (pos != null) {
+                  showAppSuccessNotice(
+                    context,
+                    '📍 GPS updated! Distance calculated from your current spot.',
+                  );
+                } else {
+                  showAppErrorNotice(
+                    context,
+                    locationService?.error ?? 'Could not acquire GPS.',
+                  );
+                }
               } else if (val == 'defaultOrder') {
                 setState(() => _currentSort = PandalSortOption.defaultOrder);
               } else if (val == 'nearestFirst') {
@@ -446,17 +447,12 @@ class _PandalListScreenState extends State<PandalListScreen> {
             ),
           ),
 
-          // 3. Category Filter Chips (Assembled dynamically per category)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          // Keep every filter visible; individual labels stay on one line.
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              children: [
-                for (int i = 0; i < statusPills.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  statusPills[i],
-                ],
-              ],
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(spacing: 8, runSpacing: 0, children: statusPills),
             ),
           ),
 
@@ -480,7 +476,8 @@ class _PandalListScreenState extends State<PandalListScreen> {
                 : _hasLoadError
                 ? EmptyStates.compact(
                     EmptyStateType.networkError,
-                    message: 'We couldn\'t load these places. Please try again.',
+                    message:
+                        'We couldn\'t load these places. Please try again.',
                     onAction: _loadPlaces,
                   )
                 : displayList.isEmpty
@@ -642,50 +639,83 @@ class _PandalListScreenState extends State<PandalListScreen> {
     required int totalCount,
     required double progress,
   }) {
+    final theme = Theme.of(context);
+    final percent = (progress * 100).toInt();
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1B2E1D) : const Color(0xFFE8F5E9),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+          color: isDark
+              ? theme.colorScheme.surfaceContainerHigh
+              : const Color(0xFFF1F8F1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark
+                ? Colors.green.withValues(alpha: 0.25)
+                : Colors.green.withValues(alpha: 0.35),
+            width: 0.8,
+          ),
         ),
         child: Column(
           children: [
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
+            Row(
+              children: [
+                PujaIcon.shankha(
+                  size: 16,
+                  color: isDark
+                      ? const Color(0xFF81C784)
+                      : const Color(0xFF2E7D32),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
                     'Hopping Progress: $visitedCount of $totalCount Pandals Visited',
                     style: TextStyle(
-                      fontSize: context.dynamicFont(11.5),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    '${(progress * 100).toStringAsFixed(0)}%',
-                    style: TextStyle(
                       fontSize: context.dynamicFont(12),
-                      fontWeight: FontWeight.w900,
-                      color: Colors.green,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? const Color(0xFFA5D6A7)
+                          : const Color(0xFF1B5E20),
                     ),
                   ),
-                ],
-              ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : Colors.green.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$percent%',
+                    style: TextStyle(
+                      fontSize: context.dynamicFont(11.5),
+                      fontWeight: FontWeight.w800,
+                      color: isDark
+                          ? const Color(0xFF81C784)
+                          : const Color(0xFF2E7D32),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
-                backgroundColor: Colors.green.withValues(alpha: 0.2),
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                backgroundColor: isDark
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.green.withValues(alpha: 0.15),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isDark ? const Color(0xFF66BB6A) : const Color(0xFF2E7D32),
+                ),
               ),
             ),
           ],
@@ -700,168 +730,147 @@ class _PandalListScreenState extends State<PandalListScreen> {
     Widget? customIcon,
     required bool isSelected,
     required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  }) => AppFilterChip(
+    label: label,
+    selected: isSelected,
+    avatar: customIcon ?? (icon == null ? null : Icon(icon, size: 18)),
+    onSelected: (_) {
+      HapticFeedback.selectionClick();
+      onTap();
+    },
+  );
 
-    return FilterChip(
-      selected: isSelected,
-      onSelected: (_) {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      avatar:
-          customIcon ??
-          (icon != null
-              ? Icon(
-                  icon,
-                  size: context.dynamicIcon(15),
-                  color: isSelected
-                      ? colorScheme.onSecondaryContainer
-                      : colorScheme.onSurfaceVariant,
-                )
-              : null),
-      label: Text(label),
-      showCheckmark: false,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    );
-  }
-
-  Widget _buildRegionPill(BuildContext context, bool isDark) {
-    final isSelected = _selectedZone != null;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return FilterChip(
-      selected: isSelected,
-      onSelected: (_) {
-        HapticFeedback.selectionClick();
-        _showRegionBottomSheet(context, isDark);
-      },
-      avatar: Icon(
-        Icons.tune_rounded,
-        size: context.dynamicIcon(15),
-        color: isSelected
-            ? colorScheme.onSecondaryContainer
-            : colorScheme.onSurfaceVariant,
-      ),
-      label: Text(
-        _selectedZone != null ? _selectedZone!.shortLabel : 'Regions',
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      showCheckmark: false,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-    );
-  }
+  Widget _buildRegionPill(BuildContext context, bool isDark) => AppFilterChip(
+    label: _selectedZone?.shortLabel ?? 'Regions',
+    selected: _selectedZone != null,
+    avatar: const Icon(Icons.location_on_outlined, size: 18),
+    onSelected: (_) => _showRegionBottomSheet(context, isDark),
+  );
 
   void _showRegionBottomSheet(BuildContext context, bool isDark) {
-    showModalBottomSheet(
+    final colors = Theme.of(context).colorScheme;
+    HapticFeedback.selectionClick();
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
+      showDragHandle: true,
+      backgroundColor: colors.surfaceContainerLow,
+      builder: (ctx) => FractionallySizedBox(
+        heightFactor: .8,
+        child: SafeArea(
+          top: false,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+                padding: const EdgeInsets.fromLTRB(20, 0, 8, 12),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        _category == PlaceCategory.pandal
-                            ? 'Filter Pandals by Region'
-                            : 'Filter Food Spots by Region',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? Colors.white : Colors.black87,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Choose a region',
+                            style: Theme.of(ctx).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _category == PlaceCategory.pandal
+                                ? 'Find pandals by neighbourhood'
+                                : 'Find food spots by neighbourhood',
+                            style: Theme.of(ctx).textTheme.bodyMedium
+                                ?.copyWith(color: colors.onSurfaceVariant),
+                          ),
+                        ],
                       ),
                     ),
-                    if (_selectedZone != null)
-                      TextButton(
-                        onPressed: () {
-                          setState(() => _selectedZone = null);
-                          Navigator.pop(ctx);
-                        },
-                        child: const Text('Reset All'),
-                      ),
+                    IconButton(
+                      tooltip: 'Close regions',
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close),
+                    ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: [
-                    ListTile(
-                      leading: const Icon(
-                        Icons.all_inclusive_rounded,
-                        color: PujaColors.festivalGold,
-                      ),
-                      title: Text(
-                        _category == PlaceCategory.pandal
-                            ? 'All Kolkata Pandals'
-                            : 'All Kolkata Food Spots',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      trailing: _selectedZone == null
-                          ? const Icon(
-                              Icons.check_circle,
-                              color: Color(0xFF00E676),
-                            )
-                          : null,
-                      onTap: () {
+              if (_selectedZone != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: TextButton(
+                      onPressed: () {
                         setState(() => _selectedZone = null);
                         Navigator.pop(ctx);
                       },
+                      child: const Text('Reset All'),
                     ),
-                    ...KolkataZone.values.map((zone) {
-                      final isSelected = _selectedZone == zone;
-                      final count = _allPlaces
-                          .where((p) => p.zone == zone)
-                          .length;
-                      return ListTile(
-                        leading: const Icon(
-                          Icons.location_on_outlined,
-                          color: PujaColors.durgaRed,
-                        ),
-                        title: Text(
-                          zone.label,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          _category == PlaceCategory.pandal
-                              ? '$count Pandals in ${zone.shortLabel}'
-                              : '$count Food Spots in ${zone.shortLabel}',
-                        ),
-                        trailing: isSelected
-                            ? const Icon(
-                                Icons.check_circle,
-                                color: Color(0xFF00E676),
-                              )
-                            : null,
-                        onTap: () {
-                          setState(() => _selectedZone = zone);
-                          Navigator.pop(ctx);
-                        },
-                      );
-                    }),
+                  ),
+                ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+                  children: [
+                    _regionOption(
+                      ctx,
+                      label: _category == PlaceCategory.pandal
+                          ? 'All Kolkata Pandals'
+                          : 'All Kolkata Food Spots',
+                      count: _allPlaces.length,
+                      zone: null,
+                    ),
+                    for (final zone in KolkataZone.values)
+                      _regionOption(
+                        ctx,
+                        label: zone.label,
+                        count: _allPlaces.where((p) => p.zone == zone).length,
+                        zone: zone,
+                      ),
                   ],
                 ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  Widget _regionOption(
+    BuildContext ctx, {
+    required String label,
+    required int count,
+    required KolkataZone? zone,
+  }) {
+    final colors = Theme.of(ctx).colorScheme;
+    final selected = _selectedZone == zone;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: ListTile(
+        selected: selected,
+        selectedColor: colors.onPrimaryContainer,
+        selectedTileColor: colors.primaryContainer,
+        leading: Icon(
+          zone == null ? Icons.public : Icons.location_on_outlined,
+          color: selected ? colors.onPrimaryContainer : colors.onSurfaceVariant,
+        ),
+        title: Text(label),
+        subtitle: Text(
+          '$count ${_category == PlaceCategory.pandal ? 'pandals' : 'food spots'}',
+          style: TextStyle(
+            color: selected
+                ? colors.onPrimaryContainer
+                : colors.onSurfaceVariant,
+          ),
+        ),
+        trailing: selected
+            ? Icon(Icons.check_circle, color: colors.onPrimaryContainer)
+            : null,
+        onTap: () {
+          setState(() => _selectedZone = zone);
+          Navigator.pop(ctx);
+        },
+      ),
     );
   }
 }

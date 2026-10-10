@@ -2,6 +2,8 @@ import 'package:flutter_local_notifications_platform_interface/flutter_local_not
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:kolkata_puja/services/location_service.dart';
 
 import 'package:kolkata_puja/models/pandal.dart';
 import 'package:kolkata_puja/services/custom_hopping_trail_service.dart';
@@ -20,12 +22,12 @@ void main() {
   late List<Pandal> mockPandals;
 
   setUp(() {
+    LocationService.enableTestMode = true;
     SharedPreferences.setMockInitialValues({});
 
     // Ensure the platform-interface singleton is initialized before any trail
     // operation touches [NotificationProgressService].
-    FlutterLocalNotificationsPlatform.instance =
-        _FakeNotificationsPlatform();
+    FlutterLocalNotificationsPlatform.instance = _FakeNotificationsPlatform();
 
     mockPandals = [
       Pandal(
@@ -83,6 +85,56 @@ void main() {
     ];
   });
 
+  tearDown(() async {
+    await CustomHoppingTrailService.instance.endTrail();
+    LocationService.enableTestMode = false;
+  });
+
+  test('GPS arrival rejects stale and inaccurate fixes and preserves previous visits', () async {
+    final state = PandalUserStateService(await SharedPreferences.getInstance());
+    final service = CustomHoppingTrailService.instance
+      ..attachUserStateService(state);
+    final trail = service.generateOptimizedTrail(
+      startPos: LatLng(mockPandals.first.lat, mockPandals.first.lng),
+      startLabel: 'Start',
+      selectedPandals: mockPandals.take(2).toList(),
+    );
+    await service.startTrail(trail);
+    final target = service.currentTarget!;
+    await state.markVisited(target.id);
+    final now = DateTime.now();
+    Position fix(DateTime time, double accuracy) => Position(
+      latitude: target.lat,
+      longitude: target.lng,
+      timestamp: time,
+      accuracy: accuracy,
+      altitude: 0,
+      altitudeAccuracy: 1,
+      heading: 0,
+      headingAccuracy: 1,
+      speed: 0,
+      speedAccuracy: 1,
+    );
+    service.processLocationForAutoVisit(
+      fix(now.subtract(const Duration(seconds: 20)), 5),
+      now: now,
+    );
+    service.processLocationForAutoVisit(fix(now, 100), now: now);
+    service.processLocationForAutoVisit(fix(now, double.nan), now: now);
+    expect(trail.visitedCount, 0);
+    final events = <Pandal>[];
+    final subscription = service.autoVisits.listen(events.add);
+    final good = fix(now, 5);
+    service.processLocationForAutoVisit(good, now: now);
+    service.processLocationForAutoVisit(good, now: now);
+    await Future<void>.delayed(Duration.zero);
+    expect(trail.visitedCount, 1);
+    expect(trail.currentStopIndex, 1);
+    expect(state.isVisited(target.id), isTrue);
+    expect(events.map((p) => p.id), [target.id]);
+    await subscription.cancel();
+  });
+
   group('CustomHoppingTrailService Algorithm & Geofence Tests', () {
     test('generateTrail generates valid ordered stops within time budget', () {
       final service = CustomHoppingTrailService.instance;
@@ -118,73 +170,94 @@ void main() {
 
       expect(trail.stops.isNotEmpty, isTrue);
       // Pandal 2 (Kashi Bose Lane) is rated 4.9 extreme crowd
-      expect(trail.stops.any((p) => p.name.contains('Kashi Bose') || p.name.contains('Hatibagan')), isTrue);
-    });
-
-    test('Auto-Visit triggers when user location is within 80m threshold', () async {
-      final prefs = await SharedPreferences.getInstance();
-      final userState = PandalUserStateService(prefs);
-      final service = CustomHoppingTrailService.instance..attachUserStateService(userState);
-
-      const start = LatLng(22.5995, 88.3712);
-      final trail = service.generateTrail(
-        startPos: start,
-        startLabel: 'Hatibagan',
-        style: HoppingStyle.express,
-        timeBudgetMinutes: 120,
-        transitMode: HoppingTransitMode.walking,
-        allPandals: mockPandals,
+      expect(
+        trail.stops.any(
+          (p) => p.name.contains('Kashi Bose') || p.name.contains('Hatibagan'),
+        ),
+        isTrue,
       );
-
-      await service.startTrail(trail);
-      expect(service.hasActiveTrail, isTrue);
-      expect(service.activeTrail!.visitedCount, equals(0));
-
-      final firstTarget = service.currentTarget!;
-      expect(firstTarget, isNotNull);
-
-      // 1. Simulate user position far away (e.g., 2 km away) -> should NOT auto-visit
-      final farLocation = LatLng(firstTarget.lat + 0.02, firstTarget.lng + 0.02);
-      service.checkProximityAndAutoVisit(farLocation);
-      expect(service.activeTrail!.visitedCount, equals(0));
-      expect(service.activeTrail!.currentStopIndex, equals(0));
-
-      // 2. Simulate user position close (within ~30m of target) -> SHOULD auto-visit
-      final closeLocation = LatLng(firstTarget.lat + 0.0001, firstTarget.lng + 0.0001);
-      service.checkProximityAndAutoVisit(closeLocation);
-
-      expect(service.activeTrail!.visitedCount, equals(1));
-      expect(service.activeTrail!.visitedPandalIds.contains(firstTarget.id), isTrue);
-      expect(userState.isVisited(firstTarget.id), isTrue);
-
-      // 3. Clean up
-      await service.endTrail();
-      expect(service.hasActiveTrail, isFalse);
     });
 
-    test('skipCurrentStop advances to next stop without marking visited', () async {
-      final service = CustomHoppingTrailService.instance;
-      const start = LatLng(22.5995, 88.3712);
-      final trail = service.generateTrail(
-        startPos: start,
-        startLabel: 'Hatibagan',
-        style: HoppingStyle.heritage,
-        timeBudgetMinutes: 120,
-        transitMode: HoppingTransitMode.walking,
-        allPandals: mockPandals,
-      );
+    test(
+      'Auto-Visit triggers when user location is within 80m threshold',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        final userState = PandalUserStateService(prefs);
+        final service = CustomHoppingTrailService.instance
+          ..attachUserStateService(userState);
 
-      await service.startTrail(trail);
-      expect(service.activeTrail!.currentStopIndex, equals(0));
+        const start = LatLng(22.5995, 88.3712);
+        final trail = service.generateTrail(
+          startPos: start,
+          startLabel: 'Hatibagan',
+          style: HoppingStyle.express,
+          timeBudgetMinutes: 120,
+          transitMode: HoppingTransitMode.walking,
+          allPandals: mockPandals,
+        );
 
-      await service.skipCurrentStop();
-      expect(service.activeTrail!.currentStopIndex, equals(1));
-      expect(service.activeTrail!.visitedCount, equals(0));
+        await service.startTrail(trail);
+        expect(service.hasActiveTrail, isTrue);
+        expect(service.activeTrail!.visitedCount, equals(0));
 
-      await service.endTrail();
-    });
+        final firstTarget = service.currentTarget!;
+        expect(firstTarget, isNotNull);
 
-    test('generateOptimizedTrail sanitizes remote user location (> 2.5 km away) and does not inflate trail distance', () {
+        // 1. Simulate user position far away (e.g., 2 km away) -> should NOT auto-visit
+        final farLocation = LatLng(
+          firstTarget.lat + 0.02,
+          firstTarget.lng + 0.02,
+        );
+        service.checkProximityAndAutoVisit(farLocation);
+        expect(service.activeTrail!.visitedCount, equals(0));
+        expect(service.activeTrail!.currentStopIndex, equals(0));
+
+        // 2. Simulate user position close (within ~30m of target) -> SHOULD auto-visit
+        final closeLocation = LatLng(
+          firstTarget.lat + 0.0001,
+          firstTarget.lng + 0.0001,
+        );
+        service.checkProximityAndAutoVisit(closeLocation);
+
+        expect(service.activeTrail!.visitedCount, equals(1));
+        expect(
+          service.activeTrail!.visitedPandalIds.contains(firstTarget.id),
+          isTrue,
+        );
+        expect(userState.isVisited(firstTarget.id), isTrue);
+
+        // 3. Clean up
+        await service.endTrail();
+        expect(service.hasActiveTrail, isFalse);
+      },
+    );
+
+    test(
+      'skipCurrentStop advances to next stop without marking visited',
+      () async {
+        final service = CustomHoppingTrailService.instance;
+        const start = LatLng(22.5995, 88.3712);
+        final trail = service.generateTrail(
+          startPos: start,
+          startLabel: 'Hatibagan',
+          style: HoppingStyle.heritage,
+          timeBudgetMinutes: 120,
+          transitMode: HoppingTransitMode.walking,
+          allPandals: mockPandals,
+        );
+
+        await service.startTrail(trail);
+        expect(service.activeTrail!.currentStopIndex, equals(0));
+
+        await service.skipCurrentStop();
+        expect(service.activeTrail!.currentStopIndex, equals(1));
+        expect(service.activeTrail!.visitedCount, equals(0));
+
+        await service.endTrail();
+      },
+    );
+
+    test('optimized trail retains the real origin and includes its first connection', () {
       final service = CustomHoppingTrailService.instance;
       // Remote user position ~38.5 km north (e.g., near Kalyani / Barrackpore)
       const remoteUserPos = LatLng(22.9500, 88.3712);
@@ -192,69 +265,78 @@ void main() {
       final trail = service.generateOptimizedTrail(
         startPos: remoteUserPos,
         startLabel: 'Home (Remote GPS)',
-        selectedPandals: [mockPandals[0], mockPandals[1]], // Hatibagan Sarbojanin & Kashi Bose Lane
+        selectedPandals: [
+          mockPandals[0],
+          mockPandals[1],
+        ], // Hatibagan Sarbojanin & Kashi Bose Lane
       );
 
-      // Trail metrics MUST NOT include the 38.5 km cross-district march!
-      // The two pandals in Hatibagan are ~250m apart.
-      expect(trail.totalDistanceKm, lessThan(3.0));
-      // Total estimated time must be realistic (~30-35 mins), not 580 minutes!
-      expect(trail.totalEstimatedMinutes, lessThan(60));
-      // Starting location is anchored at the first pandal, not the remote GPS
-      expect(trail.startingLocation.latitude, closeTo(mockPandals[0].lat, 0.01));
+      expect(trail.totalDistanceKm, greaterThan(30));
+      expect(trail.startingLocation, remoteUserPos);
+      expect(trail.startingAddress, 'Home (Remote GPS)');
+      expect(trail.legs.first.from, remoteUserPos);
     });
 
-    test('RoutingService getMultiStopRoute computes valid route across waypoints', () async {
-      final waypoints = [
-        LatLng(mockPandals[0].lat, mockPandals[0].lng),
-        LatLng(mockPandals[1].lat, mockPandals[1].lng),
-        LatLng(mockPandals[2].lat, mockPandals[2].lng),
-      ];
+    test(
+      'RoutingService getMultiStopRoute computes valid route across waypoints',
+      () async {
+        final waypoints = [
+          LatLng(mockPandals[0].lat, mockPandals[0].lng),
+          LatLng(mockPandals[1].lat, mockPandals[1].lng),
+          LatLng(mockPandals[2].lat, mockPandals[2].lng),
+        ];
 
-      final route = await RoutingService.instance.getMultiStopRoute(
-        waypoints: waypoints,
-        routeTitle: 'North Kolkata Heritage Hop',
-      );
+        final route = await RoutingService.instance.getMultiStopRoute(
+          waypoints: waypoints,
+          routeTitle: 'North Kolkata Heritage Hop',
+        );
 
-      expect(route.points.length, greaterThanOrEqualTo(2));
-      expect(route.distanceMeters, greaterThan(0));
-      expect(route.durationSeconds, greaterThan(0));
-      expect(route.customTitle, equals('North Kolkata Heritage Hop'));
-    });
+        expect(route.points.length, greaterThanOrEqualTo(2));
+        expect(route.distanceMeters, greaterThan(0));
+        expect(route.durationSeconds, greaterThan(0));
+        expect(route.customTitle, equals('North Kolkata Heritage Hop'));
+      },
+    );
 
-    test('recordAutoVisit smoothly updates remaining routed distance and minutes', () async {
-      final service = CustomHoppingTrailService.instance;
-      const start = LatLng(22.5995, 88.3712);
-      final trail = service.generateTrail(
-        startPos: start,
-        startLabel: 'Hatibagan',
-        style: HoppingStyle.express,
-        timeBudgetMinutes: 120,
-        transitMode: HoppingTransitMode.walking,
-        allPandals: mockPandals.take(2).toList(),
-      );
+    test(
+      'recordAutoVisit smoothly updates remaining routed distance and minutes',
+      () async {
+        final service = CustomHoppingTrailService.instance;
+        const start = LatLng(22.5995, 88.3712);
+        final trail = service.generateTrail(
+          startPos: start,
+          startLabel: 'Hatibagan',
+          style: HoppingStyle.express,
+          timeBudgetMinutes: 120,
+          transitMode: HoppingTransitMode.walking,
+          allPandals: mockPandals.take(2).toList(),
+        );
 
-      await service.startTrail(trail);
+        await service.startTrail(trail);
 
-      // Manually set initial routed stats
-      service.updateRoutedStats(
-        distanceKm: 2.0,
-        durationMinutes: 40,
-        polyline: [const LatLng(22.5995, 88.3712), const LatLng(22.5980, 88.3735)],
-        remainingDistanceKm: 2.0,
-        remainingDurationMinutes: 40,
-      );
+        // Manually set initial routed stats
+        service.updateRoutedStats(
+          distanceKm: 2.0,
+          durationMinutes: 40,
+          polyline: [
+            const LatLng(22.5995, 88.3712),
+            const LatLng(22.5980, 88.3735),
+          ],
+          remainingDistanceKm: 2.0,
+          remainingDurationMinutes: 40,
+        );
 
-      expect(service.activeTrail!.remainingRoutedDistanceKm, equals(2.0));
-      expect(service.activeTrail!.remainingRoutedDurationMinutes, equals(40));
+        expect(service.activeTrail!.remainingRoutedDistanceKm, equals(2.0));
+        expect(service.activeTrail!.remainingRoutedDurationMinutes, equals(40));
 
-      // Record visit for first pandal (1 out of 2 visited -> 50% remaining)
-      await service.recordAutoVisit(mockPandals[0]);
+        // Record visit for first pandal (1 out of 2 visited -> 50% remaining)
+        await service.recordAutoVisit(mockPandals[0]);
 
-      expect(service.activeTrail!.remainingRoutedDistanceKm, equals(1.0));
-      expect(service.activeTrail!.remainingRoutedDurationMinutes, equals(20));
+        expect(service.activeTrail!.remainingRoutedDistanceKm, equals(1.0));
+        expect(service.activeTrail!.remainingRoutedDurationMinutes, equals(20));
 
-      await service.endTrail();
-    });
+        await service.endTrail();
+      },
+    );
   });
 }

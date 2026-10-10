@@ -1,8 +1,8 @@
+import '../widgets/app_notice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../config/theme.dart';
 import '../models/app_user.dart';
 import '../services/auth_service.dart';
 import 'google_logo.dart';
@@ -74,16 +74,9 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
     } else if (result.isCancelled) {
       // User cancelled account selection
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: PujaColors.durgaRed,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          content: Text(
-            result.errorMessage ?? 'Google Sign-In could not be completed.',
-            style: const TextStyle(color: Colors.white, fontSize: 13),
-          ),
-        ),
+      showAppErrorNotice(
+        context,
+        result.errorMessage ?? 'Google Sign-In could not be completed.',
       );
     }
   }
@@ -93,12 +86,7 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
     final email = _emailController.text.trim();
 
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your display name.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      showAppWarningNotice(context, 'Please enter your display name.');
       return;
     }
 
@@ -165,14 +153,14 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? Colors.white : Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             Text(
                               'Connect your profile to share live squad location',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark ? Colors.white60 : Colors.black54,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -218,7 +206,7 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.8,
-                            color: isDark ? Colors.white38 : Colors.black38,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -245,7 +233,7 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
                         currentUser.email ?? '',
                         style: TextStyle(
                           fontSize: 12.5,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       trailing: Container(
@@ -435,7 +423,7 @@ class _GoogleAccountChooserDialogState extends State<GoogleAccountChooserDialog>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 11,
-                      color: isDark ? Colors.white38 : Colors.black38,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1.3,
                     ),
                   ),

@@ -34,7 +34,14 @@ class MapboxDirectionsService {
   final String _accessToken;
   bool get isConfigured => _accessToken.isNotEmpty;
 
-  Future<MapboxRouteData> walking(List<LatLng> waypoints) async {
+  Future<MapboxRouteData> walking(List<LatLng> waypoints) =>
+      directions(waypoints);
+  Future<MapboxRouteData> driving(List<LatLng> waypoints) =>
+      directions(waypoints, driving: true);
+  Future<MapboxRouteData> directions(
+    List<LatLng> waypoints, {
+    bool driving = false,
+  }) async {
     if (!isConfigured) {
       throw MapboxRoutingException('Walking navigation is not configured.');
     }
@@ -56,7 +63,10 @@ class MapboxDirectionsService {
     // longer trails retain every stop and never become a disconnected route.
     for (var start = 0; start < waypoints.length - 1; start += 24) {
       final end = (start + 25).clamp(0, waypoints.length);
-      final part = await _request(waypoints.sublist(start, end));
+      final part = await _request(
+        waypoints.sublist(start, end),
+        driving: driving,
+      );
       final overlap = points.isNotEmpty && points.last == part.points.first;
       final offset = points.length - (overlap ? 1 : 0);
       points.addAll(overlap ? part.points.skip(1) : part.points);
@@ -80,13 +90,16 @@ class MapboxDirectionsService {
     return MapboxRouteData(points, steps, distance, duration);
   }
 
-  Future<MapboxRouteData> _request(List<LatLng> waypoints) async {
+  Future<MapboxRouteData> _request(
+    List<LatLng> waypoints, {
+    bool driving = false,
+  }) async {
     final coordinates = waypoints
         .map((p) => '${p.longitude},${p.latitude}')
         .join(';');
     final uri = Uri.https(
       'api.mapbox.com',
-      '/directions/v5/mapbox/walking/$coordinates',
+      '/directions/v5/mapbox/${driving ? 'driving-traffic' : 'walking'}/$coordinates',
       {
         'access_token': _accessToken,
         'steps': 'true',
@@ -104,21 +117,20 @@ class MapboxDirectionsService {
           .timeout(const Duration(seconds: 12));
     } on TimeoutException {
       throw MapboxRoutingException(
-        'Walking directions timed out. Please try again.',
+        'Street directions timed out. Please try again.',
       );
     } catch (_) {
       // ClientException can contain the entire URI, including the token.
       throw MapboxRoutingException(
-        'Could not reach walking directions. Check your connection.',
+        'Could not reach street directions. Check your connection.',
       );
     }
     if (response.statusCode != 200) {
       final message = switch (response.statusCode) {
-        401 || 403 => 'Walking directions access was denied. Please check the Mapbox token configuration.',
+        401 || 403 => 'Street directions access was denied. Please check the Mapbox token configuration.',
         429 =>
-          'Walking directions are busy. Please wait a moment and try again.',
-        _ =>
-          'Walking directions are temporarily unavailable. Please try again.',
+          'Street directions are busy. Please wait a moment and try again.',
+        _ => 'Street directions are temporarily unavailable. Please try again.',
       };
       throw MapboxRoutingException(message, statusCode: response.statusCode);
     }
@@ -126,7 +138,7 @@ class MapboxDirectionsService {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       if (data['code'] != 'Ok') {
         throw MapboxRoutingException(
-          'No walking route was found between these stops.',
+          'No street route was found between these stops.',
           code: data['code'] as String?,
         );
       }
@@ -199,7 +211,7 @@ class MapboxDirectionsService {
       rethrow;
     } catch (_) {
       throw MapboxRoutingException(
-        'Walking directions returned an incomplete route. Please try again.',
+        'Street directions returned an incomplete route. Please try again.',
       );
     }
   }

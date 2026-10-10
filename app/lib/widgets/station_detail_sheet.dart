@@ -185,7 +185,7 @@ class _StationDetailSheetState extends State<StationDetailSheet> {
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w800,
-                                    color: isDark ? Colors.white : Colors.black87,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -218,7 +218,7 @@ class _StationDetailSheetState extends State<StationDetailSheet> {
                               style: GoogleFonts.hindSiliguri(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? Colors.white70 : Colors.black54,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -339,7 +339,7 @@ class _StationDetailSheetState extends State<StationDetailSheet> {
                               '${p.zone.label} • $dStr walk',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark ? Colors.white60 : Colors.black54,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                             trailing: ElevatedButton(
@@ -365,7 +365,7 @@ class _StationDetailSheetState extends State<StationDetailSheet> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 11,
-                          color: isDark ? Colors.white38 : Colors.black38,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),

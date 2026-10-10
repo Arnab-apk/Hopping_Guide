@@ -1,6 +1,8 @@
 /// Enhanced search widget with history, suggestions, voice search, and better UX.
 library;
 
+import 'app_notice.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../utils/animation_constants.dart';
+
 const int _kMaxSearchHistory = 10;
 
 /// Enhanced search bar with autocomplete, history, and voice input.
@@ -23,6 +26,7 @@ class EnhancedSearchBar extends StatefulWidget {
     this.suggestions,
     this.recentSearches,
     this.trendingSearches,
+    this.onClearRecent,
     this.showVoiceInput = true,
     this.showFilterChip = false,
     this.onFilterTap,
@@ -43,6 +47,7 @@ class EnhancedSearchBar extends StatefulWidget {
   final List<SearchSuggestion>? suggestions;
   final List<String>? recentSearches;
   final List<String>? trendingSearches;
+  final VoidCallback? onClearRecent;
   final bool showVoiceInput;
   final bool showFilterChip;
   final VoidCallback? onFilterTap;
@@ -64,6 +69,7 @@ class EnhancedSearchBar extends StatefulWidget {
     required List<SearchSuggestion> suggestions,
     List<String> recentSearches = const [],
     List<String> trendingSearches = const [],
+    VoidCallback? onClearRecent,
     ValueChanged<String>? onSelected,
     VoidCallback? onClose,
   }) {
@@ -78,6 +84,7 @@ class EnhancedSearchBar extends StatefulWidget {
         suggestions: suggestions,
         recentSearches: recentSearches,
         trendingSearches: trendingSearches,
+        onClearRecent: onClearRecent,
         onSelected: (suggestion) {
           onSelected?.call(suggestion.query);
           Navigator.of(context).pop();
@@ -117,13 +124,19 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    _borderColorAnimation = ColorTween(
-      begin: Theme.of(context).colorScheme.outlineVariant,
-      end: Theme.of(context).colorScheme.primary,
-    ).animate(_animationController);
 
     _controller.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final theme = Theme.of(context);
+    _borderColorAnimation = ColorTween(
+      begin: theme.colorScheme.outlineVariant,
+      end: theme.colorScheme.primary,
+    ).animate(_animationController);
   }
 
   void _onTextChanged() {
@@ -176,9 +189,7 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
 
     if (!available) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Speech recognition not available')),
-        );
+        showAppWarningNotice(context, 'Speech recognition not available');
       }
       return;
     }
@@ -224,7 +235,7 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
         return Transform.scale(
           scale: _scaleAnimation.value,
           child: Container(
-            height: widget.height,
+            constraints: BoxConstraints(minHeight: widget.height),
             decoration: BoxDecoration(
               color:
                   widget.backgroundColor ??
@@ -234,7 +245,7 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
                 color:
                     _borderColorAnimation.value ??
                     theme.colorScheme.outlineVariant,
-                width: _isFocused ? 2 : 1.5,
+                width: _isFocused ? 1.5 : 0.8,
               ),
               boxShadow: _isFocused
                   ? [
@@ -280,6 +291,7 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
                           enabled: widget.enabled,
                           autofocus: widget.autofocus,
                           decoration: InputDecoration(
+                            filled: false,
                             hintText: widget.hintText,
                             hintStyle: GoogleFonts.plusJakartaSans(
                               fontSize: 15,
@@ -287,6 +299,9 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
                               fontWeight: FontWeight.w400,
                             ),
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
                             isDense: true,
                             contentPadding: EdgeInsets.zero,
                           ),
@@ -306,17 +321,18 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
                       // Clear button
                       if (_hasText && !widget.readOnly)
                         IconButton(
+                          tooltip: 'Clear search',
                           icon: Icon(
                             Icons.close_rounded,
                             size: 20,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
                           onPressed: _clearText,
-                          splashRadius: 20,
+                          splashRadius: 22,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
+                            minWidth: 44,
+                            minHeight: 44,
                           ),
                         ),
                       // Voice input
@@ -324,6 +340,9 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
                           !widget.readOnly &&
                           widget.enabled)
                         IconButton(
+                          tooltip: _isListening
+                              ? 'Stop listening'
+                              : 'Voice search',
                           icon: AnimatedSwitcher(
                             duration: AppDurations.quick,
                             child: Icon(
@@ -340,27 +359,28 @@ class _EnhancedSearchBarState extends State<EnhancedSearchBar>
                           onPressed: _isListening
                               ? _stopVoiceInput
                               : _startVoiceInput,
-                          splashRadius: 20,
+                          splashRadius: 22,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
+                            minWidth: 44,
+                            minHeight: 44,
                           ),
                         ),
                       // Filter chip
                       if (widget.showFilterChip && widget.onFilterTap != null)
                         IconButton(
+                          tooltip: 'Filters',
                           icon: Icon(
                             Icons.tune_rounded,
                             size: 22,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
                           onPressed: widget.onFilterTap,
-                          splashRadius: 20,
+                          splashRadius: 22,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
+                            minWidth: 44,
+                            minHeight: 44,
                           ),
                         ),
                     ],
@@ -404,6 +424,7 @@ class _SearchSuggestionsOverlay extends StatelessWidget {
     required this.trendingSearches,
     required this.onSelected,
     required this.onClose,
+    this.onClearRecent,
   });
 
   final TextEditingController controller;
@@ -413,6 +434,7 @@ class _SearchSuggestionsOverlay extends StatelessWidget {
   final List<String> trendingSearches;
   final ValueChanged<SearchSuggestion> onSelected;
   final VoidCallback onClose;
+  final VoidCallback? onClearRecent;
 
   @override
   Widget build(BuildContext context) {
@@ -437,6 +459,7 @@ class _SearchSuggestionsOverlay extends StatelessWidget {
               suggestions: suggestions,
               recentSearches: recentSearches,
               trendingSearches: trendingSearches,
+              onClearRecent: onClearRecent,
               onSelected: onSelected,
               onClose: onClose,
             ),
@@ -456,6 +479,7 @@ class _SuggestionsSheet extends StatefulWidget {
     required this.trendingSearches,
     required this.onSelected,
     required this.onClose,
+    this.onClearRecent,
   });
 
   final TextEditingController controller;
@@ -465,6 +489,7 @@ class _SuggestionsSheet extends StatefulWidget {
   final List<String> trendingSearches;
   final ValueChanged<SearchSuggestion> onSelected;
   final VoidCallback onClose;
+  final VoidCallback? onClearRecent;
 
   @override
   State<_SuggestionsSheet> createState() => _SuggestionsSheetState();
@@ -475,10 +500,12 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet>
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+  late List<String> _recentSearches;
 
   @override
   void initState() {
     super.initState();
+    _recentSearches = List.from(widget.recentSearches);
     _controller = AnimationController(
       duration: AppDurations.standard,
       vsync: this,
@@ -492,6 +519,14 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SuggestionsSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.recentSearches != oldWidget.recentSearches) {
+      _recentSearches = List.from(widget.recentSearches);
+    }
   }
 
   @override
@@ -527,7 +562,13 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet>
           ),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(
+                alpha: isDark ? 0.35 : 0.2,
+              ),
+              width: 0.8,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
@@ -574,19 +615,30 @@ class _SuggestionsSheetState extends State<_SuggestionsSheet>
                             .toList(),
                       ),
                     // Recent searches
-                    if (widget.recentSearches.isNotEmpty && query.isEmpty)
+                    if (_recentSearches.isNotEmpty && query.isEmpty)
                       _buildSection(
                         context,
                         title: 'Recent',
                         icon: Icons.history_rounded,
                         trailing: TextButton(
                           onPressed: () {
-                            // Clear history
                             HapticFeedback.selectionClick();
+                            SearchHistory.clear();
+                            widget.onClearRecent?.call();
+                            setState(() {
+                              _recentSearches.clear();
+                            });
                           },
-                          child: Text('Clear', style: TextStyle(fontSize: 13)),
+                          child: Text(
+                            'Clear',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
                         ),
-                        children: widget.recentSearches
+                        children: _recentSearches
                             .map(
                               (s) => _buildSuggestionTile(
                                 context,

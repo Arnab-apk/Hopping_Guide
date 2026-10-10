@@ -246,6 +246,8 @@ void main() {
 
     expect(find.text('Curated Circuits'), findsOneWidget);
     expect(find.text('North Kolkata Heritage Walk'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('South Kolkata Grand Circuit'), 200,
+      scrollable: find.byType(Scrollable).last);
     expect(find.text('South Kolkata Grand Circuit'), findsOneWidget);
   });
 

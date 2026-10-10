@@ -1,0 +1,1 @@
+const fs=require('fs');const p='app/test/journey_live_smoke_test.dart';let s=fs.readFileSync(p,'utf8');s=s.replace('22.5237, 88.3456','22.502, 88.313').replace('Suruchi Sangha','Behala Club');fs.writeFileSync('app/test/journey_behala_live_check_test.dart',s);

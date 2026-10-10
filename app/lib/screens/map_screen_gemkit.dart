@@ -1240,7 +1240,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -1256,7 +1256,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
             'Download offline regional map packs for uninterrupted navigation during peak Puja crowd nights.',
             style: TextStyle(
               fontSize: 13,
-              color: isDark ? Colors.white70 : Colors.black54,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 14),
@@ -1282,7 +1282,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                       ),
                       Text(
                         'Pre-cache vector roads & 3D buildings for zero-stall offline panning.',
-                        style: TextStyle(fontSize: 11, color: isDark ? Colors.white70 : Colors.black54),
+                        style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -1306,7 +1306,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                           ? 'Loading regional packages...'
                           : 'Kolkata map is pre-cached and ready offline.',
                       style: TextStyle(
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   )
@@ -1745,7 +1745,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                     Text(
                       '$distStr · ${remainingMin > 0 ? "$remainingMin min left" : "Finished"}',
                       style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1767,7 +1767,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                   Text(
                     'Next: ${target.name}',
                     style: TextStyle(
-                      color: isDark ? Colors.white60 : Colors.black54,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
@@ -2017,7 +2017,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
               style: TextStyle(
                 fontSize: 12.0,
                 fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -2236,7 +2236,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const Spacer(),
@@ -2244,7 +2244,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                     icon: const Icon(Icons.close_rounded, size: 20),
                     onPressed: () => Navigator.pop(ctx),
                     visualDensity: VisualDensity.compact,
-                    color: isDark ? Colors.white60 : Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -2344,7 +2344,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                               style: TextStyle(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? Colors.white : Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 3),
@@ -2352,7 +2352,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                               'Share your code to let companions join and view live GPS locations.',
                               style: TextStyle(
                                 fontSize: 11.5,
-                                color: isDark ? Colors.white60 : Colors.black54,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -2428,7 +2428,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white : Colors.black87,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -2576,7 +2576,7 @@ class _MapScreenGemKitState extends State<MapScreenGemKit>
                 const SizedBox(height: 2),
                 Text(
                   '$distKm km remaining · ~$timeMin min walk',
-                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black54),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

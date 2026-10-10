@@ -134,7 +134,7 @@ class _SquadPandalPickerSheetState extends State<SquadPandalPickerSheet> {
                         'Select pandals to add to your group hopping trail',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -374,7 +374,7 @@ class _SquadPandalPickerSheetState extends State<SquadPandalPickerSheet> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 11,
-                            color: isDark ? Colors.white60 : Colors.black54,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -441,7 +441,7 @@ class _SquadPandalPickerSheetState extends State<SquadPandalPickerSheet> {
                 IconButton(
                   icon: Icon(
                     hasVoted ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
-                    color: hasVoted ? theme.colorScheme.primary : (isDark ? Colors.white54 : Colors.black54),
+                    color: hasVoted ? theme.colorScheme.primary : (Theme.of(context).colorScheme.onSurfaceVariant),
                     size: 22,
                   ),
                   tooltip: hasVoted ? 'Remove your vote' : 'Vote for this pandal',

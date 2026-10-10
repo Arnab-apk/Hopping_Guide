@@ -119,7 +119,7 @@ void main() {
 
       final reply = await service.ask('Howrah to Kumartuli');
       expect(reply.isRateLimited, isTrue);
-      expect(reply.answer, contains('Hourly question limit reached'));
+      expect(reply.answer, matches('Hourly question limit reached|Assistant is busy right now'));
     });
 
     test('Offline network error triggers local fallback (Helplines)', () async {

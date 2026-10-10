@@ -178,7 +178,7 @@ void main() {
   testWidgets(
     'simulator preview/start/turn/three fixes/reroute/arrival cleans up',
     (tester) async {
-      var clock = DateTime(2026, 10, 10, 12);
+      var clock = DateTime.now();
       final response = Completer<http.Response>();
       var calls = 0;
       final routing = RoutingService(
@@ -188,11 +188,11 @@ void main() {
           return response.future;
         }),
       );
-      final engine = LiveTrackingEngine.forTesting(routing);
+      final engine = LiveTrackingEngine.forTesting(routing, now: () => clock);
       final session = NavigationSession(engine: engine, now: () => clock);
       final simulator = NavigationSimulator(fixture());
       void emit(double along, {double lateral = 0, double accuracy = 8}) {
-        clock = clock.add(const Duration(seconds: 1));
+        clock = clock.add(const Duration(seconds: 3));
         LocationService.instance.emitTestPosition(
           simulator.fixAt(
             along,
@@ -260,6 +260,7 @@ void main() {
           mapboxAccessToken: 'test',
           client: MockClient((_) async => throw StateError('offline')),
         ),
+        now: () => clock,
       );
       final session = NavigationSession(engine: engine, now: () => clock);
       final simulator = NavigationSimulator(fixture());
@@ -267,7 +268,7 @@ void main() {
       session.preview(fixture());
       await session.begin();
       for (var i = 0; i < 3; i++) {
-        clock = clock.add(const Duration(seconds: 1));
+        clock = clock.add(const Duration(seconds: 3));
         LocationService.instance.emitTestPosition(
           simulator.fixAt(80, clock, lateralMeters: 60),
         );
@@ -275,7 +276,7 @@ void main() {
       await tester.pump();
       expect(session.route, isNotNull);
       expect(session.error, isNotNull);
-      clock = clock.add(const Duration(seconds: 6));
+      clock = clock.add(const Duration(seconds: 11));
       expect(session.live, isFalse);
       session.end();
       expect(engine.activeRoute, isNull);
@@ -289,6 +290,7 @@ void main() {
     tester,
   ) async {
     Uri? requested;
+    var clock = DateTime.now();
     final engine = LiveTrackingEngine.forTesting(
       RoutingService(
         mapboxAccessToken: 'test',
@@ -297,6 +299,7 @@ void main() {
           return http.Response(providerResponse(), 200);
         }),
       ),
+      now: () => clock,
     );
     final original = fixture();
     final route = WalkingRoute(
@@ -306,14 +309,13 @@ void main() {
       steps: original.steps,
       waypoints: const [start, turn, end],
     );
-    var clock = DateTime.now();
     final simulator = NavigationSimulator(route);
     final session = NavigationSession(engine: engine, now: () => clock);
     LocationService.instance.emitTestPosition(simulator.fixAt(0, clock));
     session.preview(route);
     await session.begin();
     for (var i = 0; i < 3; i++) {
-      clock = clock.add(const Duration(seconds: 1));
+      clock = clock.add(const Duration(seconds: 3));
       LocationService.instance.emitTestPosition(
         simulator.fixAt(80, clock, lateralMeters: 60),
       );

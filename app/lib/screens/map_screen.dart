@@ -1,3 +1,7 @@
+import '../widgets/app_notice.dart';
+import '../services/journey_planner.dart';
+import '../services/route_deviation_monitor.dart';
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -17,10 +21,8 @@ import '../models/app_user.dart';
 import '../models/pandal.dart';
 import '../models/squad_member.dart';
 import '../models/toilet.dart';
-import '../models/trail_leg.dart';
 import '../repositories/local_pandal_repository.dart';
 import '../repositories/metro_repository.dart';
-import '../repositories/railway_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../repositories/supplementary_repository.dart';
 import '../services/auth_service.dart';
@@ -28,6 +30,11 @@ import '../services/custom_hopping_trail_service.dart';
 import '../services/location_service.dart';
 import '../services/live_tracking_enhancements.dart';
 import '../services/navigation_session.dart';
+import '../services/journey_session.dart';
+import '../widgets/journey_card.dart';
+import '../widgets/journey_map_markers.dart';
+import '../widgets/trail_navigation_prompt.dart';
+import 'trail_route_screen.dart';
 import '../widgets/navigation_overlay.dart';
 import '../widgets/mapbox_navigation_guidance.dart';
 import '../widgets/route_polylines.dart';
@@ -62,6 +69,29 @@ class MapScreen extends StatefulWidget {
 
   final PandalRepository? repository;
   final VoidCallback? onMapReady;
+  static final journeyStart = ValueNotifier<int>(0);
+
+  static void openTrailRoute(
+    BuildContext context,
+    List<Pandal> stops, {
+    bool allowMetro = true,
+    bool allowTrain = true,
+  }) {
+    if (stops.isEmpty) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TrailRouteScreen(
+          stops: stops,
+          allowMetro: allowMetro,
+          allowTrain: allowTrain,
+          onUseJourney: () {
+            MainNavigationScreen.switchTab(context, 0);
+            journeyStart.value++;
+          },
+        ),
+      ),
+    );
+  }
 
   /// Global notifier to request an in-app walking route or centering on a target food spot.
   static final ValueNotifier<({FoodSpot spot, bool traceRoute})?>
@@ -271,6 +301,272 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   final _navigation = NavigationSession.instance;
+  final _journey = JourneySession.instance;
+
+  void _onJourneyChanged() {
+    _navigation.engine.replanJourney = _journey.active
+        ? (origin) => _replanCurrentJourney(origin)
+        : null;
+    if (mounted) setState(() {});
+  }
+
+  final _transitDeviation = RouteDeviationMonitor();
+  bool _replanningJourney = false;
+  bool _startingJourney = false;
+
+  void _onJourneyStart() {
+    unawaited(_refreshJourneyAndStart());
+  }
+
+  Future<void> _refreshJourneyAndStart() async {
+    if (!_journey.active || _replanningJourney || _startingJourney) return;
+    _startingJourney = true;
+    _navigation.end();
+    _displayedRoute = null;
+    final revision = _journey.revision;
+    final generation = _navigation.generation;
+    try {
+      final fix = await LocationService.instance.updateLiveLocation();
+      if (!mounted ||
+          revision != _journey.revision ||
+          generation != _navigation.generation) {
+        return;
+      }
+      if (!mounted ||
+          fix == null ||
+          fix.accuracy > 50 ||
+          DateTime.now().difference(fix.timestamp).abs() >
+              const Duration(seconds: 15)) {
+        if (mounted) {
+          _showStatusPill(
+            'Waiting for an accurate location. Try directions again.',
+            icon: Icons.location_searching,
+          );
+        }
+        return;
+      }
+      try {
+        await _replanCurrentJourney(
+          LatLng(fix.latitude, fix.longitude),
+          automatic: false,
+        );
+        if (mounted && generation == _navigation.generation) {
+          await _startJourneyWalking();
+        }
+      } catch (_) {
+        if (mounted) {
+          _showStatusPill(
+            'Could not update the journey. Check your connection and retry.',
+            icon: Icons.warning_amber,
+          );
+        }
+      }
+    } finally {
+      _startingJourney = false;
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<WalkingRoute?> _replanCurrentJourney(
+    LatLng origin, {
+    bool automatic = true,
+  }) async {
+    if (!_journey.active || _replanningJourney) return null;
+    final revision = _journey.revision;
+    final navigationGeneration = _navigation.generation;
+    final target = _journey.target!;
+    final wasDriving = _journey.route!.legs
+        .skip(_journey.legIndex)
+        .any((leg) => leg is DriveLeg);
+    _replanningJourney = true;
+    if (mounted) setState(() {});
+    try {
+      final next = await JourneyPlanner.instance.plan(
+        origin: origin,
+        destination: LatLng(target.lat, target.lng),
+        destinationName: target.name,
+        targetPandal: target,
+        allowMetro: _journey.allowMetro && !(automatic && wasDriving),
+        allowTrain: _journey.allowTrain && !(automatic && wasDriving),
+        allowDriving: automatic ? wasDriving : _journey.allowDriving,
+      );
+      if (!mounted ||
+          revision != _journey.revision ||
+          navigationGeneration != _navigation.generation) {
+        return null;
+      }
+      _journey.replaceCurrent(next);
+      _transitDeviation.reset();
+      final road = _journey.walkingRoute;
+      if (automatic && road != null && _navigation.active) {
+        _journey.beginWalking();
+      }
+      if (automatic && road == null) {
+        _navigation.end();
+        _displayedRoute = null;
+      }
+      if (automatic) {
+        _showStatusPill(
+          'Route updated from your current location',
+          icon: Icons.alt_route,
+        );
+      }
+      return road;
+    } finally {
+      _replanningJourney = false;
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _checkTransitDeviation() {
+    if (!_journey.active || _journey.leg is WalkLeg || _replanningJourney) {
+      return;
+    }
+    final fix = LocationService.instance.currentPositionSync;
+    final leg = _journey.leg;
+    // Approximate rail chords and underground GPS cannot establish a deviation.
+    final points = leg is MetroLeg && !leg.geometryEstimated
+        ? leg.trackPoints
+        : leg is TrainLeg && !leg.geometryEstimated
+        ? leg.trackPoints
+        : const <LatLng>[];
+    if (fix != null && _transitDeviation.update(fix, points, tolerance: 120)) {
+      unawaited(
+        _replanCurrentJourney(LatLng(fix.latitude, fix.longitude))
+            .catchError((Object _) {
+              if (mounted) {
+                _showStatusPill(
+                  'Route update failed. Retry directions when connected.',
+                  icon: Icons.warning_amber,
+                );
+              }
+              return null;
+            }),
+      );
+    }
+  }
+
+  Future<void> _startJourneyWalking() async {
+    if (!_journey.active || _isCalculatingRoute) return;
+    final leg = _journey.leg;
+    if (leg is! WalkLeg) {
+      setState(() {});
+      return;
+    }
+    setState(() => _isCalculatingRoute = true);
+    try {
+      var fix = await LocationService.instance.currentPosition();
+      if (fix != null &&
+          DateTime.now().difference(fix.timestamp).abs() >
+              const Duration(seconds: 30)) {
+        fix = await LocationService.instance.updateLiveLocation();
+      }
+      if (fix == null) throw StateError('Location is unavailable');
+      final origin = LatLng(fix.latitude, fix.longitude);
+      if (haversineMeters(
+                origin.latitude,
+                origin.longitude,
+                leg.endPoint.latitude,
+                leg.endPoint.longitude,
+              ) <
+              15 &&
+          fix.accuracy <= 30 &&
+          DateTime.now().difference(fix.timestamp).abs() <=
+              const Duration(seconds: 10)) {
+        await _advanceJourney();
+        return;
+      }
+      final loader = leg is DriveLeg
+          ? RoutingService.instance.getLiveDrivingRouteToPoint
+          : RoutingService.instance.getLiveWalkingRouteToPoint;
+      final route = await loader(
+        start: origin,
+        destination: leg.endPoint,
+        destinationName: leg.instructions,
+        targetPandal: _journey.legIndex == _journey.route!.legs.length - 1
+            ? _journey.target
+            : null,
+      );
+      if (!mounted || !identical(leg, _journey.leg)) return;
+      _highlightedRoute = route;
+      _journey.beginWalking();
+      await _navigation.begin();
+      if (!_navigation.active) _journey.cancelWalking();
+    } catch (_) {
+      if (mounted) {
+        _showStatusPill(
+          'Could not start walking directions. Check location and connection, then retry.',
+          icon: Icons.warning_amber,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCalculatingRoute = false);
+    }
+  }
+
+  Future<void> _advanceJourney() async {
+    final completed = _journey.advance();
+    if (completed == null) return;
+    if (mounted) {
+      await context.read<PandalUserStateService?>()?.markVisited(completed.id);
+    }
+    final trailService = CustomHoppingTrailService.instance;
+    if (trailService.currentTarget?.id == completed.id &&
+        !trailService.activeTrail!.visitedPandalIds.contains(completed.id)) {
+      await trailService.recordAutoVisit(completed);
+    }
+    if (!mounted) return;
+    final squad = context.read<SquadService>();
+    if (squad.isHoppingActive &&
+        squad.currentHoppingTarget?.id == completed.id) {
+      await squad.advanceToNextPandalStop();
+    }
+  }
+
+  Future<void> _confirmTransitArrival() async {
+    final leg = _journey.leg;
+    if (leg == null || leg is WalkLeg) return;
+    var fix = await LocationService.instance.currentPosition();
+    if (fix != null &&
+        DateTime.now().difference(fix.timestamp).abs() >
+            const Duration(seconds: 30)) {
+      fix = await LocationService.instance.updateLiveLocation();
+    }
+    if (!mounted || !identical(leg, _journey.leg)) return;
+    if (fix == null ||
+        fix.accuracy > 60 ||
+        DateTime.now().difference(fix.timestamp).abs() >
+            const Duration(seconds: 30) ||
+        haversineMeters(
+              fix.latitude,
+              fix.longitude,
+              leg.endPoint.latitude,
+              leg.endPoint.longitude,
+            ) >
+            250) {
+      _showStatusPill(
+        'Reach the alighting station with location enabled before continuing.',
+        icon: Icons.location_on,
+      );
+      return;
+    }
+    await _advanceJourney();
+  }
+
+  void _showJourneyDetails() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TrailRouteScreen(
+          stops: _journey.stops.sublist(_journey.stopIndex),
+          existingRoutes: _journey.routes.sublist(_journey.stopIndex),
+          allowMetro: _journey.allowMetro,
+          allowTrain: _journey.allowTrain,
+          onUseJourney: _onJourneyStart,
+        ),
+      ),
+    );
+  }
+
   bool _wasNavigating = false;
   bool _mapTrackingStarted = false;
   bool _isCalculatingRoute = false;
@@ -280,6 +576,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Tween<double> _headingRotationTween = Tween(begin: 0, end: 0);
   Timer? _headingRotationThrottle;
   double _mapRotation = 0.0;
+  final _cameraRotation = ValueNotifier<double>(0);
   String? _lastFramedTrailId;
   late final PositionInterpolator _positionInterpolator;
 
@@ -352,7 +649,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     String message, {
     IconData? icon,
     Color? color,
-    Duration duration = const Duration(milliseconds: 2400),
+    Duration duration = const Duration(milliseconds: 5000),
   }) {
     _statusOverlayTimer?.cancel();
     _statusOverlayEntry?.remove();
@@ -412,16 +709,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(width: 8),
                         Flexible(
-                          child: Text(
-                            message,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF1E1E24),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              message,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF1E1E24),
+                              ),
                             ),
                           ),
                         ),
@@ -437,12 +737,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
       overlayState.insert(_statusOverlayEntry!);
 
-      _statusOverlayTimer = Timer(duration, () {
-        if (mounted) {
-          _statusOverlayEntry?.remove();
-          _statusOverlayEntry = null;
-        }
-      });
+      _statusOverlayTimer = Timer(
+        MediaQuery.accessibleNavigationOf(context)
+            ? const Duration(seconds: 10)
+            : duration,
+        () {
+          if (mounted) {
+            _statusOverlayEntry?.remove();
+            _statusOverlayEntry = null;
+          }
+        },
+      );
     } catch (_) {
       // Fallback silently if overlay is unavailable
     }
@@ -452,6 +757,11 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     unawaited(_restoreMapNamesPreference());
+    _navigation.engine.replanJourney = _journey.active
+        ? (origin) => _replanCurrentJourney(origin)
+        : null;
+    _journey.addListener(_onJourneyChanged);
+    MapScreen.journeyStart.addListener(_onJourneyStart);
     _navigation.addListener(_onNavigationChanged);
     LiveTrackingEngine.instance.onRouteRecalculated = _onRouteRecalculated;
     _positionInterpolator = PositionInterpolator();
@@ -518,9 +828,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   void _onHeadingChanged() {
+    _checkTransitDeviation();
     if (mounted) {
       _rotateToFacingDirection();
-      setState(() {}); // Rebuild to update compass arrow
     }
   }
 
@@ -546,6 +856,31 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
   void _onNavigationChanged() {
     if (!mounted) return;
+    if (_navigation.state == NavigationState.arrived) {
+      final pandal = _navigation.route?.targetPandal;
+      if (pandal != null) {
+        unawaited(
+          context.read<PandalUserStateService?>()?.markVisited(pandal.id),
+        );
+      }
+    }
+    if (_navigation.state == NavigationState.arrived && _journey.walking) {
+      final destination = _navigation.route?.points.last;
+      final leg = _journey.leg;
+      if (destination != null &&
+          leg is WalkLeg &&
+          haversineMeters(
+                destination.latitude,
+                destination.longitude,
+                leg.endPoint.latitude,
+                leg.endPoint.longitude,
+              ) <
+              75) {
+        unawaited(_advanceJourney());
+      } else {
+        _journey.cancelWalking();
+      }
+    }
     final entering = _navigation.active && !_wasNavigating;
     final ending = !_navigation.active && _wasNavigating;
     setState(() {
@@ -605,11 +940,15 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       );
       if (confirmed != true || !mounted) return;
     }
+    _journey.cancelWalking();
     _clearRoute();
   }
 
   @override
   void dispose() {
+    _navigation.engine.replanJourney = null;
+    _journey.removeListener(_onJourneyChanged);
+    MapScreen.journeyStart.removeListener(_onJourneyStart);
     LocationService.instance.removeListener(_onHeadingChanged);
     _navigation.removeListener(_onNavigationChanged);
     _navigation.end(notify: false);
@@ -645,6 +984,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _cameraMoveController = null;
     _pulseController.dispose();
     _positionInterpolator.dispose();
+    _cameraRotation.dispose();
     super.dispose();
   }
 
@@ -688,42 +1028,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _highlightRouteToStation(Station station) async {
-    final current =
-        _effectiveUserLocation ?? LocationService.defaultKolkataCenter;
-    setState(() {
-      _isCalculatingRoute = true;
-      _selectedPandal = null;
-      _selectedSquadMember = null;
-      _selectedStation = station;
-    });
-    try {
-      final route = await RoutingService.instance.getLiveWalkingRouteToPoint(
-        start: current,
-        destination: LatLng(station.lat, station.lon),
-        destinationName: station.displayName,
-      );
-      if (!mounted) return;
-      setState(() {
-        _highlightedRoute = route;
-        _isCalculatingRoute = false;
-      });
-      if (route.points.length > 1) {
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: LatLngBounds.fromPoints(route.points),
-            padding: const EdgeInsets.fromLTRB(48, 160, 48, 240),
-          ),
-        );
-      }
-    } catch (error) {
-      if (mounted) {
-        setState(() => _isCalculatingRoute = false);
-        final message = error is StateError
-            ? error.message
-            : 'Live route unavailable right now';
-        _showStatusPill(message, icon: Icons.warning_amber_rounded);
-      }
-    }
+    _openDestinationJourney(
+      LatLng(station.lat, station.lon),
+      station.displayName,
+    );
   }
 
   void _onPendingFoodSpotAction() {
@@ -1110,211 +1418,45 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _highlightRouteToMetroStation(MetroStation station) async {
-    HapticFeedback.mediumImpact();
-    FocusScope.of(context).unfocus();
-    var userPos = _userPosition;
-    userPos ??= await LocationService.instance.currentPosition();
-
-    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
-    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
-
-    final distToKolkata = haversineMeters(
-      userLat,
-      userLng,
-      AppConfig.defaultLat,
-      AppConfig.defaultLng,
+    _openDestinationJourney(
+      LatLng(station.latitude, station.longitude),
+      station.name,
     );
-    final bool isFarAway = distToKolkata > 70000;
-
-    final refLat = (isFarAway || userPos == null)
-        ? AppConfig.defaultLat
-        : userLat;
-    final refLng = (isFarAway || userPos == null)
-        ? AppConfig.defaultLng
-        : userLng;
-    final start = LatLng(refLat, refLng);
-    final dest = LatLng(station.latitude, station.longitude);
-
-    setState(() {
-      if (userPos != null) _userPosition = userPos;
-      _isCalculatingRoute = true;
-      _selectedMetroStation = station;
-      _selectedPandal = null;
-      _selectedSquadMember = null;
-      _selectedFoodSpot = null;
-      _followUser = false;
-    });
-
-    try {
-      final route = await RoutingService.instance.getWalkingRouteToPoint(
-        start: start,
-        destination: dest,
-        destinationName: station.name,
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _highlightedRoute = route;
-        _isCalculatingRoute = false;
-      });
-
-      if (route.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
-            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isCalculatingRoute = false);
-      _showStatusPill(
-        'Could not calculate path to ${station.name}',
-        icon: Icons.warning_amber_rounded,
-      );
-    }
   }
 
   Future<void> _highlightRouteTo(
     Pandal pandal, {
     bool requireLive = true,
   }) async {
-    HapticFeedback.mediumImpact();
+    _openDestinationJourney(
+      LatLng(pandal.lat, pandal.lng),
+      pandal.name,
+      pandal: pandal,
+    );
+  }
+
+  void _openDestinationJourney(LatLng point, String name, {Pandal? pandal}) {
     FocusScope.of(context).unfocus();
-    var userPos = _userPosition;
-    userPos ??= await LocationService.instance.currentPosition();
-
-    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
-    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
-
-    final distToKolkata = haversineMeters(
-      userLat,
-      userLng,
-      AppConfig.defaultLat,
-      AppConfig.defaultLng,
-    );
-    final bool isFarAway = distToKolkata > 70000;
-
-    final refLat = (isFarAway || userPos == null)
-        ? AppConfig.defaultLat
-        : userLat;
-    final refLng = (isFarAway || userPos == null)
-        ? AppConfig.defaultLng
-        : userLng;
-    final start = LatLng(refLat, refLng);
-    final dest = LatLng(pandal.lat, pandal.lng);
-
-    setState(() {
-      if (userPos != null) _userPosition = userPos;
-      _isCalculatingRoute = true;
-      _selectedPandal = pandal;
-    });
-
-    if (userPos == null && mounted) {
-      _showStatusPill(
-        '📍 Using central Kolkata as starting point for path.',
-        icon: Icons.near_me_outlined,
-      );
-    }
-
-    try {
-      WalkingRoute route;
-      if (requireLive) {
-        route = await RoutingService.instance.getLiveWalkingRouteToPoint(
-          start: start,
-          destination: dest,
-          destinationName: pandal.name,
-          targetPandal: pandal,
+    final destination =
+        pandal ??
+        Pandal(
+          id: 'destination:${point.latitude},${point.longitude}',
+          name: name,
+          lat: point.latitude,
+          lng: point.longitude,
+          zone: KolkataZone.centralKolkata,
+          theme: '',
+          timings: '',
+          imageUrl: '',
+          description: '',
         );
-      } else {
-        // Preserve multimodal previews for callers explicitly requesting them.
-        final multimodal = await MultimodalRoutingService.instance.computeRoute(
-          origin: start,
-          destination: dest,
-          destinationName: pandal.name,
-          targetPandal: pandal,
-        );
-
-        route = _multimodalToWalkingRoute(multimodal, start, dest, pandal);
-        if (requireLive && route.isFallback) {
-          throw StateError('Live street routing is unavailable');
-        }
-        _showMultimodalRouteInfo(multimodal);
-      }
-
-      if (!mounted) return;
-      setState(() {
-        _highlightedRoute = route;
-        _isCalculatingRoute = false;
-      });
-
-      // Fit camera to display entire transit corridor
-      if (route.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
-            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isCalculatingRoute = false);
-      _showStatusPill(
-        'Could not calculate path to ${pandal.name}',
-        icon: Icons.warning_amber_rounded,
-      );
-    }
-  }
-
-  WalkingRoute _multimodalToWalkingRoute(
-    MultimodalRoute multimodal,
-    LatLng start,
-    LatLng dest,
-    Pandal pandal,
-  ) {
-    final allPoints = multimodal.allDisplayPoints.isNotEmpty
-        ? multimodal.allDisplayPoints
-        : [start, dest];
-
-    return WalkingRoute(
-      targetPandal: pandal,
-      customTitle: pandal.name,
-      points: allPoints,
-      distanceMeters: multimodal.totalDistanceMeters,
-      durationSeconds: multimodal.totalDurationSeconds,
-      drivingDurationSeconds: multimodal.metroLegs.isNotEmpty
-          ? multimodal.metroLegs.first.durationSeconds
-          : (multimodal.trainLegs.isNotEmpty
-                ? multimodal.trainLegs.first.durationSeconds
-                : null),
-      isFallback: multimodal.isFallback,
-      segments: multimodal.polylines,
-      transitMode: multimodal.isTrain
-          ? 'train'
-          : (multimodal.isMetro ? 'metro' : 'walk'),
-      bestModeBadge: multimodal.bestModeBadge,
-      summary: multimodal.summary,
-      steps: multimodal.legs.length == 1 && multimodal.walkLegs.length == 1
-          ? multimodal.walkLegs.first.steps
-          : const [],
-    );
-  }
-
-  void _showMultimodalRouteInfo(MultimodalRoute route) {
-    final icon = route.isTrain
-        ? Icons.train_rounded
-        : (route.isMetro
-              ? Icons.subway_rounded
-              : Icons.directions_walk_rounded);
-    _showStatusPill(
-      '${route.bestModeBadge ?? "Route"}: ${route.summary}',
-      icon: icon,
-      duration: const Duration(seconds: 4),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TrailRouteScreen(
+          stops: [destination],
+          onUseJourney: _onJourneyStart,
+        ),
+      ),
     );
   }
 
@@ -1395,229 +1537,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _highlightRouteToMember(SquadMember member) async {
-    HapticFeedback.mediumImpact();
-    FocusScope.of(context).unfocus();
-    var userPos = _userPosition;
-    userPos ??= await LocationService.instance.currentPosition();
-
-    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
-    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
-
-    final distToKolkata = haversineMeters(
-      userLat,
-      userLng,
-      AppConfig.defaultLat,
-      AppConfig.defaultLng,
+    _openDestinationJourney(
+      LatLng(member.latitude, member.longitude),
+      member.name,
     );
-    final bool isFarAway = distToKolkata > 70000;
-
-    final refLat = (isFarAway || userPos == null)
-        ? AppConfig.defaultLat
-        : userLat;
-    final refLng = (isFarAway || userPos == null)
-        ? AppConfig.defaultLng
-        : userLng;
-    final start = LatLng(refLat, refLng);
-    final dest = LatLng(member.latitude, member.longitude);
-
-    setState(() {
-      if (userPos != null) _userPosition = userPos;
-      _isCalculatingRoute = true;
-      _selectedSquadMember = member;
-      _selectedPandal = null;
-    });
-
-    try {
-      final route = await RoutingService.instance.getWalkingRouteToPoint(
-        start: start,
-        destination: dest,
-        destinationName: member.name,
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _highlightedRoute = route;
-        _isCalculatingRoute = false;
-      });
-
-      if (route.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
-            padding: const EdgeInsets.only(
-              top: 140,
-              bottom: 220,
-              left: 60,
-              right: 60,
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isCalculatingRoute = false);
-      _showStatusPill(
-        'Could not calculate path to ${member.name}',
-        icon: Icons.warning_amber_rounded,
-      );
-    }
   }
 
   Future<void> _highlightRouteToFoodSpot(FoodSpot spot) async {
-    HapticFeedback.mediumImpact();
-    FocusScope.of(context).unfocus();
-    var userPos = _userPosition;
-    userPos ??= await LocationService.instance.currentPosition();
-
-    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
-    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
-
-    // Check if user is far from Kolkata (e.g. testing on an emulator or remote location)
-    final distToKolkata = haversineMeters(
-      userLat,
-      userLng,
-      AppConfig.defaultLat,
-      AppConfig.defaultLng,
-    );
-    final bool isFarAway = distToKolkata > 70000;
-
-    final refLat = (isFarAway || userPos == null)
-        ? AppConfig.defaultLat
-        : userLat;
-    final refLng = (isFarAway || userPos == null)
-        ? AppConfig.defaultLng
-        : userLng;
-    final start = LatLng(refLat, refLng);
-    final dest = LatLng(spot.lat, spot.lng);
-
-    setState(() {
-      if (userPos != null) _userPosition = userPos;
-      _isCalculatingRoute = true;
-      _selectedFoodSpot = spot;
-      _selectedPandal = null;
-      _selectedSquadMember = null;
-      _selectedMetroStation = null;
-      _followUser = false;
-      _showFoodSpots = true;
-    });
-
-    try {
-      final route = await RoutingService.instance.getWalkingRouteToPoint(
-        start: start,
-        destination: dest,
-        destinationName: spot.name,
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _highlightedRoute = route;
-        _isCalculatingRoute = false;
-      });
-
-      if (route.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
-            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-          ),
-        );
-      }
-
-      _showStatusPill(
-        '🚶 Path to ${spot.name} (${route.formattedDistance} · ${route.formattedDuration})',
-        icon: Icons.restaurant_rounded,
-        color: Colors.orange.shade800,
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isCalculatingRoute = false);
-      _showStatusPill(
-        'Could not calculate path to ${spot.name}',
-        icon: Icons.warning_amber_rounded,
-      );
-    }
+    _openDestinationJourney(LatLng(spot.lat, spot.lng), spot.name);
   }
 
   Future<void> _highlightRouteToToilet(ToiletEntry toilet) async {
-    HapticFeedback.mediumImpact();
-    FocusScope.of(context).unfocus();
-    var userPos = _userPosition;
-    userPos ??= await LocationService.instance.currentPosition();
-
-    final double userLat = userPos?.latitude ?? AppConfig.defaultLat;
-    final double userLng = userPos?.longitude ?? AppConfig.defaultLng;
-
-    // Check if user is far from Kolkata (e.g. testing on an emulator or remote location)
-    final distToKolkata = haversineMeters(
-      userLat,
-      userLng,
-      AppConfig.defaultLat,
-      AppConfig.defaultLng,
-    );
-    final bool isFarAway = distToKolkata > 70000;
-
-    final refLat = (isFarAway || userPos == null)
-        ? AppConfig.defaultLat
-        : userLat;
-    final refLng = (isFarAway || userPos == null)
-        ? AppConfig.defaultLng
-        : userLng;
-    final start = LatLng(refLat, refLng);
-    final dest = LatLng(toilet.lat, toilet.lng);
-
-    setState(() {
-      if (userPos != null) _userPosition = userPos;
-      _isCalculatingRoute = true;
-      _selectedToilet = toilet;
-      _selectedPandal = null;
-      _selectedSquadMember = null;
-      _selectedMetroStation = null;
-      _selectedFoodSpot = null;
-      _followUser = false;
-      _showToilets = true;
-    });
-
-    try {
-      final route = await RoutingService.instance.getWalkingRouteToPoint(
-        start: start,
-        destination: dest,
-        destinationName: toilet.displayName,
-      );
-
-      if (!mounted) return;
-
-      setState(() {
-        _highlightedRoute = route;
-        _isCalculatingRoute = false;
-      });
-
-      if (route.points.isNotEmpty) {
-        final bounds = LatLngBounds.fromPoints([...route.points, start, dest]);
-        _mapController.fitCamera(
-          CameraFit.bounds(
-            bounds: bounds,
-            padding: const EdgeInsets.fromLTRB(48, 140, 48, 240),
-          ),
-        );
-      }
-
-      _showStatusPill(
-        '🚶 Path to ${toilet.displayName} (${route.formattedDistance} · ${route.formattedDuration})',
-        icon: Icons.wc_rounded,
-        color: const Color(0xFF00695C),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isCalculatingRoute = false);
-      _showStatusPill(
-        'Could not calculate path to ${toilet.displayName}',
-        icon: Icons.warning_amber_rounded,
-      );
-    }
+    _openDestinationJourney(LatLng(toilet.lat, toilet.lng), toilet.displayName);
   }
 
   void _clearRoute() {
@@ -1805,7 +1736,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final squadService = Provider.of<SquadService>(context);
+    context.select<SquadService, List<Object?>>(
+      (squad) => [
+        squad.hasActiveSquad,
+        squad.showSquadOnMap,
+        squad.squadCode,
+        squad.meetupPointCoords,
+        squad.meetupPointName,
+        squad.focusedMemberId,
+        squad.isHoppingActive,
+        for (final member in squad.companionMembers) member.toJson(),
+      ],
+    );
+    final squadService = context.read<SquadService>();
     final trailService = Provider.of<CustomHoppingTrailService>(context);
     final bool isTrailActive = trailService.hasActiveTrail;
     final activeTrail = trailService.activeTrail;
@@ -1846,15 +1789,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           : AppBar(
               title: const Text('Uma Map'),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.info_outline_rounded),
-                  tooltip: 'Feature status',
-                  onPressed: () => FeatureStatusNotice.show(context),
-                ),
                 // Map Marker Legend (Explains cluster numbers and marker types)
                 IconButton(
                   icon: const Icon(Icons.info_outline_rounded),
-                  tooltip: 'Map Legend',
+                  tooltip: 'Map information',
                   onPressed: () => _showMapLegendSheet(context, isDark),
                 ),
                 // Pinned User Profile Avatar
@@ -1899,6 +1837,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   });
                 }
               },
+              onMapEvent: (event) {
+                if (event is MapEventRotate) {
+                  _mapRotation = event.camera.rotation;
+                  _cameraRotation.value = event.camera.rotation;
+                }
+              },
               onPositionChanged: (camera, hasGesture) {
                 if (hasGesture && _followUser) {
                   _headingRotationController.stop();
@@ -1908,7 +1852,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 }
                 if (hasGesture && _navigation.active) _navigation.panAway();
                 if (camera.rotation != _mapRotation) {
-                  setState(() => _mapRotation = camera.rotation);
+                  _mapRotation = camera.rotation;
+                  _cameraRotation.value = camera.rotation;
                 }
               },
               onMapReady: () {
@@ -1947,6 +1892,31 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
 
+              if (_journey.active) ...[
+                PolylineLayer(
+                  polylines: [
+                    for (final journey in _journey.routes.skip(
+                      _journey.stopIndex,
+                    ))
+                      ...buildHighlightedRoutePolylines(
+                        WalkingRoute(
+                          points: journey.allDisplayPoints,
+                          distanceMeters: journey.totalDistanceMeters,
+                          durationSeconds: journey.totalDurationSeconds,
+                          segments: journey.polylines,
+                        ),
+                        isDark,
+                      ),
+                  ],
+                ),
+                MarkerLayer(
+                  markers: buildJourneyMarkers(
+                    stops: _journey.stops,
+                    routes: _journey.routes.skip(_journey.stopIndex),
+                    currentStopIndex: _journey.stopIndex,
+                  ),
+                ),
+              ],
               if (_navigation.active) ...[
                 if (_navigation.route != null)
                   PolylineLayer(
@@ -1989,12 +1959,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         width: 36,
                         height: 36,
                         rotate: true,
-                        child: Transform.rotate(
-                          angle:
-                              ((LocationService.instance.facingHeading ?? 0) +
-                                  _mapRotation) *
-                              math.pi /
-                              180,
+                        child: _HeadingRotation(
                           child: Container(
                             decoration: BoxDecoration(
                               color: const Color(0xFF2F6FE4),
@@ -2077,6 +2042,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
                 // Dual-Segment Trail Path Layer (Trail Mode)
                 if (isTrailActive &&
+                    !_journey.active &&
                     activeTrail != null &&
                     activeTrail.stops.isNotEmpty)
                   RepaintBoundary(
@@ -2253,7 +2219,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
 
                 // Clustered Pandal Markers Layer in Browse Mode vs Trail Stop Markers in Trail Mode
-                if (!isTrailActive)
+                if (!isTrailActive && !_journey.active)
                   RepaintBoundary(
                     child: _ClusteredPandalLayer(
                       visiblePandals: visible,
@@ -2280,7 +2246,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       },
                     ),
                   )
-                else if (activeTrail != null && activeTrail.stops.isNotEmpty)
+                else if (!_journey.active &&
+                    activeTrail != null &&
+                    activeTrail.stops.isNotEmpty)
                   // Active Trail Stop Markers (Numbered Pins ①②③... with Visit Progress)
                   RepaintBoundary(
                     child: MarkerLayer(
@@ -2305,13 +2273,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '🚩 Designated Squad Meet-up: ${squadService.meetupPointName}',
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
+                              showAppInfoNotice(
+                                context,
+                                'Designated Squad Meet-up: ${squadService.meetupPointName}',
                               );
                             },
                             child: RepaintBoundary(
@@ -3280,9 +3244,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                           style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.bold,
-                                            color: isDark
-                                                ? Colors.white
-                                                : Colors.black87,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
                                           ),
                                         ),
                                         if (_selectedSquadMember!.isHost) ...[
@@ -3316,9 +3280,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                       _selectedSquadMember!.status,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isDark
-                                            ? Colors.white70
-                                            : Colors.black54,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                       ),
                                     ),
                                   ],
@@ -3465,14 +3429,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 tooltip: 'Ping Member',
                                 onPressed: () {
                                   HapticFeedback.heavyImpact();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '🔔 Ping sent to ${_selectedSquadMember!.name}!',
-                                      ),
-                                      duration: const Duration(seconds: 2),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
+                                  showAppSuccessNotice(
+                                    context,
+                                    'Ping sent to ${_selectedSquadMember!.name}!',
                                   );
                                 },
                               ),
@@ -3565,7 +3524,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                 : Icons.my_location,
                             color: _followUser
                                 ? Colors.white
-                                : (isDark ? Colors.white : Colors.black87),
+                                : (Theme.of(context).colorScheme.onSurface),
                             size: 22,
                           ),
                           onTap: _toggleFollowUser,
@@ -3578,33 +3537,41 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         ),
 
                         // Compass Reset-North Button (only shown when map is rotated)
-                        if (_mapRotation.abs() > 2.0) ...[
-                          const SizedBox(height: 10),
-                          _buildMapActionButton(
-                            icon: Transform.rotate(
-                              angle: -_mapRotation * math.pi / 180,
-                              child: Icon(
-                                Icons.explore_rounded,
-                                color: isDark
-                                    ? const Color(0xFF00E5FF)
-                                    : PujaColors.durgaRed,
-                                size: 22,
+                        ValueListenableBuilder<double>(
+                          valueListenable: _cameraRotation,
+                          builder: (context, rotation, child) {
+                            if (rotation.abs() <= 2) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: _buildMapActionButton(
+                                icon: Transform.rotate(
+                                  angle: -rotation * math.pi / 180,
+                                  child: Icon(
+                                    Icons.explore_rounded,
+                                    color: isDark
+                                        ? const Color(0xFF00E5FF)
+                                        : PujaColors.durgaRed,
+                                    size: 22,
+                                  ),
+                                ),
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  _headingUp = false;
+                                  _headingRotationController.stop();
+                                  _mapController.rotate(0.0);
+                                  _showStatusPill(
+                                    'Map re-oriented to North',
+                                    icon: Icons.explore_rounded,
+                                  );
+                                },
+                                tooltip: 'Reset to North',
+                                isDark: isDark,
                               ),
-                            ),
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              _headingUp = false;
-                              _headingRotationController.stop();
-                              _mapController.rotate(0.0);
-                              _showStatusPill(
-                                'Map re-oriented to North',
-                                icon: Icons.explore_rounded,
-                              );
-                            },
-                            tooltip: 'Reset to North',
-                            isDark: isDark,
-                          ),
-                        ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -3612,10 +3579,36 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             ),
           ],
+          if (_journey.active && !_navigation.active && !_navigation.hasPreview)
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 12,
+              child: SafeArea(
+                top: false,
+                child: JourneyCard(
+                  session: _journey,
+                  onDirections: _onJourneyStart,
+                  updating: _replanningJourney,
+                  onTransitArrival: () => _confirmTransitArrival(),
+                  onDetails: _showJourneyDetails,
+                  onClose: () {
+                    _journey.end();
+                    _clearRoute();
+                  },
+                ),
+              ),
+            ),
           if (_navigation.hasPreview || _navigation.active)
             NavigationOverlay(
               session: _navigation,
-              onStart: () => _navigation.begin(),
+              onStart: () async {
+                if (_journey.active && _journey.leg is WalkLeg) {
+                  await _refreshJourneyAndStart();
+                } else {
+                  await _navigation.begin();
+                }
+              },
               onEnd: _endNavigation,
               onRecenter: () {
                 _navigation.recenter();
@@ -3897,6 +3890,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               : 'Custom Trail',
           onTap: () {
             HapticFeedback.selectionClick();
+            if (hasActive) {
+              unawaited(_previewTrailNavigation(trail!));
+              return;
+            }
             CustomTrailPlannerDialog.show(
               context,
               initialLocation: _userPosition != null
@@ -3911,6 +3908,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 final firstStop = trailService.activeTrail?.currentTargetPandal;
                 if (firstStop != null) {
                   _animatedMapMove(LatLng(firstStop.lat, firstStop.lng), 15.5);
+                  unawaited(_offerActiveTrailDirections());
                 }
               },
             );
@@ -3920,56 +3918,27 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _offerActiveTrailDirections() async {
+    final trail = CustomHoppingTrailService.instance.activeTrail;
+    final target = trail?.currentTargetPandal;
+    if (target != null &&
+        await offerTrailNavigation(context, target.name) &&
+        mounted) {
+      await _previewTrailNavigation(trail!);
+    }
+  }
+
   Future<void> _previewTrailNavigation(ActiveCustomTrail trail) async {
-    if (_isCalculatingRoute) return;
-    if (trail.hasTransitLegs) {
-      final next = trail.currentTargetPandal;
-      if (next != null) await _highlightRouteTo(next);
-      return;
-    }
-    final fix = await LocationService.instance.currentPosition();
-    if (!mounted) return;
-    if (fix == null) {
-      _showStatusPill(
-        'Turn on location to get walking directions.',
-        icon: Icons.location_off,
-      );
-      return;
-    }
     final remaining = trail.stops
+        .skip(trail.currentStopIndex)
         .where((stop) => !trail.visitedPandalIds.contains(stop.id))
         .toList();
-    if (remaining.isEmpty) return;
-    setState(() => _isCalculatingRoute = true);
-    try {
-      final route = await RoutingService.instance.getLiveMultiStopRoute(
-        waypoints: [
-          LatLng(fix.latitude, fix.longitude),
-          for (final stop in remaining) LatLng(stop.lat, stop.lng),
-        ],
-        routeTitle: 'Custom Hopping Trail',
-      );
-      if (!mounted ||
-          CustomHoppingTrailService.instance.activeTrail?.id != trail.id) {
-        return;
-      }
-      setState(() => _highlightedRoute = route);
-      _mapController.fitCamera(
-        CameraFit.bounds(
-          bounds: LatLngBounds.fromPoints(route.points),
-          padding: const EdgeInsets.fromLTRB(48, 140, 48, 220),
-        ),
-      );
-    } catch (_) {
-      if (mounted) {
-        _showStatusPill(
-          'Could not get walking directions. Check your connection and try again.',
-          icon: Icons.warning_amber_rounded,
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isCalculatingRoute = false);
-    }
+    MapScreen.openTrailRoute(
+      context,
+      remaining,
+      allowMetro: trail.allowMetro,
+      allowTrain: trail.allowTrain,
+    );
   }
 
   Widget _buildTrailSummaryBar(
@@ -4113,7 +4082,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     Text(
                       '$distStr · ${remainingMin > 0 ? "$remainingMin min left" : "Finished"}',
                       style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w800,
                       ),
@@ -4139,7 +4108,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     style: TextStyle(
                       color: isUserRemote
                           ? PujaColors.festivalGold
-                          : (isDark ? Colors.white60 : Colors.black54),
+                          : (Theme.of(context).colorScheme.onSurfaceVariant),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
@@ -4251,230 +4220,24 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     LatLng? liveLoc,
     bool isDark,
   ) {
-    if (trail.stops.isEmpty) return const [];
-
-    final startCoord = trail.startPoint;
-
-    // 1. Memoized Core Trail Polylines (Glow + Brand Gold Primary Line)
-    // Only reconstructed when the trail ID, routed polyline geometry, or theme changes,
-    // completely eliminating map stutter and tile-loading lag caused by continuous GPS ticks.
-    final String coreKey =
-        '${trail.id}_${trail.routedPolyline?.length ?? 0}_${trail.hasTransitLegs}_$isDark';
-    if (_cachedTrailCoreKey != coreKey || _cachedTrailCorePolylines == null) {
-      final corePolylines = <Polyline>[];
-
-      if (trail.hasTransitLegs) {
-        // Multi-modal rendering: individual walk segments, authentic metro lines, and suburban train tracks
-        for (final leg in trail.legs) {
-          if (leg.mode == LegMode.walk) {
-            final points =
-                (leg.roadPolyline != null && leg.roadPolyline!.length >= 2)
-                ? leg.roadPolyline!
-                : [leg.from, leg.to];
-            // Walking segment between consecutive pandals
-            corePolylines.add(
-              Polyline(
-                points: points,
-                strokeWidth: 8.0,
-                color: PujaColors.festivalGold.withValues(alpha: 0.3),
-              ),
-            );
-            corePolylines.add(
-              Polyline(
-                points: points,
-                strokeWidth: 5.0,
-                color: PujaColors.festivalGold,
-              ),
-            );
-          } else if (leg.mode == LegMode.metro && leg.metroDetail != null) {
-            final detail = leg.metroDetail!;
-            final boardPos = detail.boardingStation.toLatLng();
-            final alightPos = detail.alightingStation.toLatLng();
-            final metroColor = detail.boardingStation.line.color;
-
-            // 1. Pedestrian connection: pandal to boarding station (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [leg.from, boardPos],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-
-            // 2. Metro rail track: curved track points following actual line alignment!
-            final metroPoints = MetroRepository.getTrackPolylineBetween(
-              detail.boardingStation,
-              detail.alightingStation,
-            );
-            // Glowing underlay
-            corePolylines.add(
-              Polyline(
-                points: metroPoints,
-                strokeWidth: 9.0,
-                color: metroColor.withValues(alpha: 0.35),
-              ),
-            );
-            // Solid brand transit line
-            corePolylines.add(
-              Polyline(
-                points: metroPoints,
-                strokeWidth: 5.5,
-                color: metroColor,
-              ),
-            );
-
-            // 3. Pedestrian connection: alighting station to pandal (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [alightPos, leg.to],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-          } else if (leg.mode == LegMode.train && leg.trainDetail != null) {
-            final detail = leg.trainDetail!;
-            final boardPos = LatLng(
-              detail.boardingStation.latitude,
-              detail.boardingStation.longitude,
-            );
-            final alightPos = LatLng(
-              detail.alightingStation.latitude,
-              detail.alightingStation.longitude,
-            );
-            const trainColor = PujaColors.railwayPurple;
-
-            // 1. Pedestrian connection: pandal to boarding railway station (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [leg.from, boardPos],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-
-            // 2. Railway track: curved track points tracing real alignment!
-            final trainPoints = detail.trackPoints.length >= 2
-                ? detail.trackPoints
-                : RailwayRepository.getTrackPolylineBetween(
-                    detail.boardingStation,
-                    detail.alightingStation,
-                  );
-
-            // Glowing underlay
-            corePolylines.add(
-              Polyline(
-                points: trainPoints,
-                strokeWidth: 9.0,
-                color: trainColor.withValues(alpha: 0.35),
-              ),
-            );
-            // Solid railway transit line
-            corePolylines.add(
-              Polyline(
-                points: trainPoints,
-                strokeWidth: 5.5,
-                color: trainColor,
-              ),
-            );
-
-            // 3. Pedestrian connection: alighting railway station to pandal (dashed)
-            corePolylines.add(
-              Polyline(
-                points: [alightPos, leg.to],
-                strokeWidth: 3.5,
-                color: isDark
-                    ? const Color(0xFF90A4AE)
-                    : const Color(0xFF546E7A),
-                pattern: StrokePattern.dashed(segments: const [6, 4]),
-              ),
-            );
-          }
-        }
-      } else {
-        final List<LatLng> trailCoords;
-        if (trail.routedPolyline != null && trail.routedPolyline!.length >= 2) {
-          trailCoords = trail.routedPolyline!;
-        } else {
-          final coords = <LatLng>[];
-          final firstStop = trail.stops.first;
-          final double distToFirst = haversineMeters(
-            startCoord.latitude,
-            startCoord.longitude,
-            firstStop.lat,
-            firstStop.lng,
-          );
-          // Only include startCoord if within reasonable walking reach (<= 2000m)
-          if (distToFirst > 15.0 && distToFirst <= 2000.0) {
-            coords.add(startCoord);
-          }
-          for (final s in trail.stops) {
-            coords.add(LatLng(s.lat, s.lng));
-          }
-          trailCoords = coords;
-        }
-
-        if (trailCoords.length >= 2) {
-          // Glow/underglow line
-          corePolylines.add(
-            Polyline(
-              points: trailCoords,
-              strokeWidth: 8.5,
-              color: PujaColors.festivalGold.withValues(alpha: 0.3),
+    final key =
+        '${trail.id}_${identityHashCode(trail)}_${trail.routeRevision}_$isDark';
+    if (_cachedTrailCoreKey != key || _cachedTrailCorePolylines == null) {
+      _cachedTrailCoreKey = key;
+      _cachedTrailCorePolylines = [
+        for (final journey in trail.routedJourneys)
+          ...buildHighlightedRoutePolylines(
+            WalkingRoute(
+              points: journey.allDisplayPoints,
+              distanceMeters: journey.totalDistanceMeters,
+              durationSeconds: journey.totalDurationSeconds,
+              segments: journey.polylines,
             ),
-          );
-          // Solid brand gold primary line
-          corePolylines.add(
-            Polyline(
-              points: trailCoords,
-              strokeWidth: 5.0,
-              color: PujaColors.festivalGold,
-            ),
-          );
-        }
-      }
-
-      _cachedTrailCorePolylines = corePolylines;
-      _cachedTrailCoreKey = coreKey;
-    }
-
-    final polylines = <Polyline>[];
-
-    // 2. Segment 1: "Getting there" (Live location -> Trail's start point)
-    // Thin, dashed, muted color (blueGrey). Only drawn if liveLoc is within walking reach (<= 2500m) and separated by > 60m.
-    if (liveLoc != null) {
-      final double distMeters = haversineMeters(
-        liveLoc.latitude,
-        liveLoc.longitude,
-        startCoord.latitude,
-        startCoord.longitude,
-      );
-      if (distMeters > 60.0 && distMeters <= 2500.0) {
-        polylines.add(
-          Polyline(
-            points: [liveLoc, startCoord],
-            strokeWidth: 2.8,
-            color: isDark ? const Color(0xFF90A4AE) : const Color(0xFF546E7A),
-            pattern: StrokePattern.dashed(segments: const [8, 6]),
+            isDark,
           ),
-        );
-      }
+      ];
     }
-
-    // Add cached core lines
-    if (_cachedTrailCorePolylines != null) {
-      polylines.addAll(_cachedTrailCorePolylines!);
-    }
-
-    return polylines;
+    return _cachedTrailCorePolylines!;
   }
 
   List<Marker> _buildTrailMarkers(
@@ -4558,77 +4321,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       );
     }
 
-    // Station badges for metro-assisted legs
-    if (trail.hasMetroLegs) {
-      final addedStationIds = <String>{};
-      for (final leg in trail.legs) {
-        if (leg.mode == LegMode.metro && leg.metroDetail != null) {
-          final detail = leg.metroDetail!;
-          final stationsToMark = <MetroStation>[
-            detail.boardingStation,
-            if (detail.requiresInterchange && detail.interchangeStation != null)
-              detail.interchangeStation!,
-            detail.alightingStation,
-          ];
-
-          for (final stn in stationsToMark) {
-            if (addedStationIds.contains(stn.id)) continue;
-            addedStationIds.add(stn.id);
-
-            final bool isInterchange = stn.id == detail.interchangeStation?.id;
-            markers.add(
-              Marker(
-                rotate: true,
-                point: stn.toLatLng(),
-                width: 36,
-                height: 46,
-                alignment: Alignment.topCenter,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() {
-                      _selectedMetroStation = stn;
-                      _selectedPandal = null;
-                      _selectedSquadMember = null;
-                      _selectedFoodSpot = null;
-                      _selectedToilet = null;
-                    });
-                    _animatedMapMove(
-                      stn.toLatLng(),
-                      _mapController.camera.zoom < 16.0
-                          ? 16.0
-                          : _mapController.camera.zoom,
-                    );
-                    _showStatusPill(
-                      '${isInterchange ? "🔄 Interchange" : "🚇 Metro"}: ${stn.name} (${stn.line.label})',
-                      icon: isInterchange
-                          ? Icons.transfer_within_a_station_rounded
-                          : Icons.subway_rounded,
-                      color: stn.line.color,
-                    );
-                  },
-                  child: Tooltip(
-                    message:
-                        '${isInterchange ? "Interchange" : "Metro"}: ${stn.name}',
-                    child: LeafletMarkerPin(
-                      category: LeafletPinCategory.custom,
-                      pinColor: isInterchange
-                          ? const Color(0xFFE65100)
-                          : stn.line.color,
-                      customIcon: isInterchange
-                          ? Icons.transfer_within_a_station_rounded
-                          : Icons.subway_rounded,
-                      size: 32,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }
-        }
-      }
-    }
+    markers.addAll(
+      buildJourneyMarkers(stops: const [], routes: trail.routedJourneys),
+    );
 
     return markers;
   }
@@ -4804,7 +4499,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 12.0,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -4837,7 +4532,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: isDark ? const Color(0xFF1B070B) : Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -4866,7 +4561,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -4901,14 +4596,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     subtitle: Text(
                       'Locate & highlight closest pandal within 10km',
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     onTap: () {
@@ -4939,14 +4634,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     subtitle: Text(
                       'Adjust display for daytime or night hopping',
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     onTap: () {
@@ -4973,14 +4668,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     subtitle: Text(
                       'Learn map features, squad tracking, and shortcuts',
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     onTap: () {
@@ -5003,7 +4698,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: isDark ? const Color(0xFF1B070B) : Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -5035,15 +4730,23 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
+                  TextButton.icon(
+                    icon: const Icon(Icons.fact_check_outlined),
+                    label: const Text('Feature availability and tracking'),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      FeatureStatusNotice.show(context);
+                    },
+                  ),
                   Text(
                     'Understand pins, badges and landmarks on Kolkata map',
                     style: TextStyle(
                       fontSize: 13,
-                      color: isDark ? Colors.white60 : Colors.black54,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -5222,14 +4925,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(
                 subtitle,
                 style: TextStyle(
                   fontSize: 13,
-                  color: isDark ? Colors.white60 : Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -5505,7 +5208,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const Spacer(),
@@ -5513,7 +5216,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     icon: const Icon(Icons.close_rounded, size: 20),
                     onPressed: () => Navigator.pop(ctx),
                     visualDensity: VisualDensity.compact,
-                    color: isDark ? Colors.white60 : Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -5642,7 +5345,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               style: TextStyle(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? Colors.white : Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 3),
@@ -5650,7 +5353,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               'Share your code to let companions join and view live GPS locations.',
                               style: TextStyle(
                                 fontSize: 11.5,
-                                color: isDark ? Colors.white60 : Colors.black54,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -5740,9 +5445,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.black87,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -5886,7 +5591,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             'Tap to center map and filter pandals',
                             style: TextStyle(
                               fontSize: context.dynamicFont(12),
-                              color: isDark ? Colors.white60 : Colors.black54,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -6054,14 +5761,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         bengaliName,
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? Colors.white60 : Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -6202,7 +5909,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -6490,7 +6197,26 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 }
 
-class _ClusteredPandalLayer extends StatelessWidget {
+class _HeadingRotation extends StatelessWidget {
+  const _HeadingRotation({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: LocationService.instance,
+    child: child,
+    builder: (context, child) => Transform.rotate(
+      angle:
+          ((LocationService.instance.facingHeading ?? 0) +
+              MapCamera.of(context).rotation) *
+          math.pi /
+          180,
+      child: child,
+    ),
+  );
+}
+
+class _ClusteredPandalLayer extends StatefulWidget {
   const _ClusteredPandalLayer({
     required this.visiblePandals,
     required this.selectedPandal,
@@ -6506,8 +6232,19 @@ class _ClusteredPandalLayer extends StatelessWidget {
   final void Function(LatLng point, double targetZoom) onZoomToCluster;
 
   @override
+  State<_ClusteredPandalLayer> createState() => _ClusteredPandalLayerState();
+}
+
+class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
+  List<PandalClusterItem>? _previousClusters;
+  Widget? _cachedLayer;
+  int? _previousTrailSignature;
+  double _latestZoom = 0;
+
+  @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
+    _latestZoom = camera.zoom;
     final trailService = Provider.of<CustomHoppingTrailService>(
       context,
       listen: false,
@@ -6516,14 +6253,27 @@ class _ClusteredPandalLayer extends StatelessWidget {
     final activeTrailIds = activeTrail?.stops.map((s) => s.id).toSet();
 
     final clusterItems = PandalSpatialClusterer.cluster(
-      allPandals: visiblePandals,
+      allPandals: widget.visiblePandals,
       zoom: camera.zoom,
       visibleBounds: camera.visibleBounds,
-      selectedPandal: selectedPandal,
+      selectedPandal: widget.selectedPandal,
       priorityPandalIds: activeTrailIds,
     );
 
-    return RepaintBoundary(
+    final trailSignature = Object.hashAll([
+      activeTrail?.id,
+      activeTrail?.currentStopIndex,
+      ...?activeTrail?.visitedPandalIds,
+      ...?activeTrail?.stops.map((s) => s.id),
+    ]);
+    if (identical(clusterItems, _previousClusters) &&
+        trailSignature == _previousTrailSignature &&
+        _cachedLayer != null) {
+      return _cachedLayer!;
+    }
+    _previousClusters = clusterItems;
+    _previousTrailSignature = trailSignature;
+    return _cachedLayer = RepaintBoundary(
       child: MarkerLayer(
         markers: clusterItems.map((item) {
           if (item.isCluster) {
@@ -6540,8 +6290,8 @@ class _ClusteredPandalLayer extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
                   HapticFeedback.selectionClick();
-                  final nextZoom = (camera.zoom + 1.8).clamp(11.0, 16.5);
-                  onZoomToCluster(item.point, nextZoom);
+                  final nextZoom = (_latestZoom + 1.8).clamp(11.0, 16.5);
+                  widget.onZoomToCluster(item.point, nextZoom);
                 },
                 child: LeafletMarkerPin(
                   category: LeafletPinCategory.cluster,
@@ -6553,7 +6303,7 @@ class _ClusteredPandalLayer extends StatelessWidget {
           }
 
           final p = item.primaryPandal ?? item.pandals.first;
-          final isSelected = selectedPandal?.id == p.id;
+          final isSelected = widget.selectedPandal?.id == p.id;
 
           int trailIndex = -1;
           bool isVisited = false;
@@ -6574,14 +6324,14 @@ class _ClusteredPandalLayer extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 HapticFeedback.selectionClick();
-                onSelectPandal(p);
+                widget.onSelectPandal(p);
               },
               child: LeafletMarkerPin.pandal(
                 isSelected: isSelected,
                 isVisited: isVisited,
                 trailIndex: trailIndex != -1 ? trailIndex : null,
                 size: isSelected ? 46 : 36,
-                pulseAnimation: isSelected ? pulseController : null,
+                pulseAnimation: isSelected ? widget.pulseController : null,
               ),
             ),
           );

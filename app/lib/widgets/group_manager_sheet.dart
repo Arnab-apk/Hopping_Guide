@@ -22,9 +22,9 @@ class GroupManagerSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'My groups',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             const Text(
@@ -44,6 +44,9 @@ class GroupManagerSheet extends StatelessWidget {
                 children: service.groups.map((group) {
                   final active = group.id == service.squadId;
                   return ListTile(
+                    selected: active,
+                    selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
+                    selectedColor: Theme.of(context).colorScheme.onPrimaryContainer,
                     key: ValueKey('group_${group.id}'),
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(

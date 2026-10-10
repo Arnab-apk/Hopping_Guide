@@ -142,7 +142,7 @@ class VoteAvatarStack extends StatelessWidget {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 9,
             fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white70 : Colors.black54,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ),

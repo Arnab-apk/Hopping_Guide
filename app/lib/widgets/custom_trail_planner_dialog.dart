@@ -1,3 +1,5 @@
+import '../widgets/app_notice.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,11 +15,7 @@ import '../utils/constants.dart';
 import '../utils/haversine.dart';
 import '../utils/responsive.dart';
 
-enum _BuilderStep {
-  startingPoint,
-  choosePandals,
-  review,
-}
+enum _BuilderStep { startingPoint, choosePandals, review }
 
 /// Interactive 3-step modal dialog allowing users to:
 /// 1. Choose Starting Point (Live GPS location or popular Kolkata hubs)
@@ -58,7 +56,8 @@ class CustomTrailPlannerDialog extends StatefulWidget {
   }
 
   @override
-  State<CustomTrailPlannerDialog> createState() => _CustomTrailPlannerDialogState();
+  State<CustomTrailPlannerDialog> createState() =>
+      _CustomTrailPlannerDialogState();
 }
 
 class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
@@ -97,17 +96,83 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
 
   // Popular Railway & Metro Stations (Arrive by train flow)
   static const List<Map<String, dynamic>> _popularStations = [
-    {'name': 'Howrah Junction (HWH)', 'code': 'HWH', 'kind': 'rail', 'lat': 22.5839, 'lng': 88.3426},
-    {'name': 'Sealdah (SDAH)', 'code': 'SDAH', 'kind': 'rail', 'lat': 22.5674, 'lng': 88.3718},
-    {'name': 'Kolkata Chitpur (KOAA)', 'code': 'KOAA', 'kind': 'rail', 'lat': 22.6027, 'lng': 88.3768},
-    {'name': 'Santragachi (SRC)', 'code': 'SRC', 'kind': 'rail', 'lat': 22.5807, 'lng': 88.2818},
-    {'name': 'Shalimar (SHM)', 'code': 'SHM', 'kind': 'rail', 'lat': 22.5567, 'lng': 88.3242},
-    {'name': 'Dum Dum Junction (DDJ)', 'code': 'DDJ', 'kind': 'rail', 'lat': 22.6219, 'lng': 88.3934},
-    {'name': 'Bidhan Nagar Road (BNXR)', 'code': 'BNXR', 'kind': 'rail', 'lat': 22.5936, 'lng': 88.3912},
-    {'name': 'Ballygunge Junction (BLN)', 'code': 'BLN', 'kind': 'rail', 'lat': 22.5222, 'lng': 88.3689},
-    {'name': 'Shyambazar Metro', 'code': 'KSYM', 'kind': 'metro', 'lat': 22.6017, 'lng': 88.3711},
-    {'name': 'Esplanade Metro', 'code': 'KESP', 'kind': 'metro', 'lat': 22.5628, 'lng': 88.3517},
-    {'name': 'Kalighat Metro', 'code': 'KKGH', 'kind': 'metro', 'lat': 22.5153, 'lng': 88.3458},
+    {
+      'name': 'Howrah Junction (HWH)',
+      'code': 'HWH',
+      'kind': 'rail',
+      'lat': 22.5839,
+      'lng': 88.3426,
+    },
+    {
+      'name': 'Sealdah (SDAH)',
+      'code': 'SDAH',
+      'kind': 'rail',
+      'lat': 22.5674,
+      'lng': 88.3718,
+    },
+    {
+      'name': 'Kolkata Chitpur (KOAA)',
+      'code': 'KOAA',
+      'kind': 'rail',
+      'lat': 22.6027,
+      'lng': 88.3768,
+    },
+    {
+      'name': 'Santragachi (SRC)',
+      'code': 'SRC',
+      'kind': 'rail',
+      'lat': 22.5807,
+      'lng': 88.2818,
+    },
+    {
+      'name': 'Shalimar (SHM)',
+      'code': 'SHM',
+      'kind': 'rail',
+      'lat': 22.5567,
+      'lng': 88.3242,
+    },
+    {
+      'name': 'Dum Dum Junction (DDJ)',
+      'code': 'DDJ',
+      'kind': 'rail',
+      'lat': 22.6219,
+      'lng': 88.3934,
+    },
+    {
+      'name': 'Bidhan Nagar Road (BNXR)',
+      'code': 'BNXR',
+      'kind': 'rail',
+      'lat': 22.5936,
+      'lng': 88.3912,
+    },
+    {
+      'name': 'Ballygunge Junction (BLN)',
+      'code': 'BLN',
+      'kind': 'rail',
+      'lat': 22.5222,
+      'lng': 88.3689,
+    },
+    {
+      'name': 'Shyambazar Metro',
+      'code': 'KSYM',
+      'kind': 'metro',
+      'lat': 22.6017,
+      'lng': 88.3711,
+    },
+    {
+      'name': 'Esplanade Metro',
+      'code': 'KESP',
+      'kind': 'metro',
+      'lat': 22.5628,
+      'lng': 88.3517,
+    },
+    {
+      'name': 'Kalighat Metro',
+      'code': 'KKGH',
+      'kind': 'metro',
+      'lat': 22.5153,
+      'lng': 88.3458,
+    },
   ];
 
   @override
@@ -117,7 +182,8 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
     final livePos = LocationService.instance.currentPositionSync;
     if (widget.initialLocation != null) {
       _selectedLocation = widget.initialLocation!;
-      _selectedLocationLabel = widget.initialLocationLabel ?? 'Selected Map Point';
+      _selectedLocationLabel =
+          widget.initialLocationLabel ?? 'Selected Map Point';
       _useLiveGps = false;
     } else if (livePos != null) {
       _selectedLocation = LatLng(livePos.latitude, livePos.longitude);
@@ -174,8 +240,18 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
 
     // Sort pandals by proximity to chosen starting location/station
     list.sort((a, b) {
-      final da = haversineMeters(_selectedLocation.latitude, _selectedLocation.longitude, a.lat, a.lng);
-      final db = haversineMeters(_selectedLocation.latitude, _selectedLocation.longitude, b.lat, b.lng);
+      final da = haversineMeters(
+        _selectedLocation.latitude,
+        _selectedLocation.longitude,
+        a.lat,
+        a.lng,
+      );
+      final db = haversineMeters(
+        _selectedLocation.latitude,
+        _selectedLocation.longitude,
+        b.lat,
+        b.lng,
+      );
       return da.compareTo(db);
     });
 
@@ -215,37 +291,29 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         allowTrain: _allowTrain,
       );
 
-      await CustomHoppingTrailService.instance.startTrail(trail, requireLiveRoute: true);
+      await CustomHoppingTrailService.instance.startTrail(
+        trail,
+        requireLiveRoute: true,
+      );
     } catch (e) {
       debugPrint('Error starting custom trail: $e');
+      if (mounted) {
+        setState(() => _isGenerating = false);
+        showAppErrorNotice(
+          context,
+          'Could not load the trail route. Check your connection and retry.',
+        );
+      }
+      return;
     }
 
     if (mounted) {
       Navigator.of(context).pop();
       widget.onTrailStarted?.call();
-      final totalStops = trail?.totalStops ?? selectedList.length;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: PujaColors.durgaRed,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          content: Row(
-            children: [
-              const Icon(Icons.navigation_rounded, color: Colors.white, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  '🗺️ Custom Trail Started! $totalStops stops ordered for shortest path.',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      final totalStops = trail.totalStops;
+      showAppSuccessNotice(
+        context,
+        'Custom Trail Started! $totalStops stops ordered for shortest path.',
       );
     }
   }
@@ -294,7 +362,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           Expanded(
             child: _isLoadingPandals
                 ? const Center(
-                    child: CircularProgressIndicator(color: PujaColors.durgaRed),
+                    child: CircularProgressIndicator(
+                      color: PujaColors.durgaRed,
+                    ),
                   )
                 : _buildCurrentStepView(isDark),
           ),
@@ -317,7 +387,8 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         break;
       case _BuilderStep.choosePandals:
         stepTitle = 'Step 2: Choose Pandals';
-        stepSubtitle = '${_selectedPandalIds.length} selected (pick at least 2)';
+        stepSubtitle =
+            '${_selectedPandalIds.length} selected (pick at least 2)';
         break;
       case _BuilderStep.review:
         stepTitle = 'Step 3: Review & Generate';
@@ -349,14 +420,17 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
                       'Custom Trail Builder',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: context.dynamicFont(16.5),
                         fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -365,7 +439,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                   '$stepTitle • $stepSubtitle',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: context.dynamicFont(11.5),
-                    color: isDark ? Colors.white60 : Colors.black54,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -374,6 +448,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           ),
           IconButton(
             icon: const Icon(Icons.close_rounded),
+            tooltip: 'Close trail builder',
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -407,7 +482,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           style: GoogleFonts.plusJakartaSans(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            color: isDark ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 6),
@@ -415,7 +490,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           'We optimize your route starting from this location through your chosen pandals.',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 12.5,
-            color: isDark ? Colors.white60 : Colors.black54,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 18),
@@ -442,7 +517,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: _useLiveGps
-                  ? PujaColors.festivalGold.withValues(alpha: isDark ? 0.18 : 0.12)
+                  ? PujaColors.festivalGold.withValues(
+                      alpha: isDark ? 0.18 : 0.12,
+                    )
                   : (isDark ? const Color(0xFF232430) : Colors.grey.shade50),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
@@ -476,7 +553,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -518,7 +595,8 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         // Popular Hubs
         ...List.generate(_popularHubs.length, (idx) {
           final hub = _popularHubs[idx];
-          final isSelected = !_useLiveGps && _selectedLocationLabel == hub['name'];
+          final isSelected =
+              !_useLiveGps && _selectedLocationLabel == hub['name'];
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -536,11 +614,18 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? PujaColors.durgaRed.withValues(alpha: isDark ? 0.18 : 0.08)
-                      : (isDark ? const Color(0xFF22232E) : Colors.grey.shade50),
+                      ? PujaColors.durgaRed.withValues(
+                          alpha: isDark ? 0.18 : 0.08,
+                        )
+                      : (isDark
+                            ? const Color(0xFF22232E)
+                            : Colors.grey.shade50),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSelected
@@ -564,10 +649,12 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                         hub['name'] as String,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 13.5,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
                           color: isSelected
                               ? PujaColors.durgaRed
-                              : (isDark ? Colors.white : Colors.black87),
+                              : (Theme.of(context).colorScheme.onSurface),
                         ),
                       ),
                     ),
@@ -587,7 +674,11 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         const SizedBox(height: 18),
         Row(
           children: [
-            const Icon(Icons.train_rounded, size: 16, color: PujaColors.festivalGold),
+            const Icon(
+              Icons.train_rounded,
+              size: 16,
+              color: PujaColors.festivalGold,
+            ),
             const SizedBox(width: 8),
             Text(
               'Arrive by Train or Metro:',
@@ -611,7 +702,8 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
 
         ...List.generate(_popularStations.length, (idx) {
           final stn = _popularStations[idx];
-          final isSelected = !_useLiveGps && _selectedLocationLabel == stn['name'];
+          final isSelected =
+              !_useLiveGps && _selectedLocationLabel == stn['name'];
           final isMetro = stn['kind'] == 'metro';
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -629,11 +721,18 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? PujaColors.durgaRed.withValues(alpha: isDark ? 0.18 : 0.08)
-                      : (isDark ? const Color(0xFF22232E) : Colors.grey.shade50),
+                      ? PujaColors.durgaRed.withValues(
+                          alpha: isDark ? 0.18 : 0.08,
+                        )
+                      : (isDark
+                            ? const Color(0xFF22232E)
+                            : Colors.grey.shade50),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSelected
@@ -647,13 +746,19 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: (isMetro ? const Color(0xFF00897B) : const Color(0xFF1E88E5)).withValues(alpha: 0.15),
+                        color:
+                            (isMetro
+                                    ? const Color(0xFF00897B)
+                                    : const Color(0xFF1E88E5))
+                                .withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         isMetro ? Icons.subway_rounded : Icons.train_rounded,
                         size: 18,
-                        color: isMetro ? const Color(0xFF00897B) : const Color(0xFF1E88E5),
+                        color: isMetro
+                            ? const Color(0xFF00897B)
+                            : const Color(0xFF1E88E5),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -665,15 +770,19 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                             stn['name'] as String,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 13.5,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                               color: isSelected
                                   ? PujaColors.durgaRed
-                                  : (isDark ? Colors.white : Colors.black87),
+                                  : (Theme.of(context).colorScheme.onSurface),
                             ),
                           ),
                           if (stn['code'] != null)
                             Text(
-                              isMetro ? 'Kolkata Metro Line' : 'Indian Railways Station Code: ${stn['code']}',
+                              isMetro
+                                  ? 'Kolkata Metro Line'
+                                  : 'Indian Railways Station Code: ${stn['code']}',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 11,
                                 color: isDark ? Colors.white54 : Colors.black45,
@@ -713,11 +822,17 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF242533) : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: PujaColors.festivalGold.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: PujaColors.festivalGold.withValues(alpha: 0.3),
+            ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.my_location_rounded, size: 16, color: PujaColors.festivalGold),
+              const Icon(
+                Icons.my_location_rounded,
+                size: 16,
+                color: PujaColors.festivalGold,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -732,7 +847,8 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                 ),
               ),
               InkWell(
-                onTap: () => setState(() => _currentStep = _BuilderStep.startingPoint),
+                onTap: () =>
+                    setState(() => _currentStep = _BuilderStep.startingPoint),
                 child: Text(
                   'Change',
                   style: GoogleFonts.plusJakartaSans(
@@ -754,13 +870,13 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
             onChanged: (val) => setState(() => _searchQuery = val.trim()),
             style: GoogleFonts.plusJakartaSans(
               fontSize: 13,
-              color: isDark ? Colors.white : Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             decoration: InputDecoration(
               hintText: 'Search pandals by name, area, theme...',
               hintStyle: GoogleFonts.plusJakartaSans(
                 fontSize: 12.5,
-                color: isDark ? Colors.white38 : Colors.black38,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               prefixIcon: const Icon(Icons.search_rounded, size: 20),
               suffixIcon: _searchQuery.isNotEmpty
@@ -773,8 +889,13 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                     )
                   : null,
               filled: true,
-              fillColor: isDark ? const Color(0xFF22232E) : Colors.grey.shade100,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              fillColor: isDark
+                  ? const Color(0xFF22232E)
+                  : Colors.grey.shade100,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
                 borderSide: BorderSide.none,
@@ -796,7 +917,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                 selectedColor: PujaColors.festivalGold.withValues(alpha: 0.25),
                 labelStyle: GoogleFonts.plusJakartaSans(
                   fontSize: 11.5,
-                  fontWeight: _selectedZoneFilter == null ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: _selectedZoneFilter == null
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   color: _selectedZoneFilter == null
                       ? PujaColors.festivalGold
                       : (isDark ? Colors.white70 : Colors.black87),
@@ -821,10 +944,14 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                         _selectedZoneFilter = isSelected ? null : zone;
                       });
                     },
-                    selectedColor: PujaColors.festivalGold.withValues(alpha: 0.25),
+                    selectedColor: PujaColors.festivalGold.withValues(
+                      alpha: 0.25,
+                    ),
                     labelStyle: GoogleFonts.plusJakartaSans(
                       fontSize: 11.5,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isSelected
                           ? PujaColors.festivalGold
                           : (isDark ? Colors.white70 : Colors.black87),
@@ -863,11 +990,18 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                         onTap: () => _togglePandalSelection(pandal.id),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 160),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 11,
+                          ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? PujaColors.festivalGold.withValues(alpha: isDark ? 0.22 : 0.12)
-                                : (isDark ? const Color(0xFF22232E) : Colors.grey.shade50),
+                                ? PujaColors.festivalGold.withValues(
+                                    alpha: isDark ? 0.22 : 0.12,
+                                  )
+                                : (isDark
+                                      ? const Color(0xFF22232E)
+                                      : Colors.grey.shade50),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
@@ -888,7 +1022,8 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5),
                                   ),
-                                  onChanged: (_) => _togglePandalSelection(pandal.id),
+                                  onChanged: (_) =>
+                                      _togglePandalSelection(pandal.id),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -902,8 +1037,10 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                                       overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13.5,
-                                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                        color: isDark ? Colors.white : Colors.black87,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w800
+                                            : FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -916,7 +1053,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                                             overflow: TextOverflow.ellipsis,
                                             style: GoogleFonts.plusJakartaSans(
                                               fontSize: 11.5,
-                                              color: isDark ? Colors.white54 : Colors.black54,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                           ),
                                         ),
@@ -944,7 +1081,10 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                               ),
                               if (isSelected)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: PujaColors.festivalGold,
                                     borderRadius: BorderRadius.circular(8),
@@ -984,23 +1124,31 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: PujaColors.festivalGold.withValues(alpha: isDark ? 0.16 : 0.10),
+            color: PujaColors.festivalGold.withValues(
+              alpha: isDark ? 0.16 : 0.10,
+            ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: PujaColors.festivalGold.withValues(alpha: 0.35)),
+            border: Border.all(
+              color: PujaColors.festivalGold.withValues(alpha: 0.35),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.alt_route_rounded, color: PujaColors.festivalGold, size: 20),
+                  const Icon(
+                    Icons.alt_route_rounded,
+                    color: PujaColors.festivalGold,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Held-Karp Route Optimization',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 13.5,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -1050,14 +1198,14 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             subtitle: Text(
               'Suggests Kolkata Metro rides when faster than road/walk',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 11,
-                color: isDark ? Colors.white60 : Colors.black54,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             value: _allowMetro,
@@ -1101,14 +1249,14 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             subtitle: Text(
               'Uses Eastern, South Eastern & Circular Railway when optimal',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 11,
-                color: isDark ? Colors.white60 : Colors.black54,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             value: _allowTrain,
@@ -1130,11 +1278,12 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: isDark ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             TextButton.icon(
-              onPressed: () => setState(() => _currentStep = _BuilderStep.choosePandals),
+              onPressed: () =>
+                  setState(() => _currentStep = _BuilderStep.choosePandals),
               icon: const Icon(Icons.add_rounded, size: 18),
               label: const Text('Add More'),
               style: TextButton.styleFrom(
@@ -1158,7 +1307,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF22232E) : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                border: Border.all(
+                  color: isDark ? Colors.white10 : Colors.black12,
+                ),
               ),
               child: Row(
                 children: [
@@ -1191,7 +1342,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white : Colors.black87,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Text(
@@ -1207,7 +1358,10 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.remove_circle_outline_rounded, size: 20),
+                    icon: const Icon(
+                      Icons.remove_circle_outline_rounded,
+                      size: 20,
+                    ),
                     color: Colors.redAccent,
                     tooltip: 'Remove stop',
                     onPressed: () {
@@ -1245,7 +1399,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               style: FilledButton.styleFrom(
                 backgroundColor: PujaColors.durgaRed,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               icon: const Icon(Icons.arrow_forward_rounded, size: 20),
               label: Text(
@@ -1272,19 +1428,23 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1F202B) : Colors.white,
             border: Border(
-              top: BorderSide(
-                color: isDark ? Colors.white10 : Colors.black12,
-              ),
+              top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
             ),
           ),
           child: Row(
             children: [
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-                onPressed: () => setState(() => _currentStep = _BuilderStep.startingPoint),
+                onPressed: () =>
+                    setState(() => _currentStep = _BuilderStep.startingPoint),
                 child: const Icon(Icons.arrow_back_rounded, size: 20),
               ),
               const SizedBox(width: 12),
@@ -1298,7 +1458,7 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 13.5,
                         fontWeight: FontWeight.w800,
-                        color: isDark ? Colors.white : Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
@@ -1308,7 +1468,9 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                         color: canContinue
                             ? PujaColors.festivalGold
                             : (isDark ? Colors.white54 : Colors.black45),
-                        fontWeight: canContinue ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: canContinue
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                       ),
                     ),
                   ],
@@ -1316,9 +1478,16 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
               ),
               FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: canContinue ? PujaColors.durgaRed : Colors.grey.shade400,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  backgroundColor: canContinue
+                      ? PujaColors.durgaRed
+                      : Colors.grey.shade400,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 onPressed: canContinue
                     ? () {
@@ -1344,19 +1513,23 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1F202B) : Colors.white,
             border: Border(
-              top: BorderSide(
-                color: isDark ? Colors.white10 : Colors.black12,
-              ),
+              top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
             ),
           ),
           child: Row(
             children: [
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-                onPressed: () => setState(() => _currentStep = _BuilderStep.choosePandals),
+                onPressed: () =>
+                    setState(() => _currentStep = _BuilderStep.choosePandals),
                 child: const Text('Edit'),
               ),
               const SizedBox(width: 12),
@@ -1365,17 +1538,24 @@ class _CustomTrailPlannerDialogState extends State<CustomTrailPlannerDialog> {
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFFFF1744),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   icon: _isGenerating
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Icon(Icons.play_arrow_rounded, size: 22),
                   label: Text(
-                    _isGenerating ? 'Optimizing...' : 'Generate My Custom Trail',
+                    _isGenerating
+                        ? 'Optimizing...'
+                        : 'Generate My Custom Trail',
                     style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w800,
                       fontSize: 13.5,

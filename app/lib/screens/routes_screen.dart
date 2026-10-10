@@ -1,3 +1,5 @@
+import '../widgets/app_notice.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +11,8 @@ import '../repositories/local_pandal_repository.dart';
 import '../repositories/pandal_repository.dart';
 import '../services/custom_hopping_trail_service.dart';
 import '../widgets/animated_fade_slide.dart';
+import '../widgets/app_page_intro.dart';
+import '../widgets/app_filter_chip.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/puja_icons.dart';
 import 'main_navigation_screen.dart';
@@ -246,9 +250,14 @@ class _RoutesScreenState extends State<RoutesScreen> {
           final p = _pandalMap[id];
           return p != null &&
               (p.name.toLowerCase().contains(query) ||
-                  (p.nearestMetro != null && p.nearestMetro!.toLowerCase().contains(query)));
+                  (p.nearestMetro != null &&
+                      p.nearestMetro!.toLowerCase().contains(query)));
         });
-        return titleMatch || bengaliMatch || subtitleMatch || zoneMatch || pandalMatch;
+        return titleMatch ||
+            bengaliMatch ||
+            subtitleMatch ||
+            zoneMatch ||
+            pandalMatch;
       }).toList();
     }
 
@@ -265,9 +274,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: const Text('Curated Routes'),
-      ),
+      appBar: AppBar(title: const Text('Curated Routes')),
       body: Column(
         children: [
           // 1. Search Bar with Instant Matching & Material 3 Theme Styling
@@ -284,6 +291,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
               trailing: _searchQuery.isNotEmpty
                   ? [
                       IconButton(
+                        tooltip: 'Clear search',
                         icon: const Icon(Icons.clear_rounded, size: 18),
                         onPressed: () {
                           _searchController.clear();
@@ -298,49 +306,28 @@ class _RoutesScreenState extends State<RoutesScreen> {
             ),
           ),
 
-          // 2. Horizontal Filter Chips Row (Mirroring Pandals Screen)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            child: Row(
-              children: RouteCategoryFilter.values.map((filter) {
-                final isSelected = _selectedFilter == filter;
-                final label = filter == RouteCategoryFilter.all
-                    ? 'All (${_curatedRoutes.length})'
-                    : filter.label;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    selected: isSelected,
-                    onSelected: (_) {
-                      HapticFeedback.selectionClick();
-                      setState(() => _selectedFilter = filter);
-                    },
-                    avatar: Icon(
-                      filter.icon,
-                      size: 16,
-                      color: isSelected
-                          ? colorScheme.onSecondaryContainer
-                          : colorScheme.onSurfaceVariant,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 0,
+                children: [
+                  for (final filter in RouteCategoryFilter.values)
+                    AppFilterChip(
+                      label: filter == RouteCategoryFilter.all
+                          ? 'All (${_curatedRoutes.length})'
+                          : filter.label,
+                      selected: _selectedFilter == filter,
+                      avatar: Icon(filter.icon, size: 18),
+                      onSelected: (_) {
+                        HapticFeedback.selectionClick();
+                        setState(() => _selectedFilter = filter);
+                      },
                     ),
-                    label: Text(
-                      label,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected
-                            ? colorScheme.onSecondaryContainer
-                            : colorScheme.onSurface,
-                      ),
-                    ),
-                    showCheckmark: false,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                );
-              }).toList(),
+                ],
+              ),
             ),
           ),
 
@@ -378,33 +365,47 @@ class _RoutesScreenState extends State<RoutesScreen> {
           // 3. Routes List View
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ),
+                  )
                 : displayRoutes.isEmpty
-                    ? _buildEmptyState(colorScheme, isDark)
-                    : ListView(
-                        physics: const BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics(),
+                ? _buildEmptyState(colorScheme, isDark)
+                : ListView(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: AppPageIntro(
+                          title: 'A route for every outing',
+                          description: 'Explore curated walks, compare stops and choose your next circuit.',
+                          icon: Icons.route_outlined,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        children: [
-                          ...displayRoutes.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final route = entry.value;
-                            return AnimatedFadeSlide(
-                              key: ValueKey(route.id),
-                              delay: Duration(milliseconds: index < 6 ? index * 30 : 0),
-                              child: _buildRouteCard(route, colorScheme, isDark),
-                            );
-                          }),
-
-                          const SizedBox(height: 6),
-
-                          // Transit & Hopping Tips Collapsible Card
-                          _buildFirstTimersGuideCard(colorScheme, isDark),
-
-                          const SizedBox(height: 24),
-                        ],
                       ),
+                      ...displayRoutes.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final route = entry.value;
+                        return AnimatedFadeSlide(
+                          key: ValueKey(route.id),
+                          delay: Duration(
+                            milliseconds: index < 6 ? index * 30 : 0,
+                          ),
+                          child: _buildRouteCard(route, colorScheme, isDark),
+                        );
+                      }),
+
+                      const SizedBox(height: 6),
+
+                      // Transit & Hopping Tips Collapsible Card
+                      _buildFirstTimersGuideCard(colorScheme, isDark),
+
+                      const SizedBox(height: 24),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -469,7 +470,11 @@ class _RoutesScreenState extends State<RoutesScreen> {
     );
   }
 
-  Widget _buildRouteCard(HoppingRoute route, ColorScheme colorScheme, bool isDark) {
+  Widget _buildRouteCard(
+    HoppingRoute route,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     final pandalsInRoute = route.pandalIds
         .map((id) => _pandalMap[id])
         .whereType<Pandal>()
@@ -485,7 +490,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
         side: BorderSide(
           color: isExpanded
               ? colorScheme.primary.withValues(alpha: 0.65)
-              : colorScheme.outlineVariant.withValues(alpha: isDark ? 0.45 : 0.65),
+              : colorScheme.outlineVariant.withValues(
+                  alpha: isDark ? 0.45 : 0.65,
+                ),
           width: isExpanded ? 1.4 : 1.0,
         ),
       ),
@@ -507,7 +514,10 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 children: [
                   // Zone/Region Pill
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(20),
@@ -524,9 +534,14 @@ class _RoutesScreenState extends State<RoutesScreen> {
                   const Spacer(),
                   // Stops count badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                      color: colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.6,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -642,15 +657,22 @@ class _RoutesScreenState extends State<RoutesScreen> {
                 const SizedBox(height: 12),
                 Divider(
                   height: 1,
-                  color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.55),
+                  color: colorScheme.outlineVariant.withValues(
+                    alpha: isDark ? 0.35 : 0.55,
+                  ),
                 ),
                 const SizedBox(height: 12),
 
                 // Best Time Advice
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.accentPrimary.withValues(alpha: isDark ? 0.16 : 0.09),
+                    color: AppColors.accentPrimary.withValues(
+                      alpha: isDark ? 0.16 : 0.09,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: AppColors.accentPrimary.withValues(alpha: 0.25),
@@ -671,7 +693,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? const Color(0xFFE08B8D) : AppColors.accentPrimary,
+                            color: isDark
+                                ? const Color(0xFFE08B8D)
+                                : AppColors.accentPrimary,
                           ),
                         ),
                       ),
@@ -702,7 +726,10 @@ class _RoutesScreenState extends State<RoutesScreen> {
                       PandalDetailSheet.show(context, p);
                     },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 4),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 5,
+                        horizontal: 4,
+                      ),
                       child: Row(
                         children: [
                           Container(
@@ -736,11 +763,17 @@ class _RoutesScreenState extends State<RoutesScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (p.nearestMetro != null && p.nearestMetro!.isNotEmpty)
+                          if (p.nearestMetro != null &&
+                              p.nearestMetro!.isNotEmpty)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: PujaColors.metroBlue.withValues(alpha: 0.10),
+                                color: PujaColors.metroBlue.withValues(
+                                  alpha: 0.10,
+                                ),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Row(
@@ -767,7 +800,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
                           Icon(
                             Icons.chevron_right_rounded,
                             size: 16,
-                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ],
                       ),
@@ -822,7 +857,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
     HapticFeedback.lightImpact();
     if (pandalsInRoute.isNotEmpty) {
       final firstPandal = pandalsInRoute.first;
-      final distNum = double.tryParse(route.distance.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 4.0;
+      final distNum =
+          double.tryParse(route.distance.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+          4.0;
       final trail = ActiveCustomTrail(
         id: 'circuit_${route.id}',
         style: HoppingStyle.express,
@@ -837,13 +874,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       );
       CustomHoppingTrailService.instance.startTrail(trail);
       MainNavigationScreen.switchTab(context, 0);
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('🗺️ Following "${route.title}"! Stop 1: ${pandalsInRoute.first.name}'),
-          backgroundColor: PujaColors.durgaRed,
-          duration: const Duration(seconds: 3),
-        ),
+      showAppSuccessNotice(
+        context,
+        'Following "${route.title}"! Stop 1: ${pandalsInRoute.first.name}',
       );
     }
   }
@@ -856,7 +889,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
+          color: colorScheme.outlineVariant.withValues(
+            alpha: isDark ? 0.4 : 0.6,
+          ),
           width: 1,
         ),
       ),
@@ -909,7 +944,9 @@ class _RoutesScreenState extends State<RoutesScreen> {
           if (_isGuideExpanded) ...[
             Divider(
               height: 1,
-              color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.55),
+              color: colorScheme.outlineVariant.withValues(
+                alpha: isDark ? 0.35 : 0.55,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -919,8 +956,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                     icon: Icons.subway_rounded,
                     color: PujaColors.metroBlue,
                     title: 'Metro Runs Till 4 AM',
-                    body:
-                        'Blue Line runs past midnight up to 4:00 AM on Saptami, Ashtami, & Nabami. Use Green Line for Howrah Maidan & Salt Lake.',
+                    body: 'Blue Line runs past midnight up to 4:00 AM on Saptami, Ashtami, & Nabami. Use Green Line for Howrah Maidan & Salt Lake.',
                     colorScheme: colorScheme,
                     isDark: isDark,
                   ),
@@ -929,8 +965,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                     icon: Icons.access_time_filled_rounded,
                     color: const Color(0xFFFF9100),
                     title: 'Best Hopping Windows',
-                    body:
-                        'Morning (5-9 AM) has zero queues. Late night (11 PM - 4 AM) has electric lighting and the true Kolkata puja atmosphere.',
+                    body: 'Morning (5-9 AM) has zero queues. Late night (11 PM - 4 AM) has electric lighting and the true Kolkata puja atmosphere.',
                     colorScheme: colorScheme,
                     isDark: isDark,
                   ),
@@ -939,8 +974,7 @@ class _RoutesScreenState extends State<RoutesScreen> {
                     icon: Icons.hiking_rounded,
                     color: const Color(0xFF00C853),
                     title: 'Footwear & Comfort',
-                    body:
-                        'Expect 10,000+ steps. Slip-on sandals are best as you remove shoes at heritage household thakur-dalans.',
+                    body: 'Expect 10,000+ steps. Slip-on sandals are best as you remove shoes at heritage household thakur-dalans.',
                     colorScheme: colorScheme,
                     isDark: isDark,
                   ),

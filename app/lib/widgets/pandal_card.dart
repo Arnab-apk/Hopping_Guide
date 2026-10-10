@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../config/theme.dart';
 import '../models/pandal.dart';
 import '../models/place.dart';
 import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../utils/animation_constants.dart';
 import '../utils/constants.dart';
-import '../utils/responsive.dart';
-import 'puja_icons.dart';
 
-/// Unified Place Card supporting both Pandals and Food Spots.
-/// Uses Material 3 tonal elevation, soft outlineVariant borders, Google typography,
-/// and responsive touch feedback.
+/// Shared discovery card with readable metadata and independent save/map actions.
 class PlaceCard extends StatelessWidget {
   const PlaceCard({
     super.key,
@@ -25,7 +19,6 @@ class PlaceCard extends StatelessWidget {
     this.onMapTap,
     this.distanceKm,
   });
-
   final Place place;
   final VoidCallback onTap;
   final VoidCallback? onMapTap;
@@ -34,395 +27,248 @@ class PlaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-
+    final colors = theme.colorScheme;
+    final userState = context.read<PandalUserStateService?>();
     final isFav = context.select<PandalUserStateService?, bool>(
-      (s) => s?.isFavorite(place.id) ?? false,
+      (state) => state?.isFavorite(place.id) ?? false,
     );
-    final isVis = place.isPandal &&
+    final isVis =
+        place.isPandal &&
         context.select<PandalUserStateService?, bool>(
-          (s) => s?.isVisited(place.id) ?? false,
+          (state) => state?.isVisited(place.id) ?? false,
         );
-
-    final pandal = place.isPandal ? place.rawPandal : null;
-
-    // Real distance formatted string
     final distanceLabel = distanceKm != null
         ? '${distanceKm!.toStringAsFixed(1)} km'
         : context.select<LocationService?, String?>(
             (loc) => loc?.formatDistance(place.latitude, place.longitude),
           );
 
-    // Build card content
-    final cardContent = RepaintBoundary(
+    final card = RepaintBoundary(
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        color: colors.surfaceContainerLow,
         elevation: 0,
-        color: colorScheme.surfaceContainerLow,
+        clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: isVis
-                ? colorScheme.primary.withValues(alpha: 0.65)
-                : colorScheme.outlineVariant.withValues(alpha: isDark ? 0.45 : 0.65),
-            width: isVis ? 1.5 : 1.0,
+            color: isVis ? colors.primary : colors.outlineVariant,
           ),
         ),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
           child: Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Top Action Row: Category/Zone pill + Visited indicator + Favorite button
-                Row(
+            padding: const EdgeInsets.all(16),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                Widget metadata(
+                  String label, {
+                  IconData? icon,
+                  bool category = false,
+                  double? maxWidth,
+                }) => _PlaceMetadata(
+                  label: label,
+                  icon: icon,
+                  maxWidth: maxWidth ?? constraints.maxWidth,
+                  background: category
+                      ? colors.secondaryContainer
+                      : colors.surfaceContainerHigh,
+                  foreground: category
+                      ? colors.onSecondaryContainer
+                      : colors.onSurfaceVariant,
+                );
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (place.isPandal) ...[
-                      if (place.zone != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            place.zone!.label,
-                            style: GoogleFonts.plusJakartaSans(
-                              color: colorScheme.onSecondaryContainer,
-                              fontSize: context.dynamicFont(11.5),
-                              fontWeight: FontWeight.w700,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                metadata(
+                                  place.isPandal
+                                      ? (place.zone?.label ?? 'Pandal')
+                                      : (place.type ?? 'Culinary Stop'),
+                                  category: true,
+                                  maxWidth: (constraints.maxWidth - 56).clamp(
+                                    0.0,
+                                    double.infinity,
+                                  ),
+                                ),
+                                if (isVis)
+                                  metadata(
+                                    'Hopped',
+                                    icon: Icons.check_circle_outline_rounded,
+                                    category: true,
+                                    maxWidth: (constraints.maxWidth - 56).clamp(
+                                      0.0,
+                                      double.infinity,
+                                    ),
+                                  ),
+                                if (place.isFoodSpot &&
+                                    place.priceRange != null)
+                                  Text(
+                                    place.priceRange!,
+                                    style: theme.textTheme.labelLarge,
+                                  ),
+                              ],
                             ),
                           ),
                         ),
-                      if (isVis) ...[
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              PujaIcon.shankha(
-                                size: context.dynamicIcon(18),
-                                color: Colors.green,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Hopped',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.green,
-                                  fontSize: context.dynamicFont(10.5),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                        Semantics(
+                          toggled: isFav,
+                          child: IconButton(
+                            tooltip: isFav
+                                ? 'Remove from favorites'
+                                : 'Add to favorites',
+                            constraints: const BoxConstraints(
+                              minWidth: 48,
+                              minHeight: 48,
+                            ),
+                            icon: Icon(
+                              isFav
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_border_rounded,
+                              color: isFav
+                                  ? colors.primary
+                                  : colors.onSurfaceVariant,
+                            ),
+                            onPressed: userState == null
+                                ? null
+                                : () {
+                                    HapticFeedback.selectionClick();
+                                    userState.toggleFavorite(place.id);
+                                  },
                           ),
                         ),
                       ],
-                    ] else ...[
-                      // Food spot icon & type
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondaryContainer,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.restaurant_rounded,
-                          color: colorScheme.onSecondaryContainer,
-                          size: context.dynamicIcon(18),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      place.name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        height: 1.35,
+                        color: colors.onSurface,
+                      ),
+                    ),
+                    if (place.isPandal && place.theme?.isNotEmpty == true) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        place.theme!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant,
+                          height: 1.45,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: AppColors.accentPrimary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          place.type ?? 'Culinary Stop',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? const Color(0xFFE08B8D)
-                                : AppColors.accentPrimary,
-                          ),
-                        ),
-                      ),
-                      if (place.priceRange != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          place.priceRange!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white60 : Colors.black54,
-                          ),
-                        ),
-                      ],
                     ],
-                    const Spacer(),
-                    IconButton(
-                      iconSize: context.dynamicIcon(26),
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        context.read<PandalUserStateService?>()?.toggleFavorite(place.id);
-                      },
-                      icon: isFav
-                          ? PujaIcon.kalash(
-                              size: context.dynamicIcon(26),
-                              color: PujaColors.festivalGold,
-                            )
-                          : Icon(
-                              Icons.bookmark_border_rounded,
-                              color: colorScheme.onSurfaceVariant,
-                              size: context.dynamicIcon(26),
-                            ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // 2. Place Name
-                Text(
-                  place.name,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: context.dynamicFont(17.5),
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                    color: colorScheme.onSurface,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-
-                const SizedBox(height: 4),
-
-                // 3. Category Specific Line (Theme for Pandal, Must-Try for Food)
-                if (place.isPandal && place.theme != null && place.theme!.isNotEmpty)
-                  Text(
-                    place.theme!,
-                    style: GoogleFonts.plusJakartaSans(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: context.dynamicFont(13.5),
-                      fontWeight: FontWeight.w400,
-                      height: 1.28,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                else if (place.isFoodSpot &&
-                    place.mustTry != null &&
-                    place.mustTry!.isNotEmpty)
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentPrimary.withValues(
-                        alpha: isDark ? 0.16 : 0.09,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.accentPrimary.withValues(alpha: 0.28),
-                      ),
-                    ),
-                    child: Text(
-                      '🍲 Must Try: ${place.mustTry}',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? const Color(0xFFE08B8D)
-                            : AppColors.accentPrimary,
-                      ),
-                    ),
-                  ),
-
-                const SizedBox(height: 10),
-                Divider(
-                  height: 1,
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-                ),
-                const SizedBox(height: 8),
-
-                // 4. Footer: Metro/Timings/Nearby, Real Distance & Rating
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      if (place.isPandal) ...[
-                        if (place.nearestMetro != null &&
-                            place.nearestMetro!.isNotEmpty) ...[
-                          Icon(
-                            Icons.directions_subway_rounded,
-                            size: context.dynamicIcon(15),
-                            color: PujaColors.metroBlue,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            place.nearestMetro!,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: context.dynamicFont(11.5),
-                              fontWeight: FontWeight.w600,
-                              color: PujaColors.metroBlue,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ] else if (place.timings != null &&
-                            place.timings!.isNotEmpty) ...[
-                          Icon(
-                            Icons.schedule_rounded,
-                            size: context.dynamicIcon(15),
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            place.timings!,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: context.dynamicFont(11.5),
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ] else ...[
-                        // Food spot nearby pandal context
-                        if (place.nearbyPandal != null &&
-                            place.nearbyPandal!.isNotEmpty) ...[
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: context.dynamicIcon(15),
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Near ${place.nearbyPandal}',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: context.dynamicFont(11.5),
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ],
-
-                      if (distanceLabel != null) ...[
-                        const SizedBox(width: 10),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.near_me_rounded,
-                                size: context.dynamicIcon(11),
-                                color: colorScheme.primary,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                distanceLabel,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: context.dynamicFont(10.5),
-                                  fontWeight: FontWeight.w700,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
+                    if (place.isFoodSpot &&
+                        place.mustTry?.isNotEmpty == true) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colors.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
-
-                      if (place.rating != null && place.rating! > 0) ...[
-                        const SizedBox(width: 10),
-                        Row(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.star_rounded,
-                              size: context.dynamicIcon(15),
-                              color: AppColors.accentGold,
+                            ExcludeSemantics(
+                              child: Icon(
+                                Icons.restaurant_rounded,
+                                size: 20,
+                                color: colors.onPrimaryContainer,
+                              ),
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              place.rating!.toStringAsFixed(1),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: context.dynamicFont(11.5),
-                                fontWeight: FontWeight.w700,
-                                color: colorScheme.onSurface,
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Must Try: ${place.mustTry}',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colors.onPrimaryContainer,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.45,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ],
-
-                      if (place.isFoodSpot) ...[
-                        const SizedBox(width: 10),
-                        TextButton.icon(
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          icon: const Icon(
-                            Icons.map_outlined,
-                            size: 14,
-                            color: AppColors.accentPrimary,
-                          ),
-                          label: const Text(
-                            'Map',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.accentPrimary,
-                            ),
-                          ),
-                          onPressed: onMapTap ?? onTap,
-                        ),
-                      ],
+                      ),
                     ],
-                  ),
-                ),
-              ],
+                    const SizedBox(height: 16),
+                    Divider(height: 1, color: colors.outlineVariant),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (place.isPandal) ...[
+                          if (place.nearestMetro?.isNotEmpty == true)
+                            metadata(
+                              place.nearestMetro!,
+                              icon: Icons.directions_subway_rounded,
+                            )
+                          else if (place.timings?.isNotEmpty == true)
+                            metadata(
+                              place.timings!,
+                              icon: Icons.schedule_rounded,
+                            ),
+                        ] else if (place.nearbyPandal?.isNotEmpty == true)
+                          metadata(
+                            'Near ${place.nearbyPandal}',
+                            icon: Icons.location_on_outlined,
+                          ),
+                        if (distanceLabel != null)
+                          metadata(distanceLabel, icon: Icons.near_me_outlined),
+                        if (place.rating != null && place.rating! > 0)
+                          Semantics(
+                            label:
+                                'Rating ${place.rating!.toStringAsFixed(1)} out of 5',
+                            excludeSemantics: true,
+                            child: metadata(
+                              place.rating!.toStringAsFixed(1),
+                              icon: Icons.star_outline_rounded,
+                            ),
+                          ),
+                        if (place.isFoodSpot)
+                          TextButton.icon(
+                            style: TextButton.styleFrom(
+                              minimumSize: const Size(48, 48),
+                            ),
+                            onPressed: onMapTap ?? onTap,
+                            icon: const Icon(Icons.map_outlined, size: 20),
+                            label: const Text('Map'),
+                          ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
       ),
     );
 
-    // Add entrance animation for pandal cards
-    if (pandal != null) {
-      return cardContent.animate(
+    if (place.rawPandal != null && !MediaQuery.disableAnimationsOf(context)) {
+      return card.animate(
         effects: [
           FadeEffect(
             duration: AppDurations.emphasis,
             curve: AppCurves.standardEaseOut,
           ),
           SlideEffect(
-            begin: const Offset(0, 0.15),
+            begin: const Offset(0, 0.08),
             end: Offset.zero,
             duration: AppDurations.emphasis,
             curve: AppCurves.standardEaseOut,
@@ -430,12 +276,59 @@ class PlaceCard extends StatelessWidget {
         ],
       );
     }
-
-    return cardContent;
+    return card;
   }
 }
 
-/// Backward compatibility wrapper for PandalCard that wraps PlaceCard.
+/// Metadata reflows at large text sizes instead of overflowing the card.
+class _PlaceMetadata extends StatelessWidget {
+  const _PlaceMetadata({
+    required this.label,
+    required this.maxWidth,
+    required this.background,
+    required this.foreground,
+    this.icon,
+  });
+  final String label;
+  final double maxWidth;
+  final Color background;
+  final Color foreground;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: maxWidth),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            ExcludeSemantics(child: Icon(icon, size: 16, color: foreground)),
+            const SizedBox(width: 6),
+          ],
+          Flexible(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+                color: foreground,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Backward compatibility wrapper for callers that hold a Pandal.
 class PandalCard extends StatelessWidget {
   const PandalCard({
     super.key,
@@ -443,17 +336,13 @@ class PandalCard extends StatelessWidget {
     required this.onTap,
     this.distanceKm,
   });
-
   final Pandal pandal;
   final VoidCallback onTap;
   final double? distanceKm;
-
   @override
-  Widget build(BuildContext context) {
-    return PlaceCard(
-      place: Place.fromPandal(pandal),
-      onTap: onTap,
-      distanceKm: distanceKm,
-    );
-  }
+  Widget build(BuildContext context) => PlaceCard(
+    place: Place.fromPandal(pandal),
+    onTap: onTap,
+    distanceKm: distanceKm,
+  );
 }

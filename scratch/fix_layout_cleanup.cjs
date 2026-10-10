@@ -1,0 +1,1 @@
+const fs=require('fs');const p='app/test/launch_layout_test.dart';let s=fs.readFileSync(p,'utf8');s=s.replace('await tester.pumpWidget(const SizedBox());','await tester.pumpWidget(const SizedBox());\n          // Flush deferred animation restarts after disposing the audited screen.\n          await tester.pump();');fs.writeFileSync(p,s);

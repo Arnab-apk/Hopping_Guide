@@ -39,6 +39,7 @@ class NavigationSession extends ChangeNotifier {
   bool starting = false;
   bool _ownsLocation = false;
   int _generation = 0;
+  int get generation => _generation;
   Timer? _freshnessTimer, _arrivalTimer;
 
   bool get active =>
@@ -51,7 +52,8 @@ class NavigationSession extends ChangeNotifier {
     final fix = LocationService.instance.currentPositionSync;
     if (fix == null || fix.accuracy >= 30) return false;
     final age = _now().difference(fix.timestamp);
-    return !age.isNegative && age < const Duration(seconds: 5);
+    return age >= const Duration(seconds: -2) &&
+        age <= const Duration(seconds: 10);
   }
 
   int get etaMinutes => state == NavigationState.arrived
@@ -85,7 +87,7 @@ class NavigationSession extends ChangeNotifier {
     end(notify: false);
     if (next == null ||
         next.isFallback ||
-        !next.isWalk ||
+        !next.isNavigable ||
         next.steps.isEmpty ||
         next.points.length < 2) {
       notifyListeners();

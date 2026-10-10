@@ -8,9 +8,24 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('SquadFirestoreRepository Unit Tests', () {
+    test('location upload failures propagate to the sharing status', () async {
+      final firestore = _FailingLocationFirestore();
+      final repo = SquadFirestoreRepository(firestore: firestore);
+      await expectLater(
+        repo.updateMemberLocation(
+          squadId: 'squad',
+          memberId: 'member',
+          lat: 22.6,
+          lng: 88.3,
+        ),
+        throwsA(isA<FirebaseException>()),
+      );
+    });
     test('leaving a saved group that no longer contains the account needs no write', () async {
       final firestore = _LeaveFirestore([
-        _LeaveSnapshot({'membersUid': ['other_member']}),
+        _LeaveSnapshot({
+          'membersUid': ['other_member'],
+        }),
       ]);
       await SquadFirestoreRepository(firestore: firestore)
           .leaveSquad(squadId: 'sq_old', memberId: 'current_member');
@@ -25,38 +40,69 @@ void main() {
       expect(firestore.commits, 0);
     });
 
-    test('an active member is removed from the roster and member records together', () async {
-      final firestore = _LeaveFirestore([
-        _LeaveSnapshot({'membersUid': ['current_member', 'other_member']}),
-      ]);
-      await SquadFirestoreRepository(firestore: firestore)
-          .leaveSquad(squadId: 'sq_active', memberId: 'current_member');
-      expect(firestore.commits, 1);
-      expect(firestore.batchImpl.deletedIds, ['current_member']);
-      expect(firestore.batchImpl.updatedFields.single.keys, ['membersUid']);
-    });
+    test(
+      'an active member is removed from the roster and member records together',
+      () async {
+        final firestore = _LeaveFirestore([
+          _LeaveSnapshot({
+            'membersUid': ['current_member', 'other_member'],
+          }),
+        ]);
+        await SquadFirestoreRepository(firestore: firestore)
+            .leaveSquad(squadId: 'sq_active', memberId: 'current_member');
+        expect(firestore.commits, 1);
+        expect(firestore.batchImpl.deletedIds, ['current_member']);
+        expect(firestore.batchImpl.updatedFields.single.keys, ['membersUid']);
+      },
+    );
 
-    test('a concurrent leave on another device is treated as already complete', () async {
-      final firestore = _LeaveFirestore([
-        _LeaveSnapshot({'membersUid': ['current_member', 'other_member']}),
-        _LeaveSnapshot({'membersUid': ['other_member']}),
-      ], commitError: FirebaseException(plugin: 'cloud_firestore', code: 'permission-denied'));
-      await SquadFirestoreRepository(firestore: firestore)
-          .leaveSquad(squadId: 'sq_active', memberId: 'current_member');
-      expect(firestore.document.sources, [Source.server, Source.server]);
-    });
+    test(
+      'a concurrent leave on another device is treated as already complete',
+      () async {
+        final firestore = _LeaveFirestore(
+          [
+            _LeaveSnapshot({
+              'membersUid': ['current_member', 'other_member'],
+            }),
+            _LeaveSnapshot({
+              'membersUid': ['other_member'],
+            }),
+          ],
+          commitError: FirebaseException(
+            plugin: 'cloud_firestore',
+            code: 'permission-denied',
+          ),
+        );
+        await SquadFirestoreRepository(firestore: firestore)
+            .leaveSquad(squadId: 'sq_active', memberId: 'current_member');
+        expect(firestore.document.sources, [Source.server, Source.server]);
+      },
+    );
 
-    test('permission denial is preserved when server membership still exists', () async {
-      final firestore = _LeaveFirestore([
-        _LeaveSnapshot({'membersUid': ['current_member']}),
-        _LeaveSnapshot({'membersUid': ['current_member']}),
-      ], commitError: FirebaseException(plugin: 'cloud_firestore', code: 'permission-denied'));
-      await expectLater(
-        SquadFirestoreRepository(firestore: firestore)
-            .leaveSquad(squadId: 'sq_active', memberId: 'current_member'),
-        throwsA(isA<FirebaseException>()),
-      );
-    });
+    test(
+      'permission denial is preserved when server membership still exists',
+      () async {
+        final firestore = _LeaveFirestore(
+          [
+            _LeaveSnapshot({
+              'membersUid': ['current_member'],
+            }),
+            _LeaveSnapshot({
+              'membersUid': ['current_member'],
+            }),
+          ],
+          commitError: FirebaseException(
+            plugin: 'cloud_firestore',
+            code: 'permission-denied',
+          ),
+        );
+        await expectLater(
+          SquadFirestoreRepository(firestore: firestore)
+              .leaveSquad(squadId: 'sq_active', memberId: 'current_member'),
+          throwsA(isA<FirebaseException>()),
+        );
+      },
+    );
 
     test('generateSquadCode produces valid 8-char PUJA uppercase format', () {
       for (int i = 0; i < 20; i++) {
@@ -171,15 +217,52 @@ void main() {
   });
 }
 
+class _FailingLocationFirestore implements FirebaseFirestore {
+  @override
+  CollectionReference<Map<String, dynamic>> collection(String path) =>
+      _FailingLocationCollection();
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+// ignore: subtype_of_sealed_class
+class _FailingLocationCollection
+    implements CollectionReference<Map<String, dynamic>> {
+  @override
+  DocumentReference<Map<String, dynamic>> doc([String? path]) =>
+      _FailingLocationDocument();
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+// ignore: subtype_of_sealed_class
+class _FailingLocationDocument
+    implements DocumentReference<Map<String, dynamic>> {
+  @override
+  CollectionReference<Map<String, dynamic>> collection(String path) =>
+      _FailingLocationCollection();
+  @override
+  Future<void> set(Map<String, dynamic> data, [SetOptions? options]) async {
+    throw FirebaseException(
+      plugin: 'cloud_firestore',
+      code: 'permission-denied',
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class _LeaveFirestore implements FirebaseFirestore {
   _LeaveFirestore(List<_LeaveSnapshot> snapshots, {this.commitError})
-      : document = _LeaveDocument(snapshots);
+    : document = _LeaveDocument(snapshots);
   final _LeaveDocument document;
   final FirebaseException? commitError;
   int commits = 0;
   late final batchImpl = _LeaveBatch(this);
   @override
-  CollectionReference<Map<String, dynamic>> collection(String path) => _LeaveCollection(document);
+  CollectionReference<Map<String, dynamic>> collection(String path) =>
+      _LeaveCollection(document);
   @override
   WriteBatch batch() => batchImpl;
   @override
@@ -205,10 +288,13 @@ class _LeaveDocument implements DocumentReference<Map<String, dynamic>> {
   @override
   final String id;
   @override
-  Future<DocumentSnapshot<Map<String, dynamic>>> get([GetOptions? options]) async {
+  Future<DocumentSnapshot<Map<String, dynamic>>> get([
+    GetOptions? options,
+  ]) async {
     sources.add(options?.source);
     return responses.removeAt(0);
   }
+
   @override
   CollectionReference<Map<String, dynamic>> collection(String path) =>
       _LeaveCollection(_LeaveDocument([], id: 'current_member'));
@@ -234,7 +320,8 @@ class _LeaveBatch implements WriteBatch {
   final deletedIds = <String>[];
   final updatedFields = <Map<String, dynamic>>[];
   @override
-  void delete(DocumentReference<Object?> document) => deletedIds.add(document.id);
+  void delete(DocumentReference<Object?> document) =>
+      deletedIds.add(document.id);
   @override
   void update<T>(DocumentReference<T> document, T data) =>
       updatedFields.add(data as Map<String, dynamic>);
@@ -243,6 +330,7 @@ class _LeaveBatch implements WriteBatch {
     firestore.commits++;
     if (firestore.commitError != null) throw firestore.commitError!;
   }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

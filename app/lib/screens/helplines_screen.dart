@@ -1,3 +1,4 @@
+import '../widgets/app_notice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../config/theme.dart';
 import '../repositories/supplementary_repository.dart';
 import '../utils/responsive.dart';
-import '../widgets/puja_icons.dart';
 
 /// Material 3 Emergency & Safety Screen matching Google application aesthetics.
 class HelplinesScreen extends StatefulWidget {
@@ -47,9 +47,7 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
       await launchUrl(uri);
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Cannot initiate call to $number')),
-        );
+        showAppErrorNotice(context, 'Cannot initiate call to $number');
       }
     }
   }
@@ -74,10 +72,12 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
-                      width: 1.0,
+                      color: colorScheme.outlineVariant.withValues(
+                        alpha: isDark ? 0.35 : 0.45,
+                      ),
+                      width: 0.8,
                     ),
                   ),
                   child: Row(
@@ -88,7 +88,7 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
                           color: colorScheme.secondaryContainer,
                           shape: BoxShape.circle,
                         ),
-                        child: PujaIcon.trishulDiya(color: colorScheme.onSecondaryContainer, size: 28),
+                        child: Icon(Icons.health_and_safety_outlined, color: colorScheme.onSecondaryContainer, size: 28),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -152,18 +152,20 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
 
   Widget _buildHelplineCard(Helpline h, bool isDark, ColorScheme colorScheme) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: 0,
       color: colorScheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
-          width: 1.0,
+          color: colorScheme.outlineVariant.withValues(
+            alpha: isDark ? 0.35 : 0.45,
+          ),
+          width: 0.8,
         ),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -194,12 +196,25 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
             _callNumber(h.number);
           },
           style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            minimumSize: const Size(72, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
           ),
-          child: Text(
-            'Call',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: context.dynamicFont(13)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.phone_rounded, size: 15),
+              const SizedBox(width: 5),
+              Text(
+                'Call',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w700,
+                  fontSize: context.dynamicFont(13),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -209,28 +224,28 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
   Widget _getHelplineIcon(String label, Color color) {
     final lower = label.toLowerCase();
     if (lower.contains('police')) {
-      return PujaIcon.gada(color: color, size: 30);
+      return Icon(Icons.local_police_outlined, color: color, size: 24);
     } else if (lower.contains('fire')) {
-      return PujaIcon.trishulDiya(color: color, size: 30);
+      return Icon(Icons.local_fire_department_outlined, color: color, size: 24);
     } else if (lower.contains('women')) {
-      return PujaIcon.ashtabhujaDevi(color: color, size: 30);
+      return Icon(Icons.shield_outlined, color: color, size: 24);
     } else if (lower.contains('medical') || lower.contains('ambulance')) {
-      return PujaIcon.kalash(color: color, size: 30);
+      return Icon(Icons.medical_services_outlined, color: color, size: 24);
     } else {
-      return PujaIcon.shankha(color: color, size: 30);
+      return Icon(Icons.support_agent_outlined, color: color, size: 24);
     }
   }
 
   Widget _getSafetyGuideIcon(String title, Color color, double size) {
     final lower = title.toLowerCase();
     if (lower.contains('heat')) {
-      return PujaIcon.kalash(color: color, size: size);
+      return Icon(Icons.thermostat_outlined, color: color, size: size);
     } else if (lower.contains('faint')) {
-      return PujaIcon.durgaEyes(color: color, size: size);
+      return Icon(Icons.personal_injury_outlined, color: color, size: size);
     } else if (lower.contains('burn')) {
-      return PujaIcon.trishulDiya(color: color, size: size);
+      return Icon(Icons.local_fire_department_outlined, color: color, size: size);
     } else {
-      return PujaIcon.trishulEyes(color: color, size: size);
+      return Icon(Icons.health_and_safety_outlined, color: color, size: size);
     }
   }
 
@@ -240,10 +255,12 @@ class _HelplinesScreenState extends State<HelplinesScreen> {
       elevation: 0,
       color: colorScheme.surfaceContainerLow,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.6),
-          width: 1.0,
+          color: colorScheme.outlineVariant.withValues(
+            alpha: isDark ? 0.35 : 0.45,
+          ),
+          width: 0.8,
         ),
       ),
       child: Padding(

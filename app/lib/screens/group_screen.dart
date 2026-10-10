@@ -1,7 +1,9 @@
+import '../widgets/app_notice.dart';
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../widgets/app_page_intro.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,13 +20,15 @@ import '../services/location_service.dart';
 import '../services/squad_chat_service.dart';
 import '../services/squad_service.dart';
 import '../utils/haversine.dart';
-import '../widgets/puja_icons.dart';
 import '../widgets/squad_compass_overlay.dart';
 import '../widgets/squad_pandal_picker_sheet.dart';
 import '../widgets/user_profile_sheet.dart';
 import '../widgets/vote_avatar_stack.dart';
 import '../widgets/group_manager_sheet.dart';
+import '../widgets/group_setup_dialog.dart';
 import '../widgets/group_video_call_button.dart';
+import '../widgets/trail_navigation_prompt.dart';
+import 'map_screen.dart';
 import 'main_navigation_screen.dart';
 import 'squad_chat_screen.dart';
 import 'squad_settings_screen.dart';
@@ -45,6 +49,21 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
+  void _openGroupRoute(BuildContext context, SquadService squad) {
+    final stops = squad.chosenPandals
+        .skip(squad.isHoppingActive ? squad.activeHoppingStopIndex : 0)
+        .where((stop) => !stop.isVisited)
+        .map((stop) => stop.toPandal()).toList();
+    if (stops.isNotEmpty) MapScreen.openTrailRoute(context, stops);
+  }
+
+  Future<void> _offerGroupDirections(BuildContext context, SquadService squad) async {
+    final next = squad.isHoppingActive ? squad.currentHoppingTarget
+        : squad.chosenPandals.where((stop) => !stop.isVisited).firstOrNull;
+    if (next != null && await offerTrailNavigation(context, next.pandalName) && context.mounted) {
+      _openGroupRoute(context, squad);
+    }
+  }
   Timer? _freshnessTimer;
 
   @override
@@ -83,131 +102,28 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-  void _createGroup(BuildContext context, SquadService squadService) {
-    final nameController = TextEditingController();
-    final meetupController = TextEditingController();
-    final theme = Theme.of(context);
-    showDialog(
+  void _createGroup(BuildContext context, SquadService squadService) async {
+    final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Create Hopping Group'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Group Name',
-                hintText: 'e.g. Bagbazar Pandal Crawlers',
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: meetupController,
-              decoration: const InputDecoration(
-                labelText: 'Meet-up Landmark',
-                hintText: 'e.g. Near Hatibagan Crossing',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
-            onPressed: () async {
-              final name = nameController.text.trim();
-              final meetup = meetupController.text.trim();
-              if (name.isNotEmpty) {
-                Navigator.pop(ctx);
-                await squadService.createSquad(
-                  name,
-                  meetup.isEmpty ? 'Kolkata Central' : meetup,
-                );
-                final code = squadService.squadCode;
-                if (context.mounted) {
-                  if (code != null && squadService.lastError == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: theme.colorScheme.primary,
-                        content: Text('Created group! Invite code: $code'),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: AppColors.semanticAlert,
-                        content: Text(squadService.lastError ?? 'Failed to create group'),
-                      ),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
+      builder: (ctx) => GroupSetupDialog(service: squadService, join: false),
     );
+    if (result == true && context.mounted) {
+      final code = squadService.squadCode;
+      if (code != null) {
+        showAppSuccessNotice(context, '🎉 Created group! Invite code: $code');
+      }
+    }
   }
 
-  void _joinGroup(BuildContext context, SquadService squadService) {
-    final controller = TextEditingController();
-    final theme = Theme.of(context);
-    showDialog(
+  void _joinGroup(BuildContext context, SquadService squadService) async {
+    final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Join Hopping Group'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(
-            labelText: 'Enter Group Code',
-            hintText: 'e.g. PUJAX4K9',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: theme.colorScheme.onPrimary,
-            ),
-            onPressed: () async {
-              final code = controller.text.trim().toUpperCase();
-              if (code.isNotEmpty) {
-                Navigator.pop(ctx);
-                final success = await squadService.joinSquad(code);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: success ? theme.colorScheme.primary : AppColors.semanticAlert,
-                      content: Text(
-                        success
-                            ? 'Joined group $code!'
-                            : (squadService.lastError ?? 'Failed to join group $code'),
-                      ),
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('Join'),
-          ),
-        ],
-      ),
+      builder: (ctx) => GroupSetupDialog(service: squadService, join: true),
     );
+    if (result == true && context.mounted) {
+      final code = squadService.squadCode;
+      showAppSuccessNotice(context, '🎉 Joined group ${code ?? ""}!');
+    }
   }
 
   void _handleMenu(BuildContext context, String value, SquadService squadService) {
@@ -222,23 +138,83 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   void _confirmLeaveSquad(BuildContext context, SquadService squadService) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Leave Group?'),
-        content: const Text('You will no longer share your live trail or receive alerts from this group.'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.6),
+            width: 1,
+          ),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.errorContainer.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.exit_to_app_rounded,
+                size: 20,
+                color: theme.colorScheme.onErrorContainer,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Leave Group?',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'You will no longer share your live trail or receive alerts from this group.',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            height: 1.45,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              Navigator.pop(ctx);
+            },
+            child: const Text('Cancel'),
+          ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.semanticAlert),
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
             onPressed: () async {
+              HapticFeedback.mediumImpact();
               Navigator.pop(ctx);
               final left = await squadService.leaveSquad();
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(left ? 'Left group' :
-                      (squadService.lastError ?? 'Could not leave group'))),
-                );
+                if (left) {
+                  showAppInfoNotice(context, 'You left the group.');
+                } else {
+                  showAppErrorNotice(
+                    context,
+                    squadService.lastError ?? 'Could not leave group.',
+                  );
+                }
               }
             },
             child: const Text('Leave'),
@@ -261,17 +237,13 @@ class _GroupScreenState extends State<GroupScreen> {
         await launchUrl(uri);
       } else {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not open phone dialer for $phone')),
-          );
+          showAppErrorNotice(context, 'Could not open phone dialer for $phone');
         }
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${member.name} has not added a phone number to their profile.'),
-          action: SnackBarAction(label: 'OK', onPressed: () {}),
-        ),
+      showAppInfoNotice(
+        context,
+        '${member.name} has not added a phone number to their profile.',
       );
     }
   }
@@ -429,7 +401,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   ),
                   Text(
                     '${bearing.round()}° from North',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -438,7 +410,7 @@ class _GroupScreenState extends State<GroupScreen> {
           const SizedBox(height: 12),
           Text(
             'Point phone toward ${m.name} — arrow shows direction',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -532,10 +504,9 @@ class _GroupScreenState extends State<GroupScreen> {
               tooltip: 'Route assistant',
               onPressed: () {
                 HapticFeedback.selectionClick();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Join or create a hopping squad to chat with Puja Bot!'),
-                  ),
+                showAppInfoNotice(
+                  context,
+                  'Join or create a hopping squad to chat with Puja Bot!',
                 );
               },
             ),
@@ -587,7 +558,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 TabBar(
                   indicatorColor: AppColors.accentGold,
                   labelColor: AppColors.accentGold,
-                  unselectedLabelColor: isDark ? Colors.white60 : Colors.black54,
+                  unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                   indicatorWeight: 2.5,
                   tabs: [
                     const Tab(text: 'Trail'),
@@ -612,6 +583,16 @@ class _GroupScreenState extends State<GroupScreen> {
                 color: AppColors.semanticAlert.withValues(alpha: 0.12),
                 child: Text(squadService.lastError!,
                     style: const TextStyle(fontSize: 12, color: AppColors.semanticAlert)),
+              ),
+            if (squadService.locationSyncError != null)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: theme.colorScheme.errorContainer,
+                child: Semantics(liveRegion: true, child: Text(
+                  squadService.locationSyncError!,
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onErrorContainer),
+                )),
               ),
             Expanded(
               child: TabBarView(
@@ -659,7 +640,7 @@ class _GroupScreenState extends State<GroupScreen> {
           Text(
             'Code',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: isDark ? Colors.white70 : Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
           ),
@@ -676,21 +657,21 @@ class _GroupScreenState extends State<GroupScreen> {
           IconButton(
             tooltip: 'Copy code',
             icon: const Icon(Icons.copy_rounded, size: 18),
-            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            padding: const EdgeInsets.all(10),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: code));
               HapticFeedback.lightImpact();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Group code copied to clipboard')),
-              );
+              showAppSuccessNotice(context, 'Group code copied to clipboard');
             },
           ),
+          const SizedBox(width: 4),
           FilledButton.tonalIcon(
             style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              minimumSize: const Size(64, 40),
             ),
-            icon: const Icon(Icons.share, size: 16),
+            icon: const Icon(Icons.share_rounded, size: 16),
             label: const Text('Share', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
             onPressed: () => _shareInvite(context, squadService),
           ),
@@ -761,7 +742,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 '${members.length} ${members.length == 1 ? "member" : "members"} · Invite friends',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? Colors.white60 : Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -776,7 +757,7 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   Widget _buildSyncIndicator(BuildContext context, SquadService squadService, bool isDark) {
-    final state = squadService.syncState;
+    final state = squadService.locationSyncError != null ? SquadSyncState.error : squadService.syncState;
     final (label, icon, color) = switch (state) {
       SquadSyncState.live => ('Live', Icons.cloud_done_rounded, AppColors.semanticLive),
       SquadSyncState.cached => ('Offline', Icons.cloud_off_rounded, AppColors.semanticAlert),
@@ -876,7 +857,7 @@ class _GroupScreenState extends State<GroupScreen> {
               Text(
                 'Add pandals everyone wants to visit and vote on favorites.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12.5, color: isDark ? Colors.white54 : Colors.black54),
+                style: TextStyle(fontSize: 12.5, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 20),
               FilledButton.icon(
@@ -921,6 +902,11 @@ class _GroupScreenState extends State<GroupScreen> {
                 ),
               ),
               const Spacer(),
+              IconButton(
+                tooltip: 'Group route',
+                icon: const Icon(Icons.alt_route_rounded),
+                onPressed: () => _openGroupRoute(context, squadService),
+              ),
               if (stops.length > 1)
                 TextButton.icon(
                   style: TextButton.styleFrom(
@@ -933,9 +919,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     HapticFeedback.lightImpact();
                     final saved = await squadService.optimizeSquadRoute();
                     if (context.mounted && saved) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Suggested stop order saved for the group.')),
-                      );
+                      await _offerGroupDirections(context, squadService);
                     }
                   },
                 ),
@@ -1015,7 +999,7 @@ class _GroupScreenState extends State<GroupScreen> {
                                 '${stop.zone} · Added by ${stop.suggestedByName}',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: isDark ? Colors.white54 : Colors.black54,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -1056,7 +1040,7 @@ class _GroupScreenState extends State<GroupScreen> {
                                 Icon(
                                   hasVoted ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
                                   size: 14,
-                                  color: hasVoted ? theme.colorScheme.primary : (isDark ? Colors.white54 : Colors.black54),
+                                  color: hasVoted ? theme.colorScheme.primary : (Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),
                                 if (stop.voteCount > 0) ...[
                                   const SizedBox(width: 4),
@@ -1078,7 +1062,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         IconButton(
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
-                          icon: Icon(Icons.close_rounded, size: 16, color: isDark ? Colors.white38 : Colors.black38),
+                          icon: Icon(Icons.close_rounded, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           tooltip: 'Remove stop',
                           onPressed: () {
                             HapticFeedback.selectionClick();
@@ -1103,9 +1087,9 @@ class _GroupScreenState extends State<GroupScreen> {
                           ),
                           const SizedBox(width: 8),
                           ActionChip(
-                            avatar: const Icon(Icons.auto_awesome, size: 13, color: AppColors.accentGold),
+                            avatar: const Icon(Icons.alt_route, size: 13, color: AppColors.accentGold),
                             label: Text(
-                              'Ask bot about ${stops[index + 1].pandalName}',
+                              'Route to ${stops[index + 1].pandalName}',
                               style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1113,7 +1097,7 @@ class _GroupScreenState extends State<GroupScreen> {
                             side: BorderSide(color: isDark ? Colors.white12 : Colors.black12),
                             onPressed: () {
                               HapticFeedback.lightImpact();
-                              DefaultTabController.maybeOf(context)?.animateTo(2);
+                              MapScreen.openTrailRoute(context, [stops[index + 1].toPandal()]);
                             },
                           ),
                         ],
@@ -1166,9 +1150,7 @@ class _GroupScreenState extends State<GroupScreen> {
                     HapticFeedback.lightImpact();
                     final started = await squadService.startSquadHopping();
                     if (context.mounted && started) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Live squad hopping started!')),
-                      );
+                      await _offerGroupDirections(context, squadService);
                     }
                   },
                 ),
@@ -1304,7 +1286,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${currentTarget.zone} · ${currentTarget.area ?? 'Open route for directions'}',
-                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : Colors.black54),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
               const SizedBox(height: 14),
@@ -1322,7 +1304,7 @@ class _GroupScreenState extends State<GroupScreen> {
                       label: const Text('Open route', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                       onPressed: () {
                         HapticFeedback.lightImpact();
-                        MainNavigationScreen.switchTab(context, 0);
+                        _openGroupRoute(context, squadService);
                       },
                     ),
                   ),
@@ -1448,12 +1430,12 @@ class _GroupScreenState extends State<GroupScreen> {
                           fontSize: 13,
                           fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
                           decoration: isPast ? TextDecoration.lineThrough : null,
-                          color: isPast ? Colors.grey : (isDark ? Colors.white : Colors.black87),
+                          color: isPast ? Colors.grey : (Theme.of(context).colorScheme.onSurface),
                         ),
                       ),
                       Text(
                         stop.zone,
-                        style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : Colors.black54),
+                        style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -1513,9 +1495,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      squadService.isSharingLocation
-                          ? 'Sharing live GPS with group'
-                          : 'Live GPS paused',
+                      squadService.locationSharingStatus,
                       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -1577,7 +1557,7 @@ class _GroupScreenState extends State<GroupScreen> {
                           ),
                           Text(
                             _getPowerProfileDescription(locService.powerProfile),
-                            style: TextStyle(fontSize: 11, color: isDark ? Colors.white54 : Colors.black54),
+                            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -1626,7 +1606,7 @@ class _GroupScreenState extends State<GroupScreen> {
                                 fontWeight: FontWeight.w600,
                                 color: locService.powerProfile == PowerProfile.pandalHopping
                                     ? Colors.black87
-                                    : (isDark ? Colors.white70 : Colors.black54),
+                                    : (Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                             ),
                             const SizedBox(width: 4),
@@ -1698,7 +1678,7 @@ class _GroupScreenState extends State<GroupScreen> {
                 Text(
                   'Invite friends to share live locations and stick together in Kolkata crowds.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white60 : Colors.black54),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 14),
                 FilledButton.tonalIcon(
@@ -1795,7 +1775,7 @@ class _GroupScreenState extends State<GroupScreen> {
         subtitle: subtitleText != null
             ? Text(
                 subtitleText,
-                style: TextStyle(fontSize: 11.5, color: isDark ? Colors.white54 : Colors.black54),
+                style: TextStyle(fontSize: 11.5, color: Theme.of(context).colorScheme.onSurfaceVariant),
               )
             : null,
         trailing: Row(
@@ -1873,7 +1853,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   color: theme.colorScheme.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: PujaIcon.dhaki(size: 64, color: theme.colorScheme.primary),
+                child: const AppIconWell(icon: Icons.groups_outlined, size: 40),
               ),
               const SizedBox(height: 24),
               Text(
@@ -1884,7 +1864,7 @@ class _GroupScreenState extends State<GroupScreen> {
               const SizedBox(height: 10),
               Text(
                 'Form a hopping group with friends and family. Coordinate stops, track live locations on the map, and get alerts in dense crowds.',
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+                style: theme.textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),

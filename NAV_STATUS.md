@@ -86,6 +86,8 @@ Destination-marker follow-up: the route now draws a dedicated red finish flag at
 
 Follow-up validation: 11 map/location regression tests passed; `flutter analyze` found no issues; signed release APK built successfully and installed with `adb install -r` on the reconnected Motorola edge 50. Live destination-marker visibility during an actual walk was not field-tested.
 
+Subsequent phone check: opened Hatibagan Sarbojanin, requested walking directions and visually confirmed the red/white finish flag at the end of the blue route in preview. Start displayed the instruction card, blue user arrow and route with explore controls hidden. The distant destination was outside the following camera's view; active marker retention is covered by the widget regression. End confirmation was exercised to stop the verification session. No actual walking/reroute/arrival field test was performed.
+
 1. Open a pandal and tap **Get Turn-by-Turn Directions**. A real walking route and bottom preview should appear; tap **Start**.
 2. Grant precise location if prompted. With a fresh fix, the instruction card shows **Live**; without one it shows **Searching…** and Start can ask you to retry.
 3. Walk with the app open: heading follows the phone, distance/ETA update and maneuvers advance. Pan the map, then tap **Recenter** to resume following.

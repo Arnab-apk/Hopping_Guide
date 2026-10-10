@@ -1,3 +1,5 @@
+import 'app_text_edit_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -32,88 +34,41 @@ class UserProfileSheet extends StatelessWidget {
   }
 
   void _editDisplayName(BuildContext context, AppUser user) {
-    final controller = TextEditingController(text: user.displayName ?? '');
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Edit Display Name'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Your Name',
-            hintText: 'Enter your display name',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final newName = controller.text.trim();
-              if (newName.isNotEmpty) {
-                AuthService.instance.updateProfile(displayName: newName);
-              }
-              Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
+      builder: (_) => AppTextEditDialog(
+        title: 'Edit Display Name',
+        label: 'Your name',
+        initialValue: user.displayName ?? '',
+        onSave: (name) => AuthService.instance.updateProfile(displayName: name),
       ),
     );
   }
 
   void _editPhoneNumber(BuildContext context, AppUser user) {
-    final controller = TextEditingController(text: user.phoneNumber ?? '');
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Group Phone Number'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Visible to your group companions only for quick native calling during Pujo hopping.',
-              style: TextStyle(fontSize: 12.5, color: Colors.grey),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              keyboardType: TextInputType.phone,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Phone Number (Optional)',
-                hintText: '+91 98765 43210',
-                prefixIcon: Icon(Icons.phone_outlined),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty)
-            TextButton(
-              onPressed: () {
-                AuthService.instance.updateProfile(phoneNumber: '');
-                Navigator.pop(ctx);
-              },
-              child: const Text('Clear', style: TextStyle(color: Colors.redAccent)),
-            ),
-          FilledButton(
-            onPressed: () {
-              final newPhone = controller.text.trim();
-              AuthService.instance.updateProfile(phoneNumber: newPhone);
-              Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
+      builder: (_) => AppTextEditDialog(
+        title: 'Group Phone Number',
+        label: 'Phone number',
+        initialValue: user.phoneNumber ?? '',
+        hint: '+91 98765 43210',
+        keyboardType: TextInputType.phone,
+        allowEmpty: true,
+        maxLength: 24,
+        description:
+            'Visible to your group companions for calling during Pujo hopping.',
+        validator: (value) {
+          if (value.isEmpty) return null;
+          final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+          return digits.length >= 7 &&
+                  digits.length <= 15 &&
+                  RegExp(r'^[+0-9 ()-]+$').hasMatch(value)
+              ? null
+              : 'Enter a valid phone number with country code.';
+        },
+        onSave: (phone) =>
+            AuthService.instance.updateProfile(phoneNumber: phone),
       ),
     );
   }
@@ -189,8 +144,10 @@ class UserProfileSheet extends StatelessWidget {
     final themeService = context.watch<ThemeService?>();
 
     final isGuest = authUser?.isGuest ?? true;
-    final userName = authUser?.displayName ?? (isGuest ? 'Guest Hopper' : 'Google Hopper');
-    final userEmail = authUser?.email ?? (isGuest ? 'Guest Account' : 'hopper@gmail.com');
+    final userName =
+        authUser?.displayName ?? (isGuest ? 'Guest Hopper' : 'Google Hopper');
+    final userEmail =
+        authUser?.email ?? (isGuest ? 'Guest Account' : 'hopper@gmail.com');
     final photoUrl = authUser?.photoUrl;
 
     return Container(
@@ -237,7 +194,7 @@ class UserProfileSheet extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   IconButton(
@@ -268,7 +225,9 @@ class UserProfileSheet extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: PujaColors.festivalGold.withValues(alpha: 0.35),
+                            color: PujaColors.festivalGold.withValues(
+                              alpha: 0.35,
+                            ),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -279,7 +238,8 @@ class UserProfileSheet extends StatelessWidget {
                         backgroundColor: isDark
                             ? const Color(0xFF242426)
                             : const Color(0xFFECEFF1),
-                        backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                        backgroundImage:
+                            (photoUrl != null && photoUrl.isNotEmpty)
                             ? NetworkImage(photoUrl)
                             : null,
                         child: (photoUrl == null || photoUrl.isEmpty)
@@ -288,7 +248,7 @@ class UserProfileSheet extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.w800,
-                                  color: isDark ? Colors.white : Colors.black87,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               )
                             : null,
@@ -308,7 +268,9 @@ class UserProfileSheet extends StatelessWidget {
                           shape: BoxShape.circle,
                           color: PujaColors.festivalGold,
                           border: Border.all(
-                            color: isDark ? const Color(0xFF141416) : Colors.white,
+                            color: isDark
+                                ? const Color(0xFF141416)
+                                : Colors.white,
                             width: 2.5,
                           ),
                         ),
@@ -329,24 +291,25 @@ class UserProfileSheet extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    userName,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : Colors.black87,
+                  Flexible(
+                    child: Text(
+                      userName,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 6),
-                  GestureDetector(
-                    onTap: () {
-                      if (authUser != null) {
-                        _editDisplayName(context, authUser);
-                      }
-                    },
-                    child: Icon(
+                  IconButton(
+                    tooltip: 'Edit display name',
+                    onPressed: authUser == null
+                        ? null
+                        : () => _editDisplayName(context, authUser),
+                    icon: const Icon(
                       Icons.edit_rounded,
-                      size: 16,
+                      size: 20,
                       color: PujaColors.festivalGold,
                     ),
                   ),
@@ -358,10 +321,15 @@ class UserProfileSheet extends StatelessWidget {
               // Email & Verified Badge
               Container(
                 margin: const EdgeInsets.only(top: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: isGuest
-                      ? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06))
+                      ? (isDark
+                            ? Colors.white10
+                            : Colors.black.withValues(alpha: 0.06))
                       : const Color(0xFF4285F4).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
@@ -381,7 +349,7 @@ class UserProfileSheet extends StatelessWidget {
                       Icon(
                         Icons.person_outline_rounded,
                         size: 14,
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 6),
                     ],
@@ -391,7 +359,7 @@ class UserProfileSheet extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: isGuest
-                            ? (isDark ? Colors.white60 : Colors.black54)
+                            ? (Theme.of(context).colorScheme.onSurfaceVariant)
                             : const Color(0xFF4285F4),
                       ),
                     ),
@@ -418,9 +386,14 @@ class UserProfileSheet extends StatelessWidget {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : Colors.black.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isDark ? Colors.white12 : Colors.black12,
@@ -436,24 +409,31 @@ class UserProfileSheet extends StatelessWidget {
                         color: PujaColors.festivalGold,
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        (authUser?.phoneNumber != null && authUser!.phoneNumber!.isNotEmpty)
-                            ? authUser.phoneNumber!
-                            : 'Add Phone (Squad Calling)',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: (authUser?.phoneNumber != null && authUser!.phoneNumber!.isNotEmpty)
-                              ? (isDark ? Colors.white70 : Colors.black87)
-                              : PujaColors.festivalGold,
+                      Flexible(
+                        child: Text(
+                          (authUser?.phoneNumber != null &&
+                                  authUser!.phoneNumber!.isNotEmpty)
+                              ? authUser.phoneNumber!
+                              : 'Add Phone (Squad Calling)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                (authUser?.phoneNumber != null &&
+                                    authUser!.phoneNumber!.isNotEmpty)
+                                ? (isDark ? Colors.white70 : Colors.black87)
+                                : PujaColors.festivalGold,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
                       Icon(
                         Icons.edit_outlined,
                         size: 12,
-                        color: (authUser?.phoneNumber != null && authUser!.phoneNumber!.isNotEmpty)
-                            ? (isDark ? Colors.white38 : Colors.black38)
+                        color:
+                            (authUser?.phoneNumber != null &&
+                                authUser!.phoneNumber!.isNotEmpty)
+                            ? (Theme.of(context).colorScheme.onSurfaceVariant)
                             : PujaColors.festivalGold,
                       ),
                     ],
@@ -465,7 +445,7 @@ class UserProfileSheet extends StatelessWidget {
                 'Visible to your squad companions only',
                 style: TextStyle(
                   fontSize: 10.5,
-                  color: isDark ? Colors.white38 : Colors.black38,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
 
@@ -480,7 +460,9 @@ class UserProfileSheet extends StatelessWidget {
                       : const Color(0xFFF7F8FA),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
+                    color: isDark
+                        ? Colors.white12
+                        : Colors.black.withValues(alpha: 0.06),
                   ),
                 ),
                 child: Column(
@@ -494,12 +476,14 @@ class UserProfileSheet extends StatelessWidget {
                           color: PujaColors.festivalGold,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Pujo Parikrama Stats',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white70 : Colors.black87,
+                        Flexible(
+                          child: Text(
+                            'Pujo Parikrama Stats',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
                           ),
                         ),
                       ],
@@ -510,6 +494,7 @@ class UserProfileSheet extends StatelessWidget {
                         // Pandals Hopped
                         Expanded(
                           child: _buildStatItem(
+                            context: context,
                             isDark: isDark,
                             icon: Icons.temple_hindu_rounded,
                             iconColor: PujaColors.durgaRed,
@@ -526,6 +511,7 @@ class UserProfileSheet extends StatelessWidget {
                         // Wishlist Saved
                         Expanded(
                           child: _buildStatItem(
+                            context: context,
                             isDark: isDark,
                             icon: Icons.favorite_rounded,
                             iconColor: const Color(0xFFFF4081),
@@ -542,6 +528,7 @@ class UserProfileSheet extends StatelessWidget {
                         // Squad Status
                         Expanded(
                           child: _buildStatItem(
+                            context: context,
                             isDark: isDark,
                             icon: Icons.groups_rounded,
                             iconColor: const Color(0xFF00B0FF),
@@ -551,7 +538,9 @@ class UserProfileSheet extends StatelessWidget {
                             label: squadService?.hasActiveSquad == true
                                 ? 'In Squad'
                                 : 'No Squad',
-                            sublabel: squadService?.hasActiveSquad == true ? 'Active' : 'Join one',
+                            sublabel: squadService?.hasActiveSquad == true
+                                ? 'Active'
+                                : 'Join one',
                           ),
                         ),
                       ],
@@ -570,7 +559,9 @@ class UserProfileSheet extends StatelessWidget {
                       : const Color(0xFFF7F8FA),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
+                    color: isDark
+                        ? Colors.white12
+                        : Colors.black.withValues(alpha: 0.06),
                   ),
                 ),
                 child: Material(
@@ -593,11 +584,17 @@ class UserProfileSheet extends StatelessWidget {
                             'Sync your Google DP on squad map & backup hopping history',
                             style: TextStyle(fontSize: 12),
                           ),
-                          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 14,
+                          ),
                           onTap: () async {
                             Navigator.pop(context);
-                            final result = await AuthService.instance.signInWithGoogleDetailed();
-                            if (!result.success && !result.isCancelled && context.mounted) {
+                            final result = await AuthService.instance
+                                .signInWithGoogleDetailed();
+                            if (!result.success &&
+                                !result.isCancelled &&
+                                context.mounted) {
                               await GoogleAccountChooserDialog.show(context);
                             }
                           },
@@ -616,7 +613,10 @@ class UserProfileSheet extends StatelessWidget {
                             'Change active profile or switch Google DP',
                             style: TextStyle(fontSize: 12),
                           ),
-                          trailing: const Icon(Icons.swap_horiz_rounded, size: 20),
+                          trailing: const Icon(
+                            Icons.swap_horiz_rounded,
+                            size: 20,
+                          ),
                           onTap: () async {
                             Navigator.pop(context);
                             await GoogleAccountChooserDialog.show(context);
@@ -636,7 +636,10 @@ class UserProfileSheet extends StatelessWidget {
                         ),
                         title: const Text(
                           'Night / OLED Dark Mode',
-                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                         trailing: Switch.adaptive(
                           value: themeService?.isDarkMode ?? true,
@@ -660,7 +663,10 @@ class UserProfileSheet extends StatelessWidget {
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFFF5252),
-                    side: const BorderSide(color: Color(0xFFFF5252), width: 1.2),
+                    side: const BorderSide(
+                      color: Color(0xFFFF5252),
+                      width: 1.2,
+                    ),
                     padding: const EdgeInsets.symmetric(vertical: 13),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -691,6 +697,7 @@ class UserProfileSheet extends StatelessWidget {
   }
 
   Widget _buildStatItem({
+    required BuildContext context,
     required bool isDark,
     required IconData icon,
     required Color iconColor,
@@ -705,15 +712,15 @@ class UserProfileSheet extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 22,
             fontWeight: FontWeight.w900,
-            color: isDark ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             color: isDark ? Colors.white70 : Colors.black87,
           ),
@@ -721,8 +728,8 @@ class UserProfileSheet extends StatelessWidget {
         Text(
           sublabel,
           style: TextStyle(
-            fontSize: 9.5,
-            color: isDark ? Colors.white38 : Colors.black38,
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],

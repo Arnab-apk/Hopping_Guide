@@ -12,9 +12,9 @@ import 'package:kolkata_puja/services/offline_map_service.dart';
 import 'package:kolkata_puja/services/pandal_user_state_service.dart';
 import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:kolkata_puja/services/theme_service.dart';
-import 'package:kolkata_puja/widgets/puja_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:kolkata_puja/widgets/puja_icons.dart';
 
 Widget createTestApp({
   required Widget home,
@@ -26,7 +26,9 @@ Widget createTestApp({
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<AuthService>.value(value: authService),
-      ChangeNotifierProvider<PandalUserStateService>.value(value: userStateService),
+      ChangeNotifierProvider<PandalUserStateService>.value(
+        value: userStateService,
+      ),
       ChangeNotifierProvider<ThemeService>.value(value: themeService),
       ChangeNotifierProvider<LocationService>.value(value: LocationService()),
       ChangeNotifierProvider<SquadService>.value(value: squadService),
@@ -61,70 +63,93 @@ void main() {
       squadService = await SquadService.create();
     });
 
-    testWidgets('mounts MainNavigationScreen and GreetingSplashScreen simultaneously',
-        (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          home: const AppRootCoordinator(
-            minDuration: Duration(milliseconds: 300),
+    testWidgets(
+      'mounts MainNavigationScreen and GreetingSplashScreen simultaneously',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestApp(
+            home: const AppRootCoordinator(
+              minDuration: Duration(milliseconds: 300),
+            ),
+            authService: authService,
+            userStateService: userStateService,
+            themeService: themeService,
+            squadService: squadService,
           ),
-          authService: authService,
-          userStateService: userStateService,
-          themeService: themeService,
-          squadService: squadService,
-        ),
-      );
+        );
 
-      // Both splash and navigation screen are mounted in widget tree from frame zero
-      expect(find.byType(GreetingSplashScreen), findsOneWidget);
-      expect(find.byType(MainNavigationScreen), findsOneWidget);
+        // Both splash and navigation screen are mounted in widget tree from frame zero
+        expect(find.byType(GreetingSplashScreen), findsOneWidget);
+        expect(find.byType(MainNavigationScreen), findsOneWidget);
 
-      final navigationBar = find.byType(NavigationBar);
-      expect(navigationBar, findsOneWidget);
-      final navigationIcons = tester.widgetList<PujaIcon>(
-        find.descendant(
-          of: navigationBar,
-          matching: find.byType(PujaIcon),
-        ),
-      );
-      expect(navigationIcons, hasLength(5));
-      expect(navigationIcons.every((icon) => icon.size == 24), isTrue);
-
-      // Advance through preload duration and crossfade
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.pump(const Duration(milliseconds: 450));
-      await tester.pump(const Duration(milliseconds: 700));
-    });
-
-    testWidgets('testSkipPreload immediately reveals MainNavigationScreen without pop-in',
-        (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          home: const AppRootCoordinator(
-            testSkipPreload: true,
+        final navigationBar = find.byType(NavigationBar);
+        expect(navigationBar, findsOneWidget);
+        final destinations = tester.widgetList<NavigationDestination>(
+          find.descendant(
+            of: navigationBar,
+            matching: find.byType(NavigationDestination),
           ),
-          authService: authService,
-          userStateService: userStateService,
-          themeService: themeService,
-          squadService: squadService,
-        ),
-      );
+        );
+        expect(destinations.map((destination) => destination.label), [
+          'Map',
+          'Pandals',
+          'Routes',
+          'Group',
+          'Helpline',
+        ]);
+        final navigationIcons = tester.widgetList<PujaIcon>(
+          find.descendant(of: navigationBar, matching: find.byType(PujaIcon)),
+        );
+        expect(navigationIcons.map((icon) => icon.type), [
+          PujaIconType.durgaEyes,
+          PujaIconType.durgaFace,
+          PujaIconType.ashtabhujaVariant,
+          PujaIconType.dhaki,
+          PujaIconType.trishulEyes,
+        ]);
 
-      await tester.pump();
+        // Advance through preload duration and crossfade
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pump(const Duration(milliseconds: 450));
+        await tester.pump(const Duration(milliseconds: 700));
+      },
+    );
 
-      // Directly reveals MainNavigationScreen
-      expect(find.byType(MainNavigationScreen), findsOneWidget);
+    testWidgets(
+      'testSkipPreload immediately reveals MainNavigationScreen without pop-in',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestApp(
+            home: const AppRootCoordinator(testSkipPreload: true),
+            authService: authService,
+            userStateService: userStateService,
+            themeService: themeService,
+            squadService: squadService,
+          ),
+        );
 
-      // Settle background timers
-      await tester.pump(const Duration(milliseconds: 700));
-    });
+        await tester.pump();
+
+        // Directly reveals MainNavigationScreen
+        expect(find.byType(MainNavigationScreen), findsOneWidget);
+
+        // Settle background timers
+        await tester.pump(const Duration(milliseconds: 700));
+      },
+    );
 
     test('PreloadState models progress and status correctly', () {
-      const state1 = PreloadState(progress: 0.15, statusMessage: 'Loading pandals near you...');
+      const state1 = PreloadState(
+        progress: 0.15,
+        statusMessage: 'Loading pandals near you...',
+      );
       expect(state1.progress, 0.15);
       expect(state1.statusMessage, 'Loading pandals near you...');
 
-      final state2 = state1.copyWith(progress: 0.45, statusMessage: 'Preparing the map...');
+      final state2 = state1.copyWith(
+        progress: 0.45,
+        statusMessage: 'Preparing the map...',
+      );
       expect(state2.progress, 0.45);
       expect(state2.statusMessage, 'Preparing the map...');
     });

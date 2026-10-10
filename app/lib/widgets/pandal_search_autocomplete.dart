@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -59,7 +60,8 @@ class PandalSearchAutocomplete extends StatefulWidget {
   final bool isFloatingOnMap;
 
   @override
-  State<PandalSearchAutocomplete> createState() => _PandalSearchAutocompleteState();
+  State<PandalSearchAutocomplete> createState() =>
+      _PandalSearchAutocompleteState();
 }
 
 class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
@@ -96,7 +98,6 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
     }
     return _pandalExampleQueries;
   }
-
 
   @override
   void initState() {
@@ -178,7 +179,8 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
       pandals: widget.pandals,
       foodSpots: widget.foodSpots,
       metroStations: widget.metroStations ?? MetroRepository.allStations,
-      railStations: widget.railStations ?? StationRepository.instance.railStations,
+      railStations:
+          widget.railStations ?? StationRepository.instance.railStations,
       category: OmniCategory.all,
       limit: 8,
       userLat: widget.userLat,
@@ -216,10 +218,13 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
           if (widget.onMetroSelected != null) {
             widget.onMetroSelected!(result.metroStation!);
           } else {
-            final nearbyPandalName = result.metroStation!.popularPandalsNearby.firstOrNull;
+            final nearbyPandalName =
+                result.metroStation!.popularPandalsNearby.firstOrNull;
             if (nearbyPandalName != null) {
               final matchedPandal = widget.pandals.firstWhere(
-                (p) => p.name.toLowerCase().contains(nearbyPandalName.toLowerCase()),
+                (p) => p.name.toLowerCase().contains(
+                  nearbyPandalName.toLowerCase(),
+                ),
                 orElse: () => widget.pandals.first,
               );
               widget.onPandalSelected(matchedPandal);
@@ -233,7 +238,9 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
             widget.onFoodSpotSelected!(result.foodSpot!);
           } else {
             final nearbyPandal = widget.pandals.firstWhere(
-              (p) => p.name.toLowerCase().contains(result.foodSpot!.nearbyPandal.toLowerCase()),
+              (p) => p.name.toLowerCase().contains(
+                result.foodSpot!.nearbyPandal.toLowerCase(),
+              ),
               orElse: () => widget.pandals.first,
             );
             widget.onPandalSelected(nearbyPandal);
@@ -259,6 +266,22 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
     final isDark = theme.brightness == Brightness.dark;
     final hasText = _controller.text.trim().isNotEmpty;
     final recentList = OmniSearchService.instance.recentSearches;
+    final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final suggestionHeight = keyboardHeight > 0
+        ? math.min(
+            300.0,
+            math.max(
+              0.0,
+              screenHeight -
+                  keyboardHeight -
+                  MediaQuery.paddingOf(context).vertical -
+                  kToolbarHeight -
+                  kBottomNavigationBarHeight -
+                  128,
+            ),
+          )
+        : math.min(300.0, screenHeight * .42);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -268,18 +291,24 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
         Container(
           decoration: BoxDecoration(
             color: isDark
-                ? (widget.isFloatingOnMap ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainer)
+                ? (widget.isFloatingOnMap
+                      ? colorScheme.surfaceContainerHigh
+                      : colorScheme.surfaceContainer)
                 : colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: _focusNode.hasFocus
                   ? colorScheme.primary
-                  : colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.6),
+                  : colorScheme.outlineVariant.withValues(
+                      alpha: isDark ? 0.35 : 0.6,
+                    ),
               width: _focusNode.hasFocus ? 1.5 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: widget.isFloatingOnMap ? 0.18 : 0.04),
+                color: Colors.black.withValues(
+                  alpha: widget.isFloatingOnMap ? 0.18 : 0.04,
+                ),
                 blurRadius: widget.isFloatingOnMap ? 12 : 4,
                 offset: const Offset(0, 2),
               ),
@@ -292,7 +321,9 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                 child: Icon(
                   Icons.search_rounded,
                   size: 22,
-                  color: _focusNode.hasFocus ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                  color: _focusNode.hasFocus
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
               ),
               Expanded(
@@ -308,13 +339,19 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                     fontWeight: FontWeight.w500,
                   ),
                   decoration: InputDecoration(
+                    filled: false,
                     hintText: widget.hintText,
                     hintStyle: GoogleFonts.plusJakartaSans(
                       fontSize: context.dynamicFont(13.0),
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.75,
+                      ),
                       fontWeight: FontWeight.w400,
                     ),
                     border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
@@ -331,10 +368,14 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
               ),
               if (hasText)
                 IconButton(
+                  tooltip: 'Clear search',
                   iconSize: 20,
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  icon: Icon(Icons.close_rounded, color: colorScheme.onSurfaceVariant),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     _controller.clear();
@@ -353,16 +394,18 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
         if (_showDropdown) ...[
           const SizedBox(height: 6),
           Container(
-            constraints: BoxConstraints(
-              maxHeight: math.min(300.0, MediaQuery.sizeOf(context).height * 0.42),
-            ),
+            constraints: BoxConstraints(maxHeight: suggestionHeight),
             decoration: BoxDecoration(
               color: isDark
-                  ? (widget.isFloatingOnMap ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainerLow)
+                  ? (widget.isFloatingOnMap
+                        ? colorScheme.surfaceContainerHigh
+                        : colorScheme.surfaceContainerLow)
                   : colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.5),
+                color: colorScheme.outlineVariant.withValues(
+                  alpha: isDark ? 0.35 : 0.5,
+                ),
                 width: 1.0,
               ),
               boxShadow: [
@@ -397,10 +440,17 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                       return InkWell(
                         onTap: () => _selectQueryPrompt(example),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           child: Row(
                             children: [
-                              Icon(Icons.history_rounded, size: 16, color: colorScheme.onSurfaceVariant),
+                              Icon(
+                                Icons.history_rounded,
+                                size: 16,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(width: 10),
                               Text(
                                 example,
@@ -421,7 +471,9 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Divider(
                           height: 14,
-                          color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                       ),
                       Padding(
@@ -442,7 +494,8 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                               onTap: () {
                                 HapticFeedback.lightImpact();
                                 setState(() {
-                                  OmniSearchService.instance.clearRecentSearches();
+                                  OmniSearchService.instance
+                                      .clearRecentSearches();
                                 });
                               },
                               child: Text(
@@ -461,10 +514,17 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                         return InkWell(
                           onTap: () => _selectQueryPrompt(recent),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 7,
+                            ),
                             child: Row(
                               children: [
-                                Icon(Icons.manage_search_rounded, size: 16, color: colorScheme.onSurfaceVariant),
+                                Icon(
+                                  Icons.manage_search_rounded,
+                                  size: 16,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
                                 const SizedBox(width: 10),
                                 Text(
                                   recent,
@@ -481,7 +541,6 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                     ],
                     const SizedBox(height: 6),
                   ]
-
                   // B. Matches Found -> Clean Minimalist List Rows
                   else if (_suggestions.isNotEmpty) ...[
                     ListView.separated(
@@ -490,7 +549,9 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                       itemCount: _suggestions.length,
                       separatorBuilder: (context, index) => Divider(
                         height: 1,
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
                       ),
                       itemBuilder: (context, index) {
                         final res = _suggestions[index];
@@ -501,7 +562,10 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                         return InkWell(
                           onTap: () => _onResultSelected(res),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
                             child: Row(
                               children: [
                                 if (res.type == OmniResultType.pandal)
@@ -529,10 +593,13 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       RichText(
-                                        text: TextSpan(children: res.highlightSpans),
+                                        text: TextSpan(
+                                          children: res.highlightSpans,
+                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -567,11 +634,13 @@ class _PandalSearchAutocompleteState extends State<PandalSearchAutocomplete> {
                       },
                     ),
                   ]
-
                   // C. Empty Search Message
                   else ...[
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

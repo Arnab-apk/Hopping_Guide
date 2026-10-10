@@ -1,0 +1,1 @@
+const fs=require('fs');const p='app/test/journey_live_smoke_test.dart';let s=fs.readFileSync(p,'utf8');s="import 'package:flutter/foundation.dart';\n"+s.replace('print(','debugPrint(');fs.writeFileSync(p,s);

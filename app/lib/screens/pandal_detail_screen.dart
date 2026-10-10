@@ -16,7 +16,7 @@ class PandalDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (pandal != null) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(pandal!.name),
           backgroundColor: Colors.transparent,
@@ -31,7 +31,7 @@ class PandalDetailScreen extends StatelessWidget {
     final routeArgs = ModalRoute.of(context)?.settings.arguments;
     if (routeArgs is Pandal) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: Text(routeArgs.name),
           backgroundColor: Colors.transparent,
@@ -46,7 +46,7 @@ class PandalDetailScreen extends StatelessWidget {
     final id = pandalId ?? (routeArgs is String ? routeArgs : null);
     if (id != null && id.isNotEmpty) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
           title: const Text('Pandal Details'),
           backgroundColor: Colors.transparent,
@@ -63,7 +63,7 @@ class PandalDetailScreen extends StatelessWidget {
               return Center(
                 child: Text(
                   'Pandal not found (ID: $id)',
-                  style: const TextStyle(color: Colors.white70),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               );
             }

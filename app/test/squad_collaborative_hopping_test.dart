@@ -16,6 +16,8 @@ import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:kolkata_puja/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:flutter_local_notifications_platform_interface/flutter_local_notifications_platform_interface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -299,6 +301,11 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
+        expect(find.text('Your trail is ready'), findsOneWidget);
+        await tester.tap(find.text('Later'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
         // 6. Verify Live Hopping Banner activates
         expect(squadService.isHoppingActive, isTrue);
         expect(find.text('HOPPING'), findsOneWidget);
@@ -366,6 +373,95 @@ void main() {
     await repo.close();
   });
 
+  test(
+    'fresh GPS arrival advances the shared squad plan once for both sessions',
+    () async {
+      FlutterLocalNotificationsPlatform.instance = _NoopNotifications();
+      final repo = _InMemoryPlanRepository();
+      final first = await SquadService.create(repo: repo);
+      await first.createSquad('Friends', 'North gate');
+      final second = await SquadService.create(repo: repo);
+      await second.joinSquad('PUJATEST');
+      for (var i = 0; i < 2; i++) {
+        await first.addPandalToSquad(
+          Pandal(
+            id: 'gps_$i',
+            name: 'GPS stop $i',
+            lat: 22.60 + i * .01,
+            lng: 88.36,
+            zone: KolkataZone.northKolkata,
+            timings: '24h',
+            theme: '',
+            imageUrl: '',
+            description: '',
+          ),
+        );
+      }
+      await first.startSquadHopping();
+      await Future<void>.delayed(Duration.zero);
+      final target = first.currentHoppingTarget!;
+      final now = DateTime.now();
+      final fix = Position(
+        latitude: target.lat,
+        longitude: target.lng,
+        timestamp: now,
+        accuracy: 5,
+        altitude: 0,
+        altitudeAccuracy: 1,
+        heading: 0,
+        headingAccuracy: 1,
+        speed: 0,
+        speedAccuracy: 1,
+      );
+      final trail = CustomHoppingTrailService.instance;
+      trail.processLocationForAutoVisit(fix, now: now);
+      trail.processLocationForAutoVisit(fix, now: now);
+      for (var i = 0; i < 8; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      expect(first.visitedPandalsCount, 1);
+      expect(second.visitedPandalsCount, 1);
+      expect(first.activeHoppingStopIndex, 1);
+      expect(second.activeHoppingStopIndex, 1);
+      await first.endSquadHopping();
+      first.dispose();
+      second.dispose();
+      await repo.close();
+    },
+  );
+
+  test(
+    'location publishing exposes failure, recovers, and respects sharing off',
+    () async {
+      final repo = _InMemoryPlanRepository();
+      final service = await SquadService.create(repo: repo);
+      await service.createSquad('Friends', 'North gate');
+      await Future<void>.delayed(Duration.zero);
+      repo.locationError = FirebaseException(
+        plugin: 'cloud_firestore',
+        code: 'unavailable',
+      );
+      service.updateUserLocation(22.62, 88.37);
+      await Future<void>.delayed(Duration.zero);
+      expect(service.locationSyncError, contains('could not reach'));
+      repo.locationError = null;
+      service.updateUserLocation(22.63, 88.38);
+      await Future<void>.delayed(Duration.zero);
+      expect(service.locationSyncError, isNull);
+      expect(service.lastLocationPublishedAt, isNotNull);
+      service.toggleLocationSharing(false);
+      await Future<void>.delayed(Duration.zero);
+      final before = repo.publishedLocations.length;
+      service.updateUserLocation(22.64, 88.39);
+      await Future<void>.delayed(Duration.zero);
+      expect(repo.publishedLocations.length, before);
+      expect(service.lastLocationPublishedAt, isNull);
+      await service.leaveSquad();
+      service.dispose();
+      await repo.close();
+    },
+  );
+
   test('failed cloud creation never exposes an invite code', () async {
     final service = await SquadService.create(repo: _FailingCreateRepository());
     await service.createSquad('Friends', 'North gate');
@@ -420,6 +516,8 @@ void main() {
   );
 }
 
+class _NoopNotifications extends FlutterLocalNotificationsPlatform {}
+
 class _FailingCreateRepository extends SquadFirestoreRepository {
   @override
   bool get isAvailable => true;
@@ -438,6 +536,25 @@ class _FailingCreateRepository extends SquadFirestoreRepository {
 }
 
 class _InMemoryPlanRepository extends SquadFirestoreRepository {
+  FirebaseException? locationError;
+  final publishedLocations = <(double, double)>[];
+  @override
+  Future<void> updateMemberLocation({
+    required String squadId,
+    required String memberId,
+    required double lat,
+    required double lng,
+    int? batteryLevel,
+    bool? isOnline,
+    bool? shareLocation,
+    String? status,
+    String? name,
+    String? photoUrl,
+  }) async {
+    if (locationError != null) throw locationError!;
+    publishedLocations.add((lat, lng));
+  }
+
   FirebaseException? leaveError;
   @override
   Future<void> leaveSquad({

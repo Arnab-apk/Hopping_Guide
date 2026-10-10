@@ -61,4 +61,11 @@ class PandalUserStateService extends ChangeNotifier {
     await _prefs.setStringList(_visitedKey, _visitedIds.toList());
     notifyListeners();
   }
+
+  /// Arrival is idempotent: revisiting must never remove a saved visit.
+  Future<void> markVisited(String pandalId) async {
+    if (!_visitedIds.add(pandalId)) return;
+    await _prefs.setStringList(_visitedKey, _visitedIds.toList());
+    notifyListeners();
+  }
 }

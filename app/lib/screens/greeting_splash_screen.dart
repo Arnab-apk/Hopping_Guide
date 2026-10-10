@@ -414,7 +414,7 @@ class _EmberFieldState extends State<EmberField> with SingleTickerProviderStateM
       animation: _controller,
       builder: (context, _) => CustomPaint(
         painter: EmberPainter(
-          progress: _controller.value,
+          progress: MediaQuery.disableAnimationsOf(context) ? 0 : _controller.value,
           count: _emberCount,
           phase: widget.phase,
         ),

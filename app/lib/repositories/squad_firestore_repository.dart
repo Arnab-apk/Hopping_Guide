@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +14,8 @@ import '../services/queue_wait_service.dart';
 /// Handles serverless real-time sync for squads, companions, live location sharing,
 /// and group festival chat across mobile devices.
 class SquadFirestoreRepository {
-  SquadFirestoreRepository({FirebaseFirestore? firestore}) : _injectedFirestore = firestore;
+  SquadFirestoreRepository({FirebaseFirestore? firestore})
+    : _injectedFirestore = firestore;
 
   final FirebaseFirestore? _injectedFirestore;
 
@@ -30,23 +32,43 @@ class SquadFirestoreRepository {
   bool get isAvailable => _firestore != null;
 
   /// Groups belong to the authenticated member, independently of the active map.
-  Stream<({List<Map<String, dynamic>> groups, bool fromCache})> streamUserSquads(String memberId) {
+  Stream<({List<Map<String, dynamic>> groups, bool fromCache})>
+  streamUserSquads(String memberId) {
     final fs = _firestore;
     if (fs == null) return const Stream.empty();
-    return fs.collection('squads').where('membersUid', arrayContains: memberId)
-        .snapshots(includeMetadataChanges: true).map((snapshot) => (groups: snapshot.docs.map((doc) => {
-          ...doc.data(), 'squadId': doc.id,
-          '_fromCache': snapshot.metadata.isFromCache,
-        }).toList(), fromCache: snapshot.metadata.isFromCache));
+    return fs
+        .collection('squads')
+        .where('membersUid', arrayContains: memberId)
+        .snapshots(includeMetadataChanges: true)
+        .map(
+          (snapshot) => (
+            groups: snapshot.docs
+                .map(
+                  (doc) => {
+                    ...doc.data(),
+                    'squadId': doc.id,
+                    '_fromCache': snapshot.metadata.isFromCache,
+                  },
+                )
+                .toList(),
+            fromCache: snapshot.metadata.isFromCache,
+          ),
+        );
   }
 
-  Future<Map<String, dynamic>?> getSquadForMember(String squadId, String memberId) async {
+  Future<Map<String, dynamic>?> getSquadForMember(
+    String squadId,
+    String memberId,
+  ) async {
     final fs = _firestore;
     if (fs == null) return null;
-    final doc = await fs.collection('squads').doc(squadId)
+    final doc = await fs
+        .collection('squads')
+        .doc(squadId)
         .get(const GetOptions(source: Source.server));
     final data = doc.data();
-    if (data == null || !(data['membersUid'] as List? ?? []).contains(memberId)) {
+    if (data == null ||
+        !(data['membersUid'] as List? ?? []).contains(memberId)) {
       return null;
     }
     return {...data, 'squadId': doc.id};
@@ -55,7 +77,11 @@ class SquadFirestoreRepository {
   Future<void> pauseMemberSharing(String squadId, String memberId) async {
     final fs = _firestore;
     if (fs == null) return;
-    await fs.collection('squads').doc(squadId).collection('members').doc(memberId)
+    await fs
+        .collection('squads')
+        .doc(squadId)
+        .collection('members')
+        .doc(memberId)
         .update({'share_location': false, 'is_online': false});
   }
 
@@ -64,7 +90,10 @@ class SquadFirestoreRepository {
   /// Generates a human-friendly 8-character squad join code (e.g. PUJA7K9X)
   static String generateSquadCode([String prefix = 'PUJA']) {
     const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-    final suffix = List.generate(4, (_) => chars[_rng.nextInt(chars.length)]).join();
+    final suffix = List.generate(
+      4,
+      (_) => chars[_rng.nextInt(chars.length)],
+    ).join();
     return '$prefix$suffix';
   }
 
@@ -101,45 +130,52 @@ class SquadFirestoreRepository {
     };
 
     if (fs != null) {
-        // Use the code in the document ID and reserve it transactionally.
-        // Two creators cannot accidentally receive the same invite code.
-        var created = false;
-        for (var attempt = 0; attempt < 5 && !created; attempt++) {
-          final squadDoc = fs.collection('squads').doc(squadId);
-          final hostData = host.toJson();
-          hostData['last_seen'] = DateTime.now().millisecondsSinceEpoch;
-          created = await fs.runTransaction<bool>((transaction) async {
-            if ((await transaction.get(squadDoc)).exists) return false;
-            transaction.set(squadDoc, squadData);
-            transaction.set(squadDoc.collection('members').doc(host.id), hostData);
-            return true;
-          });
-          if (!created) {
-            squadCode = generateSquadCode();
-            squadId = 'sq_$squadCode';
-            squadData['squadId'] = squadId;
-            squadData['squadCode'] = squadCode;
-          }
-        }
-        if (!created) throw StateError('Could not reserve a unique group code');
-
+      // Use the code in the document ID and reserve it transactionally.
+      // Two creators cannot accidentally receive the same invite code.
+      var created = false;
+      for (var attempt = 0; attempt < 5 && !created; attempt++) {
         final squadDoc = fs.collection('squads').doc(squadId);
-
-        // Chat is optional; a welcome message failure must not hide a real squad.
-        final welcomeMsg = ChatMessage(
-          id: 'welcome_$squadId',
-          squadId: squadId,
-          senderId: 'system_pujo',
-          senderName: 'Pujo Bot 🪈',
-          text: 'Welcome to "$name"! Share live crowd updates, meetup notes, and pandal photos here.',
-          type: ChatMessageType.text,
-          timestamp: DateTime.now(),
-        );
-        try {
-          await squadDoc.collection('messages').doc(welcomeMsg.id).set(welcomeMsg.toJson());
-        } catch (e) {
-          debugPrint('[SquadFirestoreRepository] welcome message error: $e');
+        final hostData = host.toJson();
+        hostData['last_seen'] = DateTime.now().millisecondsSinceEpoch;
+        created = await fs.runTransaction<bool>((transaction) async {
+          if ((await transaction.get(squadDoc)).exists) return false;
+          transaction.set(squadDoc, squadData);
+          transaction.set(
+            squadDoc.collection('members').doc(host.id),
+            hostData,
+          );
+          return true;
+        });
+        if (!created) {
+          squadCode = generateSquadCode();
+          squadId = 'sq_$squadCode';
+          squadData['squadId'] = squadId;
+          squadData['squadCode'] = squadCode;
         }
+      }
+      if (!created) throw StateError('Could not reserve a unique group code');
+
+      final squadDoc = fs.collection('squads').doc(squadId);
+
+      // Chat is optional; a welcome message failure must not hide a real squad.
+      final welcomeMsg = ChatMessage(
+        id: 'welcome_$squadId',
+        squadId: squadId,
+        senderId: 'system_pujo',
+        senderName: 'Pujo Bot 🪈',
+        text:
+            'Welcome to "$name"! Share live crowd updates, meetup notes, and pandal photos here.',
+        type: ChatMessageType.text,
+        timestamp: DateTime.now(),
+      );
+      try {
+        await squadDoc
+            .collection('messages')
+            .doc(welcomeMsg.id)
+            .set(welcomeMsg.toJson());
+      } catch (e) {
+        debugPrint('[SquadFirestoreRepository] welcome message error: $e');
+      }
     }
 
     return {
@@ -191,8 +227,14 @@ class SquadFirestoreRepository {
       final memberData = member.toJson();
       memberData['last_seen'] = DateTime.now().millisecondsSinceEpoch;
       final batch = fs.batch();
-      batch.update(squadDoc, {'membersUid': FieldValue.arrayUnion([member.id])});
-      batch.set(squadDoc.collection('members').doc(member.id), memberData, SetOptions(merge: true));
+      batch.update(squadDoc, {
+        'membersUid': FieldValue.arrayUnion([member.id]),
+      });
+      batch.set(
+        squadDoc.collection('members').doc(member.id),
+        memberData,
+        SetOptions(merge: true),
+      );
       await batch.commit();
 
       // Post join notice in chat
@@ -206,7 +248,10 @@ class SquadFirestoreRepository {
         timestamp: DateTime.now(),
       );
       try {
-        await squadDoc.collection('messages').doc(joinMsg.id).set(joinMsg.toJson());
+        await squadDoc
+            .collection('messages')
+            .doc(joinMsg.id)
+            .set(joinMsg.toJson());
       } catch (e) {
         debugPrint('[SquadFirestoreRepository] join notice error: $e');
       }
@@ -232,9 +277,13 @@ class SquadFirestoreRepository {
 
       // Restored groups can outlive their server membership (or the group itself).
       // Confirm against the server so an old local session can still be cleared.
-      final snapshot = await squadDoc.get(const GetOptions(source: Source.server));
+      final snapshot = await squadDoc.get(
+        const GetOptions(source: Source.server),
+      );
       final roster = snapshot.data()?['membersUid'];
-      if (!snapshot.exists || (roster is List && !roster.contains(memberId))) return;
+      if (!snapshot.exists || (roster is List && !roster.contains(memberId))) {
+        return;
+      }
 
       if (memberName != null && memberName.isNotEmpty) {
         final leaveMsg = ChatMessage(
@@ -247,20 +296,27 @@ class SquadFirestoreRepository {
           timestamp: DateTime.now(),
         );
         try {
-          await squadDoc.collection('messages').doc(leaveMsg.id).set(leaveMsg.toJson());
+          await squadDoc
+              .collection('messages')
+              .doc(leaveMsg.id)
+              .set(leaveMsg.toJson());
         } catch (e) {
           debugPrint('[SquadFirestoreRepository] leave notice error: $e');
         }
       }
       final batch = fs.batch();
       batch.delete(squadDoc.collection('members').doc(memberId));
-      batch.update(squadDoc, {'membersUid': FieldValue.arrayRemove([memberId])});
+      batch.update(squadDoc, {
+        'membersUid': FieldValue.arrayRemove([memberId]),
+      });
       try {
         await batch.commit();
       } on FirebaseException catch (e) {
         if (e.code != 'permission-denied' && e.code != 'not-found') rethrow;
         // Another device may have already completed the same leave operation.
-        final latest = await squadDoc.get(const GetOptions(source: Source.server));
+        final latest = await squadDoc.get(
+          const GetOptions(source: Source.server),
+        );
         final latestRoster = latest.data()?['membersUid'];
         if (latest.exists &&
             !(latestRoster is List && !latestRoster.contains(memberId))) {
@@ -303,7 +359,9 @@ class SquadFirestoreRepository {
       if (shareLocation != null) updateData['share_location'] = shareLocation;
       if (status != null && status.isNotEmpty) updateData['status'] = status;
       if (name != null && name.isNotEmpty) updateData['name'] = name;
-      if (photoUrl != null && photoUrl.isNotEmpty) updateData['photo_url'] = photoUrl;
+      if (photoUrl != null && photoUrl.isNotEmpty) {
+        updateData['photo_url'] = photoUrl;
+      }
 
       await fs
           .collection('squads')
@@ -313,6 +371,7 @@ class SquadFirestoreRepository {
           .set(updateData, SetOptions(merge: true));
     } catch (e) {
       debugPrint('[SquadFirestoreRepository] updateMemberLocation error: $e');
+      rethrow;
     }
   }
 
@@ -378,31 +437,43 @@ class SquadFirestoreRepository {
     final fs = _firestore;
     if (fs == null) return const Stream.empty();
 
-    return fs.collection('squads').doc(squadId).snapshots(includeMetadataChanges: true).map((snap) {
-      if (!snap.exists || snap.data() == null) {
-        return {'_exists': false, '_fromCache': snap.metadata.isFromCache};
-      }
-      final data = snap.data()!;
-      data['squadId'] = snap.id;
-      // A cached snapshot is useful offline, but must not be presented as live sync.
-      data['_fromCache'] = snap.metadata.isFromCache;
-      return data;
-    });
+    return fs
+        .collection('squads')
+        .doc(squadId)
+        .snapshots(includeMetadataChanges: true)
+        .map((snap) {
+          if (!snap.exists || snap.data() == null) {
+            return {'_exists': false, '_fromCache': snap.metadata.isFromCache};
+          }
+          final data = snap.data()!;
+          data['squadId'] = snap.id;
+          // A cached snapshot is useful offline, but must not be presented as live sync.
+          data['_fromCache'] = snap.metadata.isFromCache;
+          return data;
+        });
   }
 
   /// Real-time stream of squad members (companions + self)
-  Stream<List<SquadMember>> streamMembers(String squadId, {required String currentUserId}) {
+  Stream<List<SquadMember>> streamMembers(
+    String squadId, {
+    required String currentUserId,
+  }) {
     final fs = _firestore;
     if (fs == null) return const Stream.empty();
 
-    return fs.collection('squads').doc(squadId).collection('members').snapshots().map((snap) {
-      return snap.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        data['is_user'] = (doc.id == currentUserId);
-        return SquadMember.fromJson(data);
-      }).toList();
-    });
+    return fs
+        .collection('squads')
+        .doc(squadId)
+        .collection('members')
+        .snapshots()
+        .map((snap) {
+          return snap.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            data['is_user'] = (doc.id == currentUserId);
+            return SquadMember.fromJson(data);
+          }).toList();
+        });
   }
 
   /// Real-time stream of squad chat messages (newest first)
@@ -418,12 +489,12 @@ class SquadFirestoreRepository {
         .limit(100)
         .snapshots()
         .map((snap) {
-      return snap.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return ChatMessage.fromJson(data);
-      }).toList();
-    });
+          return snap.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return ChatMessage.fromJson(data);
+          }).toList();
+        });
   }
 
   /// Send a chat message or photo/video
@@ -470,14 +541,16 @@ class SquadFirestoreRepository {
           .collection('squads')
           .doc(squadId)
           .collection('queue_reports')
-          .doc('${report.pandalId}_${report.reporterId}_${report.timestamp.millisecondsSinceEpoch}')
+          .doc(
+            '${report.pandalId}_${report.reporterId}_${report.timestamp.millisecondsSinceEpoch}',
+          )
           .set({
-        'pandalId': report.pandalId,
-        'waitMinutes': report.waitMinutes,
-        'timestamp': report.timestamp.millisecondsSinceEpoch,
-        'reporterId': report.reporterId,
-        'source': report.source,
-      });
+            'pandalId': report.pandalId,
+            'waitMinutes': report.waitMinutes,
+            'timestamp': report.timestamp.millisecondsSinceEpoch,
+            'reporterId': report.reporterId,
+            'source': report.source,
+          });
     } catch (e) {
       debugPrint('[SquadFirestoreRepository] addQueueReport error: $e');
     }

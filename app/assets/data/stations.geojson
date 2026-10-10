@@ -2411,8 +2411,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3587427,
-          22.5724857
+          88.358788,
+          22.57247
         ]
       },
       "properties": {
@@ -2421,8 +2421,8 @@
         "name_bn": "সেন্ট্রাল মেট্রো",
         "code": "KCEN",
         "kind": "metro",
-        "lat": 22.5724857,
-        "lon": 88.3587427,
+        "lat": 22.57247,
+        "lon": 88.358788,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2437,8 +2437,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3501171,
-          22.5551591
+          88.35028,
+          22.555
         ]
       },
       "properties": {
@@ -2447,8 +2447,8 @@
         "name_bn": "পার্ক স্ট্রিট মেট্রো",
         "code": "KPSK",
         "kind": "metro",
-        "lat": 22.5551591,
-        "lon": 88.3501171,
+        "lat": 22.555,
+        "lon": 88.35028,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2463,18 +2463,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3804604,
-          22.4642505
+          88.38055,
+          22.46417
         ]
       },
       "properties": {
         "id": "stn_5421533465",
         "name": "Kavi Nazrul",
         "name_bn": "কবি নজরুল",
-        "code": null,
+        "code": "KKNZ",
         "kind": "metro",
-        "lat": 22.4642505,
-        "lon": 88.3804604,
+        "lat": 22.46417,
+        "lon": 88.38055,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -2487,18 +2487,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3915408,
-          22.4659847
+          88.39167,
+          22.465972
         ]
       },
       "properties": {
         "id": "stn_5421533466",
         "name": "Shahid Khudiram",
         "name_bn": "শহিদ ক্ষুদিরাম",
-        "code": null,
+        "code": "KSKD",
         "kind": "metro",
-        "lat": 22.4659847,
-        "lon": 88.3915408,
+        "lat": 22.465972,
+        "lon": 88.39167,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -2511,18 +2511,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.397961,
-          22.4721697
+          88.39806,
+          22.47194
         ]
       },
       "properties": {
         "id": "stn_5421533467",
         "name": "Kavi Subhash (Blue Line)",
         "name_bn": "কবি সুভাষ",
-        "code": "KKVS",
+        "code": "KKSO",
         "kind": "metro",
-        "lat": 22.4721697,
-        "lon": 88.397961,
+        "lat": 22.47194,
+        "lon": 88.39806,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -2535,8 +2535,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3460002,
-          22.4809928
+          88.346,
+          22.480976
         ]
       },
       "properties": {
@@ -2545,8 +2545,8 @@
         "name_bn": "নেতাজি মেট্রো",
         "code": "KNTJ",
         "kind": "metro",
-        "lat": 22.4809928,
-        "lon": 88.3460002,
+        "lat": 22.480976,
+        "lon": 88.346,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2561,8 +2561,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3450879,
-          22.4947692
+          88.345,
+          22.49472
         ]
       },
       "properties": {
@@ -2571,8 +2571,8 @@
         "name_bn": "মহানায়ক উত্তম কুমার মেট্রো",
         "code": "KMUK",
         "kind": "metro",
-        "lat": 22.4947692,
-        "lon": 88.3450879,
+        "lat": 22.49472,
+        "lon": 88.345,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2614,18 +2614,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3454936,
-          22.5072216
+          88.34556,
+          22.50722
         ]
       },
       "properties": {
         "id": "stn_5421538365",
         "name": "Rabindra Sarobar Metro",
         "name_bn": "রবীন্দ্র সরোবর মেট্রো",
-        "code": "KRSO",
+        "code": "KRSB",
         "kind": "metro",
-        "lat": 22.5072216,
-        "lon": 88.3454936,
+        "lat": 22.50722,
+        "lon": 88.34556,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2640,18 +2640,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3458448,
-          22.5168752
+          88.346003,
+          22.516652
         ]
       },
       "properties": {
         "id": "stn_5421539684",
         "name": "Kalighat Metro",
         "name_bn": "কালীঘাট মেট্রো",
-        "code": "KKGH",
+        "code": "KKHG",
         "kind": "metro",
-        "lat": 22.5168752,
-        "lon": 88.3458448,
+        "lat": 22.516652,
+        "lon": 88.346003,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2666,8 +2666,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3464729,
-          22.5241535
+          88.346489,
+          22.524262
         ]
       },
       "properties": {
@@ -2676,8 +2676,8 @@
         "name_bn": "যতীন দাস পার্ক মেট্রো",
         "code": "KJPK",
         "kind": "metro",
-        "lat": 22.5241535,
-        "lon": 88.3464729,
+        "lat": 22.524262,
+        "lon": 88.346489,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2692,8 +2692,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3459269,
-          22.5331821
+          88.34611,
+          22.53333
         ]
       },
       "properties": {
@@ -2702,8 +2702,8 @@
         "name_bn": "নেতাজি ভবন মেট্রো",
         "code": "KNBN",
         "kind": "metro",
-        "lat": 22.5331821,
-        "lon": 88.3459269,
+        "lat": 22.53333,
+        "lon": 88.34611,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2718,8 +2718,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3473493,
-          22.5414899
+          88.34722,
+          22.54139
         ]
       },
       "properties": {
@@ -2728,8 +2728,8 @@
         "name_bn": "রবীন্দ্র সদন মেট্রো",
         "code": "KRSD",
         "kind": "metro",
-        "lat": 22.5414899,
-        "lon": 88.3473493,
+        "lat": 22.54139,
+        "lon": 88.34722,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2744,18 +2744,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3487883,
-          22.5494672
+          88.34889,
+          22.54944
         ]
       },
       "properties": {
         "id": "stn_5421543288",
         "name": "Maidan Metro",
         "name_bn": "ময়দান মেট্রো",
-        "code": "KMDN",
+        "code": "KMDI",
         "kind": "metro",
-        "lat": 22.5494672,
-        "lon": 88.3487883,
+        "lat": 22.54944,
+        "lon": 88.34889,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2770,8 +2770,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3541581,
-          22.5670118
+          88.354137,
+          22.566796
         ]
       },
       "properties": {
@@ -2780,8 +2780,8 @@
         "name_bn": "চাঁদনী চক মেট্রো",
         "code": "KCWC",
         "kind": "metro",
-        "lat": 22.5670118,
-        "lon": 88.3541581,
+        "lat": 22.566796,
+        "lon": 88.354137,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2796,8 +2796,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3512099,
-          22.5636143
+          88.35167,
+          22.56444
         ]
       },
       "properties": {
@@ -2806,8 +2806,8 @@
         "name_bn": "এসপ্ল্যানেড মেট্রো",
         "code": "KESP",
         "kind": "metro",
-        "lat": 22.5636143,
-        "lon": 88.3512099,
+        "lat": 22.56444,
+        "lon": 88.35167,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2823,8 +2823,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3613271,
-          22.5809206
+          88.361401,
+          22.580858
         ]
       },
       "properties": {
@@ -2833,8 +2833,8 @@
         "name_bn": "মহাত্মা গান্ধী রোড মেট্রো",
         "code": "KMHR",
         "kind": "metro",
-        "lat": 22.5809206,
-        "lon": 88.3613271,
+        "lat": 22.580858,
+        "lon": 88.361401,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2849,8 +2849,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3629415,
-          22.5871445
+          88.363083,
+          22.587143
         ]
       },
       "properties": {
@@ -2859,8 +2859,8 @@
         "name_bn": "গিরিশ পার্ক মেট্রো",
         "code": "KGPK",
         "kind": "metro",
-        "lat": 22.5871445,
-        "lon": 88.3629415,
+        "lat": 22.587143,
+        "lon": 88.363083,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2875,18 +2875,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3651996,
-          22.595881
+          88.365285,
+          22.596029
         ]
       },
       "properties": {
         "id": "stn_5421546940",
         "name": "Shobhabazar Sutanuti Metro",
         "name_bn": "শোভাবাজার সুতানুটি মেট্রো",
-        "code": "KSOB",
+        "code": "KSHO",
         "kind": "metro",
-        "lat": 22.595881,
-        "lon": 88.3651996,
+        "lat": 22.596029,
+        "lon": 88.365285,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2901,18 +2901,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3724974,
-          22.601335
+          88.372586,
+          22.601313
         ]
       },
       "properties": {
         "id": "stn_5421546974",
         "name": "Shyambazar Metro",
         "name_bn": "শ্যামবাজার মেট্রো",
-        "code": "KSYM",
+        "code": "KSHY",
         "kind": "metro",
-        "lat": 22.601335,
-        "lon": 88.3724974,
+        "lat": 22.601313,
+        "lon": 88.372586,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2927,8 +2927,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3863913,
-          22.6059241
+          88.38639,
+          22.60583
         ]
       },
       "properties": {
@@ -2937,8 +2937,8 @@
         "name_bn": "বেলগাছিয়া মেট্রো",
         "code": "KBEL",
         "kind": "metro",
-        "lat": 22.6059241,
-        "lon": 88.3863913,
+        "lat": 22.60583,
+        "lon": 88.38639,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -2953,8 +2953,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3941343,
-          22.6398418
+          88.39389,
+          22.63972
         ]
       },
       "properties": {
@@ -2963,8 +2963,8 @@
         "name_bn": "নোয়াপাড়া মেট্রো",
         "code": "KNAP",
         "kind": "metro",
-        "lat": 22.6398418,
-        "lon": 88.3941343,
+        "lat": 22.63972,
+        "lon": 88.39389,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -3413,8 +3413,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4215312,
-          22.58638
+          88.421515,
+          22.586435
         ]
       },
       "properties": {
@@ -3423,8 +3423,8 @@
         "name_bn": "করুণাময়ী মেট্রো",
         "code": "KESA",
         "kind": "metro",
-        "lat": 22.58638,
-        "lon": 88.4215312,
+        "lat": 22.586435,
+        "lon": 88.421515,
         "network": "Kolkata Metro",
         "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
         "lines": [
@@ -3439,8 +3439,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4156247,
-          22.5904737
+          88.415605,
+          22.590437
         ]
       },
       "properties": {
@@ -3449,8 +3449,8 @@
         "name_bn": "সেন্ট্রাল পার্ক মেট্রো",
         "code": "CPSA",
         "kind": "metro",
-        "lat": 22.5904737,
-        "lon": 88.4156247,
+        "lat": 22.590437,
+        "lon": 88.415605,
         "network": "Kolkata Metro",
         "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
         "lines": [
@@ -3465,8 +3465,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4078908,
-          22.5870993
+          88.407875,
+          22.587069
         ]
       },
       "properties": {
@@ -3475,8 +3475,8 @@
         "name_bn": "সিটি সেন্টার মেট্রো",
         "code": "CCSC",
         "kind": "metro",
-        "lat": 22.5870993,
-        "lon": 88.4078908,
+        "lat": 22.587069,
+        "lon": 88.407875,
         "network": "Kolkata Metro",
         "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
         "lines": [
@@ -3491,8 +3491,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4012962,
-          22.5800666
+          88.401283,
+          22.580076
         ]
       },
       "properties": {
@@ -3501,8 +3501,8 @@
         "name_bn": "বেঙ্গল কেমিক্যালস",
         "code": "BCSD",
         "kind": "metro",
-        "lat": 22.5800666,
-        "lon": 88.4012962,
+        "lat": 22.580076,
+        "lon": 88.401283,
         "network": "Kolkata Metro",
         "operator": null,
         "lines": [],
@@ -3515,8 +3515,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4030891,
-          22.5731115
+          88.40306,
+          22.57306
         ]
       },
       "properties": {
@@ -3525,8 +3525,8 @@
         "name_bn": "সল্টলেক স্টেডিয়াম মেট্রো",
         "code": "SSSA",
         "kind": "metro",
-        "lat": 22.5731115,
-        "lon": 88.4030891,
+        "lat": 22.57306,
+        "lon": 88.40306,
         "network": "Kolkata Metro",
         "operator": null,
         "lines": [
@@ -3541,8 +3541,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3902408,
-          22.5721268
+          88.390282,
+          22.57214
         ]
       },
       "properties": {
@@ -3551,8 +3551,8 @@
         "name_bn": "ফুলবাগান মেট্রো",
         "code": "PBGB",
         "kind": "metro",
-        "lat": 22.5721268,
-        "lon": 88.3902408,
+        "lat": 22.57214,
+        "lon": 88.390282,
         "network": "Kolkata Metro",
         "operator": null,
         "lines": [
@@ -3567,8 +3567,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4290872,
-          22.5809434
+          88.429822,
+          22.581318
         ]
       },
       "properties": {
@@ -3577,8 +3577,8 @@
         "name_bn": "সল্টলেক সেক্টর ৫ মেট্রো",
         "code": "SVSA",
         "kind": "metro",
-        "lat": 22.5809434,
-        "lon": 88.4290872,
+        "lat": 22.581318,
+        "lon": 88.429822,
         "network": "Kolkata Metro",
         "operator": "Kolkata Metro Rail Corporation Limited (KMRCL)",
         "lines": [
@@ -3618,8 +3618,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3805962,
-          22.6530765
+          88.378873,
+          22.653529
         ]
       },
       "properties": {
@@ -3628,8 +3628,8 @@
         "name_bn": "বরাহনগর মেট্রো",
         "code": "KBAR",
         "kind": "metro",
-        "lat": 22.6530765,
-        "lon": 88.3805962,
+        "lat": 22.653529,
+        "lon": 88.378873,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -3889,18 +3889,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3173872,
-          22.4987585
+          88.317354,
+          22.498929
         ]
       },
       "properties": {
         "id": "stn_9321290815",
         "name": "Behala Bazar Metro",
         "name_bn": "বেহালা বাজার মেট্রো",
-        "code": "KBHZ",
+        "code": "KBBR",
         "kind": "metro",
-        "lat": 22.4987585,
-        "lon": 88.3173872,
+        "lat": 22.498929,
+        "lon": 88.317354,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -3915,18 +3915,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3133794,
-          22.4873548
+          88.313426,
+          22.487529
         ]
       },
       "properties": {
         "id": "stn_9321292345",
         "name": "Behala Chowrasta",
         "name_bn": "বেহালা চৌরাস্তা",
-        "code": null,
+        "code": "KBCR",
         "kind": "metro",
-        "lat": 22.4873548,
-        "lon": 88.3133794,
+        "lat": 22.487529,
+        "lon": 88.313426,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -3939,8 +3939,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3637533,
-          22.6540325
+          88.363724,
+          22.653971
         ]
       },
       "properties": {
@@ -3949,8 +3949,8 @@
         "name_bn": "দক্ষিণেশ্বর মেট্রো",
         "code": "KDSW",
         "kind": "metro",
-        "lat": 22.6540325,
-        "lon": 88.3637533,
+        "lat": 22.653971,
+        "lon": 88.363724,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -3991,8 +3991,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3075322,
-          22.4643677
+          88.307555,
+          22.464261
         ]
       },
       "properties": {
@@ -4001,8 +4001,8 @@
         "name_bn": "ঠাকুরপুকুর",
         "code": "KTKP",
         "kind": "metro",
-        "lat": 22.4643677,
-        "lon": 88.3075322,
+        "lat": 22.464261,
+        "lon": 88.307555,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4015,8 +4015,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3099593,
-          22.4748533
+          88.309991,
+          22.474611
         ]
       },
       "properties": {
@@ -4025,8 +4025,8 @@
         "name_bn": "সখেরবাজার মেট্রো",
         "code": "KSKB",
         "kind": "metro",
-        "lat": 22.4748533,
-        "lon": 88.3099593,
+        "lat": 22.474611,
+        "lon": 88.309991,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -4041,8 +4041,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3203842,
-          22.5076863
+          88.320563,
+          22.508165
         ]
       },
       "properties": {
@@ -4051,8 +4051,8 @@
         "name_bn": "তারাতলা মেট্রো",
         "code": "KTRT",
         "kind": "metro",
-        "lat": 22.5076863,
-        "lon": 88.3203842,
+        "lat": 22.508165,
+        "lon": 88.320563,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -4067,18 +4067,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3018236,
-          22.452347
+          88.301751,
+          22.452244
         ]
       },
       "properties": {
         "id": "stn_10296539478",
         "name": "Joka",
         "name_bn": "জোকা",
-        "code": null,
+        "code": "KJKA",
         "kind": "metro",
-        "lat": 22.452347,
-        "lon": 88.3018236,
+        "lat": 22.452244,
+        "lon": 88.301751,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4091,18 +4091,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4014276,
-          22.5148514
+          88.401469,
+          22.514777
         ]
       },
       "properties": {
         "id": "stn_11447425091",
         "name": "Hemanta Mukhopadhyay",
         "name_bn": "হেমন্ত মুখোপাধ্যায়",
-        "code": null,
+        "code": "KHMD",
         "kind": "metro",
-        "lat": 22.5148514,
-        "lon": 88.4014276,
+        "lat": 22.514777,
+        "lon": 88.401469,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4115,18 +4115,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4009957,
-          22.5053017
+          88.400996,
+          22.505262
         ]
       },
       "properties": {
         "id": "stn_11447425092",
         "name": "Kavi Sukanta",
         "name_bn": "কবি সুকান্ত",
-        "code": null,
+        "code": "KKSK",
         "kind": "metro",
-        "lat": 22.5053017,
-        "lon": 88.4009957,
+        "lat": 22.505262,
+        "lon": 88.400996,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4139,18 +4139,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.398449,
-          22.4956263
+          88.398667,
+          22.495915
         ]
       },
       "properties": {
         "id": "stn_11447425095",
         "name": "Jyotirindra Nandi",
         "name_bn": "জ্যোতিরিন্দ্র নন্দী",
-        "code": null,
+        "code": "KJNN",
         "kind": "metro",
-        "lat": 22.4956263,
-        "lon": 88.398449,
+        "lat": 22.495915,
+        "lon": 88.398667,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4163,18 +4163,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3926447,
-          22.4846775
+          88.3926,
+          22.4846
         ]
       },
       "properties": {
         "id": "stn_11447425096",
         "name": "Satyajit Ray",
         "name_bn": "সত্যজিৎ রায়",
-        "code": null,
+        "code": "KSJR",
         "kind": "metro",
-        "lat": 22.4846775,
-        "lon": 88.3926447,
+        "lat": 22.4846,
+        "lon": 88.3926,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4213,8 +4213,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3505275,
-          22.5720777
+          88.350106,
+          22.571189
         ]
       },
       "properties": {
@@ -4223,8 +4223,8 @@
         "name_bn": "মহাকরণ",
         "code": "MKNA",
         "kind": "metro",
-        "lat": 22.5720777,
-        "lon": 88.3505275,
+        "lat": 22.571189,
+        "lon": 88.350106,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4237,8 +4237,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3403452,
-          22.5833648
+          88.340578,
+          22.584454
         ]
       },
       "properties": {
@@ -4247,8 +4247,8 @@
         "name_bn": "হাওড়া",
         "code": "HWHM",
         "kind": "metro",
-        "lat": 22.5833648,
-        "lon": 88.3403452,
+        "lat": 22.584454,
+        "lon": 88.340578,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4261,8 +4261,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3339983,
-          22.5838585
+          88.332994,
+          22.581998
         ]
       },
       "properties": {
@@ -4271,8 +4271,8 @@
         "name_bn": "হাওড়া ময়দান",
         "code": "HWMM",
         "kind": "metro",
-        "lat": 22.5838585,
-        "lon": 88.3339983,
+        "lat": 22.581998,
+        "lon": 88.332994,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4285,18 +4285,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3236555,
-          22.5191466
+          88.3234,
+          22.5191
         ]
       },
       "properties": {
         "id": "stn_11699268226",
         "name": "Majerhat Metro",
         "name_bn": "মাঝেরহাট মেট্রো",
-        "code": "KMJT",
+        "code": "KMJH",
         "kind": "metro",
-        "lat": 22.5191466,
-        "lon": 88.3236555,
+        "lat": 22.5191,
+        "lon": 88.3234,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [
@@ -4311,18 +4311,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4039852,
-          22.5507084
+          88.404094,
+          22.550703
         ]
       },
       "properties": {
         "id": "stn_13088458999",
         "name": "Beleghata",
         "name_bn": "বেলেঘাটা",
-        "code": null,
+        "code": "KBGA",
         "kind": "metro",
-        "lat": 22.5507084,
-        "lon": 88.4039852,
+        "lat": 22.550703,
+        "lon": 88.404094,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4335,18 +4335,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3992762,
-          22.5438072
+          88.40015,
+          22.54393
         ]
       },
       "properties": {
         "id": "stn_13088485701",
         "name": "Barun Sengupta",
         "name_bn": "বরুণ সেনগুপ্ত",
-        "code": null,
+        "code": "KBST",
         "kind": "metro",
-        "lat": 22.5438072,
-        "lon": 88.3992762,
+        "lat": 22.54393,
+        "lon": 88.40015,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4359,18 +4359,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3964191,
-          22.5329995
+          88.3957647,
+          22.5328605
         ]
       },
       "properties": {
         "id": "stn_13088485704",
         "name": "Ritwik Ghatak",
         "name_bn": "ঋত্বিক ঘটক",
-        "code": null,
+        "code": "KRWG",
         "kind": "metro",
-        "lat": 22.5329995,
-        "lon": 88.3964191,
+        "lat": 22.5328605,
+        "lon": 88.3957647,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4383,18 +4383,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.3962331,
-          22.5246847
+          88.39586,
+          22.5255
         ]
       },
       "properties": {
         "id": "stn_13088485707",
         "name": "VIP Bazar",
         "name_bn": "ভি আই পি বাজার",
-        "code": null,
+        "code": "KVIB",
         "kind": "metro",
-        "lat": 22.5246847,
-        "lon": 88.3962331,
+        "lat": 22.5255,
+        "lon": 88.39586,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4407,18 +4407,18 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4373029,
-          22.6473058
+          88.43591,
+          22.64619
         ]
       },
       "properties": {
         "id": "stn_13088491840",
         "name": "Jai Hind",
         "name_bn": "জয় হিন্দ",
-        "code": null,
+        "code": "KJHD",
         "kind": "metro",
-        "lat": 22.6473058,
-        "lon": 88.4373029,
+        "lat": 22.64619,
+        "lon": 88.43591,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4431,8 +4431,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          88.4297701,
-          22.6392646
+          88.4297765,
+          22.6395137
         ]
       },
       "properties": {
@@ -4441,8 +4441,8 @@
         "name_bn": "যশোহর রোড",
         "code": "KJRO",
         "kind": "metro",
-        "lat": 22.6392646,
-        "lon": 88.4297701,
+        "lat": 22.6395137,
+        "lon": 88.4297765,
         "network": "Kolkata Metro",
         "operator": "Metro Railway, Kolkata",
         "lines": [],
@@ -4521,247 +4521,6 @@
           "Howrah Main Line",
           "Bandel-Katwa Line",
           "Naihati-Bandel Branch"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_masterda_surya_sen",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3547,
-          22.4744
-        ]
-      },
-      "properties": {
-        "id": "stn_m_masterda_surya_sen",
-        "name": "Masterda Surya Sen (Bansdroni) Metro",
-        "name_bn": "মাস্টারদা সূর্য সেন মেট্রো",
-        "code": "KMDS",
-        "kind": "metro",
-        "lat": 22.4744,
-        "lon": 88.3547,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Blue Line (Line 1)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_gitanjali",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3653,
-          22.4681
-        ]
-      },
-      "properties": {
-        "id": "stn_m_gitanjali",
-        "name": "Gitanjali (Naktala) Metro",
-        "name_bn": "গীতাঞ্জলি মেট্রো",
-        "code": "KGTN",
-        "kind": "metro",
-        "lat": 22.4681,
-        "lon": 88.3653,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Blue Line (Line 1)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_kavi_nazrul",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3756,
-          22.4628
-        ]
-      },
-      "properties": {
-        "id": "stn_m_kavi_nazrul",
-        "name": "Kavi Nazrul Metro",
-        "name_bn": "কবি নজরুল মেট্রো",
-        "code": "KKNZ",
-        "kind": "metro",
-        "lat": 22.4628,
-        "lon": 88.3756,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Blue Line (Line 1)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_shahid_khudiram",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3847,
-          22.4578
-        ]
-      },
-      "properties": {
-        "id": "stn_m_shahid_khudiram",
-        "name": "Shahid Khudiram Metro",
-        "name_bn": "শহীদ ক্ষুদিরাম মেট্রো",
-        "code": "KSKD",
-        "kind": "metro",
-        "lat": 22.4578,
-        "lon": 88.3847,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Blue Line (Line 1)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_kavi_subhash",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3975,
-          22.4575
-        ]
-      },
-      "properties": {
-        "id": "stn_m_kavi_subhash",
-        "name": "Kavi Subhash Metro",
-        "name_bn": "কবি সুভাষ মেট্রো",
-        "code": "KKSB",
-        "kind": "metro",
-        "lat": 22.4575,
-        "lon": 88.3975,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Blue Line (Line 1)",
-          "Orange Line (Line 6)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_howrah_maidan",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3283,
-          22.5847
-        ]
-      },
-      "properties": {
-        "id": "stn_m_howrah_maidan",
-        "name": "Howrah Maidan Metro",
-        "name_bn": "হাওড়া ময়দান মেট্রো",
-        "code": "KHWM",
-        "kind": "metro",
-        "lat": 22.5847,
-        "lon": 88.3283,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Green Line (Line 2)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_bengal_chemical",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.4069,
-          22.5786
-        ]
-      },
-      "properties": {
-        "id": "stn_m_bengal_chemical",
-        "name": "Bengal Chemical Metro",
-        "name_bn": "বেঙ্গল কেমিক্যাল মেট্রো",
-        "code": "KBCH",
-        "kind": "metro",
-        "lat": 22.5786,
-        "lon": 88.4069,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Green Line (Line 2)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_joka",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.2917,
-          22.4497
-        ]
-      },
-      "properties": {
-        "id": "stn_m_joka",
-        "name": "Joka Metro",
-        "name_bn": "জোকা মেট্রো",
-        "code": "KJOK",
-        "kind": "metro",
-        "lat": 22.4497,
-        "lon": 88.2917,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Purple Line (Line 3)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_thakurpukur",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3006,
-          22.4636
-        ]
-      },
-      "properties": {
-        "id": "stn_m_thakurpukur",
-        "name": "Thakurpukur Metro",
-        "name_bn": "ঠাকুরপুকুর মেট্রো",
-        "code": "KTHP",
-        "kind": "metro",
-        "lat": 22.4636,
-        "lon": 88.3006,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Purple Line (Line 3)"
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "stn_m_behala_chowrasta",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          88.3136,
-          22.4925
-        ]
-      },
-      "properties": {
-        "id": "stn_m_behala_chowrasta",
-        "name": "Behala Chowrasta Metro",
-        "name_bn": "বেহালা চৌরাস্তা মেট্রো",
-        "code": "KBHC",
-        "kind": "metro",
-        "lat": 22.4925,
-        "lon": 88.3136,
-        "network": "Kolkata Metro",
-        "lines": [
-          "Purple Line (Line 3)"
         ]
       }
     },
@@ -6763,6 +6522,136 @@
         "lines": [
           "Sheoraphuli-Tarakeswar Line"
         ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_dum_dum",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.39278,
+          22.62111
+        ]
+      },
+      "properties": {
+        "id": "stn_m_dum_dum",
+        "name": "Dum Dum Metro",
+        "name_bn": "দমদম",
+        "code": "KDMI",
+        "kind": "metro",
+        "lat": 22.62111,
+        "lon": 88.39278,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "blue"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_masterda_surya_sen",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.360871,
+          22.473521
+        ]
+      },
+      "properties": {
+        "id": "stn_m_masterda_surya_sen",
+        "name": "Masterda Surya Sen Metro",
+        "name_bn": "মাস্টারদা সূর্য সেন",
+        "code": "KMSN",
+        "kind": "metro",
+        "lat": 22.473521,
+        "lon": 88.360871,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "blue"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_gitanjali",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.369985,
+          22.469426
+        ]
+      },
+      "properties": {
+        "id": "stn_m_gitanjali",
+        "name": "Gitanjali Metro",
+        "name_bn": "গীতাঞ্জলি",
+        "code": "KGTN",
+        "kind": "metro",
+        "lat": 22.469426,
+        "lon": 88.369985,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "blue"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_sealdah",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.371497,
+          22.567207
+        ]
+      },
+      "properties": {
+        "id": "stn_m_sealdah",
+        "name": "Sealdah Metro",
+        "name_bn": "শিয়ালদহ",
+        "code": "SDHM",
+        "kind": "metro",
+        "lat": 22.567207,
+        "lon": 88.371497,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "green"
+        ],
+        "entrances": []
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "stn_m_dum_dum_cantonment",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.4123,
+          22.638
+        ]
+      },
+      "properties": {
+        "id": "stn_m_dum_dum_cantonment",
+        "name": "Dum Dum Cantonment Metro",
+        "name_bn": "দমদম ক্যান্টনমেন্ট",
+        "code": "KDCM",
+        "kind": "metro",
+        "lat": 22.638,
+        "lon": 88.4123,
+        "network": "Kolkata Metro",
+        "operator": "Metro Railway, Kolkata",
+        "lines": [
+          "yellow"
+        ],
+        "entrances": []
       }
     }
   ]

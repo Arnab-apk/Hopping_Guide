@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:kolkata_puja/config/theme.dart';
 import 'package:kolkata_puja/models/place.dart';
 import 'package:kolkata_puja/repositories/pandal_repository.dart';
 import 'package:kolkata_puja/screens/pandal_list_screen.dart';
 import 'package:kolkata_puja/utils/constants.dart';
+import 'package:kolkata_puja/widgets/pandal_search_autocomplete.dart';
 
 class ControlledPlaceRepository implements PandalRepository {
   final requests = <Completer<List<Place>>>[];
@@ -42,11 +45,64 @@ const food = Place(
 );
 
 void main() {
-  testWidgets('failed directory load offers retry and recovers', (tester) async {
+  GoogleFonts.config.allowRuntimeFetching = false;
+  testWidgets('search suggestions fit above the keyboard on a compact phone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
     final repository = ControlledPlaceRepository();
-    await tester.pumpWidget(MaterialApp(
-      home: PandalListScreen(repository: repository),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: appDarkTheme,
+        home: PandalListScreen(repository: repository),
+      ),
+    );
+    repository.requests.single.complete([pandal]);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      tester
+          .getBottomRight(
+            find.descendant(
+              of: find.byType(PandalSearchAutocomplete),
+              matching: find.byType(SingleChildScrollView),
+            ),
+          )
+          .dy,
+      lessThanOrEqualTo(360),
+    );
+    await tester.enterText(find.byType(TextField), 'Kalighat');
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      tester
+          .getBottomRight(
+            find.descendant(
+              of: find.byType(PandalSearchAutocomplete),
+              matching: find.byType(SingleChildScrollView),
+            ),
+          )
+          .dy,
+      lessThanOrEqualTo(360),
+    );
+    await tester.tap(find.byTooltip('Clear search'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('failed directory load offers retry and recovers', (
+    tester,
+  ) async {
+    final repository = ControlledPlaceRepository();
+    await tester.pumpWidget(
+      MaterialApp(home: PandalListScreen(repository: repository)),
+    );
     repository.requests.single.completeError(StateError('Asset unavailable'));
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -60,30 +116,33 @@ void main() {
     expect(find.text('Try Again'), findsNothing);
   });
 
-  testWidgets('late pandal response cannot replace the selected food category',
-      (tester) async {
-    final repository = ControlledPlaceRepository();
-    await tester.pumpWidget(MaterialApp(
-      home: PandalListScreen(repository: repository),
-    ));
-    await tester.tap(find.text('Food Spots'));
-    await tester.pump();
-    repository.requests.last.complete([food]);
-    await tester.pumpAndSettle();
-    repository.requests.first.complete([pandal]);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'late pandal response cannot replace the selected food category',
+    (tester) async {
+      final repository = ControlledPlaceRepository();
+      await tester.pumpWidget(
+        MaterialApp(home: PandalListScreen(repository: repository)),
+      );
+      await tester.tap(find.text('Food Spots'));
+      await tester.pump();
+      repository.requests.last.complete([food]);
+      await tester.pumpAndSettle();
+      repository.requests.first.complete([pandal]);
+      await tester.pumpAndSettle();
 
-    expect(find.text('Local Kitchen'), findsOneWidget);
-    expect(find.text('Distant Pandal'), findsNothing);
-    expect(find.text('All (1)'), findsOneWidget);
-  });
+      expect(find.text('Local Kitchen'), findsOneWidget);
+      expect(find.text('Distant Pandal'), findsNothing);
+      expect(find.text('All (1)'), findsOneWidget);
+    },
+  );
 
-  testWidgets('nearby filter shows no results when all places exceed 10km',
-      (tester) async {
+  testWidgets('nearby filter shows no results when all places exceed 10km', (
+    tester,
+  ) async {
     final repository = ControlledPlaceRepository();
-    await tester.pumpWidget(MaterialApp(
-      home: PandalListScreen(repository: repository),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(home: PandalListScreen(repository: repository)),
+    );
     repository.requests.single.complete([pandal]);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Nearby (10km)'));
@@ -96,11 +155,13 @@ void main() {
     expect(find.text('Distant Pandal'), findsOneWidget);
   });
 
-  testWidgets('food empty-state action clears the active search', (tester) async {
+  testWidgets('food empty-state action clears the active search', (
+    tester,
+  ) async {
     final repository = ControlledPlaceRepository();
-    await tester.pumpWidget(MaterialApp(
-      home: PandalListScreen(repository: repository),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(home: PandalListScreen(repository: repository)),
+    );
     repository.requests.single.complete([pandal]);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Food Spots'));
@@ -116,30 +177,40 @@ void main() {
     expect(find.text('Local Kitchen'), findsOneWidget);
   });
 
-  testWidgets('region filter can be selected and reset on a small phone',
-      (tester) async {
-    tester.view.physicalSize = const Size(360, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final repository = ControlledPlaceRepository();
-    await tester.pumpWidget(MaterialApp(
-      home: PandalListScreen(repository: repository),
-    ));
-    repository.requests.single.complete([pandal]);
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Regions'));
-    await tester.tap(find.text('Regions'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('North Kolkata'));
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('North'));
-    await tester.tap(find.text('North'));
-    await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Reset All'));
-    await tester.pumpAndSettle();
-    expect(find.text('Regions'), findsOneWidget);
-    expect(find.text('Distant Pandal'), findsOneWidget);
-  });
+  testWidgets(
+    'region filter can be selected and reset with large text on a small phone',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final repository = ControlledPlaceRepository();
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: appDarkTheme,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: PandalListScreen(repository: repository),
+        ),
+      );
+      repository.requests.single.complete([pandal]);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Regions'));
+      await tester.tap(find.text('Regions'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('North Kolkata'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('North'));
+      await tester.tap(find.text('North'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.text('Reset All'));
+      await tester.pumpAndSettle();
+      expect(find.text('Regions'), findsOneWidget);
+      expect(find.text('Distant Pandal'), findsOneWidget);
+    },
+  );
 }

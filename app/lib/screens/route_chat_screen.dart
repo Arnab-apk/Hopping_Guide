@@ -1,3 +1,5 @@
+import '../widgets/app_notice.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,7 +26,10 @@ class RouteChatScreen extends StatefulWidget {
   final String? initialQuestion;
   final ChatService? chatService;
 
-  static Route<void> route({RouteSummary? initialRoute, String? initialQuestion}) {
+  static Route<void> route({
+    RouteSummary? initialRoute,
+    String? initialQuestion,
+  }) {
     return MaterialPageRoute(
       builder: (_) => RouteChatScreen(
         initialRoute: initialRoute,
@@ -61,7 +66,8 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
     _loadStatus();
 
     // If an initial route was provided, send query
-    if (widget.initialQuestion != null && widget.initialQuestion!.trim().isNotEmpty) {
+    if (widget.initialQuestion != null &&
+        widget.initialQuestion!.trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _sendMessage(widget.initialQuestion!);
       });
@@ -69,7 +75,9 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final origin = widget.initialRoute!.originName ?? 'Origin';
         final dest = widget.initialRoute!.destinationName ?? 'Destination';
-        _sendMessage('What are the active road closures or crowd on route from $origin to $dest?');
+        _sendMessage(
+          'What are the active road closures or crowd on route from $origin to $dest?',
+        );
       });
     }
   }
@@ -125,13 +133,12 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
     _scrollToBottom();
 
     try {
-      final reply = await _chatService.ask(
-        clean,
-        route: widget.initialRoute,
-      );
+      final reply = await _chatService.ask(clean, route: widget.initialRoute);
 
-      final isRouteRequest = RegExp(r'\b(route|way|walk|go to|directions|how to get|jabo|jao|rasta)\b', caseSensitive: false)
-          .hasMatch(clean);
+      final isRouteRequest = RegExp(
+        r'\b(route|way|walk|go to|directions|how to get|jabo|jao|rasta)\b',
+        caseSensitive: false,
+      ).hasMatch(clean);
       final replyActions = <String>{
         ...reply.actions,
         if (isRouteRequest) 'show_on_map',
@@ -242,7 +249,10 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                   ? _buildEmptyState(colorScheme, isDark)
                   : ListView.builder(
                       controller: _scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final msg = _messages[index];
@@ -302,12 +312,19 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                         hintText: 'Ask about routes, closures, metro…',
                         hintStyle: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHigh.withValues(alpha: 0.7),
+                        fillColor: colorScheme.surfaceContainerHigh.withValues(
+                          alpha: 0.7,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
@@ -317,6 +334,7 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
+                    tooltip: 'Send message',
                     onPressed: () => _sendMessage(_inputController.text),
                     icon: const Icon(Icons.arrow_upward_rounded, size: 20),
                     style: IconButton.styleFrom(
@@ -377,9 +395,14 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                     ),
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                          color: colorScheme.surfaceContainerHigh.withValues(
+                            alpha: 0.5,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
@@ -392,7 +415,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            Icon(Icons.keyboard_arrow_down, size: 16, color: colorScheme.onSurfaceVariant),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 16,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ],
                         ),
                       ),
@@ -419,11 +446,18 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                         style: GoogleFonts.plusJakartaSans(fontSize: 13),
                         decoration: InputDecoration(
                           hintText: 'Choose pandal or station',
-                          hintStyle: GoogleFonts.plusJakartaSans(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                          hintStyle: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           filled: true,
-                          fillColor: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                          fillColor: colorScheme.surfaceContainerHigh
+                              .withValues(alpha: 0.5),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide.none,
@@ -434,15 +468,21 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                   ],
                 ),
                 const SizedBox(height: 14),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+
                   children: [
                     OutlinedButton.icon(
                       onPressed: () => CustomTrailPlannerDialog.show(context),
                       icon: const Icon(Icons.tune_rounded, size: 16),
                       label: const Text('Build custom'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
@@ -450,12 +490,17 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                     FilledButton.tonal(
                       onPressed: () {
                         final dest = _quickToController.text.trim();
-                        _sendMessage(dest.isNotEmpty
-                            ? 'Best way to $dest from current location'
-                            : 'Best route to nearest major pandal');
+                        _sendMessage(
+                          dest.isNotEmpty
+                              ? 'Best way to $dest from current location'
+                              : 'Best route to nearest major pandal',
+                        );
                       },
                       style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
+                        ),
                         visualDensity: VisualDensity.compact,
                       ),
                       child: const Text('Check route'),
@@ -497,9 +542,13 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
               child: Row(
                 children: [
                   Icon(
-                    isBlockage ? Icons.warning_amber_rounded : Icons.people_outline_rounded,
+                    isBlockage
+                        ? Icons.warning_amber_rounded
+                        : Icons.people_outline_rounded,
                     size: 18,
-                    color: isBlockage ? colorScheme.error : colorScheme.secondary,
+                    color: isBlockage
+                        ? colorScheme.error
+                        : colorScheme.secondary,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -562,7 +611,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
   }
 
   /// Builds a user or assistant message item
-  Widget _buildMessageItem(RouteChatMessage msg, ColorScheme colorScheme, bool isDark) {
+  Widget _buildMessageItem(
+    RouteChatMessage msg,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     if (msg.isUser) {
       return Align(
         alignment: Alignment.centerRight,
@@ -639,7 +692,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
   }
 
   /// Builds structured fact card based on block type
-  Widget _buildBlockCard(ChatFactBlock block, ColorScheme colorScheme, bool isDark) {
+  Widget _buildBlockCard(
+    ChatFactBlock block,
+    ColorScheme colorScheme,
+    bool isDark,
+  ) {
     switch (block) {
       case RouteBlock r:
         return Container(
@@ -647,7 +704,9 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerLow,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -679,7 +738,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.warning_amber_rounded, size: 14, color: colorScheme.error),
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      size: 14,
+                      color: colorScheme.error,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${r.issues} barricade/closure on route',
@@ -707,7 +770,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.warning_amber_rounded, size: 18, color: colorScheme.error),
+              Icon(
+                Icons.warning_amber_rounded,
+                size: 18,
+                color: colorScheme.error,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -726,7 +793,9 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
                       '${b.source} · ${b.updatedMinAgo} min ago',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 11.5,
-                        color: colorScheme.onErrorContainer.withValues(alpha: 0.8),
+                        color: colorScheme.onErrorContainer.withValues(
+                          alpha: 0.8,
+                        ),
                       ),
                     ),
                   ],
@@ -746,7 +815,9 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerLow,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            ),
           ),
           child: Row(
             children: [
@@ -785,7 +856,9 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerLow,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            ),
           ),
           child: Row(
             children: [
@@ -836,7 +909,11 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
   }
 
   /// Builds action button under answer (e.g. Show on map, Share with group, Start walking)
-  Widget _buildActionButton(String action, RouteChatMessage msg, ColorScheme colorScheme) {
+  Widget _buildActionButton(
+    String action,
+    RouteChatMessage msg,
+    ColorScheme colorScheme,
+  ) {
     String label = action;
     IconData icon = Icons.open_in_new;
 
@@ -868,18 +945,19 @@ class _RouteChatScreenState extends State<RouteChatScreen> {
           Navigator.of(context).pop();
         } else if (action == 'share_with_group') {
           Clipboard.setData(ClipboardData(text: msg.text));
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Route update copied to clipboard for group share'),
-              duration: Duration(seconds: 2),
-            ),
+          showAppSuccessNotice(
+            context,
+            'Route update copied to clipboard for group share',
           );
         }
       },
       icon: Icon(icon, size: 15),
       label: Text(
         label,
-        style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w600),
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       style: OutlinedButton.styleFrom(
         visualDensity: VisualDensity.compact,

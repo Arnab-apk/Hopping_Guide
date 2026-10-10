@@ -1,0 +1,1 @@
+const fs=require('fs');const p='scratch/prepare_journey_release.cjs';let s=fs.readFileSync(p,'utf8').replace("'app/lib/widgets/journey_card.dart',","'app/lib/widgets/empty_states.dart','app/lib/widgets/journey_card.dart',");fs.writeFileSync(p,s);

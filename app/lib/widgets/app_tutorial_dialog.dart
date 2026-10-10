@@ -67,9 +67,8 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
   final List<TutorialStep> _steps = const [
     TutorialStep(
       title: 'Interactive Puja Map',
-      subtitle: '380+ Pandals • Red Arrow Quick Radar',
-      description:
-          'Pan and pinch to navigate 380+ verified Durga Puja pandals. Tap the floating Red Navigation Arrow on the map to instantly scan all pandals within a 10 km radius and trace your fastest walking route.',
+      subtitle: 'Discover Kolkata • Plan your next stop',
+      description: 'Pan and pinch to explore Durga Puja pandals. Tap the navigation arrow on the map to find nearby pandals and plan your walking route.',
       icon: Icons.map_rounded,
       iconColor: PujaColors.festivalGold,
       highlights: [
@@ -82,8 +81,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
     TutorialStep(
       title: 'Pandals Directory & Tracker',
       subtitle: 'Search, Bookmark & Mark Visited',
-      description:
-          'Search pandals by name, locality, or artistic concept. Tap the heart to bookmark favorites, and mark pandals as hopped to track your festive journey.',
+      description: 'Search pandals by name, locality, or artistic concept. Tap the heart to bookmark favorites, and mark pandals as hopped to track your festive journey.',
       icon: Icons.temple_hindu_rounded,
       customWidget: DurgaFaceIcon(
         size: 38,
@@ -100,8 +98,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
     TutorialStep(
       title: 'Curated Walking Routes',
       subtitle: 'Optimized Itineraries for Pandal Crawlers',
-      description:
-          'Explore time-tested heritage walks like the North Kolkata Traditional Walk, South Kolkata Grand Circuit, and Bonedi Bari Aristocratic Trail.',
+      description: 'Explore time-tested heritage walks like the North Kolkata Traditional Walk, South Kolkata Grand Circuit, and Bonedi Bari Aristocratic Trail.',
       icon: Icons.alt_route_rounded,
       iconColor: PujaColors.festivalGold,
       highlights: [
@@ -113,8 +110,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
     TutorialStep(
       title: 'Private Hopping Squads',
       subtitle: 'Stay Connected in Mega Crowds',
-      description:
-          'Create a private squad with family or friends and share your 6-character code. Set a meet-up point and send SOS alerts if anyone gets separated.',
+      description: 'Create a private squad with family or friends and share your 6-character code. Set a meet-up point and send SOS alerts if anyone gets separated.',
       icon: Icons.group_rounded,
       iconColor: PujaColors.metroBlue,
       highlights: [
@@ -126,8 +122,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
     TutorialStep(
       title: '24/7 Emergency & Helplines',
       subtitle: 'Direct One-Tap Police & Medical Dialing',
-      description:
-          'Instant access to official Kolkata Police Lalbazar Control Room, 112 Emergency, Medical Ambulances, Women Safety, and Child Helplines.',
+      description: 'Instant access to official Kolkata Police Lalbazar Control Room, 112 Emergency, Medical Ambulances, Women Safety, and Child Helplines.',
       icon: Icons.health_and_safety_rounded,
       iconColor: PujaColors.durgaRed,
       highlights: [
@@ -194,7 +189,9 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
           color: isDark ? PujaColors.nightCard : Colors.white,
           borderRadius: BorderRadius.circular(26),
           border: Border.all(
-            color: isDark ? PujaColors.nightBorder : PujaColors.festivalGold.withValues(alpha: 0.45),
+            color: isDark
+                ? PujaColors.nightBorder
+                : PujaColors.festivalGold.withValues(alpha: 0.45),
             width: 1.2,
           ),
           boxShadow: [
@@ -210,11 +207,17 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
             // Top Bar: Step indicator + Skip button
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 12, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: PujaColors.festivalGold.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -236,7 +239,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                     child: Text(
                       'Skip',
                       style: GoogleFonts.plusJakartaSans(
-                        color: isDark ? Colors.white60 : Colors.black54,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
@@ -257,7 +260,10 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                 itemBuilder: (context, index) {
                   final step = _steps[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 10,
+                    ),
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
                       child: Column(
@@ -281,7 +287,8 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                                 ),
                               ],
                             ),
-                            child: step.customWidget ??
+                            child:
+                                step.customWidget ??
                                 Icon(
                                   step.icon,
                                   size: context.dynamicIcon(38),
@@ -298,7 +305,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                               fontSize: context.dynamicFont(20),
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.2,
-                              color: isDark ? Colors.white : Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -322,21 +329,26 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: context.dynamicFont(12.5),
                               height: 1.42,
-                              color: isDark ? Colors.white70 : Colors.black54,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 14),
 
                           // Feature Highlights
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               color: isDark
                                   ? Colors.black.withValues(alpha: 0.35)
                                   : Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.15),
+                                color: Colors.white.withValues(
+                                  alpha: isDark ? 0.08 : 0.15,
+                                ),
                               ),
                             ),
                             child: Column(
@@ -344,7 +356,9 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                               children: step.highlights
                                   .map(
                                     (h) => Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 2.5),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 2.5,
+                                      ),
                                       child: Row(
                                         children: [
                                           const Icon(
@@ -356,11 +370,15 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                                           Expanded(
                                             child: Text(
                                               h,
-                                              style: GoogleFonts.plusJakartaSans(
-                                                fontSize: context.dynamicFont(11.5),
-                                                fontWeight: FontWeight.w600,
-                                                color: isDark ? Colors.white70 : Colors.black87,
-                                              ),
+                                              style:
+                                                  GoogleFonts.plusJakartaSans(
+                                                    fontSize: context
+                                                        .dynamicFont(11.5),
+                                                    fontWeight: FontWeight.w600,
+                                                    color: isDark
+                                                        ? Colors.white70
+                                                        : Colors.black87,
+                                                  ),
                                             ),
                                           ),
                                         ],
@@ -373,12 +391,17 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                           if (step.title == 'Interactive Puja Map') ...[
                             const SizedBox(height: 10),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFF1744).withValues(alpha: 0.12),
+                                color: const Color(0xFFFF1744)
+                                    .withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: const Color(0xFFFF1744).withValues(alpha: 0.4),
+                                  color: const Color(0xFFFF1744)
+                                      .withValues(alpha: 0.4),
                                   width: 1.2,
                                 ),
                               ),
@@ -403,7 +426,7 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: context.dynamicFont(11),
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? Colors.white : Colors.black87,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                         height: 1.3,
                                       ),
                                     ),
@@ -457,7 +480,9 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                           side: BorderSide(
-                            color: isDark ? Colors.white24 : Colors.grey.shade300,
+                            color: isDark
+                                ? Colors.white24
+                                : Colors.grey.shade300,
                           ),
                         ),
                         onPressed: _previousPage,
@@ -480,7 +505,9 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                     flex: 2,
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: isLast ? PujaColors.festivalGold : PujaColors.durgaRed,
+                        backgroundColor: isLast
+                            ? PujaColors.festivalGold
+                            : PujaColors.durgaRed,
                         foregroundColor: isLast ? Colors.black : Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         elevation: 3,
@@ -490,7 +517,9 @@ class _AppTutorialDialogState extends State<AppTutorialDialog> {
                       ),
                       onPressed: _nextPage,
                       icon: Icon(
-                        isLast ? Icons.check_circle_rounded : Icons.arrow_forward_rounded,
+                        isLast
+                            ? Icons.check_circle_rounded
+                            : Icons.arrow_forward_rounded,
                         size: 18,
                       ),
                       label: Text(
