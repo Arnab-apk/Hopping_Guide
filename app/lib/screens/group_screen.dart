@@ -1521,9 +1521,17 @@ class _GroupScreenState extends State<GroupScreen> {
                 child: Row(children: [
                   const Icon(Icons.location_disabled_rounded, color: AppColors.semanticAlert, size: 18),
                   const SizedBox(width: 8),
-                  const Expanded(child: Text('GPS is not updating. Friends may see an old location.',
-                      style: TextStyle(fontSize: 11.5))),
-                  TextButton(onPressed: squadService.retryLocationTracking, child: const Text('Retry')),
+                  Expanded(child: Text(squadService.locationSyncError ?? 'GPS is not updating. Friends may see an old location.',
+                      style: const TextStyle(fontSize: 11.5))),
+                  TextButton(onPressed: () async {
+                    if (!await Geolocator.isLocationServiceEnabled()) {
+                      await Geolocator.openLocationSettings();
+                    } else if (await Geolocator.checkPermission() == LocationPermission.deniedForever) {
+                      await Geolocator.openAppSettings();
+                    } else {
+                      squadService.retryLocationTracking();
+                    }
+                  }, child: const Text('Enable GPS')),
                 ]),
               ),
               const SizedBox(height: 8),

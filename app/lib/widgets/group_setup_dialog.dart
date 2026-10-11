@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/squad_service.dart';
+import '../services/location_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// Polished Material 3 dialog for creating or joining a Durga Puja hopping group.
 class GroupSetupDialog extends StatefulWidget {
@@ -42,6 +44,10 @@ class _GroupSetupDialogState extends State<GroupSetupDialog> {
     });
 
     try {
+      if (!LocationService.enableTestMode) {
+        await LocationService.requestLocationPermission();
+        await [Permission.notification, Permission.microphone, Permission.camera].request();
+      }
       var success = false;
       if (widget.join) {
         success = await widget.service.joinSquad(_name.text.trim().toUpperCase());

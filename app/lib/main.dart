@@ -11,6 +11,7 @@ import 'config/gemkit_config.dart';
 import 'firebase_options.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/auth_service.dart';
+import 'services/group_call_push_service.dart';
 import 'services/custom_hopping_trail_service.dart';
 import 'services/enhanced_navigation_service.dart';
 import 'services/location_service.dart';
@@ -33,6 +34,8 @@ Uri? _pendingDeepLink;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Bound decoded map tiles and photos on memory-constrained phones.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 64 * 1024 * 1024;
   GoogleFonts.config.allowRuntimeFetching = false;
 
   // Initialize Magic Lane GemKit SDK (if available and configured)
@@ -62,6 +65,7 @@ void main() async {
   // Initialize notifications
   await NotificationProgressService.instance.initialize();
   await SmartNotificationService.instance.initialize();
+  await GroupCallPushService.instance.initialize();
 
   // Proactively fetch device location if permitted
   locationService.updateLiveLocation();

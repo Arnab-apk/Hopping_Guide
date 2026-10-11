@@ -48,6 +48,7 @@ const handlers_1 = require("./handlers");
 const uuid_1 = require("uuid");
 const routes_1 = require("./chat/routes");
 const video_1 = require("./video");
+const call_notifications_1 = require("./call-notifications");
 dotenv_1.default.config({ path: process.env.DOTENV_CONFIG_PATH || '.env' });
 const PORT = parseInt(process.env.PORT || '8080', 10);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -224,6 +225,15 @@ const server = http_1.default.createServer(async (req, res) => {
     const method = req.method || 'GET';
     try {
         // Health & Stats
+        const callNotification = pathname.match(/^\/api\/squads\/([^/]+)\/video\/notify\/([^/]+)(\/end)?$/);
+        if (callNotification) {
+            if (method !== 'POST') {
+                sendHttpJson(res, 405, { error: 'Use POST' });
+                return;
+            }
+            await (0, call_notifications_1.notifyGroupCall)(req, res, callNotification[1], callNotification[2], firebaseApp, sendHttpJson, Boolean(callNotification[3]));
+            return;
+        }
         const videoRoute = pathname.match(/^\/api\/squads\/([^/]+)\/video\/session$/);
         if (videoRoute) {
             if (method !== 'POST') {

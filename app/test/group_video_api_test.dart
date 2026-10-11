@@ -6,6 +6,30 @@ import 'package:http/testing.dart';
 import 'package:kolkata_puja/services/group_video_api.dart';
 
 void main() {
+  test(
+    'ringing and cancellation authenticate against the same invitation',
+    () async {
+      final paths = <String>[];
+      final api = GroupVideoApi(
+        baseUrl: 'https://example.com/',
+        idTokenLoader: () async => 'firebase-token',
+        client: MockClient((request) async {
+          expect(request.method, 'POST');
+          expect(request.headers['Authorization'], 'Bearer firebase-token');
+          paths.add(request.url.path);
+          return http.Response('{"notified":1}', 200);
+        }),
+      );
+      addTearDown(api.dispose);
+      await api.notifyMembers('group', 'invite');
+      await api.notifyMembers('group', 'invite', ended: true);
+      expect(paths, [
+        '/api/squads/group/video/notify/invite',
+        '/api/squads/group/video/notify/invite/end',
+      ]);
+    },
+  );
+
   test('builds without API defines use the hosted calling service', () async {
     final api = GroupVideoApi(
       idTokenLoader: () async => 'firebase-token',

@@ -486,18 +486,25 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _startSquadLocationTracking() {
-    if (_locationTrackingStarted) return;
+    if (_locationTrackingStarted || !_isSharingLocation) return;
     _locationTrackingStarted = true;
     LocationService.instance
         .startLiveTracking(callbackKey: this)
         .then((started) {
           if (!started) {
             _locationTrackingStarted = false;
+            _locationSyncError = LocationService.instance.error ??
+                'Allow location access on this device to share your position.';
+            notifyListeners();
+          } else {
+            _locationSyncError = null;
+            _syncUserLocationToCloud(force: true);
             notifyListeners();
           }
         })
         .catchError((e) {
           _locationTrackingStarted = false;
+          _locationSyncError = 'Could not start location sharing. Enable location and retry.';
           debugPrint('[SquadService] location tracking error: $e');
           notifyListeners();
         });
@@ -1356,7 +1363,10 @@ class SquadService extends ChangeNotifier with WidgetsBindingObserver {
             });
       }
     }
-    if (val) _syncUserLocationToCloud(force: true);
+    if (val) {
+      _startSquadLocationTracking();
+      _syncUserLocationToCloud(force: true);
+    }
     notifyListeners();
   }
 

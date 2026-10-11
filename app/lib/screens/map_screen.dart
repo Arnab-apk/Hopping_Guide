@@ -1155,13 +1155,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
 
     final controller = AnimationController(
-      duration: Duration(milliseconds: _navigation.active ? 800 : 550),
+      duration: Duration(milliseconds: _navigation.active ? 700 : 450),
       vsync: this,
     );
     _cameraMoveController = controller;
 
     controller.addListener(() {
-      final t = Curves.fastOutSlowIn.transform(controller.value);
+      final t = Curves.easeInOutCubic.transform(controller.value);
       _mapController.move(
         LatLng(latTween.transform(t), lngTween.transform(t)),
         zoomTween.transform(t),
@@ -1222,7 +1222,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           );
         }
       },
-    );
+    ).then((started) {
+      if (!started) _mapTrackingStarted = false;
+    });
   }
 
   Future<void> _startTrackingIfPermitted() async {
@@ -1454,6 +1456,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       MaterialPageRoute<void>(
         builder: (_) => TrailRouteScreen(
           stops: [destination],
+          soloDestination: true,
           onUseJourney: _onJourneyStart,
         ),
       ),
@@ -1813,10 +1816,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
               initialZoom: AppConfig.defaultZoom,
               initialRotation: 0.0,
+              minZoom: 9.5,
+              maxZoom: 18.5,
+              cameraConstraint: CameraConstraint.containCenter(
+                bounds: LatLngBounds(
+                  const LatLng(21.8, 87.5),
+                  const LatLng(23.4, 89.2),
+                ),
+              ),
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all,
                 enableMultiFingerGestureRace: true,
                 rotationThreshold: 15.0,
+                pinchZoomThreshold: 0.5,
+                pinchMoveThreshold: 25.0,
               ),
               onTap: (_, _) {
                 if (_isSearchActive) {
@@ -1873,9 +1886,13 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   // 1. CRITICAL: Prevents OSM from blocking your app (Missing Blocks fix)
                   userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
 
-                  // Keep a small nearby cache to avoid retaining a large tile grid.
-                  keepBuffer: _moreMapNames ? 1 : 2,
-                  panBuffer: _moreMapNames ? 0 : 1,
+                  // Preload adjacent tiles and retain prior zoom tiles to eliminate grey flashing
+                  keepBuffer: _moreMapNames ? 2 : 3,
+                  panBuffer: _moreMapNames ? 1 : 2,
+                  tileDisplay: const TileDisplay.fadeIn(
+                    duration: Duration(milliseconds: 140),
+                  ),
+                  evictErrorTileStrategy: EvictErrorTileStrategy.none,
                   // 4. HARDWARE ACCELERATED DARK MODE: Applies your matrix at the GPU level
                   tileBuilder: (context, tileWidget, tile) {
                     if (isDark) {
@@ -2471,27 +2488,30 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   ),
 
                 // User Location Marker with Animated Radar Pulse & Directional Navigation Arrow
-                if (_effectiveUserLocation != null)
-                  RepaintBoundary(
+                if (_effectiveUserLocation != null) () {
+                  final userLatLng = _effectiveUserLocation!;
+                  final isNavigatingToTarget = _selectedPandal != null ||
+                      _selectedSquadMember != null ||
+                      _selectedFoodSpot != null ||
+                      _selectedMetroStation != null;
+                  return RepaintBoundary(
                     child: MarkerLayer(
                       markers: [
                         Marker(
                           rotate: true,
-                          point: _effectiveUserLocation!,
+                          point: userLatLng,
                           width: 64,
                           height: 64,
                           alignment: Alignment.center,
                           child: RepaintBoundary(
                             child: AnimatedBuilder(
                               animation: _pulseController,
-                              builder: (context, child) {
+                              child: _buildUserLocationCore(isNavigatingToTarget),
+                              builder: (context, staticChild) {
                                 final pulse = _pulseController.value;
-                                final userLatLng = _effectiveUserLocation!;
 
                                 // Calculate directional bearing towards destination pandal, squad member, food spot, or metro
                                 double? arrowBearing;
-                                bool isNavigatingToTarget = false;
-
                                 if (_selectedPandal != null) {
                                   arrowBearing = calculateBearing(
                                     userLatLng.latitude,
@@ -2499,7 +2519,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                     _selectedPandal!.lat,
                                     _selectedPandal!.lng,
                                   );
-                                  isNavigatingToTarget = true;
                                 } else if (_selectedSquadMember != null) {
                                   arrowBearing = calculateBearing(
                                     userLatLng.latitude,
@@ -2507,7 +2526,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                     _selectedSquadMember!.latitude,
                                     _selectedSquadMember!.longitude,
                                   );
-                                  isNavigatingToTarget = true;
                                 } else if (_selectedFoodSpot != null) {
                                   arrowBearing = calculateBearing(
                                     userLatLng.latitude,
@@ -2515,7 +2533,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                     _selectedFoodSpot!.lat,
                                     _selectedFoodSpot!.lng,
                                   );
-                                  isNavigatingToTarget = true;
                                 } else if (_selectedMetroStation != null) {
                                   arrowBearing = calculateBearing(
                                     userLatLng.latitude,
@@ -2523,7 +2540,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                     _selectedMetroStation!.latitude,
                                     _selectedMetroStation!.longitude,
                                   );
-                                  isNavigatingToTarget = true;
                                 } else {
                                   // Use fused heading (GPS + compass) from LocationService
                                   // Works when stationary (compass) and moving (GPS)
@@ -2543,20 +2559,18 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                       height: 30 + (28 * pulse),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color:
-                                            (isNavigatingToTarget
-                                                    ? PujaColors.festivalGold
-                                                    : const Color(0xFF2979FF))
-                                                .withValues(
-                                                  alpha: 0.35 * (1.0 - pulse),
-                                                ),
+                                        color: (isNavigatingToTarget
+                                                ? PujaColors.festivalGold
+                                                : const Color(0xFF2979FF))
+                                            .withValues(
+                                              alpha: 0.35 * (1.0 - pulse),
+                                            ),
                                       ),
                                     ),
                                     // Directional Navigation Arrow pointing towards target or forward heading
                                     if (arrowBearing != null)
                                       Transform.rotate(
-                                        angle:
-                                            ((arrowBearing + _mapRotation) *
+                                        angle: ((arrowBearing + _mapRotation) *
                                             math.pi /
                                             180),
                                         child: Transform.translate(
@@ -2577,136 +2591,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
-                                    // Inner location core with golden outline & prominent Google DP
-                                    Container(
-                                      width: 32,
-                                      height: 32,
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Color(0xFF2979FF),
-                                            Color(0xFF1565C0),
-                                          ],
-                                        ),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: isNavigatingToTarget
-                                              ? PujaColors.goldBright
-                                              : Colors.white,
-                                          width: 2.6,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                (isNavigatingToTarget
-                                                        ? PujaColors.goldBright
-                                                        : const Color(
-                                                            0xFF2979FF,
-                                                          ))
-                                                    .withValues(alpha: 0.55),
-                                            blurRadius: 8,
-                                            spreadRadius: 1,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: ClipOval(
-                                        child: Builder(
-                                          builder: (context) {
-                                            AuthService? auth;
-                                            try {
-                                              auth = context
-                                                  .watch<AuthService>();
-                                            } catch (_) {
-                                              auth = null;
-                                            }
-                                            final user =
-                                                auth?.currentUserModel ??
-                                                AuthService
-                                                    .instance
-                                                    .currentUserModel;
-                                            final userPhoto = user?.photoUrl;
-                                            final name =
-                                                user?.displayName ?? '';
-                                            final initial =
-                                                name.trim().isNotEmpty
-                                                ? name.trim()[0].toUpperCase()
-                                                : 'U';
-
-                                            if (userPhoto != null &&
-                                                userPhoto.isNotEmpty) {
-                                              return Image.network(
-                                                userPhoto,
-                                                width: 32,
-                                                height: 32,
-                                                fit: BoxFit.cover,
-                                                errorBuilder:
-                                                    (
-                                                      context,
-                                                      error,
-                                                      stack,
-                                                    ) => Center(
-                                                      child: Text(
-                                                        initial,
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 13,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                loadingBuilder:
-                                                    (
-                                                      context,
-                                                      child,
-                                                      loadingProgress,
-                                                    ) {
-                                                      if (loadingProgress ==
-                                                          null) {
-                                                        return child;
-                                                      }
-                                                      return Center(
-                                                        child: Text(
-                                                          initial,
-                                                          style:
-                                                              const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 13,
-                                                              ),
-                                                        ),
-                                                      );
-                                                    },
-                                              );
-                                            }
-
-                                            return Center(
-                                              child: name.trim().isNotEmpty
-                                                  ? Text(
-                                                      initial,
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 13,
-                                                      ),
-                                                    )
-                                                  : const Icon(
-                                                      Icons.person_rounded,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
+                                    ?staticChild,
                                   ],
                                 );
                               },
@@ -2715,7 +2600,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                  ),
+                  );
+                }(),
 
                 // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, Metro Stations, and Toilets
                 if (_selectedPandal != null ||
@@ -3635,6 +3521,107 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  /// Inner location core with avatar/initial and glowing border, decoupled from pulse animation
+  Widget _buildUserLocationCore(bool isNavigatingToTarget) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF2979FF),
+            Color(0xFF1565C0),
+          ],
+        ),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isNavigatingToTarget
+              ? PujaColors.goldBright
+              : Colors.white,
+          width: 2.6,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: (isNavigatingToTarget
+                    ? PujaColors.goldBright
+                    : const Color(0xFF2979FF))
+                .withValues(alpha: 0.55),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipOval(
+        child: Builder(
+          builder: (context) {
+            final auth = context.read<AuthService?>();
+            final user =
+                auth?.currentUserModel ??
+                AuthService.instance.currentUserModel;
+            final userPhoto = user?.photoUrl;
+            final name = user?.displayName ?? '';
+            final initial =
+                name.trim().isNotEmpty
+                ? name.trim()[0].toUpperCase()
+                : 'U';
+
+            if (userPhoto != null && userPhoto.isNotEmpty) {
+              return Image.network(
+                userPhoto,
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) => Center(
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: Text(
+                      initial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
+            return Center(
+              child: name.trim().isNotEmpty
+                  ? Text(
+                      initial,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.person_rounded,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+            );
+          },
+        ),
       ),
     );
   }

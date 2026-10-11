@@ -353,20 +353,20 @@ extension AppAnimateExtension on Widget {
     ],
   );
 
-  /// Staggered entrance for lists.
+  /// Staggered entrance for lists with clamped index to prevent scroll animation lag.
   Widget staggerEntrance(int index, {Duration? delay}) => animate(
     effects: [
       FadeEffect(
         duration: AppDurations.emphasis,
         curve: AppCurves.standardEaseOut,
-        delay: (delay ?? AppStagger.itemDelay) * index,
+        delay: (delay ?? AppStagger.itemDelay) * index.clamp(0, 7),
       ),
       SlideEffect(
         begin: const Offset(0, 0.3),
         end: Offset.zero,
         duration: AppDurations.emphasis,
         curve: AppCurves.standardEaseOut,
-        delay: (delay ?? AppStagger.itemDelay) * index,
+        delay: (delay ?? AppStagger.itemDelay) * index.clamp(0, 7),
       ),
     ],
   );

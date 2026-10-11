@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../config/gemkit_config.dart';
 import '../services/navigation_session.dart';
 import '../widgets/app_tutorial_dialog.dart';
+import '../widgets/incoming_group_call_listener.dart';
 import '../widgets/puja_icons.dart';
 import 'map_screen.dart';
 import 'map_screen_gemkit.dart';
@@ -126,75 +127,83 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Preserve screen state while changing tabs.
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          for (var i = 0; i < _screens.length; i++)
-            TickerMode(
-              enabled: i == _currentIndex,
-              child: _mountedTabs.contains(i)
-                  ? _screens[i]
-                  : const SizedBox.shrink(),
-            ),
-        ],
-      ),
-      bottomNavigationBar: ListenableBuilder(
-        listenable: NavigationSession.instance,
-        builder: (context, _) => NavigationSession.instance.active
-            ? const SizedBox.shrink()
-            : NavigationBar(
-                selectedIndex: _currentIndex,
-                onDestinationSelected: _onTabSelected,
-                destinations: const [
-                  NavigationDestination(
-                    icon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.durgaEyes, size: 24),
-                    ),
-                    selectedIcon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.durgaEyes, size: 24),
-                    ),
-                    label: 'Map',
-                  ),
-                  NavigationDestination(
-                    icon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.durgaFace, size: 24),
-                    ),
-                    selectedIcon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.durgaFace, size: 24),
-                    ),
-                    label: 'Pandals',
-                  ),
-                  NavigationDestination(
-                    icon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.ashtabhujaVariant, size: 24),
-                    ),
-                    selectedIcon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.ashtabhujaVariant, size: 24),
-                    ),
-                    label: 'Routes',
-                  ),
-                  NavigationDestination(
-                    icon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.dhaki, size: 24),
-                    ),
-                    selectedIcon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.dhaki, size: 24),
-                    ),
-                    label: 'Group',
-                  ),
-                  NavigationDestination(
-                    icon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.trishulEyes, size: 24),
-                    ),
-                    selectedIcon: ExcludeSemantics(
-                      child: PujaIcon(PujaIconType.trishulEyes, size: 24),
-                    ),
-                    label: 'Helpline',
-                  ),
-                ],
+    return IncomingGroupCallListener(
+      child: Scaffold(
+        // Preserve screen state while changing tabs.
+        body: IndexedStack(
+          index: _currentIndex,
+          children: [
+            for (var i = 0; i < _screens.length; i++)
+              TickerMode(
+                enabled: i == _currentIndex,
+                child: _mountedTabs.contains(i)
+                    ? _screens[i]
+                    : const SizedBox.shrink(),
               ),
+          ],
+        ),
+        bottomNavigationBar: ListenableBuilder(
+          listenable: NavigationSession.instance,
+          builder: (context, _) => NavigationSession.instance.active
+              ? const SizedBox.shrink()
+              : NavigationBar(
+                  selectedIndex: _currentIndex,
+                  onDestinationSelected: _onTabSelected,
+                  destinations: const [
+                    NavigationDestination(
+                      icon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.durgaEyes, size: 24),
+                      ),
+                      selectedIcon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.durgaEyes, size: 24),
+                      ),
+                      label: 'Map',
+                    ),
+                    NavigationDestination(
+                      icon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.durgaFace, size: 24),
+                      ),
+                      selectedIcon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.durgaFace, size: 24),
+                      ),
+                      label: 'Pandals',
+                    ),
+                    NavigationDestination(
+                      icon: ExcludeSemantics(
+                        child: PujaIcon(
+                          PujaIconType.ashtabhujaVariant,
+                          size: 24,
+                        ),
+                      ),
+                      selectedIcon: ExcludeSemantics(
+                        child: PujaIcon(
+                          PujaIconType.ashtabhujaVariant,
+                          size: 24,
+                        ),
+                      ),
+                      label: 'Routes',
+                    ),
+                    NavigationDestination(
+                      icon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.dhaki, size: 24),
+                      ),
+                      selectedIcon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.dhaki, size: 24),
+                      ),
+                      label: 'Group',
+                    ),
+                    NavigationDestination(
+                      icon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.trishulEyes, size: 24),
+                      ),
+                      selectedIcon: ExcludeSemantics(
+                        child: PujaIcon(PujaIconType.trishulEyes, size: 24),
+                      ),
+                      label: 'Helpline',
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kolkata_puja/models/app_user.dart';
 import 'package:kolkata_puja/models/squad_member.dart';
@@ -79,9 +81,22 @@ void main() {
       // The call is reachable directly from the default Trail tab.
       final callButton = find.widgetWithText(FilledButton, 'Group video call');
       expect(callButton, findsOneWidget);
+      const permissions = MethodChannel('flutter.baseflow.com/permissions/methods');
+      final requested = <int>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(permissions, (call) async {
+            if (call.method == 'requestPermissions') {
+              requested.addAll((call.arguments as List).cast<int>());
+              return {for (final id in requested) id: 0};
+            }
+            return 0;
+          });
+      addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(permissions, null));
       await tester.tap(callButton);
       await tester.pumpAndSettle();
       expect(find.byType(GroupVideoCallScreen), findsOneWidget);
+      expect(requested, containsAll([Permission.microphone.value, Permission.camera.value]));
       expect(find.text('Join group call'), findsOneWidget);
     });
 

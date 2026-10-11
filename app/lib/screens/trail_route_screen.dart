@@ -11,6 +11,8 @@ import '../services/multimodal_routing_service.dart' hide haversineMeters;
 import '../widgets/route_polylines.dart';
 import '../widgets/journey_map_markers.dart';
 import '../services/routing_service.dart';
+import '../repositories/station_repository.dart';
+import '../widgets/destination_station_markers.dart';
 
 class TrailRouteScreen extends StatefulWidget {
   const TrailRouteScreen({
@@ -19,11 +21,13 @@ class TrailRouteScreen extends StatefulWidget {
     this.allowMetro = true,
     this.allowTrain = true,
     this.existingRoutes,
+    this.soloDestination = false,
     required this.onUseJourney,
   });
   final List<Pandal> stops;
   final bool allowMetro, allowTrain;
   final List<MultimodalRoute>? existingRoutes;
+  final bool soloDestination;
   final VoidCallback onUseJourney;
   @override
   State<TrailRouteScreen> createState() => _TrailRouteScreenState();
@@ -35,9 +39,11 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
   int _loaded = 0;
   int _generation = 0;
   bool _includeDriving = true;
+  List<Marker> _nearbyStations = const [];
   @override
   void initState() {
     super.initState();
+    if (widget.soloDestination) _includeDriving = false;
     if (widget.existingRoutes != null) {
       _includeDriving = JourneySession.instance.allowDriving;
     }
@@ -68,6 +74,15 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
         );
       }
       var origin = LatLng(fix.latitude, fix.longitude);
+      if (widget.soloDestination && widget.stops.isNotEmpty) {
+        final stations = await StationRepository.instance.allStations();
+        if (!mounted || generation != _generation) return;
+        _nearbyStations = buildDestinationStationMarkers(
+          origin: origin,
+          destination: LatLng(widget.stops.first.lat, widget.stops.first.lng),
+          stations: stations,
+        );
+      }
       final routes = <MultimodalRoute>[];
       for (final stop in widget.stops) {
         routes.add(
@@ -159,7 +174,11 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                       TileLayer(
                         urlTemplate: AppConfig.tileUrlTemplate,
                         userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
-                        keepBuffer: 1,
+                        keepBuffer: 2,
+                        panBuffer: 1,
+                        tileDisplay: const TileDisplay.fadeIn(
+                          duration: Duration(milliseconds: 140),
+                        ),
                       ),
                       PolylineLayer(
                         polylines: [
@@ -176,10 +195,13 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                         ],
                       ),
                       MarkerLayer(
-                        markers: buildJourneyMarkers(
-                          stops: widget.stops,
-                          routes: routes,
-                        ),
+                        markers: [
+                          ..._nearbyStations,
+                          ...buildJourneyMarkers(
+                            stops: widget.stops,
+                            routes: routes,
+                          ),
+                        ],
                       ),
                       const RichAttributionWidget(
                         attributions: [
@@ -204,10 +226,12 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                           _load(refresh: true);
                         },
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(12),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
                         child: Text(
-                          'Tap metro and train pins for station names. Only stations on your selected journey are shown. Ride times are estimates, not live departures.',
+                          widget.soloDestination
+                              ? 'Tap metro and train pins for station names. Nearby stations within 5 km of you and your destination are also shown; these are not necessarily part of your route. Ride times are estimates, not live departures.'
+                              : 'Tap metro and train pins for station names. Only stations on your selected journey are shown. Ride times are estimates, not live departures.',
                         ),
                       ),
                       for (var i = 0; i < routes.length; i++) ...[

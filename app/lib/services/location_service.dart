@@ -44,6 +44,27 @@ class LocationService extends ChangeNotifier {
   DateTime? _lastBroadcastTime;
   Duration _throttleInterval = const Duration(milliseconds: 1500);
   static bool enableTestMode = false;
+  static Future<LocationPermission>? _permissionRequest;
+
+  /// Map startup and group joining may ask at the same time. Android permits
+  /// only one permission dialog; share that result instead of failing a join.
+  static Future<LocationPermission> requestLocationPermission() async {
+    final pending = _permissionRequest;
+    if (pending != null) return pending;
+    final request = () async {
+      final status = await Geolocator.checkPermission();
+      return status == LocationPermission.denied
+          ? await Geolocator.requestPermission()
+          : status;
+    }();
+    _permissionRequest = request;
+    try {
+      return await request;
+    } finally {
+      if (identical(_permissionRequest, request)) _permissionRequest = null;
+    }
+  }
+
   bool _isTestLiveTracking = false;
   void Function(Position)? _testLocationCallback;
 
@@ -342,14 +363,11 @@ class LocationService extends ChangeNotifier {
         return _trackingStartFailed(callbackKey);
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      LocationPermission permission = await requestLocationPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _error = 'Location permission denied by user.';
-          notifyListeners();
-          return _trackingStartFailed(callbackKey);
-        }
+        _error = 'Location permission denied by user.';
+        notifyListeners();
+        return _trackingStartFailed(callbackKey);
       }
 
       if (permission == LocationPermission.deniedForever) {
@@ -357,6 +375,9 @@ class LocationService extends ChangeNotifier {
         notifyListeners();
         return _trackingStartFailed(callbackKey);
       }
+
+      // A concurrent map/group consumer may have completed the shared prompt.
+      if (_positionStreamSub != null) return true;
 
       // Initial fast fix
       Geolocator.getCurrentPosition(
@@ -487,15 +508,12 @@ class LocationService extends ChangeNotifier {
         return null;
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      LocationPermission permission = await requestLocationPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _error = 'Location permission denied by user.';
-          _isLoading = false;
-          notifyListeners();
-          return null;
-        }
+        _error = 'Location permission denied by user.';
+        _isLoading = false;
+        notifyListeners();
+        return null;
       }
 
       if (permission == LocationPermission.deniedForever) {

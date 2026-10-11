@@ -10,6 +10,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
 import '../services/group_video_api.dart';
+import '../services/group_call_signaling.dart';
+import '../services/incoming_call_alert.dart';
 
 /// A foreground group room. Every join and token renewal verifies membership.
 class GroupVideoCallScreen extends StatefulWidget {
@@ -17,20 +19,38 @@ class GroupVideoCallScreen extends StatefulWidget {
     super.key,
     required this.squadId,
     required this.squadName,
+    this.autoJoin = false,
+    this.notifyMembers = true,
   });
   final String squadId, squadName;
+  final bool autoJoin, notifyMembers;
+  static bool isOpen = false;
 
   static void open(
     BuildContext context, {
     required String squadId,
     required String squadName,
+    bool autoJoin = true,
+    bool notifyMembers = true,
   }) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) =>
-            GroupVideoCallScreen(squadId: squadId, squadName: squadName),
-      ),
-    );
+    if (isOpen) return;
+    isOpen = true;
+    unawaited(IncomingCallAlert.busy(true));
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute<void>(
+            builder: (_) => GroupVideoCallScreen(
+              squadId: squadId,
+              squadName: squadName,
+              autoJoin: autoJoin,
+              notifyMembers: notifyMembers,
+            ),
+          ),
+        )
+        .whenComplete(() {
+          isOpen = false;
+          unawaited(IncomingCallAlert.busy(false));
+        });
   }
 
   @override
@@ -47,6 +67,10 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
   StreamSubscription<CallStatus>? _status;
   bool _joining = false;
   bool _camera = true;
+  bool _microphone = true;
+  String? _invitationId;
+  String? _invitationOwner;
+  String? _notice;
   bool _leaving = false;
   bool _closed = false;
   String? _error;
@@ -56,6 +80,11 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (widget.autoJoin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_closed) unawaited(_join());
+      });
+    }
   }
 
   Future<void> _join() async {
@@ -65,23 +94,27 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
       _error = null;
     });
     try {
+      // Ask while entering the call, before waiting for the hosted server.
+      // Denying media still permits a receive-only call.
+      final requestedCamera = _camera;
+      final permissions = await [
+        Permission.microphone,
+        if (requestedCamera) Permission.camera,
+      ].request();
+      if (!mounted || _closed) return;
+      _microphone = permissions[Permission.microphone]?.isGranted ?? false;
+      _camera =
+          requestedCamera &&
+          (permissions[Permission.camera]?.isGranted ?? false);
+      if (!_microphone || (requestedCamera && !_camera)) {
+        _notice = 'Joined with unavailable media switched off. You can allow camera and microphone in app settings.';
+      }
       final session = await _api.session(widget.squadId);
       if (!mounted || _closed) return;
       final user = firebase.FirebaseAuth.instance.currentUser;
       if (user == null || user.uid != session.userId) {
         throw const GroupVideoException(
           'Sign in again before joining this call.',
-        );
-      }
-      final mic = await Permission.microphone.request();
-      if (!mic.isGranted) {
-        throw const GroupVideoException(
-          'Allow microphone access in Settings to join the call.',
-        );
-      }
-      if (_camera && !(await Permission.camera.request()).isGranted) {
-        throw const GroupVideoException(
-          'Allow camera access in Settings, or turn off video to join with audio.',
         );
       }
       if (!mounted || _closed) return;
@@ -136,7 +169,9 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
       final joined = await call.join(
         connectOptions: CallConnectOptions(
           camera: _camera ? TrackOption.enabled() : TrackOption.disabled(),
-          microphone: TrackOption.enabled(),
+          microphone: _microphone
+              ? TrackOption.enabled()
+              : TrackOption.disabled(),
           speakerDefaultOn: true,
         ),
       );
@@ -153,6 +188,44 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
         if (status.isDisconnected) unawaited(_leave());
       });
       setState(() => _joining = false);
+      if (_notice != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_notice!),
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: openAppSettings,
+            ),
+          ),
+        );
+      }
+      if (widget.notifyMembers) {
+        try {
+          final signaling = GroupCallSignaling(FirebaseFirestore.instance);
+          final invitation = await signaling.invite(
+            widget.squadId,
+            user.uid,
+            user.displayName ?? 'Group member',
+          );
+          if (_closed) {
+            await signaling.end(widget.squadId, user.uid, invitation);
+          } else {
+            _invitationId = invitation;
+            _invitationOwner = user.uid;
+            await _api.notifyMembers(widget.squadId, invitation);
+          }
+        } catch (_) {
+          if (mounted && !_closed) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Connected, but members could not be notified. They can still join from the group.',
+                ),
+              ),
+            );
+          }
+        }
+      }
     } catch (error) {
       await _release();
       _cleanup = null;
@@ -168,6 +241,18 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
   }
 
   Future<void> _release() => _cleanup ??= () async {
+    final invitation = _invitationId;
+    final owner = _invitationOwner;
+    _invitationId = null;
+    _invitationOwner = null;
+    if (invitation != null && owner != null) {
+      // Do not hold camera cleanup or leaving the screen on a network write.
+      unawaited(
+        GroupCallSignaling(FirebaseFirestore.instance)
+            .end(widget.squadId, owner, invitation)
+            .catchError((Object _) {}),
+      );
+    }
     await _membership?.cancel();
     _membership = null;
     await _auth?.cancel();
@@ -277,7 +362,7 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'Members of this group join the same room.\nOpen the group call on another device to meet here.',
+                          'Group members with notifications enabled receive an incoming-call alert. Camera and microphone access are requested when you connect.',
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),

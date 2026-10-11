@@ -112,4 +112,34 @@ class GroupVideoApi {
   }
 
   void dispose() => _client.close();
+
+  Future<void> notifyMembers(
+    String squadId,
+    String invitationId, {
+    bool ended = false,
+  }) async {
+    final token = await _idTokenLoader();
+    if (token == null) {
+      throw const GroupVideoException('Sign in to notify members.');
+    }
+    const neonUrl = String.fromEnvironment('NEON_API_URL');
+    final base = _baseUrl.isNotEmpty
+        ? _baseUrl
+        : neonUrl.isNotEmpty
+        ? neonUrl
+        : 'https://uma-group-calling.onrender.com';
+    final response = await _client
+        .post(
+          Uri.parse(
+            '${base.replaceAll(RegExp(r"/+$"), "")}/api/squads/${Uri.encodeComponent(squadId)}/video/notify/${Uri.encodeComponent(invitationId)}${ended ? '/end' : ''}',
+          ),
+          headers: {'Authorization': 'Bearer $token'},
+        )
+        .timeout(const Duration(seconds: 20));
+    if (response.statusCode != 200) {
+      throw const GroupVideoException(
+        'Could not notify members in the background.',
+      );
+    }
+  }
 }
