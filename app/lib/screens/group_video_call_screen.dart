@@ -11,7 +11,6 @@ import 'package:stream_video_flutter/stream_video_flutter.dart';
 
 import '../services/group_video_api.dart';
 import '../services/group_call_signaling.dart';
-import '../services/incoming_call_alert.dart';
 
 /// A foreground group room. Every join and token renewal verifies membership.
 class GroupVideoCallScreen extends StatefulWidget {
@@ -35,7 +34,6 @@ class GroupVideoCallScreen extends StatefulWidget {
   }) {
     if (isOpen) return;
     isOpen = true;
-    unawaited(IncomingCallAlert.busy(true));
     Navigator.of(context)
         .push(
           MaterialPageRoute<void>(
@@ -47,10 +45,7 @@ class GroupVideoCallScreen extends StatefulWidget {
             ),
           ),
         )
-        .whenComplete(() {
-          isOpen = false;
-          unawaited(IncomingCallAlert.busy(false));
-        });
+        .whenComplete(() => isOpen = false);
   }
 
   @override
@@ -212,7 +207,6 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
           } else {
             _invitationId = invitation;
             _invitationOwner = user.uid;
-            await _api.notifyMembers(widget.squadId, invitation);
           }
         } catch (_) {
           if (mounted && !_closed) {
@@ -362,7 +356,7 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'Group members with notifications enabled receive an incoming-call alert. Camera and microphone access are requested when you connect.',
+                          'Members receive an incoming-call alert while UMA is open. Camera and microphone access are requested when you connect.',
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),

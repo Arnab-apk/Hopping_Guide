@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'group_video_api.dart';
-
 /// Short-lived invitations over the existing member-only group message stream.
 /// No media client is kept alive while the user is browsing the map.
 class GroupCallSignaling {
@@ -28,25 +26,18 @@ class GroupCallSignaling {
     return doc.id;
   }
 
-  Future<void> end(String group, String uid, String invitation) async {
-    await _messages(group).doc('${invitation}_ended').set({
-      'squadId': group,
-      'senderId': uid,
-      'senderName': 'Group member',
-      'type': 'text',
-      'text': 'The caller left the group call.',
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-      'callEvent': 'end',
-      'callInvitationId': invitation,
-      'callSentAt': FieldValue.serverTimestamp(),
-    });
-    final api = GroupVideoApi();
-    try {
-      await api.notifyMembers(group, invitation, ended: true);
-    } finally {
-      api.dispose();
-    }
-  }
+  Future<void> end(String group, String uid, String invitation) =>
+      _messages(group).doc('${invitation}_ended').set({
+        'squadId': group,
+        'senderId': uid,
+        'senderName': 'Group member',
+        'type': 'text',
+        'text': 'The caller left the group call.',
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'callEvent': 'end',
+        'callInvitationId': invitation,
+        'callSentAt': FieldValue.serverTimestamp(),
+      });
 
   Stream<List<CallInvitation>> invitations(String group, String uid) =>
       _messages(group)
