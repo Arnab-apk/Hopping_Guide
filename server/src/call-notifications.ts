@@ -13,7 +13,7 @@ export function validInvitation(data: any, uid: string, id: string, now = Date.n
 
 export async function notifyGroupCall(req: IncomingMessage, res: ServerResponse,
   groupId: string, invitationId: string, app: App | null,
-  send: (res: ServerResponse, status: number, data: unknown) => void): Promise<void> {
+  send: (res: ServerResponse, status: number, data: unknown) => void, ending = false): Promise<void> {
   res.setHeader('Cache-Control', 'no-store');
   if (!/^[\w-]{1,128}$/.test(groupId) || !/^[\w-]{1,128}$/.test(invitationId)) {
     send(res, 400, { error: 'Invalid invitation' }); return;
@@ -34,12 +34,13 @@ export async function notifyGroupCall(req: IncomingMessage, res: ServerResponse,
       send(res, 403, { error: 'Group membership required' }); return;
     }
     const data = (await invitation.get()).data();
-    if (!validInvitation(data, uid, invitationId) ||
-        (await group.collection('messages').doc(`${invitationId}_ended`).get()).exists) {
+    const end = (await group.collection('messages').doc(`${invitationId}_ended`).get()).data();
+    const hasEnded = end?.senderId === uid && end?.callEvent === 'end' && end?.callInvitationId === invitationId;
+    if (!validInvitation(data, uid, invitationId) || (ending ? !hasEnded : hasEnded)) {
       send(res, 409, { error: 'Invitation expired or ended' }); return;
     }
     // The server owns this receipt. Retries cannot repeatedly ring every device.
-    const receipt = group.collection('callPushReceipts').doc(invitationId);
+    const receipt = group.collection('callPushReceipts').doc(ending ? `${invitationId}_ended` : invitationId);
     const reserved = await db.runTransaction(async tx => {
       if ((await tx.get(receipt)).exists) return false;
       tx.create(receipt, { senderId: uid, sentAt: FieldValue.serverTimestamp() });
@@ -48,17 +49,25 @@ export async function notifyGroupCall(req: IncomingMessage, res: ServerResponse,
     if (!reserved) { send(res, 200, { notified: 0, duplicate: true }); return; }
     const members = await group.collection('members').get();
     const tokens = new Set<string>();
+    const ringTokens = new Set<string>();
     for (const member of members.docs) {
       if (member.id === uid || !roster.membersUid.includes(member.id)) continue;
       const registered = member.data().callPushTokens;
+      const ringing = member.data().callRingTokens;
       if (Array.isArray(registered)) {
         for (const token of registered.slice(-5)) {
-          if (typeof token === 'string' && token.length > 20 && token.length < 4096) tokens.add(token);
+          if (typeof token === 'string' && token.length > 20 && token.length < 4096) {
+            if (Array.isArray(ringing) && ringing.includes(token)) ringTokens.add(token);
+            else if (!ending) tokens.add(token);
+          }
         }
       }
     }
     const caller = (await getAuth(app).getUser(uid)).displayName || 'A group member';
     const expiresAt = String(data!.callSentAt.toMillis() + 60000);
+    // Updated Android clients render a looping call notification themselves.
+    // Keep ordinary notifications for clients that have not upgraded yet.
+    for (const token of ringTokens) tokens.delete(token);
     const all = [...tokens];
     let notified = 0;
     for (let i = 0; i < all.length; i += 500) {
@@ -69,6 +78,16 @@ export async function notifyGroupCall(req: IncomingMessage, res: ServerResponse,
         android: { priority: 'high', ttl: Math.max(0, Number(expiresAt) - Date.now()),
           notification: { channelId: 'uma_incoming_calls', tag: invitationId,
             sound: 'default', priority: 'max', visibility: 'private', defaultVibrateTimings: true } },
+      });
+      notified += result.successCount;
+    }
+    const ringing = [...ringTokens];
+    for (let i = 0; i < ringing.length; i += 500) {
+      const result = await getMessaging(app).sendEachForMulticast({
+        tokens: ringing.slice(i, i + 500),
+        data: { type: ending ? 'group_call_end' : 'group_call_ring', groupId, invitationId,
+          expiresAt, callerName: caller, groupName: roster.name || 'your group' },
+        android: { priority: 'high', ttl: Math.max(0, Number(expiresAt) - Date.now()) },
       });
       notified += result.successCount;
     }

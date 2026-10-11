@@ -209,10 +209,10 @@ const server = http.createServer(async (req, res) => {
 
   try {
     // Health & Stats
-    const callNotification = pathname.match(/^\/api\/squads\/([^/]+)\/video\/notify\/([^/]+)$/);
+    const callNotification = pathname.match(/^\/api\/squads\/([^/]+)\/video\/notify\/([^/]+)(\/end)?$/);
     if (callNotification) {
       if (method !== 'POST') { sendHttpJson(res, 405, { error: 'Use POST' }); return; }
-      await notifyGroupCall(req, res, callNotification[1], callNotification[2], firebaseApp, sendHttpJson);
+      await notifyGroupCall(req, res, callNotification[1], callNotification[2], firebaseApp, sendHttpJson, Boolean(callNotification[3]));
       return;
     }
     const videoRoute = pathname.match(/^\/api\/squads\/([^/]+)\/video\/session$/);
