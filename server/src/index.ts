@@ -17,6 +17,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { handleChatRequest, handleStatusRequest } from './chat/routes';
 import { handleVideoRequest } from './video';
+import { notifyGroupCall } from './call-notifications';
 
 dotenv.config({ path: process.env.DOTENV_CONFIG_PATH || '.env' });
 
@@ -208,6 +209,12 @@ const server = http.createServer(async (req, res) => {
 
   try {
     // Health & Stats
+    const callNotification = pathname.match(/^\/api\/squads\/([^/]+)\/video\/notify\/([^/]+)$/);
+    if (callNotification) {
+      if (method !== 'POST') { sendHttpJson(res, 405, { error: 'Use POST' }); return; }
+      await notifyGroupCall(req, res, callNotification[1], callNotification[2], firebaseApp, sendHttpJson);
+      return;
+    }
     const videoRoute = pathname.match(/^\/api\/squads\/([^/]+)\/video\/session$/);
     if (videoRoute) {
       if (method !== 'POST') {
