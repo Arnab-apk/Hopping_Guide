@@ -15,7 +15,7 @@ For the complete project overview, stats dashboard, architecture, and roadmap, s
 - **Squad Features:** Consolidated 4-card Squad Hub, Live GPS sync, 1-tap phone calling (`tel:`), and dedicated Squad Chat with photo/video sharing
 - **Framework:** Flutter (Dart 3)
 - **Static Analysis:** 0 issues (`flutter analyze` clean)
-- **Tests:** 433 distinct checks passed (429 regression checks and 4 live routing checks); see [launch verification](../docs/qa/TONIGHT_LAUNCH_CHECK.md).
+- **Tests:** 434 passing with live routing enabled; see [launch verification](../docs/qa/TONIGHT_LAUNCH_CHECK.md).
 
 ## Development Commands
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/preload_state.dart';
@@ -16,12 +17,12 @@ import 'main_navigation_screen.dart';
 /// 2. Running real asynchronous preload tasks (pandal data, map platform readiness,
 ///    marker stabilization, location permission check).
 /// 3. Displaying honest progress and status via [PreloadState].
-/// 4. Respecting a minimum 2800ms presentation threshold alongside real readiness.
+/// 4. Respecting a brief minimum presentation threshold alongside real readiness.
 /// 5. Revealing the ready map via a smooth hardware-accelerated crossfade.
 class AppRootCoordinator extends StatefulWidget {
   const AppRootCoordinator({
     super.key,
-    this.minDuration = const Duration(milliseconds: 4000),
+    this.minDuration = const Duration(milliseconds: 800),
     this.testSkipPreload = false,
   });
 
@@ -37,10 +38,7 @@ class AppRootCoordinator extends StatefulWidget {
 
 class _AppRootCoordinatorState extends State<AppRootCoordinator> {
   final ValueNotifier<PreloadState> preloadState = ValueNotifier(
-    const PreloadState(
-      progress: 0.05,
-      statusMessage: 'Waking up the map...',
-    ),
+    const PreloadState(progress: 0.05, statusMessage: 'Waking up the map...'),
   );
 
   bool _revealMap = false;
@@ -68,7 +66,7 @@ class _AppRootCoordinatorState extends State<AppRootCoordinator> {
         statusMessage: 'Loading pandals near you...',
       );
       await LocalAssetPandalRepository().loadAll();
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
 
       // Step 2: Await map platform view readiness & initial camera setup
       preloadState.value = const PreloadState(
@@ -79,17 +77,18 @@ class _AppRootCoordinatorState extends State<AppRootCoordinator> {
       await _mapReadyCompleter.future.timeout(
         const Duration(seconds: 4),
         onTimeout: () {
-          debugPrint('[AppRootCoordinator] Map ready timeout reached; continuing.');
+          debugPrint(
+            '[AppRootCoordinator] Map ready timeout reached; continuing.',
+          );
         },
       );
-      await Future<void>.delayed(const Duration(milliseconds: 400));
 
-      // Step 3: Spatial indexing & marker stabilization tick
+      if (!mounted) return;
+      // The map has completed its initial setup.
       preloadState.value = const PreloadState(
         progress: 0.75,
         statusMessage: 'Placing markers...',
       );
-      await Future<void>.delayed(const Duration(milliseconds: 500));
 
       // Step 4: Resolve device location permission without intrusive popups
       preloadState.value = const PreloadState(
@@ -97,7 +96,7 @@ class _AppRootCoordinatorState extends State<AppRootCoordinator> {
         statusMessage: 'Almost there...',
       );
       await LocationService.resolvePermissionStatus();
-      await Future<void>.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
 
       // Step 5: Final preparation complete
       preloadState.value = const PreloadState(
@@ -113,8 +112,6 @@ class _AppRootCoordinatorState extends State<AppRootCoordinator> {
     if (elapsed < widget.minDuration) {
       await Future<void>.delayed(widget.minDuration - elapsed);
     }
-    // Linger briefly on 'Ready' for 400ms for a peaceful visual experience
-    await Future<void>.delayed(const Duration(milliseconds: 400));
 
     if (mounted) {
       setState(() => _revealMap = true);

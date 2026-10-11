@@ -168,6 +168,24 @@ class _PandalListScreenState extends State<PandalListScreen> {
     LocationService? locationService,
   ) {
     var list = List<Place>.from(_allPlaces);
+    final pos = locationService?.lastPosition;
+    final rawLat = pos?.latitude ?? AppConfig.defaultLat;
+    final rawLng = pos?.longitude ?? AppConfig.defaultLng;
+    final isFarAway =
+        haversineMeters(
+          rawLat,
+          rawLng,
+          AppConfig.defaultLat,
+          AppConfig.defaultLng,
+        ) >
+        70000;
+    final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
+    final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
+    final distances = <Place, double>{};
+    double distanceTo(Place place) => distances.putIfAbsent(
+      place,
+      () => haversineMeters(userLat, userLng, place.lat, place.lng),
+    );
 
     // Tab filter (Favorites, Visited/Hopped, Nearest)
     if (_activeTab == PandalTabFilter.favorites && userState != null) {
@@ -177,31 +195,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
         _category == PlaceCategory.pandal) {
       list = list.where((p) => userState.isVisited(p.id)).toList();
     } else if (_activeTab == PandalTabFilter.nearest) {
-      final pos = locationService?.lastPosition;
-      final rawLat = pos?.latitude ?? AppConfig.defaultLat;
-      final rawLng = pos?.longitude ?? AppConfig.defaultLng;
-      final isFarAway =
-          haversineMeters(
-            rawLat,
-            rawLng,
-            AppConfig.defaultLat,
-            AppConfig.defaultLng,
-          ) >
-          70000;
-      final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
-      final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
-
-      list = list
-          .where(
-            (p) => haversineMeters(userLat, userLng, p.lat, p.lng) <= 10000,
-          )
-          .toList();
-
-      list.sort((a, b) {
-        final da = haversineMeters(userLat, userLng, a.lat, a.lng);
-        final db = haversineMeters(userLat, userLng, b.lat, b.lng);
-        return da.compareTo(db);
-      });
+      list = list.where((place) => distanceTo(place) <= 10000).toList();
     }
 
     // Zone filter
@@ -257,24 +251,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
 
     switch (effectiveSort) {
       case PandalSortOption.nearestFirst:
-        final pos = locationService?.lastPosition;
-        final rawLat = pos?.latitude ?? AppConfig.defaultLat;
-        final rawLng = pos?.longitude ?? AppConfig.defaultLng;
-        final isFarAway =
-            haversineMeters(
-              rawLat,
-              rawLng,
-              AppConfig.defaultLat,
-              AppConfig.defaultLng,
-            ) >
-            70000;
-        final userLat = isFarAway ? AppConfig.defaultLat : rawLat;
-        final userLng = isFarAway ? AppConfig.defaultLng : rawLng;
-        list.sort((a, b) {
-          final distA = haversineMeters(userLat, userLng, a.lat, a.lng);
-          final distB = haversineMeters(userLat, userLng, b.lat, b.lng);
-          return distA.compareTo(distB);
-        });
+        list.sort((a, b) => distanceTo(a).compareTo(distanceTo(b)));
         break;
       case PandalSortOption.ratingHighToLow:
         list.sort((a, b) => (b.rating ?? 0.0).compareTo(a.rating ?? 0.0));
@@ -300,7 +277,11 @@ class _PandalListScreenState extends State<PandalListScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     final userState = context.watch<PandalUserStateService?>();
-    final locationService = context.watch<LocationService?>();
+    context.select<LocationService?, (double?, double?)>(
+      (service) =>
+          (service?.lastPosition?.latitude, service?.lastPosition?.longitude),
+    );
+    final locationService = context.read<LocationService?>();
 
     final displayList = _getFilteredPlaces(userState, locationService);
     final visitedCount = userState?.visitedCount ?? 0;

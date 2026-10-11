@@ -43,6 +43,8 @@ foundation.
 - Favorite and visited state subscriptions stay scoped to the individual card.
 - Custom search fields disable the global filled input decoration inside their
   existing surface, preventing nested backgrounds and borders.
+- Search suggestion lists limit their height with the visible keyboard taken
+  into account, preserving access to suggestion rows on compact phones.
 - Discovery filter groups wrap, keeping Regions and every route category visible.
   Single-line labels, matching selected foreground/background colors, tooltips,
   and padded touch targets are shared through `AppFilterChip`.

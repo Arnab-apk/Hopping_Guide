@@ -207,7 +207,7 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                       const Padding(
                         padding: EdgeInsets.all(12),
                         child: Text(
-                          'Tap metro and train pins for station names. Nearby stations are shown for reference; directions follow the selected journey. Ride times are estimates, not live departures.',
+                          'Tap metro and train pins for station names. Only stations on your selected journey are shown. Ride times are estimates, not live departures.',
                         ),
                       ),
                       for (var i = 0; i < routes.length; i++) ...[

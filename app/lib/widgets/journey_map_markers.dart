@@ -13,7 +13,6 @@ List<Marker> buildJourneyMarkers({
   required List<Pandal> stops,
   required Iterable<MultimodalRoute> routes,
   int currentStopIndex = 0,
-  bool includeNearbyStations = true,
 }) {
   final itinerary = routes.toList();
   final markers = <Marker>[];
@@ -88,39 +87,6 @@ List<Marker> buildJourneyMarkers({
           );
         }
       }
-    }
-  }
-  // Context stations remain visible even when a short circuit is entirely on
-  // foot or the fastest approach is by car. Route legs still determine guidance.
-  final anchors = <LatLng>[
-    for (final stop in stops) LatLng(stop.lat, stop.lng),
-    for (final route in itinerary) ...route.allDisplayPoints,
-  ];
-  if (includeNearbyStations && anchors.isNotEmpty) {
-    final bounds = LatLngBounds.fromPoints(anchors);
-    bool nearby(LatLng point) =>
-        point.latitude >= bounds.south - 0.015 &&
-        point.latitude <= bounds.north + 0.015 &&
-        point.longitude >= bounds.west - 0.015 &&
-        point.longitude <= bounds.east + 0.015;
-    for (final stop in MetroRepository.allStations) {
-      if (!nearby(stop.toLatLng())) continue;
-      station(
-        'metro:${stop.id}',
-        'Nearby metro: ${stop.name} — ${stop.line.label}',
-        stop.toLatLng(),
-        stop.line.color,
-      );
-    }
-    for (final stop in RailwayRepository.instance.allStations) {
-      if (!nearby(stop.toLatLng())) continue;
-      station(
-        'rail:${stop.code}',
-        'Nearby train: ${stop.name} — ${stop.corridorName}',
-        stop.toLatLng(),
-        Colors.deepPurple,
-        railway: true,
-      );
     }
   }
   // Draw pandals above station pins so the next visit stays easy to select.

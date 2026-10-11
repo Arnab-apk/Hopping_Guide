@@ -50,7 +50,7 @@ For manual setup: choose Web Service, Node, Free plan, root directory `server`, 
 
 Render's free services sleep after 15 minutes of inactivity and can take about a minute to wake. The session request therefore allows 90 seconds. This free tier is suitable for hobby/testing use and has usage limits; it does not provide continuous production availability. See [Render's free-service documentation](https://render.com/docs/free).
 
-Once the deployed HTTPS origin has been verified with an authenticated live test, build the release APK with `--dart-define=VIDEO_API_URL=https://your-service.onrender.com`. Do not publish a localhost-configured APK as an internet-ready video-calling release.
+The app defaults to the deployed HTTPS calling service, including builds without API defines. To use a different deployment, verify its authenticated session endpoint and build with `--dart-define=VIDEO_API_URL=https://your-service.onrender.com`.
 
 For a hosted backend, from `app/`:
 
@@ -58,18 +58,38 @@ For a hosted backend, from `app/`:
 flutter run --dart-define=VIDEO_API_URL=https://your-server.example
 ```
 
-`VIDEO_API_URL` defaults to the app's existing `NEON_API_URL`, then localhost for development. It is the backend origin, not the Stream endpoint. The backend returns the public Stream API key and a short-lived token, so no Stream secret is passed at build time.
+`VIDEO_API_URL` defaults to the app's existing `NEON_API_URL`, then `https://uma-group-calling.onrender.com`. It is the backend origin, not the Stream endpoint. The backend returns the public Stream API key and a short-lived token, so no Stream secret is passed at build time. Local development requires an explicit URL override.
 
 For a USB-connected Android device and a local server:
 
 ```powershell
 D:\src\android-sdk\platform-tools\adb.exe reverse tcp:8080 tcp:8080
-flutter run
+flutter run --dart-define=VIDEO_API_URL=http://127.0.0.1:8080
 ```
 
 For an Android emulator without reverse forwarding, use `--dart-define=VIDEO_API_URL=http://10.0.2.2:8080`.
 
 ## Verification
+
+### Connectivity repair — 11 October 2026
+
+Recent APK builds omitted `VIDEO_API_URL` and `NEON_API_URL`, causing calls to
+contact localhost on the phone. The fallback now uses the deployed HTTPS service;
+explicit overrides remain available. A regression test covers builds without
+API defines.
+
+The hosted backend also returned `VIDEO_UNAVAILABLE` during Stream call-type
+setup. It recovered after a service restart; the underlying transient failure
+was not established. Subsequent hosted checks passed Firebase authentication,
+private-room access, cross-room denial, and membership-removal denial. A
+three-client synthetic media check received remote audio and video on every
+client and verified camera/microphone toggles and participant leave. That check
+cleaned up its temporary records. Physical multi-phone media quality remains
+unverified.
+
+Flutter static analysis was clean and 20 focused group/API tests passed. Signed
+release **1.0.0 (2014)** was built and installed on the Motorola Edge50 with
+`adb install -r`, preserving app data.
 
 From `app/`, run `flutter analyze`, `flutter test test/group_video_api_test.dart test/squad_chat_test.dart test/squad_screen_simplified_test.dart` and `flutter build apk --debug`. From `server/`, run `npm.cmd run build` and `npm.cmd run test:video`.
 

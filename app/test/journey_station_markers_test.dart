@@ -26,7 +26,7 @@ void main() {
   const end = LatLng(22.5697, 88.3533);
   for (final driving in [false, true]) {
     test(
-      'nearby metro and train pins remain on ${driving ? 'car' : 'walking'} trails',
+      'unrelated station pins are hidden on ${driving ? 'car' : 'walking'} trails',
       () {
         final leg = driving
             ? DriveLeg(
@@ -56,14 +56,7 @@ void main() {
         final labels = markers
             .map((m) => (m.child as Tooltip).message!)
             .toList();
-        expect(
-          labels.any((label) => label.startsWith('Nearby metro:')),
-          isTrue,
-        );
-        expect(
-          labels.any((label) => label.startsWith('Nearby train:')),
-          isTrue,
-        );
+        expect(markers, hasLength(1));
         expect(labels.where((label) => label.startsWith('Stop ')), [
           'Stop 1: Central stop',
         ]);
@@ -95,7 +88,6 @@ void main() {
         routes: [
           itinerary([leg, leg]),
         ],
-        includeNearbyStations: false,
       );
       expect(markers.length, 4);
       expect(markers.map((marker) => marker.key).toSet().length, 4);
@@ -129,7 +121,6 @@ void main() {
       routes: [
         itinerary([leg(false), leg(true)]),
       ],
-      includeNearbyStations: false,
     );
     expect(markers.length, 5);
     expect(markers.map((marker) => marker.key).toSet().length, 5);

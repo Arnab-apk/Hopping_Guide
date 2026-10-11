@@ -4,6 +4,10 @@ import 'package:kolkata_puja/models/preload_state.dart';
 import 'package:kolkata_puja/screens/app_root_coordinator.dart';
 import 'package:kolkata_puja/screens/greeting_splash_screen.dart';
 import 'package:kolkata_puja/screens/main_navigation_screen.dart';
+import 'package:kolkata_puja/screens/map_screen.dart';
+import 'package:kolkata_puja/screens/pandal_list_screen.dart';
+import 'package:kolkata_puja/screens/routes_screen.dart';
+import 'package:kolkata_puja/screens/group_screen.dart';
 import 'package:kolkata_puja/services/auth_service.dart';
 import 'package:kolkata_puja/services/custom_hopping_trail_service.dart';
 import 'package:kolkata_puja/services/enhanced_navigation_service.dart';
@@ -153,5 +157,45 @@ void main() {
       expect(state2.progress, 0.45);
       expect(state2.statusMessage, 'Preparing the map...');
     });
+
+    testWidgets(
+      'tabs mount on demand and preserve state with hidden tickers muted',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestApp(
+            home: const MainNavigationScreen(onMapReady: _mapReady),
+            authService: authService,
+            userStateService: userStateService,
+            themeService: themeService,
+            squadService: squadService,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 700));
+        expect(
+          find.byType(PandalListScreen, skipOffstage: false),
+          findsNothing,
+        );
+        expect(find.byType(RoutesScreen, skipOffstage: false), findsNothing);
+        expect(find.byType(GroupScreen, skipOffstage: false), findsNothing);
+        final map = tester.state(find.byType(MapScreen));
+        MainNavigationScreen.switchToTab(1);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 700));
+        final directory = tester.state(find.byType(PandalListScreen));
+        expect(TickerMode.valuesOf(map.context).enabled, isFalse);
+        expect(TickerMode.valuesOf(directory.context).enabled, isTrue);
+        MainNavigationScreen.switchToTab(0);
+        await tester.pump();
+        expect(tester.state(find.byType(MapScreen)), same(map));
+        expect(TickerMode.valuesOf(directory.context).enabled, isFalse);
+        MainNavigationScreen.switchToTab(1);
+        await tester.pump();
+        expect(tester.state(find.byType(PandalListScreen)), same(directory));
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
   });
 }
+
+void _mapReady() {}

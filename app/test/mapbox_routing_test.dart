@@ -63,6 +63,55 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test(
+    'concurrent identical routes share HTTP work; refresh stays fresh',
+    () async {
+      final response = Completer<http.Response>();
+      var requests = 0;
+      final client = MockClient((_) {
+        requests++;
+        return response.future;
+      });
+      addTearDown(client.close);
+      final service = MapboxDirectionsService(
+        client: client,
+        accessToken: 'test',
+      );
+      final first = service.walking([_start, _end]);
+      final second = service.walking([_start, _end]);
+      response.complete(http.Response(_response([_start, _end]), 200));
+      final routes = await Future.wait([first, second]);
+      expect(requests, 1);
+      expect(routes.first.points, routes.last.points);
+      await service.walking([_start, _end]);
+      expect(requests, 2);
+      await Future.wait([
+        service.walking([_start, _end]),
+        service.driving([_start, _end]),
+        service.walking([_end, _start]),
+      ]);
+      expect(requests, 5);
+    },
+  );
+
+  test('failed shared routes can be retried', () async {
+    var requests = 0;
+    final client = MockClient((_) async {
+      requests++;
+      return requests == 1
+          ? http.Response('{}', 503)
+          : http.Response(_response([_start, _end]), 200);
+    });
+    addTearDown(client.close);
+    final service = MapboxDirectionsService(
+      client: client,
+      accessToken: 'test',
+    );
+    await expectLater(service.walking([_start, _end]), throwsStateError);
+    expect((await service.walking([_start, _end])).points, [_start, _end]);
+    expect(requests, 2);
+  });
+
+  test(
     'driving uses the automotive traffic profile and retains maneuvers',
     () async {
       final requests = <Uri>[];

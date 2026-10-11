@@ -3,23 +3,23 @@
   "stats": [
     {
       "participants": 3,
-      "videoFrames": 101,
-      "audioPackets": 275
+      "videoFrames": 86,
+      "audioPackets": 267
     },
     {
       "participants": 3,
-      "videoFrames": 97,
-      "audioPackets": 309
+      "videoFrames": 79,
+      "audioPackets": 294
     },
     {
       "participants": 3,
-      "videoFrames": 38,
-      "audioPackets": 241
+      "videoFrames": 28,
+      "audioPackets": 226
     }
   ],
   "cameraMicrophoneToggle": true,
   "leave": true,
   "syntheticMedia": true,
   "hostedBackend": true,
-  "verifiedAt": "2026-10-09T21:57:32.985Z"
+  "verifiedAt": "2026-10-11T03:21:30.686Z"
 }

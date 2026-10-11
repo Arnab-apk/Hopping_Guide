@@ -1,5 +1,18 @@
 # Uma launch verification — 10 October 2026
 
+## Latest UI follow-up — 11 October 2026
+
+- Group calls have a red, labelled End call button fixed below the media
+  controls, clear of the system gesture area. The duplicate SDK call header
+  is hidden, and the bottom end-call action remains available during reconnects.
+- Direction and trail maps show only stations on their selected transit legs,
+  including boarding, intermediate and exit stations. Unrelated nearby stations
+  are no longer added; walking and driving routes have no incidental station
+  pins. The browse map's full station layer is suppressed while viewing a route.
+- Six call-lobby layout checks and 12 journey/planner checks passed. Full Dart
+  static analysis found no issues. Signed release build **1.0.0 (2016)** includes
+  both changes.
+
 ## Changes
 
 - Refined shared light/dark themes, typography, page headers, cards, dialogs,
@@ -66,6 +79,9 @@ live navigation and location sharing. This audit does not establish 60 FPS,
 
 - Removed doubled input backgrounds from discovery search bars. Search surfaces
   can grow with enlarged text, and clear actions expose labels.
+- Search suggestions account for keyboard height, preventing dropdown rows
+  from extending behind it. A compact-phone interaction check verifies the
+  dropdown's screen bounds while focusing, typing, and clearing a query.
 - Pandal and route filters share accessible themed chips; groups wrap so Regions
   and route categories remain visible. Original bottom navigation icons remain.
 - Regions now uses a bounded scrollable sheet, consistent selection colors,
@@ -78,14 +94,14 @@ live navigation and location sharing. This audit does not establish 60 FPS,
   rebuild the map when displayed squad data changes.
 - Cluster cache invalidation covers same-size region/priority changes and zoom
   threshold crossings, preventing stale or incorrectly clustered pins.
-- Final static analysis: no issues. Complete regression suite: 429 passed,
-  four opt-in live checks skipped; those four live walking and multimodal
-  checks were run separately and passed (433 distinct checks in total).
+- Final static analysis: no issues. Complete regression suite with live routing
+  enabled after the keyboard correction: **434 passed**, no skips.
 - Focused discovery/capture suite: 114 passed. After correcting the rotation
   event handling, map/navigation/layout follow-up: 55 passed. Rebuild checks
   verify that compass and camera rotation preserve the tile-layer widget while
   the reset-north button appears and clears correctly.
 - Logs: `app/build/discovery_map_full_tests.log`,
+  `app/build/discovery_map_final_tests.log` (final complete suite),
   `app/build/discovery_map_checks.log`, `app/build/discovery_map_live_checks.log`,
   `app/build/discovery_rotation_checks.log`, and
   `app/build/discovery_map_analyze_final.log`. The live-check log also records
@@ -94,3 +110,15 @@ live navigation and location sharing. This audit does not establish 60 FPS,
 
 These checks establish reduced rebuild work, not a measured frame-rate guarantee.
 Outdoor arrival and receipt by a second physical phone remain unverified.
+
+## Release installation follow-up — 11 October 2026, 08:32 IST
+
+- Verified the final discovery/map APK signature and version: **1.0.0 (2013)**.
+- Installed the final rebuilt APK on the Motorola Edge50 with `adb install -r`;
+  installation succeeded with app data preserved. The installed package reports
+  an update time of `2026-10-11 08:32:38`.
+- Confirmed Uma was in the foreground after launch. The device UI exposed `Live`
+  and pandal route controls. This is a launch smoke check; it does not establish
+  continuous GPS, outdoor arrival, or receipt on a second phone.
+- The existing final validation logs report 434 passing tests and clean static
+  analysis. These checks were not rerun during this installation follow-up.

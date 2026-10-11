@@ -2098,7 +2098,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
 
                 // Full Kolkata Metro & Railway Stations Network Layer (Leaflet Metro Pins)
                 if ((_showMetroStations || _showRailwayStations) &&
-                    !isTrailActive)
+                    !isTrailActive &&
+                    !_journey.active &&
+                    _highlightedRoute == null &&
+                    !_navigation.hasPreview)
                   RepaintBoundary(
                     child: MarkerLayer(
                       markers:
@@ -4698,6 +4701,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      showDragHandle: false,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

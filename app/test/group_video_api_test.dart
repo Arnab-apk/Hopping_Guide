@@ -6,6 +6,29 @@ import 'package:http/testing.dart';
 import 'package:kolkata_puja/services/group_video_api.dart';
 
 void main() {
+  test('builds without API defines use the hosted calling service', () async {
+    final api = GroupVideoApi(
+      idTokenLoader: () async => 'firebase-token',
+      client: MockClient((request) async {
+        expect(request.url.scheme, 'https');
+        expect(request.url.host, 'uma-group-calling.onrender.com');
+        expect(request.url.path, '/api/squads/group-1/video/session');
+        return http.Response(
+          jsonEncode({
+            'apiKey': 'key',
+            'userId': 'alice',
+            'token': 'token',
+            'callId': 'room',
+            'callType': 'uma_squad',
+          }),
+          200,
+        );
+      }),
+    );
+    addTearDown(api.dispose);
+    expect((await api.session('group-1')).callId, 'room');
+  });
+
   test('fetches a session with Firebase bearer authentication', () async {
     final api = GroupVideoApi(
       baseUrl: 'https://example.com/',

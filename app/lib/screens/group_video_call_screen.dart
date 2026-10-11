@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/material.dart';
+
 import '../widgets/app_page_intro.dart';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
@@ -226,9 +228,33 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        bottomNavigationBar: _call != null && !_joining
+            ? SafeArea(
+                top: false,
+                minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Center(
+                  heightFactor: 1,
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      foregroundColor: Theme.of(context).colorScheme.onError,
+                      minimumSize: const Size(160, 56),
+                      shape: const StadiumBorder(),
+                    ),
+                    onPressed: () => unawaited(_leave()),
+                    icon: const Icon(Icons.call_end_rounded),
+                    label: const Text('End call'),
+                  ),
+                ),
+              )
+            : null,
         body: _call != null && !_joining
             ? StreamCallContent(
                 call: _call!,
+                callAppBarWidgetBuilder: (_, _) => const PreferredSize(
+                  preferredSize: Size.zero,
+                  child: SizedBox.shrink(),
+                ),
                 onBackPressed: () => unawaited(_leave()),
                 onLeaveCallTap: () => unawaited(_leave()),
               )
@@ -240,7 +266,10 @@ class _GroupVideoCallScreenState extends State<GroupVideoCallScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const AppIconWell(icon: Icons.videocam_outlined, size: 36),
+                        const AppIconWell(
+                          icon: Icons.videocam_outlined,
+                          size: 36,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Group video call',

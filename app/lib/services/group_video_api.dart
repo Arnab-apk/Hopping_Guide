@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class GroupVideoException implements Exception {
@@ -70,9 +69,7 @@ class GroupVideoApi {
         ? _baseUrl
         : neonUrl.isNotEmpty
         ? neonUrl
-        : !kIsWeb && defaultTargetPlatform == TargetPlatform.android
-        ? 'http://127.0.0.1:8080'
-        : 'http://localhost:8080';
+        : 'https://uma-group-calling.onrender.com';
     final uri = Uri.parse(
       '${base.replaceAll(RegExp(r"/+$"), "")}/api/squads/${Uri.encodeComponent(squadId)}/video/session',
     );

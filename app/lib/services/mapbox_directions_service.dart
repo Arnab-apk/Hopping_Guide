@@ -32,6 +32,7 @@ class MapboxDirectionsService {
     : _accessToken = accessToken.trim();
   final http.Client client;
   final String _accessToken;
+  final _pending = <String, Future<MapboxRouteData>>{};
   bool get isConfigured => _accessToken.isNotEmpty;
 
   Future<MapboxRouteData> walking(List<LatLng> waypoints) =>
@@ -39,6 +40,24 @@ class MapboxDirectionsService {
   Future<MapboxRouteData> driving(List<LatLng> waypoints) =>
       directions(waypoints, driving: true);
   Future<MapboxRouteData> directions(
+    List<LatLng> waypoints, {
+    bool driving = false,
+  }) {
+    // Share simultaneous identical requests, but never reuse a completed route
+    // when navigation explicitly requests fresh directions.
+    final snapshot = List<LatLng>.of(waypoints);
+    final key =
+        '$driving:${snapshot.map((p) => '${p.latitude},${p.longitude}').join(';')}';
+    return _pending.putIfAbsent(key, () async {
+      try {
+        return await _loadDirections(snapshot, driving: driving);
+      } finally {
+        _pending.remove(key);
+      }
+    });
+  }
+
+  Future<MapboxRouteData> _loadDirections(
     List<LatLng> waypoints, {
     bool driving = false,
   }) async {

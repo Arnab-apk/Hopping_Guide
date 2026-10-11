@@ -47,6 +47,8 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   late int _currentIndex;
+  // Keep the map ready for the startup coordinator and incoming destinations.
+  final Set<int> _mountedTabs = {0};
 
   late final List<Widget> _screens = [
     ValueListenableBuilder<bool>(
@@ -70,6 +72,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex.clamp(0, _screens.length - 1);
+    _mountedTabs.add(_currentIndex);
     MainNavigationScreen.tabSwitchNotifier.addListener(
       _handleExternalTabSwitch,
     );
@@ -98,6 +101,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       final tab = args['tab'];
       if (tab is int && tab >= 0 && tab < _screens.length) {
         _currentIndex = tab;
+        _mountedTabs.add(tab);
       }
     }
   }
@@ -113,7 +117,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void _onTabSelected(int idx) {
     if (_currentIndex != idx) {
       HapticFeedback.selectionClick();
-      setState(() => _currentIndex = idx);
+      setState(() {
+        _currentIndex = idx;
+        _mountedTabs.add(idx);
+      });
     }
   }
 
@@ -121,7 +128,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Preserve screen state while changing tabs.
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          for (var i = 0; i < _screens.length; i++)
+            TickerMode(
+              enabled: i == _currentIndex,
+              child: _mountedTabs.contains(i)
+                  ? _screens[i]
+                  : const SizedBox.shrink(),
+            ),
+        ],
+      ),
       bottomNavigationBar: ListenableBuilder(
         listenable: NavigationSession.instance,
         builder: (context, _) => NavigationSession.instance.active
