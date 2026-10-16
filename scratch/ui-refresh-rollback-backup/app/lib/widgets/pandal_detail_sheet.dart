@@ -1,0 +1,1708 @@
+import '../widgets/app_notice.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../config/theme.dart';
+import '../models/pandal.dart';
+import '../models/toilet.dart';
+import '../repositories/supplementary_repository.dart';
+import '../screens/map_screen.dart';
+import '../services/location_service.dart';
+import '../services/pandal_user_state_service.dart';
+import '../services/queue_wait_service.dart';
+import '../utils/constants.dart';
+import '../utils/responsive.dart';
+import 'puja_icons.dart';
+import 'pandal_photo_gallery.dart';
+
+/// Minimalist, beautifully proportioned Pandal Detail Sheet.
+/// Features clean typography, consolidated transit card, inline distance badge,
+/// smooth micro-actions, and integrated in-app walking route.
+class PandalDetailSheet extends StatelessWidget {
+  const PandalDetailSheet({super.key, required this.pandal});
+
+  final Pandal pandal;
+  static final _supplementaryRepo = SupplementaryRepository();
+
+  static void show(BuildContext context, Pandal pandal) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => PandalDetailSheet(pandal: pandal),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+    );
+  }
+
+  void _sharePandal() {
+    SharePlus.instance.share(
+      ShareParams(
+        text:
+            '🌟 Explore ${pandal.name} (${pandal.zone.label}) during Durga Puja 2026!\n'
+            '📍 Location: https://maps.google.com/?q=${pandal.latitude},${pandal.longitude}\n'
+            '🚇 Nearest Metro: ${pandal.nearestMetro ?? "Available on Map"}\n'
+            'Discovered via Uma App.',
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final isFav = context.select<PandalUserStateService?, bool>(
+      (s) => s?.isFavorite(pandal.id) ?? false,
+    );
+    final isVis = context.select<PandalUserStateService?, bool>(
+      (s) => s?.isVisited(pandal.id) ?? false,
+    );
+    final distanceLabel = context.select<LocationService?, String?>(
+      (loc) => loc?.formatDistance(pandal.latitude, pandal.longitude),
+    );
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+        border: Border(
+          top: BorderSide(
+            color: theme.colorScheme.outline,
+            width: 2,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 28,
+            offset: const Offset(0, -6),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 8),
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 6, 20, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top Bar: Zone & Hopped Tag on Left, Action Circles on Right
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 12,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        // Zone Tag
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: PujaColors.durgaRed.withValues(
+                                alpha: isDark ? 0.35 : 0.20,
+                              ),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Text(
+                            pandal.zone.label.toUpperCase(),
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimaryContainer,
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        if (isVis) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withValues(
+                                alpha: isDark ? 0.20 : 0.10,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.green.withValues(
+                                  alpha: isDark ? 0.35 : 0.20,
+                                ),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                PujaIcon.shankha(
+                                  size: 14,
+                                  color: Colors.green,
+                                ),
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'HOPPED',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+
+                        // Action Buttons: Favorite, Share, Close
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildCircleButton(
+                              tooltip: isFav ? 'Remove favorite' : 'Add favorite',
+                              isDark: isDark,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                context
+                                    .read<PandalUserStateService?>()
+                                    ?.toggleFavorite(pandal.id);
+                              },
+                              child: AnimatedScale(
+                                scale: isFav ? 1.2 : 1.0,
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeOutBack,
+                                child: isFav
+                                    ? Icon(Icons.bookmark_rounded,
+                                        size: 24,
+                                        color: PujaColors.festivalGold,
+                                      )
+                                    : Icon(
+                                        Icons.bookmark_border_rounded,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        size: 22,
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildCircleButton(
+                              tooltip: 'Share pandal',
+                              isDark: isDark,
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                _sharePandal();
+                              },
+                              child: Icon(
+                                Icons.share_outlined,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildCircleButton(
+                              tooltip: 'Close',
+                              isDark: isDark,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                Navigator.of(context).pop();
+                              },
+                              child: Icon(
+                                Icons.close_rounded,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Pandal Name
+                    Text(
+                      pandal.name,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: context.dynamicFont(19),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                        height: 1.2,
+                        color: isDark ? Colors.white : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    // Inline Subtitle: Area & Distance
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (pandal.area != null && pandal.area!.isNotEmpty) ...[
+                          Text(
+                            pandal.area!,
+                            style: TextStyle(
+                              fontSize: context.dynamicFont(13),
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                        if (distanceLabel != null) ...[
+                          if (pandal.area != null && pandal.area!.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                              ),
+                              child: Text(
+                                '•',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          const Icon(
+                            Icons.near_me_rounded,
+                            size: 12,
+                            color: PujaColors.durgaRed,
+                          ),
+                          const SizedBox(width: 3.5),
+                          Text(
+                            '$distanceLabel away',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: PujaColors.durgaRed,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    PandalPhotoGallery(pandal: pandal),
+                    const SizedBox(height: 16),
+
+                    // Consolidated Quick Stats Bar (Rating, Hours, Entry)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1D1D20)
+                            : const Color(0xFFF7F7F9),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.05),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          if (pandal.rating != null && pandal.rating! > 0) ...[
+                            Expanded(
+                              flex: 2,
+                              child: _buildStatItem(
+                                icon: Icons.star_rounded,
+                                iconColor: PujaColors.festivalGold,
+                                value: pandal.rating!.toStringAsFixed(1),
+                                label: 'Rating',
+                                isDark: isDark,
+                                context: context,
+                              ),
+                            ),
+                            _buildStatDivider(isDark),
+                          ],
+                          Expanded(
+                            flex: 4,
+                            child: _buildStatItem(
+                              icon: Icons.schedule_rounded,
+                              iconColor: isDark
+                                  ? Colors.white54
+                                  : Colors.black45,
+                              value: _formatTimings(pandal.timings),
+                              label: 'Visiting Hours',
+                              isDark: isDark,
+                              context: context,
+                            ),
+                          ),
+                          if (pandal.entryFee != null &&
+                              pandal.entryFee!.isNotEmpty) ...[
+                            _buildStatDivider(isDark),
+                            Expanded(
+                              flex: 3,
+                              child: _buildStatItem(
+                                icon: Icons.confirmation_number_outlined,
+                                iconColor: isDark
+                                    ? Colors.white54
+                                    : Colors.black45,
+                                value: pandal.entryFee!,
+                                label: 'Entry',
+                                isDark: isDark,
+                                context: context,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Visited / Hopped Pill (Minimalist Action)
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () async {
+                          HapticFeedback.mediumImpact();
+                          final state = context.read<PandalUserStateService?>();
+                          await state?.toggleVisited(pandal.id);
+                          if (context.mounted) {
+                            final nowVisited =
+                                state?.isVisited(pandal.id) ?? false;
+                            if (nowVisited) {
+                              showAppSuccessNotice(
+                                context,
+                                'Marked ${pandal.name} as Visited!',
+                              );
+                            } else {
+                              showAppInfoNotice(
+                                context,
+                                'Removed ${pandal.name} from Visited list',
+                              );
+                            }
+                          }
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          constraints: const BoxConstraints(minHeight: 46),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isVis
+                                ? (isDark
+                                      ? Colors.green.withValues(alpha: 0.16)
+                                      : const Color(0xFFE8F5E9))
+                                : (isDark
+                                      ? Colors.white.withValues(alpha: 0.05)
+                                      : const Color(0xFFF5F5F7)),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: isVis
+                                  ? Colors.green.withValues(alpha: 0.45)
+                                  : (isDark ? Colors.white12 : Colors.black12),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              isVis
+                                  ? PujaIcon.shankha(
+                                      size: 22,
+                                      color: Colors.green,
+                                    )
+                                  : Icon(
+                                      Icons.radio_button_unchecked_rounded,
+                                      color: (isDark
+                                          ? Colors.white54
+                                          : Colors.black45),
+                                      size: 20,
+                                    ),
+                              const SizedBox(width: 7),
+                              Flexible(
+                                child: Text(
+                                  isVis
+                                      ? 'Visited & Hopped! (Tap to unmark)'
+                                      : 'Mark as Visited / Hopped',
+                                  style: TextStyle(
+                                    fontSize: context.dynamicFont(12.5),
+                                    fontWeight: isVis
+                                        ? FontWeight.w700
+                                        : FontWeight.w600,
+                                    color: isVis
+                                        ? (isDark
+                                              ? Colors.greenAccent
+                                              : const Color(0xFF2E7D32))
+                                        : (isDark
+                                              ? Colors.white70
+                                              : Colors.black87),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Theme & Concept Section
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.auto_awesome_rounded,
+                          size: 13,
+                          color: PujaColors.festivalGold,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'THEME & ARTISTIC CONCEPT',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(10.5),
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      pandal.theme,
+                      style: TextStyle(
+                        fontSize: context.dynamicFont(13.5),
+                        fontWeight: FontWeight.w600,
+                        height: 1.35,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    if (pandal.description.isNotEmpty &&
+                        pandal.description != pandal.theme) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        pandal.description,
+                        style: TextStyle(
+                          fontSize: context.dynamicFont(12.5),
+                          height: 1.45,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 16),
+
+                    // Transit & Accessibility (Unified Single Card)
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.directions_transit_rounded,
+                          size: 13,
+                          color: PujaColors.metroBlue,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'TRANSIT & ACCESSIBILITY',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(10.5),
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.6,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1A1A1C)
+                            : const Color(0xFFF8F8FA),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.08)
+                              : Colors.black.withValues(alpha: 0.05),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          if (pandal.nearestMetro != null &&
+                              pandal.nearestMetro!.isNotEmpty) ...[
+                            _buildTransitRow(
+                              context: context,
+                              icon: Icons.directions_subway_rounded,
+                              iconColor: PujaColors.metroBlue,
+                              label: 'Nearest Metro Station',
+                              value: pandal.nearestMetro!,
+                              isDark: isDark,
+                            ),
+                          ],
+                          if (pandal.circularRailway != null &&
+                              pandal.circularRailway!.isNotEmpty) ...[
+                            if (pandal.nearestMetro != null &&
+                                pandal.nearestMetro!.isNotEmpty)
+                              _buildTransitRowDivider(isDark),
+                            _buildTransitRow(
+                              context: context,
+                              icon: Icons.train_rounded,
+                              iconColor: PujaColors.railwayPurple,
+                              label: 'Circular Railway / Suburban',
+                              value: pandal.circularRailway!,
+                              isDark: isDark,
+                            ),
+                          ],
+                          if (pandal.nearestMetro != null ||
+                              pandal.circularRailway != null)
+                            _buildTransitRowDivider(isDark),
+                          _buildTransitRow(
+                            context: context,
+                            icon: Icons.place_outlined,
+                            iconColor: PujaColors.durgaRed,
+                            label: 'GPS Coordinates',
+                            value:
+                                '${pandal.latitude.toStringAsFixed(4)}, ${pandal.longitude.toStringAsFixed(4)}',
+                            isDark: isDark,
+                            trailing: Icon(
+                              Icons.copy_rounded,
+                              size: 14,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            onTap: () {
+                              Clipboard.setData(
+                                ClipboardData(
+                                  text:
+                                      '${pandal.latitude}, ${pandal.longitude}',
+                                ),
+                              );
+                              HapticFeedback.lightImpact();
+                              showAppSuccessNotice(
+                                context,
+                                'Coordinates copied to clipboard',
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Nearest Public Washrooms (Female & Male)
+                    _buildToiletSection(context, isDark),
+
+                    const SizedBox(height: 16),
+
+                    // Live Queue Wait Time (Crowdsourced)
+                    _buildQueueWaitSection(context, isDark),
+
+                    const SizedBox(height: 18),
+
+                    // Primary Route Action CTA
+                    Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(minHeight: 52),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFC62828), // Durga Red Light
+                            Color(0xFF8E0010), // Durga Red Dark / Crimson
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFC62828)
+                                .withValues(alpha: 0.30),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () {
+                            HapticFeedback.heavyImpact();
+                            Navigator.of(context).pop();
+                            MapScreen.routeToPandal(context, pandal);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 15,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                PujaIcon.shankha(
+                                  color: PujaColors.goldBright,
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    'Get Turn-by-Turn Directions',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: context.dynamicFont(14),
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      letterSpacing: 0.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildCircleButton({
+    required Widget child,
+    required VoidCallback onTap,
+    required bool isDark,
+    required String tooltip,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.05),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white10
+                    : Colors.black.withValues(alpha: 0.06),
+                width: 0.8,
+              ),
+            ),
+            child: Center(child: child),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildStatItem({
+    required IconData icon,
+    required Color iconColor,
+    required String value,
+    required String label,
+    required bool isDark,
+    required BuildContext context,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: iconColor),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: context.dynamicFont(12.5),
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: context.dynamicFont(10),
+            fontWeight: FontWeight.w500,
+            color: isDark ? Colors.white54 : Colors.black45,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static String _formatTimings(String raw) {
+    if (raw.isEmpty) return 'Open 24h';
+    return raw
+        .replaceAll(':00 AM', ' AM')
+        .replaceAll(':00 PM', ' PM')
+        .replaceAll(':00am', ' am')
+        .replaceAll(':00pm', ' pm')
+        .replaceAll(' - ', '–')
+        .trim();
+  }
+
+  static Widget _buildStatDivider(bool isDark) {
+    return Container(
+      width: 0.8,
+      height: 22,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      color: isDark ? Colors.white12 : Colors.black12,
+    );
+  }
+
+  static Widget _buildTransitRow({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+    required bool isDark,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    final rowContent = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.5),
+      child: Row(
+        children: [
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: isDark ? 0.20 : 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Center(child: Icon(icon, size: 14, color: iconColor)),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(10),
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white54 : Colors.black45,
+                  ),
+                ),
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(12),
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (trailing != null) ...[const SizedBox(width: 6), trailing],
+        ],
+      ),
+    );
+
+    if (onTap != null) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: rowContent,
+        ),
+      );
+    }
+    return rowContent;
+  }
+
+  static Widget _buildTransitRowDivider(bool isDark) {
+    return Divider(
+      height: 7,
+      thickness: 0.6,
+      color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+    );
+  }
+
+  Widget _buildToiletSection(BuildContext context, bool isDark) {
+    return FutureBuilder<PandalToilets?>(
+      future: _supplementaryRepo.getToiletsForPandal(pandal.id),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
+
+        final data = snapshot.data!;
+        final male = data.nearestMale;
+        final female = data.nearestFemale;
+
+        if (male == null && female == null) {
+          return const SizedBox.shrink();
+        }
+
+        final isSameFacility =
+            male != null &&
+            female != null &&
+            (male.id == female.id ||
+                (male.name == female.name && male.distM == female.distM));
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(top: 14),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white10
+                  : Colors.black.withValues(alpha: 0.06),
+              width: 0.9,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00897B).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: const Icon(
+                      Icons.wc_rounded,
+                      size: 16,
+                      color: Color(0xFF00897B),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nearest Public Washrooms',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(13),
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          'KMC & Kolkata Metro Facilities',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(10),
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Colors.white54 : Colors.black45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (isSameFacility)
+                _buildCombinedToiletCard(context, male, isDark)
+              else ...[
+                if (female != null)
+                  _buildToiletCard(
+                    context,
+                    entry: female,
+                    genderLabel: 'Female Washroom',
+                    genderColor: const Color(0xFFAD1457),
+                    isDark: isDark,
+                  ),
+                if (male != null && female != null) const SizedBox(height: 8),
+                if (male != null)
+                  _buildToiletCard(
+                    context,
+                    entry: male,
+                    genderLabel: 'Male Washroom',
+                    genderColor: const Color(0xFF1565C0),
+                    isDark: isDark,
+                  ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCombinedToiletCard(
+    BuildContext context,
+    ToiletEntry toilet,
+    bool isDark,
+  ) {
+    final walkMin = (toilet.distM / 75).ceil().clamp(1, 60);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF252A36) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF00897B).withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _buildGenderPill('Female', const Color(0xFFAD1457)),
+                    const SizedBox(width: 4),
+                    _buildGenderPill('Male', const Color(0xFF1565C0)),
+                    const SizedBox(width: 4),
+                    if (toilet.fee)
+                      _buildGenderPill('Paid', const Color(0xFFE65100))
+                    else
+                      _buildGenderPill('Free', const Color(0xFF2E7D32)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  toilet.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(12),
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${toilet.distLabel} • ~$walkMin min walk',
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(10),
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              MapScreen.routeToToilet(context, toilet);
+            },
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: const Size(60, 32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              backgroundColor: const Color(0xFF00897B).withValues(alpha: 0.15),
+              foregroundColor: const Color(0xFF00897B),
+            ),
+            icon: const Icon(Icons.directions_walk_rounded, size: 14),
+            label: const Text(
+              'Walk',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToiletCard(
+    BuildContext context, {
+    required ToiletEntry entry,
+    required String genderLabel,
+    required Color genderColor,
+    required bool isDark,
+  }) {
+    final walkMin = (entry.distM / 75).ceil().clamp(1, 60);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF252A36) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: genderColor.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    _buildGenderPill(genderLabel, genderColor),
+                    const SizedBox(width: 4),
+                    if (entry.fee)
+                      _buildGenderPill('Paid', const Color(0xFFE65100))
+                    else
+                      _buildGenderPill('Free', const Color(0xFF2E7D32)),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  entry.displayName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(12),
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${entry.distLabel} • ~$walkMin min walk',
+                  style: TextStyle(
+                    fontSize: context.dynamicFont(10),
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.tonalIcon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              MapScreen.routeToToilet(context, entry);
+            },
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              minimumSize: const Size(60, 32),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              backgroundColor: genderColor.withValues(alpha: 0.15),
+              foregroundColor: genderColor,
+            ),
+            icon: const Icon(Icons.directions_walk_rounded, size: 14),
+            label: const Text(
+              'Walk',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildGenderPill(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 9.5,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQueueWaitSection(BuildContext context, bool isDark) {
+    return StreamBuilder<Map<String, QueueWaitEstimate>>(
+      stream: QueueWaitService.instance.estimatesStream,
+      initialData: QueueWaitService.instance.getEstimates([pandal.id]),
+      builder: (context, snapshot) {
+        final estimate = snapshot.data?[pandal.id];
+        if (estimate == null || estimate.confidence == QueueConfidence.none) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white10
+                    : Colors.black.withValues(alpha: 0.06),
+                width: 0.9,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: const Icon(
+                        Icons.hourglass_top_rounded,
+                        size: 16,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Live Queue Wait Time',
+                        style: TextStyle(
+                          fontSize: context.dynamicFont(13),
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _reportQueueWait(context),
+                        icon: const Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 16,
+                        ),
+                        label: const Text('Report Wait Time'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          foregroundColor: isDark
+                              ? Colors.amber
+                              : Colors.orange.shade800,
+                          side: BorderSide(
+                            color: isDark
+                                ? Colors.amber
+                                : Colors.orange.shade800,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _showQueueDetails(context, null),
+                        icon: const Icon(Icons.info_outline_rounded, size: 16),
+                        label: const Text('How this works'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E222B) : const Color(0xFFF7F8FA),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: estimate.confidenceColor.withValues(alpha: 0.5),
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: estimate.confidenceColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                    child: Icon(
+                      Icons.hourglass_top_rounded,
+                      size: 16,
+                      color: estimate.confidenceColor,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Live Queue Wait Time',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(13),
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          '${estimate.confidenceLabel} \u00b7 ${estimate.trendIcon} ${estimate.trend.name}',
+                          style: TextStyle(
+                            fontSize: context.dynamicFont(10),
+                            fontWeight: FontWeight.w500,
+                            color: estimate.confidenceColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: estimate.confidenceColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      estimate.formattedWait,
+                      style: TextStyle(
+                        fontSize: context.dynamicFont(14),
+                        fontWeight: FontWeight.w800,
+                        color: estimate.confidenceColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _reportQueueWait(context),
+                      icon: const Icon(Icons.edit_rounded, size: 16),
+                      label: const Text('Update Wait'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        foregroundColor: isDark
+                            ? Colors.amber
+                            : Colors.orange.shade800,
+                        side: BorderSide(
+                          color: isDark ? Colors.amber : Colors.orange.shade800,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showQueueDetails(context, estimate),
+                      icon: const Icon(Icons.analytics_rounded, size: 16),
+                      label: const Text('Details'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _reportQueueWait(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: _QueueWaitReportSheet(
+          pandalId: pandal.id,
+          pandalName: pandal.name,
+        ),
+      ),
+    );
+  }
+
+  void _showQueueDetails(BuildContext context, QueueWaitEstimate? estimate) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.8,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Queue Wait Details',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (estimate != null) ...[
+                _buildDetailRow('Current Estimate', estimate.formattedWait),
+                _buildDetailRow('Confidence', estimate.confidenceLabel),
+                _buildDetailRow(
+                  'Trend',
+                  '${estimate.trendIcon} ${estimate.trend.name}',
+                ),
+                _buildDetailRow('Total Reports', '${estimate.reportCount}'),
+                _buildDetailRow('Your Reports', '${estimate.userReports}'),
+                _buildDetailRow('Squad Reports', '${estimate.squadReports}'),
+                _buildDetailRow('Public Reports', '${estimate.publicReports}'),
+                _buildDetailRow(
+                  'Last Updated',
+                  '${estimate.lastUpdated.hour}:${estimate.lastUpdated.minute.toString().padLeft(2, '0')}',
+                ),
+              ] else ...[
+                Text(
+                  'No queue data available yet.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Text(
+                'How it works:',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                '• Users at the pandal report actual wait time via "Report Wait Time"',
+              ),
+              const Text('• Squad members\' reports are shared instantly'),
+              const Text(
+                '• Estimates use weighted average (recent reports count more)',
+              ),
+              const Text('• Data expires after 30 minutes'),
+              const Text('• More reports = higher confidence'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueueWaitReportSheet extends StatefulWidget {
+  final String pandalId;
+  final String pandalName;
+  const _QueueWaitReportSheet({
+    required this.pandalId,
+    required this.pandalName,
+  });
+
+  @override
+  State<_QueueWaitReportSheet> createState() => _QueueWaitReportSheetState();
+}
+
+class _QueueWaitReportSheetState extends State<_QueueWaitReportSheet> {
+  int _waitMinutes = 15;
+  bool _submitting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Report Queue Wait Time',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.pandalName,
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Wait time selector
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: _waitMinutes > 0
+                    ? () => setState(
+                        () => _waitMinutes = (_waitMinutes - 5).clamp(0, 300),
+                      )
+                    : null,
+                icon: const Icon(Icons.remove_circle_outline_rounded, size: 28),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  _waitMinutes == 0 ? 'No wait' : '$_waitMinutes min',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: _waitMinutes < 300
+                    ? () => setState(
+                        () => _waitMinutes = (_waitMinutes + 5).clamp(0, 300),
+                      )
+                    : null,
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 28),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Quick preset buttons
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [5, 15, 30, 45, 60, 90, 120]
+                .map(
+                  (m) => OutlinedButton(
+                    onPressed: () => setState(() => _waitMinutes = m),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      foregroundColor: _waitMinutes == m
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.primary,
+                      backgroundColor: _waitMinutes == m
+                          ? theme.colorScheme.primary
+                          : null,
+                    ),
+                    child: Text('$m min'),
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: _submitting ? null : () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: _submitting ? null : _submit,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Submit',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your report helps others plan better. Updates instantly for your squad.',
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
+    setState(() => _submitting = true);
+    try {
+      await QueueWaitService.instance.reportQueueWait(
+        pandalId: widget.pandalId,
+        waitMinutes: _waitMinutes,
+        source: 'user',
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        showAppSuccessNotice(
+          context,
+          'Queue wait reported: $_waitMinutes min',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppErrorNotice(context, 'Failed to report: $e');
+      }
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+}
