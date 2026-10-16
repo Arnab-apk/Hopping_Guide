@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../models/pandal.dart';
 import '../models/place.dart';
+import '../models/pandal_photo.dart';
+import 'pandal_photo_gallery.dart';
 import '../services/location_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../utils/animation_constants.dart';
@@ -18,11 +20,13 @@ class PlaceCard extends StatelessWidget {
     required this.onTap,
     this.onMapTap,
     this.distanceKm,
+    this.animateEntrance = true,
   });
   final Place place;
   final VoidCallback onTap;
   final VoidCallback? onMapTap;
   final double? distanceKm;
+  final bool animateEntrance;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +84,20 @@ class PlaceCard extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (place.isPandal &&
+                        PandalPhoto.isSupportedUrl(place.imageUrl ?? '')) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: PandalPhotoImage(
+                            photo: PandalPhoto(url: place.imageUrl!),
+                            pandalName: place.name,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -260,7 +278,9 @@ class PlaceCard extends StatelessWidget {
       ),
     );
 
-    if (place.rawPandal != null && !MediaQuery.disableAnimationsOf(context)) {
+    if (animateEntrance &&
+        place.rawPandal != null &&
+        !MediaQuery.disableAnimationsOf(context)) {
       return card.animate(
         effects: [
           FadeEffect(

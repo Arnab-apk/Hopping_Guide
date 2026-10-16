@@ -1,110 +1,106 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Interpolates between two positions over time for smooth avatar animation.
-///
-/// Instead of jumping from GPS fix to GPS fix, this generates intermediate
-/// frames at 30-60 FPS based on elapsed time and estimated velocity.
+/// Display-only smoothing. Never extrapolates past a received location or feeds
+/// animated coordinates back into navigation, visit detection, or cloud writes.
 class PositionInterpolator extends ChangeNotifier {
-  PositionInterpolator();
+  PositionInterpolator({DateTime Function()? now, TickerProvider? vsync})
+    : _now = now ?? DateTime.now {
+    _ticker = vsync?.createTicker(_advance);
+  }
 
-  LatLng? _lastKnownPosition;
-  LatLng? _targetPosition;
-  DateTime? _lastUpdateTime;
-  DateTime? _animationStartTime;
-  LatLng? _animationStartPosition;
-  Timer? _animationTimer;
-  static const int _animationFps = 30;
-  static const Duration _animationFrameDuration = Duration(milliseconds: 1000 ~/ _animationFps);
-  static const Duration _maxInterpolationDuration = Duration(milliseconds: 2000);
+  final DateTime Function() _now;
+  LatLng? _start, _target;
+  DateTime? _lastUpdate;
+  Timer? _timer;
+  Ticker? _ticker;
+  Duration _duration = const Duration(milliseconds: 700);
+  Duration _elapsed = Duration.zero;
+  static const _frame = Duration(milliseconds: 33);
 
-  /// Current interpolated position (or last known if no animation in progress)
   LatLng? get currentInterpolatedPosition {
-    if (_animationStartTime == null || _animationStartPosition == null || _targetPosition == null) {
-      return _lastKnownPosition;
-    }
-
-    final now = DateTime.now();
-    final elapsed = now.difference(_animationStartTime!);
-
-    if (elapsed >= _maxInterpolationDuration) {
-      // Animation complete
-      return _targetPosition;
-    }
-
-    // Linear interpolation
-    final progress = elapsed.inMilliseconds / _maxInterpolationDuration.inMilliseconds;
-    return _lerpLatLng(_animationStartPosition!, _targetPosition!, progress);
+    final target = _target;
+    final start = _start;
+    if (target == null || start == null) return target;
+    final t = (_elapsed.inMicroseconds / _duration.inMicroseconds).clamp(
+      0.0,
+      1.0,
+    );
+    final longitudeDelta =
+        (target.longitude - start.longitude + 180) % 360 - 180;
+    if (t >= 1) return target;
+    return LatLng(
+      start.latitude + (target.latitude - start.latitude) * t,
+      (start.longitude + longitudeDelta * t + 180) % 360 - 180,
+    );
   }
 
-  /// Called when a new GPS position arrives
-  void updatePosition(LatLng newPosition) {
-    final now = DateTime.now();
-
-    if (_lastKnownPosition == null) {
-      // First position - no interpolation needed
-      _lastKnownPosition = newPosition;
-      _targetPosition = newPosition;
-      notifyListeners();
+  void updatePosition(LatLng position) {
+    if (!_valid(position) || _target == position) return;
+    final now = _now();
+    final current = currentInterpolatedPosition;
+    final gap = _lastUpdate == null ? null : now.difference(_lastUpdate!);
+    _lastUpdate = now;
+    // Reconnection and large corrections must not animate a fictional journey.
+    if (current == null ||
+        (gap != null && gap > const Duration(seconds: 20)) ||
+        const Distance().as(LengthUnit.Meter, current, position) > 150) {
+      snapTo(position);
       return;
     }
-
-    final currentPos = currentInterpolatedPosition ?? _lastKnownPosition!;
-    final dist = const Distance().as(LengthUnit.Meter, currentPos, newPosition);
-    if (_lastUpdateTime != null &&
-        now.difference(_lastUpdateTime!) < const Duration(milliseconds: 250) &&
-        dist < 1.0) {
-      _targetPosition = newPosition;
-      return;
+    _start = current;
+    _target = position;
+    _elapsed = Duration.zero;
+    _duration = Duration(
+      milliseconds: (gap?.inMilliseconds ?? 700).clamp(250, 1000),
+    );
+    _timer?.cancel();
+    _ticker?.stop();
+    if (_ticker != null) {
+      _ticker!.start();
+    } else {
+      // Non-visual consumers retain virtual-time-compatible interpolation.
+      _timer = Timer.periodic(_frame, (timer) => _advance(_frame * timer.tick));
     }
-
-    // Start interpolation from current displayed position to new position
-    _animationStartPosition = currentPos;
-    _animationStartTime = now;
-    _targetPosition = newPosition;
-    _lastKnownPosition = newPosition;
-    _lastUpdateTime = now;
-
-    // Cancel any existing animation timer
-    _animationTimer?.cancel();
-
-    // Start frame-by-frame animation
-    _animationTimer = Timer.periodic(_animationFrameDuration, (_) {
-      final elapsed = DateTime.now().difference(_animationStartTime!);
-      if (elapsed >= _maxInterpolationDuration) {
-        _animationTimer?.cancel();
-        _animationTimer = null;
-      }
-      notifyListeners();
-    });
-
     notifyListeners();
   }
 
-  /// Immediately snap to a position (e.g., when user manually moves map)
+  void _advance(Duration elapsed) {
+    _elapsed = elapsed;
+    if (_elapsed >= _duration) {
+      _elapsed = _duration;
+      _timer?.cancel();
+      _timer = null;
+      _ticker?.stop();
+      _start = _target;
+    }
+    notifyListeners();
+  }
+
   void snapTo(LatLng position) {
-    _animationTimer?.cancel();
-    _animationTimer = null;
-    _animationStartTime = null;
-    _animationStartPosition = null;
-    _lastKnownPosition = position;
-    _targetPosition = position;
+    if (!_valid(position)) return;
+    _timer?.cancel();
+    _timer = null;
+    _ticker?.stop();
+    _start = _target = position;
+    _elapsed = _duration;
+    _lastUpdate = _now();
     notifyListeners();
   }
+
+  bool _valid(LatLng point) =>
+      point.latitude.isFinite &&
+      point.longitude.isFinite &&
+      point.latitude.abs() <= 90 &&
+      point.longitude.abs() <= 180;
 
   @override
   void dispose() {
-    _animationTimer?.cancel();
-    _animationTimer = null;
+    _timer?.cancel();
+    _ticker?.dispose();
     super.dispose();
-  }
-
-  /// Linear interpolation between two LatLng points
-  LatLng _lerpLatLng(LatLng a, LatLng b, double t) {
-    return LatLng(
-      a.latitude + (b.latitude - a.latitude) * t,
-      a.longitude + (b.longitude - a.longitude) * t,
-    );
   }
 }

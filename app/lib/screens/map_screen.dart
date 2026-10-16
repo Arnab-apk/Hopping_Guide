@@ -39,7 +39,7 @@ import '../widgets/navigation_overlay.dart';
 import '../widgets/mapbox_navigation_guidance.dart';
 import '../widgets/route_polylines.dart';
 import '../services/multimodal_routing_service.dart' hide haversineMeters;
-import '../services/position_interpolator.dart';
+import '../widgets/live_tracking_marker_layer.dart';
 import '../services/routing_service.dart';
 import '../services/squad_service.dart';
 import '../services/theme_service.dart';
@@ -571,6 +571,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   bool _mapTrackingStarted = false;
   bool _isCalculatingRoute = false;
   bool _followUser = false;
+  StreamSubscription<Pandal>? _autoVisitSubscription;
   bool _headingUp = false;
   late final AnimationController _headingRotationController;
   Tween<double> _headingRotationTween = Tween(begin: 0, end: 0);
@@ -578,7 +579,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   double _mapRotation = 0.0;
   final _cameraRotation = ValueNotifier<double>(0);
   String? _lastFramedTrailId;
-  late final PositionInterpolator _positionInterpolator;
 
   // Trail Polyline Memoization Cache (prevents frame drops and blank tile lag on GPS updates)
   List<Polyline>? _cachedTrailCorePolylines;
@@ -764,7 +764,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     MapScreen.journeyStart.addListener(_onJourneyStart);
     _navigation.addListener(_onNavigationChanged);
     LiveTrackingEngine.instance.onRouteRecalculated = _onRouteRecalculated;
-    _positionInterpolator = PositionInterpolator();
     _mapSearchController = TextEditingController();
     _mapSearchFocusNode = FocusNode();
     _mapSearchFocusNode.addListener(_handleSearchFocusOrTextChange);
@@ -787,6 +786,14 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
     _repo = widget.repository ?? LocalAssetPandalRepository();
+    _autoVisitSubscription = CustomHoppingTrailService.instance.autoVisits
+        .listen((pandal) {
+          if (!mounted) return;
+          showAppSuccessNotice(
+            context,
+            'Visited ${pandal.name}. Saved to your Visited list.',
+          );
+        });
     MapScreen.pendingFoodSpotAction.addListener(_onPendingFoodSpotAction);
     if (MapScreen.pendingFoodSpotAction.value != null) {
       WidgetsBinding.instance.addPostFrameCallback(
@@ -950,6 +957,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _journey.removeListener(_onJourneyChanged);
     MapScreen.journeyStart.removeListener(_onJourneyStart);
     LocationService.instance.removeListener(_onHeadingChanged);
+    _autoVisitSubscription?.cancel();
     _navigation.removeListener(_onNavigationChanged);
     _navigation.end(notify: false);
     LocationService.instance.removeListener(_onHeadingChanged);
@@ -983,7 +991,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     _cameraMoveController?.dispose();
     _cameraMoveController = null;
     _pulseController.dispose();
-    _positionInterpolator.dispose();
     _cameraRotation.dispose();
     super.dispose();
   }
@@ -1203,28 +1210,32 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   void _startContinuousTracking() {
     if (_mapTrackingStarted || !mounted) return;
     _mapTrackingStarted = true;
-    LocationService.instance.startLiveTracking(
-      callbackKey: this,
-      onLocationChanged: (pos) {
-        if (!mounted) return;
-        if (_navigation.active && pos.accuracy > 50) return;
-        setState(() => _userPosition = pos);
-        _positionInterpolator.updatePosition(
-          LatLng(pos.latitude, pos.longitude),
-        );
-        SquadService.instance.updateUserLocation(pos.latitude, pos.longitude);
-        if (_followUser) {
-          _animatedMapMove(
-            LatLng(pos.latitude, pos.longitude),
-            _mapController.camera.zoom < 15.0
-                ? 15.5
-                : _mapController.camera.zoom,
-          );
-        }
-      },
-    ).then((started) {
-      if (!started) _mapTrackingStarted = false;
-    });
+    LocationService.instance
+        .startLiveTracking(
+          callbackKey: this,
+          onLocationChanged: (pos) {
+            if (!mounted) return;
+            if (_navigation.active && pos.accuracy > 50) return;
+            setState(() => _userPosition = pos);
+            SquadService.instance.updateUserLocation(
+              pos.latitude,
+              pos.longitude,
+            );
+          },
+        )
+        .then((started) {
+          if (!started) _mapTrackingStarted = false;
+        });
+  }
+
+  void _followTrackingFrame(Key key, LatLng position) {
+    if (!mounted ||
+        !_followUser ||
+        (_cameraMoveController?.isAnimating ?? false)) {
+      return;
+    }
+    final zoom = _mapController.camera.zoom;
+    _mapController.move(position, zoom < 15 ? 15.5 : zoom);
   }
 
   Future<void> _startTrackingIfPermitted() async {
@@ -1964,9 +1975,12 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     ],
                   ),
                 if (_navigation.guidance?.snappedPoint != null)
-                  MarkerLayer(
+                  LiveTrackingMarkerLayer(
+                    key: const ValueKey('navigation-tracking'),
+                    onPositionFrame: _followTrackingFrame,
                     markers: [
                       Marker(
+                        key: const ValueKey('my-location'),
                         point: _navigation.guidance!.deviationMeters < 15
                             ? _navigation.guidance!.snappedPoint!
                             : LatLng(
@@ -2361,78 +2375,104 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     squadService.showSquadOnMap &&
                     (!isTrailActive || squadService.isHoppingActive))
                   RepaintBoundary(
-                    child: MarkerLayer(
-                      markers: squadService.companionMembers.map((member) {
-                        final isSelected =
-                            _selectedSquadMember?.id == member.id;
-                        final avatarColor = member.avatarColor;
-                        final size = isSelected ? 46.0 : 40.0;
-                        return Marker(
-                          rotate: true,
-                          point: LatLng(member.latitude, member.longitude),
-                          width: size + 20,
-                          height: size + 20,
-                          alignment: Alignment.center,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              _animatedMapMove(
-                                LatLng(member.latitude, member.longitude),
-                                (_mapController.camera.zoom < 15.5
-                                    ? 15.5
-                                    : _mapController.camera.zoom),
-                              );
-                              setState(() {
-                                _selectedSquadMember = member;
-                                _selectedPandal = null;
-                              });
-                            },
-                            child: RepaintBoundary(
-                              child: Center(
-                                child: Container(
-                                  width: size,
-                                  height: size,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: avatarColor,
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? const Color(0xFF00E5FF)
-                                          : Colors.white,
-                                      width: isSelected ? 2.8 : 2.2,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: isSelected
-                                            ? const Color(0xFF00E5FF)
-                                                  .withValues(alpha: 0.6)
-                                            : avatarColor.withValues(
-                                                alpha: 0.45,
-                                              ),
-                                        blurRadius: isSelected ? 12 : 6,
-                                        spreadRadius: isSelected ? 2 : 1,
+                    child: LiveTrackingMarkerLayer(
+                      key: const ValueKey('squad-tracking'),
+                      snapKeys: {
+                        for (final member in squadService.companionMembers)
+                          if (member.markerState != MemberMarkerState.fresh)
+                            ValueKey(member.id),
+                      },
+                      markers: squadService.companionMembers
+                          .where((member) => member.shareLocation)
+                          .map((member) {
+                            final isSelected =
+                                _selectedSquadMember?.id == member.id;
+                            final avatarColor = member.avatarColor;
+                            final size = isSelected ? 46.0 : 40.0;
+                            return Marker(
+                              key: ValueKey(member.id),
+                              rotate: true,
+                              point: LatLng(member.latitude, member.longitude),
+                              width: size + 20,
+                              height: size + 20,
+                              alignment: Alignment.center,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  _animatedMapMove(
+                                    LatLng(member.latitude, member.longitude),
+                                    (_mapController.camera.zoom < 15.5
+                                        ? 15.5
+                                        : _mapController.camera.zoom),
+                                  );
+                                  setState(() {
+                                    _selectedSquadMember = member;
+                                    _selectedPandal = null;
+                                  });
+                                },
+                                child: RepaintBoundary(
+                                  child: Center(
+                                    child: Container(
+                                      width: size,
+                                      height: size,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: avatarColor,
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? const Color(0xFF00E5FF)
+                                              : Colors.white,
+                                          width: isSelected ? 2.8 : 2.2,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: isSelected
+                                                ? const Color(0xFF00E5FF)
+                                                      .withValues(alpha: 0.6)
+                                                : avatarColor.withValues(
+                                                    alpha: 0.45,
+                                                  ),
+                                            blurRadius: isSelected ? 12 : 6,
+                                            spreadRadius: isSelected ? 2 : 1,
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      // 1. Google Avatar or Clean Letter Fallback
-                                      ClipOval(
-                                        child:
-                                            (member.photoUrl != null &&
-                                                member.photoUrl!.isNotEmpty)
-                                            ? Image.network(
-                                                member.photoUrl!,
-                                                width: size,
-                                                height: size,
-                                                fit: BoxFit.cover,
-                                                errorBuilder:
-                                                    (
-                                                      context,
-                                                      error,
-                                                      stackTrace,
-                                                    ) => Center(
+                                      child: Stack(
+                                        children: [
+                                          // 1. Google Avatar or Clean Letter Fallback
+                                          ClipOval(
+                                            child:
+                                                (member.photoUrl != null &&
+                                                    member.photoUrl!.isNotEmpty)
+                                                ? Image.network(
+                                                    member.photoUrl!,
+                                                    width: size,
+                                                    height: size,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Center(
+                                                          child: Text(
+                                                            member.initials,
+                                                            style:
+                                                                const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w900,
+                                                                  fontSize: 12,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                  )
+                                                : Container(
+                                                    color: avatarColor,
+                                                    child: Center(
                                                       child: Text(
                                                         member.initials,
                                                         style: const TextStyle(
@@ -2443,165 +2483,130 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                                                         ),
                                                       ),
                                                     ),
-                                              )
-                                            : Container(
-                                                color: avatarColor,
-                                                child: Center(
-                                                  child: Text(
-                                                    member.initials,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize: 12,
-                                                    ),
                                                   ),
+                                          ),
+                                          // Online active dot
+                                          Positioned(
+                                            right: -1,
+                                            bottom: -1,
+                                            child: Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                color: switch (member
+                                                    .markerState) {
+                                                  MemberMarkerState.fresh =>
+                                                    const Color(0xFF00E676),
+                                                  MemberMarkerState.stale =>
+                                                    Colors.amber,
+                                                  _ => Colors.grey,
+                                                },
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 1.2,
                                                 ),
                                               ),
-                                      ),
-                                      // Online active dot
-                                      Positioned(
-                                        right: -1,
-                                        bottom: -1,
-                                        child: Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF00E676),
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 1.2,
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
+                            );
+                          })
+                          .toList(),
                     ),
                   ),
 
                 // User Location Marker with Animated Radar Pulse & Directional Navigation Arrow
-                if (_effectiveUserLocation != null) () {
-                  final userLatLng = _effectiveUserLocation!;
-                  final isNavigatingToTarget = _selectedPandal != null ||
-                      _selectedSquadMember != null ||
-                      _selectedFoodSpot != null ||
-                      _selectedMetroStation != null;
-                  return RepaintBoundary(
-                    child: MarkerLayer(
-                      markers: [
-                        Marker(
-                          rotate: true,
-                          point: userLatLng,
-                          width: 64,
-                          height: 64,
-                          alignment: Alignment.center,
-                          child: RepaintBoundary(
-                            child: AnimatedBuilder(
-                              animation: _pulseController,
-                              child: _buildUserLocationCore(isNavigatingToTarget),
-                              builder: (context, staticChild) {
-                                final pulse = _pulseController.value;
+                if (_effectiveUserLocation != null)
+                  () {
+                    final userLatLng = _effectiveUserLocation!;
+                    final isNavigatingToTarget =
+                        _selectedPandal != null ||
+                        _selectedSquadMember != null ||
+                        _selectedFoodSpot != null ||
+                        _selectedMetroStation != null;
+                    return RepaintBoundary(
+                      child: LiveTrackingMarkerLayer(
+                        key: const ValueKey('self-tracking'),
+                        onPositionFrame: _followTrackingFrame,
+                        markers: [
+                          Marker(
+                            key: const ValueKey('my-location'),
+                            rotate: true,
+                            point: userLatLng,
+                            width: 64,
+                            height: 64,
+                            alignment: Alignment.center,
+                            child: RepaintBoundary(
+                              child: AnimatedBuilder(
+                                animation: _pulseController,
+                                child: _buildUserLocationCore(
+                                  isNavigatingToTarget,
+                                ),
+                                builder: (context, staticChild) {
+                                  final pulse = _pulseController.value;
 
-                                // Calculate directional bearing towards destination pandal, squad member, food spot, or metro
-                                double? arrowBearing;
-                                if (_selectedPandal != null) {
-                                  arrowBearing = calculateBearing(
-                                    userLatLng.latitude,
-                                    userLatLng.longitude,
-                                    _selectedPandal!.lat,
-                                    _selectedPandal!.lng,
-                                  );
-                                } else if (_selectedSquadMember != null) {
-                                  arrowBearing = calculateBearing(
-                                    userLatLng.latitude,
-                                    userLatLng.longitude,
-                                    _selectedSquadMember!.latitude,
-                                    _selectedSquadMember!.longitude,
-                                  );
-                                } else if (_selectedFoodSpot != null) {
-                                  arrowBearing = calculateBearing(
-                                    userLatLng.latitude,
-                                    userLatLng.longitude,
-                                    _selectedFoodSpot!.lat,
-                                    _selectedFoodSpot!.lng,
-                                  );
-                                } else if (_selectedMetroStation != null) {
-                                  arrowBearing = calculateBearing(
-                                    userLatLng.latitude,
-                                    userLatLng.longitude,
-                                    _selectedMetroStation!.latitude,
-                                    _selectedMetroStation!.longitude,
-                                  );
-                                } else {
-                                  // Use fused heading (GPS + compass) from LocationService
-                                  // Works when stationary (compass) and moving (GPS)
-                                  final fusedHeading =
+                                  // Location direction always describes the device;
+                                  // choosing a destination must not change it.
+                                  final arrowBearing =
+                                      LocationService.instance.facingHeading ??
                                       LocationService.instance.currentHeading;
-                                  if (fusedHeading != null) {
-                                    arrowBearing = fusedHeading;
-                                  }
-                                }
 
-                                return Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    // Pulsing radar wave
-                                    Container(
-                                      width: 30 + (28 * pulse),
-                                      height: 30 + (28 * pulse),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: (isNavigatingToTarget
-                                                ? PujaColors.festivalGold
-                                                : const Color(0xFF2979FF))
-                                            .withValues(
-                                              alpha: 0.35 * (1.0 - pulse),
-                                            ),
-                                      ),
-                                    ),
-                                    // Directional Navigation Arrow pointing towards target or forward heading
-                                    if (arrowBearing != null)
-                                      Transform.rotate(
-                                        angle: ((arrowBearing + _mapRotation) *
-                                            math.pi /
-                                            180),
-                                        child: Transform.translate(
-                                          offset: const Offset(0, -20),
-                                          child: Icon(
-                                            Icons.navigation_rounded,
-                                            size: 26,
-                                            color: isNavigatingToTarget
-                                                ? PujaColors.goldBright
-                                                : const Color(0xFF2979FF),
-                                            shadows: const [
-                                              Shadow(
-                                                color: Colors.black54,
-                                                blurRadius: 5,
-                                                offset: Offset(0, 1),
-                                              ),
-                                            ],
-                                          ),
+                                  return Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Pulsing radar wave
+                                      Container(
+                                        width: 30 + (28 * pulse),
+                                        height: 30 + (28 * pulse),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color:
+                                              (isNavigatingToTarget
+                                                      ? PujaColors.festivalGold
+                                                      : const Color(0xFF2979FF))
+                                                  .withValues(
+                                                    alpha: 0.35 * (1.0 - pulse),
+                                                  ),
                                         ),
                                       ),
-                                    ?staticChild,
-                                  ],
-                                );
-                              },
+                                      // Directional Navigation Arrow pointing towards target or forward heading
+                                      if (arrowBearing != null)
+                                        _HeadingRotation(
+                                          child: Transform.translate(
+                                            offset: const Offset(0, -20),
+                                            child: Icon(
+                                              Icons.navigation_rounded,
+                                              size: 26,
+                                              color: isNavigatingToTarget
+                                                  ? PujaColors.goldBright
+                                                  : const Color(0xFF2979FF),
+                                              shadows: const [
+                                                Shadow(
+                                                  color: Colors.black54,
+                                                  blurRadius: 5,
+                                                  offset: Offset(0, 1),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ?staticChild,
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }(),
+                        ],
+                      ),
+                    );
+                  }(),
 
                 // Leaflet Map Speech-Bubble Popups for Puja Pandals, Restaurants, Metro Stations, and Toilets
                 if (_selectedPandal != null ||
@@ -3534,24 +3539,20 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2979FF),
-            Color(0xFF1565C0),
-          ],
+          colors: [Color(0xFF2979FF), Color(0xFF1565C0)],
         ),
         shape: BoxShape.circle,
         border: Border.all(
-          color: isNavigatingToTarget
-              ? PujaColors.goldBright
-              : Colors.white,
+          color: isNavigatingToTarget ? PujaColors.goldBright : Colors.white,
           width: 2.6,
         ),
         boxShadow: [
           BoxShadow(
-            color: (isNavigatingToTarget
-                    ? PujaColors.goldBright
-                    : const Color(0xFF2979FF))
-                .withValues(alpha: 0.55),
+            color:
+                (isNavigatingToTarget
+                        ? PujaColors.goldBright
+                        : const Color(0xFF2979FF))
+                    .withValues(alpha: 0.55),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 2),
@@ -3563,12 +3564,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
           builder: (context) {
             final auth = context.read<AuthService?>();
             final user =
-                auth?.currentUserModel ??
-                AuthService.instance.currentUserModel;
+                auth?.currentUserModel ?? AuthService.instance.currentUserModel;
             final userPhoto = user?.photoUrl;
             final name = user?.displayName ?? '';
-            final initial =
-                name.trim().isNotEmpty
+            final initial = name.trim().isNotEmpty
                 ? name.trim()[0].toUpperCase()
                 : 'U';
 
@@ -6188,22 +6187,42 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   }
 }
 
-class _HeadingRotation extends StatelessWidget {
+class _HeadingRotation extends StatefulWidget {
   const _HeadingRotation({required this.child});
   final Widget child;
 
   @override
+  State<_HeadingRotation> createState() => _HeadingRotationState();
+}
+
+class _HeadingRotationState extends State<_HeadingRotation> {
+  double? _angle;
+
+  @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: LocationService.instance,
-    child: child,
-    builder: (context, child) => Transform.rotate(
-      angle:
-          ((LocationService.instance.facingHeading ?? 0) +
-              MapCamera.of(context).rotation) *
-          math.pi /
-          180,
-      child: child,
-    ),
+    child: widget.child,
+    builder: (context, child) {
+      final heading =
+          LocationService.instance.facingHeading ??
+          LocationService.instance.currentHeading ??
+          0;
+      final target =
+          (heading.isFinite && heading >= 0 ? heading : 0) +
+          MapCamera.of(context).rotation;
+      _angle = _angle == null
+          ? target
+          : _angle! + shortestHeadingTurn(_angle!, target);
+      return TweenAnimationBuilder<double>(
+        tween: Tween(end: _angle!),
+        duration: MediaQuery.of(context).disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 180),
+        child: child,
+        builder: (context, angle, child) =>
+            Transform.rotate(angle: angle * math.pi / 180, child: child),
+      );
+    },
   );
 }
 
@@ -6242,6 +6261,7 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
     );
     final activeTrail = trailService.activeTrail;
     final activeTrailIds = activeTrail?.stops.map((s) => s.id).toSet();
+    final userState = context.watch<PandalUserStateService?>();
 
     final clusterItems = PandalSpatialClusterer.cluster(
       allPandals: widget.visiblePandals,
@@ -6256,6 +6276,7 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
       activeTrail?.currentStopIndex,
       ...?activeTrail?.visitedPandalIds,
       ...?activeTrail?.stops.map((s) => s.id),
+      ...?userState?.visitedIds,
     ]);
     if (identical(clusterItems, _previousClusters) &&
         trailSignature == _previousTrailSignature &&
@@ -6297,11 +6318,12 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
           final isSelected = widget.selectedPandal?.id == p.id;
 
           int trailIndex = -1;
-          bool isVisited = false;
+          bool isVisited = userState?.isVisited(p.id) ?? false;
           if (activeTrail != null) {
             trailIndex = activeTrail.stops.indexWhere((s) => s.id == p.id);
             if (trailIndex != -1) {
-              isVisited = activeTrail.visitedPandalIds.contains(p.id);
+              isVisited =
+                  isVisited || activeTrail.visitedPandalIds.contains(p.id);
             }
           }
 

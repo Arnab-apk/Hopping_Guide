@@ -17,6 +17,7 @@ import '../services/queue_wait_service.dart';
 import '../utils/constants.dart';
 import '../utils/responsive.dart';
 import 'puja_icons.dart';
+import 'pandal_photo_gallery.dart';
 
 /// Minimalist, beautifully proportioned Pandal Detail Sheet.
 /// Features clean typography, consolidated transit card, inline distance badge,
@@ -313,6 +314,9 @@ class PandalDetailSheet extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 14),
+
+                    PandalPhotoGallery(pandal: pandal),
+                    const SizedBox(height: 16),
 
                     // Consolidated Quick Stats Bar (Rating, Hours, Entry)
                     Container(

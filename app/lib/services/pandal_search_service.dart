@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../config/theme.dart';
@@ -31,6 +32,12 @@ class PandalSearchService {
   static final PandalSearchService instance = PandalSearchService._();
   PandalSearchService._();
 
+  // Bound retained strings while reusing normalization across typing and GPS
+  // updates. Key by input text so refreshed records never reuse stale fields.
+  static final _normalizedText = <String, String>{};
+  static final _punctuation = RegExp(r'[^\w\s]');
+  static final _whitespace = RegExp(r'\s+');
+
   // In-memory cache of recent search queries (up to 8)
   final List<String> _recentSearches = [
     'Ekdalia Evergreen',
@@ -45,7 +52,9 @@ class PandalSearchService {
   void addRecentSearch(String query) {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return;
-    _recentSearches.removeWhere((item) => item.toLowerCase() == trimmed.toLowerCase());
+    _recentSearches.removeWhere(
+      (item) => item.toLowerCase() == trimmed.toLowerCase(),
+    );
     _recentSearches.insert(0, trimmed);
     if (_recentSearches.length > 8) {
       _recentSearches.removeLast();
@@ -58,7 +67,9 @@ class PandalSearchService {
 
   /// Normalizes Bengali / English transliterations and common variations
   static String normalize(String input) {
-    return input
+    final cached = _normalizedText[input];
+    if (cached != null) return cached;
+    final normalized = input
         .toLowerCase()
         .replaceAll('sarbojanin', 'sarbojanin')
         .replaceAll('sarbajanin', 'sarbojanin')
@@ -70,9 +81,14 @@ class PandalSearchService {
         .replaceAll('ballygunge', 'baliganj')
         .replaceAll('hatibagan', 'hatibagan')
         .replaceAll('mudiali', 'mudiali')
-        .replaceAll(RegExp(r'[^\w\s]'), ' ')
-        .replaceAll(RegExp(r'\s+'), ' ')
+        .replaceAll(_punctuation, ' ')
+        .replaceAll(_whitespace, ' ')
         .trim();
+    if (_normalizedText.length >= 4096) {
+      _normalizedText.remove(_normalizedText.keys.first);
+    }
+    _normalizedText[input] = normalized;
+    return normalized;
   }
 
   /// Matches query keywords against pandal attributes and computes an auto-complete score.
@@ -84,12 +100,16 @@ class PandalSearchService {
     double? userLng,
     TextStyle? normalStyle,
     TextStyle? highlightStyle,
+    bool includeHighlights = true,
   }) {
     final query = rawQuery.trim().toLowerCase();
     if (query.isEmpty) return null;
 
     final normQuery = normalize(query);
-    final queryTokens = normQuery.split(' ').where((t) => t.isNotEmpty).toList();
+    final queryTokens = normQuery
+        .split(' ')
+        .where((t) => t.isNotEmpty)
+        .toList();
     if (queryTokens.isEmpty) return null;
 
     final normName = normalize(pandal.name);
@@ -99,6 +119,7 @@ class PandalSearchService {
     final normMetro = normalize(pandal.nearestMetro ?? '');
     final normTheme = normalize(pandal.theme);
     final normSpecial = pandal.specialFeatures.map(normalize).join(' ');
+    final nameWords = normName.split(' ');
 
     double score = 0.0;
     String matchedField = 'Name';
@@ -119,7 +140,6 @@ class PandalSearchService {
       bool tokenMatched = false;
 
       // Name check
-      final nameWords = normName.split(' ');
       for (final word in nameWords) {
         if (word == token) {
           score += 300;
@@ -201,12 +221,14 @@ class PandalSearchService {
     }
 
     // Generate highlight spans for the pandal name
-    final spans = buildHighlightSpans(
-      text: pandal.name,
-      query: query,
-      normalStyle: normalStyle,
-      highlightStyle: highlightStyle,
-    );
+    final spans = includeHighlights
+        ? buildHighlightSpans(
+            text: pandal.name,
+            query: query,
+            normalStyle: normalStyle,
+            highlightStyle: highlightStyle,
+          )
+        : const <TextSpan>[];
 
     return PandalSearchResult(
       pandal: pandal,
@@ -281,8 +303,10 @@ class PandalSearchService {
     TextStyle? normalStyle,
     TextStyle? highlightStyle,
   }) {
-    final effectiveNormal = normalStyle ?? const TextStyle(color: Colors.white, fontSize: 14);
-    final effectiveHighlight = highlightStyle ??
+    final effectiveNormal =
+        normalStyle ?? const TextStyle(color: Colors.white, fontSize: 14);
+    final effectiveHighlight =
+        highlightStyle ??
         const TextStyle(
           color: PujaColors.festivalGold,
           fontWeight: FontWeight.w900,
@@ -333,23 +357,24 @@ class PandalSearchService {
     int cursor = 0;
     for (final interval in merged) {
       if (interval.start > cursor) {
-        spans.add(TextSpan(
-          text: text.substring(cursor, interval.start),
-          style: effectiveNormal,
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(cursor, interval.start),
+            style: effectiveNormal,
+          ),
+        );
       }
-      spans.add(TextSpan(
-        text: text.substring(interval.start, interval.end),
-        style: effectiveHighlight,
-      ));
+      spans.add(
+        TextSpan(
+          text: text.substring(interval.start, interval.end),
+          style: effectiveHighlight,
+        ),
+      );
       cursor = interval.end;
     }
 
     if (cursor < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(cursor),
-        style: effectiveNormal,
-      ));
+      spans.add(TextSpan(text: text.substring(cursor), style: effectiveNormal));
     }
 
     return spans;

@@ -12,6 +12,7 @@ import 'package:kolkata_puja/screens/map_screen.dart';
 import 'package:kolkata_puja/services/auth_service.dart';
 import 'package:kolkata_puja/services/custom_hopping_trail_service.dart';
 import 'package:kolkata_puja/services/location_service.dart';
+import 'package:kolkata_puja/services/pandal_user_state_service.dart';
 import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:kolkata_puja/services/theme_service.dart';
 import 'package:kolkata_puja/utils/constants.dart';
@@ -81,6 +82,7 @@ void main() {
   late ThemeService themeService;
   late CustomHoppingTrailService trailService;
   late AuthService authService;
+  late PandalUserStateService userState;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({'has_seen_app_tutorial': true});
@@ -90,6 +92,7 @@ void main() {
     themeService = ThemeService();
     trailService = CustomHoppingTrailService.instance;
     authService = AuthService.instance;
+    userState = await PandalUserStateService.create();
   });
 
   tearDown(() {
@@ -106,12 +109,41 @@ void main() {
           value: trailService,
         ),
         ChangeNotifierProvider<AuthService>.value(value: authService),
+        ChangeNotifierProvider<PandalUserStateService>.value(value: userState),
       ],
       child: MaterialApp(home: MapScreen(repository: _FakePandalRepo())),
     );
   }
 
   group('Live Location Tracking & Map Panning Tests', () {
+    testWidgets('saved visited pins update without an active hopping trail', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildTestMapScreen());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      MapScreen.pendingPandalAction.value = (
+        pandal: (await _FakePandalRepo().byId('p1'))!,
+        traceRoute: false,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .move(const LatLng(22.5760, 88.3630), 17);
+      await tester.pump();
+      final pin = find.byWidgetPredicate(
+        (widget) =>
+            widget is LeafletMarkerPin &&
+            widget.category == LeafletPinCategory.pandal,
+      );
+      expect(tester.widget<LeafletMarkerPin>(pin.first).isVisited, isFalse);
+      await userState.markVisited('p1');
+      await tester.pump();
+      expect(tester.widget<LeafletMarkerPin>(pin.first).isVisited, isTrue);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
     testWidgets(
       'navigation Start hides explore controls and confirmed End restores the map',
       (tester) async {
@@ -345,18 +377,31 @@ void main() {
       // Allow animated map move to complete
       await tester.pump(const Duration(milliseconds: 600));
 
-      // Now move the user to a new position (22.5750, 88.3600)
-      final pos2 = _createMockPosition(latitude: 22.5750, longitude: 88.3600);
+      // A walking-sized update should move the camera with the displayed dot.
+      final pos2 = _createMockPosition(latitude: 22.5702, longitude: 88.3533);
       LocationService.instance.emitTestPosition(pos2);
       await tester.pump();
-      // Advance time for _animatedMapMove controller
-      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pump(const Duration(milliseconds: 99));
+      final flutterMap = tester.widget<FlutterMap>(find.byType(FlutterMap));
+      final centerDuringMovement = flutterMap.mapController!.camera.center;
+      expect(centerDuringMovement.latitude, greaterThan(pos1.latitude));
+      expect(centerDuringMovement.latitude, lessThan(pos2.latitude));
+      final userMarker = tester
+          .widgetList<MarkerLayer>(find.byType(MarkerLayer))
+          .expand((layer) => layer.markers)
+          .firstWhere((marker) => marker.key == const ValueKey('my-location'));
+      expect(
+        centerDuringMovement.latitude,
+        closeTo(userMarker.point.latitude, 0.000001),
+      );
+      await tester.pump(const Duration(milliseconds: 1100));
 
       // The FlutterMap camera center should now track the user's new position
-      final flutterMap = tester.widget<FlutterMap>(find.byType(FlutterMap));
-      // Verify camera center moved towards pos2
-      final cameraCenter = flutterMap.options.initialCenter;
-      expect(cameraCenter, isNotNull);
+      expect(
+        flutterMap.mapController!.camera.center.latitude,
+        closeTo(pos2.latitude, 0.000001),
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
     });
 
     testWidgets(

@@ -16,6 +16,7 @@ import '../widgets/app_filter_chip.dart';
 import '../widgets/pandal_detail_sheet.dart';
 import '../widgets/puja_icons.dart';
 import 'main_navigation_screen.dart';
+import 'return_home_screen.dart';
 
 enum RouteCategoryFilter {
   all(label: 'All', icon: Icons.explore_outlined),
@@ -274,7 +275,15 @@ class _RoutesScreenState extends State<RoutesScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text('Curated Routes')),
+      appBar: AppBar(title: const Text('Curated Routes'), actions: [
+        TextButton.icon(
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => const ReturnHomeScreen(),
+          )),
+          icon: const Icon(Icons.home_outlined),
+          label: const Text('Get home'),
+        ),
+      ]),
       body: Column(
         children: [
           // 1. Search Bar with Instant Matching & Material 3 Theme Styling

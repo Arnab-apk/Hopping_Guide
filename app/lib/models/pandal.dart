@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/constants.dart';
 import 'place.dart';
 import 'station.dart';
+import 'pandal_photo.dart';
 
 /// Firestore collection: `pandals`
 /// Matches the application schema (architecture doc section 3 and data/schema/):
@@ -33,6 +34,7 @@ class Pandal {
     this.queueWaitMinutes,
     this.queueReportedAt,
     this.queueReportsCount = 0,
+    this.photos = const [],
   });
 
   final String id;
@@ -47,6 +49,19 @@ class Pandal {
   final String? crowdLevel;
   final String timings;
   final String imageUrl;
+  final List<PandalPhoto> photos;
+
+  /// Preserve legacy cover images while preferring credited gallery metadata.
+  List<PandalPhoto> get photoGallery {
+    final gallery = PandalPhoto.parseList(photos.map((p) => p.toMap()).toList());
+    if (!PandalPhoto.isSupportedUrl(imageUrl) ||
+        gallery.any((p) => p.url == imageUrl.trim())) {
+      return gallery;
+    }
+    return List.unmodifiable([PandalPhoto(url: imageUrl.trim()), ...gallery]);
+  }
+
+  String get coverPhotoUrl => photoGallery.isEmpty ? '' : photoGallery.first.url;
   final String description;
   final String? nearestMetro;
   final List<String> nearestMetroList;
@@ -88,6 +103,7 @@ class Pandal {
       crowdLevel: d['crowd_level'] as String? ?? d['crowdLevel'] as String?,
       timings: d['timings'] as String? ?? '',
       imageUrl: d['image_url'] as String? ?? d['imageUrl'] as String? ?? '',
+      photos: PandalPhoto.parseList(d['photos']),
       description: d['description'] as String? ?? '',
       nearestMetro: d['nearest_metro'] as String? ?? d['nearestMetro'] as String?,
       nearestMetroList: _parseStringList(d['nearest_metro_list'] ?? d['nearestMetro']),
@@ -118,6 +134,7 @@ class Pandal {
         'crowd_level': crowdLevel,
         'timings': timings,
         'image_url': imageUrl,
+        'photos': photos.map((p) => p.toMap()).toList(),
         'description': description,
         'nearest_metro': nearestMetro,
         'nearest_metro_list': nearestMetroList,

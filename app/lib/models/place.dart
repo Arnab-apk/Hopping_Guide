@@ -2,6 +2,7 @@ import '../repositories/supplementary_repository.dart';
 import '../utils/constants.dart';
 import 'pandal.dart';
 import 'place_category.dart';
+import 'pandal_photo.dart';
 
 export 'place_category.dart';
 
@@ -23,6 +24,7 @@ class Place {
     this.crowdLevel,
     this.timings,
     this.imageUrl,
+    this.photos = const [],
     this.description,
     this.nearestMetro,
     this.nearestMetroList = const [],
@@ -56,6 +58,7 @@ class Place {
   final String? crowdLevel;
   final String? timings;
   final String? imageUrl;
+  final List<PandalPhoto> photos;
   final String? description;
   final String? nearestMetro;
   final List<String> nearestMetroList;
@@ -92,7 +95,8 @@ class Place {
       theme: p.theme,
       crowdLevel: p.crowdLevel,
       timings: p.timings,
-      imageUrl: p.imageUrl,
+      imageUrl: p.coverPhotoUrl,
+      photos: p.photos,
       description: p.description,
       nearestMetro: p.nearestMetro,
       nearestMetroList: p.nearestMetroList,
@@ -146,6 +150,7 @@ class Place {
         'crowd_level': crowdLevel,
         'timings': timings,
         'image_url': imageUrl,
+        'photos': photos.map((p) => p.toMap()).toList(),
         'description': description,
         'nearest_metro': nearestMetro,
         'transport': transport,

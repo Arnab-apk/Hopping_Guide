@@ -179,7 +179,7 @@ class SquadPandalStop {
       lng: pandal.lng,
       area: pandal.area,
       theme: pandal.theme,
-      imageUrl: pandal.imageUrl,
+      imageUrl: pandal.coverPhotoUrl,
       rating: pandal.rating,
       suggestedBy: suggestedBy,
       suggestedByName: suggestedByName,

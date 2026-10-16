@@ -213,6 +213,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
             final result = PandalSearchService.instance.scorePandal(
               p.rawPandal!,
               _searchQuery.trim(),
+              includeHighlights: false,
             );
             if (result != null) {
               scoredResults[p.id] = result.score;
@@ -494,6 +495,7 @@ class _PandalListScreenState extends State<PandalListScreen> {
                         return PlaceCard(
                           key: ValueKey('${place.category.name}_${place.id}'),
                           place: place,
+                          animateEntrance: false,
                           onTap: () {
                             if (place.isPandal && place.rawPandal != null) {
                               PandalDetailSheet.show(context, place.rawPandal!);

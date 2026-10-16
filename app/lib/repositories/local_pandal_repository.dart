@@ -8,12 +8,20 @@ import '../utils/constants.dart';
 import 'pandal_repository.dart';
 import 'supplementary_repository.dart';
 
-List<Pandal> _parsePandalsIsolate(String jsonStr) {
-  final List<dynamic> rawList = json.decode(jsonStr) as List<dynamic>;
+List<Pandal> _parsePandalsIsolate(List<String> sources) {
+  final List<dynamic> rawList = json.decode(sources[0]) as List<dynamic>;
+  final manifest = json.decode(sources[1]) as Map<String, dynamic>;
+  final photoIndex = manifest['pandals'] as Map<String, dynamic>? ?? {};
   return rawList.map((item) {
     final map = item as Map<String, dynamic>;
     final id = map['id']?.toString() ?? '';
-    return Pandal.fromMap(id, map);
+    return Pandal.fromMap(id, {
+      ...map,
+      'photos': [
+        if (map['photos'] is List) ...map['photos'] as List,
+        if (photoIndex[id] is List) ...photoIndex[id] as List,
+      ],
+    });
   }).toList();
 }
 
@@ -34,7 +42,18 @@ class LocalAssetPandalRepository implements PandalRepository {
     _inFlightFuture = () async {
       try {
         final jsonStr = await rootBundle.loadString(assetPath);
-        final parsed = await compute(_parsePandalsIsolate, jsonStr);
+        // Optional photo updates must never prevent the directory from loading.
+        var photoManifest = '{"pandals":{}}';
+        try {
+          final candidate = await rootBundle.loadString('assets/data/pandal_photos.json');
+          final decoded = json.decode(candidate);
+          if (decoded is Map<String, dynamic> && decoded['pandals'] is Map<String, dynamic>) {
+            photoManifest = candidate;
+          }
+        } catch (error) {
+          debugPrint('[Pandals] Photo manifest unavailable: $error');
+        }
+        final parsed = await compute(_parsePandalsIsolate, [jsonStr, photoManifest]);
         _globalCache = parsed;
         return _globalCache!;
       } catch (e) {
