@@ -32,7 +32,7 @@
 
 > [!NOTE]  
 > **Target Launch:** Google Play Store deployment in time for **Durga Puja 2026** (*Mahalaya: October 10, 2026 · Maha Shasthi: October 16, 2026 · Dashami: October 20, 2026*).  
-> **Core Tenet:** **100% Free Tiers ($0 Operating Cost)**, keyless OpenStreetMap raster tiles, on-device Magic Lane GemKit vector maps, zero vendor lock-in, foreground-only privacy protection, and complete offline autonomy.
+> **Core Tenet:** **100% Free Tiers ($0 Operating Cost)**, keyless OpenFreeMap vector styles with OpenStreetMap data, on-device Magic Lane GemKit vector maps, zero vendor lock-in, foreground-only privacy protection, and complete offline autonomy.
 
 <br/>
 
@@ -93,9 +93,10 @@
 
 ## 🌟 Feature Showcase
 
-### 🗺️ 1. Interactive Dual Map Engine
+### 🗺️ 1. Interactive Map Engine
 * **Dual Rendering Architecture:** 
-  * **Free-Tier OpenStreetMap Raster Engine:** Powered by `flutter_map` with lightweight caching, zero billing risk, and 100% free operation.
+  * **Free-Tier OpenFreeMap Vector Engine:** Powered by MapLibre with Liberty light and Dark styles, pitched/rotated camera gestures, and 3D building extrusions where building data exists.
+  * **FlutterMap Fallback Engine:** Keyless OpenStreetMap raster tiles remain available on unsupported platforms or when the vector style cannot load.
   * **Native GemKit 3D Vector Engine:** High-performance on-device C++ vector mapping by Magic Lane featuring 3D extruded architectural footprints, dynamic elevation, and pitch/rotation gestures.
 * **387 Authentic Curated Pandals:** Mapped with sub-meter geo-coordinates across 8 distinct regional circuits.
 * **Permanent Unconditional Search Bar:** The floating top search HUD stays pinned to the screen at all times—never hidden during map pans, route previews, or layer toggles.
@@ -324,7 +325,7 @@ puja_proj/
 │   │   ├── models/                         # Pandal, MetroStation, FoodSpot, SquadMember, ChatMessage
 │   │   ├── repositories/                   # LocalAssetRepository, MetroRepository, SupplementaryRepository
 │   │   ├── screens/
-│   │   │   ├── map_screen.dart             # OSM raster map with permanent search bar & banner
+│   │   │   ├── map_screen.dart             # MapLibre/OpenFreeMap map with raster fallback, search & banner
 │   │   │   ├── map_screen_gemkit.dart      # Magic Lane 3D vector map & road pedestrian routing
 │   │   │   ├── pandal_list_screen.dart     # Searchable 387 directory with isolated favorites
 │   │   │   ├── routes_screen.dart          # 5 Curated circuits & 3-step Custom Trail builder
@@ -385,7 +386,7 @@ All software, architecture, and systems engineering documentation is cataloged u
 ### Prerequisites
 * **Flutter SDK:** Version `3.13.0` or higher (`Dart 3.0+`)
 * **Android SDK:** Platform `android-36`, Build-Tools `36.0.0`, NDK
-* **JDK:** Version 17 (`JAVA_HOME` configured)
+* **JDK:** Versions 17 and 21 installed (`JAVA_HOME` may stay on 17; MapLibre and the app compiler select 21 through Gradle toolchains). Update `app/android/gradle.properties` if the local JDK paths differ.
 * **Node.js:** Version 18+ (required only if running data scraping scripts)
 
 ### Installation & Execution

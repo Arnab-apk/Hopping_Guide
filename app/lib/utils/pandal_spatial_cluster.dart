@@ -88,11 +88,11 @@ class PandalSpatialClusterer {
     final centerLat = (visibleBounds.north + visibleBounds.south) / 2.0;
     final centerLng = (visibleBounds.east + visibleBounds.west) / 2.0;
 
-    // Fast Cache Check: If zoom delta < 0.08, list length & selection unchanged,
+    // Grid membership depends on the zoom band, not fractional camera zoom.
+    // Fast Cache Check: If zoom band, list length & selection are unchanged,
     // viewport span delta within 10%, and camera center has drifted < 15% of viewport
     // (well within the pre-buffered 35% margin), return the memoized list instantly (0ms).
     if (_cachedResult != null &&
-        (zoom - _lastZoom).abs() < 0.08 &&
         list.length == _lastListLength &&
         listEquals(list, _lastPandals) &&
         setEquals(priorityPandalIds ?? const <String>{}, _lastPriorityIds) &&

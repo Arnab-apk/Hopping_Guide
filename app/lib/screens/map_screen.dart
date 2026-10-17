@@ -1,4 +1,6 @@
 import '../widgets/app_notice.dart';
+import '../widgets/pujo_map.dart';
+import '../widgets/pujo_map_layers.dart';
 import '../services/journey_planner.dart';
 import '../services/route_deviation_monitor.dart';
 
@@ -176,37 +178,17 @@ class MapScreen extends StatefulWidget {
   State<MapScreen> createState() => _MapScreenState();
 }
 
-const ColorFilter _kDarkMatrix = ColorFilter.matrix(<double>[
-  -0.85,
-  0.0,
-  0.0,
-  0.0,
-  255.0,
-  0.0,
-  -0.85,
-  0.0,
-  0.0,
-  255.0,
-  0.0,
-  0.0,
-  -0.85,
-  0.0,
-  255.0,
-  0.0,
-  0.0,
-  0.0,
-  1.0,
-  0.0,
-]);
-
 class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   static const _mapNamesPreference = 'map_more_place_names';
   bool _moreMapNames = true;
+  bool _threeDimensionalMap = true;
 
   Future<void> _restoreMapNamesPreference() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getBool(_mapNamesPreference) ?? true;
+      final threeD = prefs.getBool('map_three_dimensional') ?? true;
+      if (mounted) setState(() => _threeDimensionalMap = threeD);
       if (mounted && saved != _moreMapNames) {
         setState(() => _moreMapNames = saved);
       }
@@ -1750,6 +1732,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final horizontalMapTools = MediaQuery.sizeOf(context).height < 500;
     context.select<SquadService, List<Object?>>(
       (squad) => [
         squad.hasActiveSquad,
@@ -1818,7 +1801,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             ),
       body: Stack(
         children: [
-          FlutterMap(
+          PujoMap(
+            dark: isDark,
+            moreNames: _moreMapNames,
+            threeDimensional: _threeDimensionalMap && !_navigation.active,
             mapController: _mapController,
             options: MapOptions(
               initialCenter: const LatLng(
@@ -1885,43 +1871,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               },
             ),
             children: [
-              RepaintBoundary(
-                child: TileLayer(
-                  key: ValueKey('osm_names_$_moreMapNames'),
-                  urlTemplate: AppConfig.tileUrlTemplate,
-                  // Request the next native zoom at the same geographic extent.
-                  // flutter_map adjusts tile dimensions/coordinates together.
-                  retinaMode: _moreMapNames,
-                  maxNativeZoom: 19,
-                  subdomains: AppConfig.osmSubdomains,
-                  // 1. CRITICAL: Prevents OSM from blocking your app (Missing Blocks fix)
-                  userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
-
-                  // Preload adjacent tiles and retain prior zoom tiles to eliminate grey flashing
-                  keepBuffer: _moreMapNames ? 2 : 3,
-                  panBuffer: _moreMapNames ? 1 : 2,
-                  tileDisplay: const TileDisplay.fadeIn(
-                    duration: Duration(milliseconds: 140),
-                  ),
-                  evictErrorTileStrategy: EvictErrorTileStrategy.none,
-                  // 4. HARDWARE ACCELERATED DARK MODE: Applies your matrix at the GPU level
-                  tileBuilder: (context, tileWidget, tile) {
-                    if (isDark) {
-                      return ColorFiltered(
-                        colorFilter: _kDarkMatrix,
-                        child: tileWidget,
-                      );
-                    }
-                    return tileWidget;
-                  },
-
-                  // Use flutter_map's default provider. It handles tile request
-                  // cancellation and avoids replacing its response lifecycle.
-                ),
-              ),
-
               if (_journey.active) ...[
-                PolylineLayer(
+                PujoPolylineLayer(
                   polylines: [
                     for (final journey in _journey.routes.skip(
                       _journey.stopIndex,
@@ -1937,7 +1888,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       ),
                   ],
                 ),
-                MarkerLayer(
+                PujoMarkerLayer(
                   markers: buildJourneyMarkers(
                     stops: _journey.stops,
                     routes: _journey.routes.skip(_journey.stopIndex),
@@ -1947,7 +1898,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               ],
               if (_navigation.active) ...[
                 if (_navigation.route != null)
-                  PolylineLayer(
+                  PujoPolylineLayer(
                     polylines: buildHighlightedRoutePolylines(
                       _navigation.route!,
                       isDark,
@@ -1958,7 +1909,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     _navigation.guidance!.deviationMeters > 5 &&
                     _userPosition != null &&
                     _userPosition!.accuracy <= 50)
-                  PolylineLayer(
+                  PujoPolylineLayer(
                     polylines: [
                       Polyline(
                         points: [
@@ -2011,7 +1962,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 // 10 km Radius Boundary Layer (shows 10km radius when Nearest filter is active)
                 if (_filterNearby10Km)
                   RepaintBoundary(
-                    child: CircleLayer(
+                    child: PujoCircleLayer(
                       circles: [
                         CircleMarker(
                           point: _get10KmReferenceCenter(),
@@ -2039,7 +1990,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         _effectiveUserLocation!.longitude ==
                             _userPosition!.longitude))
                   RepaintBoundary(
-                    child: CircleLayer(
+                    child: PujoCircleLayer(
                       circles: [
                         CircleMarker(
                           point: LatLng(
@@ -2062,7 +2013,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 if (_highlightedRoute != null &&
                     _highlightedRoute!.points.isNotEmpty)
                   RepaintBoundary(
-                    child: PolylineLayer(
+                    child: PujoPolylineLayer(
                       polylines: buildHighlightedRoutePolylines(
                         _highlightedRoute!,
                         isDark,
@@ -2077,7 +2028,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     activeTrail != null &&
                     activeTrail.stops.isNotEmpty)
                   RepaintBoundary(
-                    child: PolylineLayer(
+                    child: PujoPolylineLayer(
                       polylines: _buildTrailPolylines(
                         activeTrail,
                         _effectiveUserLocation,
@@ -2089,7 +2040,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 // Food / Bhog Spot Markers (Leaflet Restaurant Pins)
                 if (_showFoodSpots && !isTrailActive)
                   RepaintBoundary(
-                    child: MarkerLayer(
+                    child: PujoMarkerLayer(
                       markers: _visibleFoodSpots.map((f) {
                         final isSelected = _selectedFoodSpot?.id == f.id;
                         return Marker(
@@ -2134,7 +2085,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     _highlightedRoute == null &&
                     !_navigation.hasPreview)
                   RepaintBoundary(
-                    child: MarkerLayer(
+                    child: PujoMarkerLayer(
                       markers:
                           (StationRepository.instance.all.isNotEmpty
                                   ? StationRepository.instance.all
@@ -2214,7 +2165,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 // Public Toilets Layer (Leaflet Toilet Pins)
                 if (_showToilets && !isTrailActive)
                   RepaintBoundary(
-                    child: MarkerLayer(
+                    child: PujoMarkerLayer(
                       markers: _uniqueToilets.map((t) {
                         final isSelected = _selectedToilet?.id == t.id;
                         return Marker(
@@ -2285,7 +2236,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     activeTrail.stops.isNotEmpty)
                   // Active Trail Stop Markers (Numbered Pins ①②③... with Visit Progress)
                   RepaintBoundary(
-                    child: MarkerLayer(
+                    child: PujoMarkerLayer(
                       markers: _buildTrailMarkers(context, activeTrail, isDark),
                     ),
                   ),
@@ -2295,7 +2246,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     squadService.showSquadOnMap &&
                     (!isTrailActive || squadService.isHoppingActive))
                   RepaintBoundary(
-                    child: MarkerLayer(
+                    child: PujoMarkerLayer(
                       markers: [
                         Marker(
                           rotate: true,
@@ -2613,7 +2564,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     _selectedFoodSpot != null ||
                     _selectedMetroStation != null ||
                     _selectedToilet != null)
-                  MarkerLayer(
+                  PujoMarkerLayer(
                     markers: [
                       if (_selectedPandal != null)
                         Marker(
@@ -2731,10 +2682,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
               // Keep the route endpoint visible even when navigation hides
               // the normal place pins and clusters.
               if (_highlightedRoute?.points.isNotEmpty ?? false)
-                MarkerLayer(
-                  key: const ValueKey('route-destination-layer'),
-                  markers: [
-                    Marker(
+                Builder(
+                  builder: (context) {
+                    final marker = Marker(
                       point: _highlightedRoute!.points.last,
                       width: 40,
                       height: 40,
@@ -2761,8 +2711,19 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                    final bridge = PujoMapScope.maybeOf(context);
+                    if (bridge == null) {
+                      return MarkerLayer(
+                        key: const ValueKey('route-destination-layer'),
+                        markers: [marker],
+                      );
+                    }
+                    return PujoMarkerLayer(
+                      key: const ValueKey('route-destination-layer'),
+                      markers: [marker],
+                    );
+                  },
                 ),
             ],
           ),
@@ -3338,13 +3299,6 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                 ),
               ),
 
-            // Leaflet Map Attribution Watermark (Classic "Leaflet | © OpenStreetMap contributors")
-            Positioned(
-              left: 8,
-              bottom: 8,
-              child: LeafletAttributionControl(isDark: isDark),
-            ),
-
             if (_isLoading)
               const Center(
                 child: CircularProgressIndicator(color: PujaColors.durgaRed),
@@ -3367,7 +3321,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                   curve: Curves.easeOutCubic,
                   child: IgnorePointer(
                     ignoring: _selectedSquadMember != null,
-                    child: Column(
+                    child: Flex(
+                      direction: horizontalMapTools
+                          ? Axis.horizontal
+                          : Axis.vertical,
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -3393,8 +3350,46 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             );
                           },
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: horizontalMapTools ? 12 : 0,
+                          height: horizontalMapTools ? 0 : 12,
+                        ),
 
+                        if (PujoMap.supported) ...[
+                          _buildMapActionButton(
+                            icon: Text(
+                              _threeDimensionalMap ? '2D' : '3D',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            onTap: () async {
+                              HapticFeedback.selectionClick();
+                              setState(
+                                () => _threeDimensionalMap =
+                                    !_threeDimensionalMap,
+                              );
+                              final value = _threeDimensionalMap;
+                              try {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.setBool(
+                                  'map_three_dimensional',
+                                  value,
+                                );
+                              } catch (_) {}
+                            },
+                            tooltip: _threeDimensionalMap
+                                ? 'Switch to flat map'
+                                : 'Switch to 3D map',
+                            isDark: isDark,
+                          ),
+                          SizedBox(
+                            width: horizontalMapTools ? 12 : 0,
+                            height: horizontalMapTools ? 0 : 12,
+                          ),
+                        ],
                         // Secondary Quick Map Tools (Nearest radar, Theme toggle, App guide)
                         _buildMapActionButton(
                           icon: Icon(
@@ -3408,7 +3403,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                           tooltip: 'Map Tools & Settings',
                           isDark: isDark,
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: horizontalMapTools ? 12 : 0,
+                          height: horizontalMapTools ? 0 : 12,
+                        ),
 
                         // Center & Follow My GPS Button
                         _buildMapActionButton(
@@ -3438,7 +3436,10 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                               return const SizedBox.shrink();
                             }
                             return Padding(
-                              padding: const EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.only(
+                                top: horizontalMapTools ? 0 : 10,
+                                left: horizontalMapTools ? 10 : 0,
+                              ),
                               child: _buildMapActionButton(
                                 icon: Transform.rotate(
                                   angle: -rotation * math.pi / 180,
@@ -4559,7 +4560,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                     secondary: const Icon(Icons.label_outline_rounded),
                     title: const Text('More map names'),
                     subtitle: const Text(
-                      'More street and landmark labels, with smaller text',
+                      'Show extra shops and landmark labels',
                     ),
                     value: _moreMapNames,
                     onChanged: (value) {
@@ -6266,7 +6267,7 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
     final clusterItems = PandalSpatialClusterer.cluster(
       allPandals: widget.visiblePandals,
       zoom: camera.zoom,
-      visibleBounds: camera.visibleBounds,
+      visibleBounds: PujoMap.visibleBoundsOf(context),
       selectedPandal: widget.selectedPandal,
       priorityPandalIds: activeTrailIds,
     );
@@ -6286,7 +6287,7 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
     _previousClusters = clusterItems;
     _previousTrailSignature = trailSignature;
     return _cachedLayer = RepaintBoundary(
-      child: MarkerLayer(
+      child: PujoMarkerLayer(
         markers: clusterItems.map((item) {
           if (item.isCluster) {
             final count = item.count;

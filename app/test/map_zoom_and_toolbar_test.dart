@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,6 +16,10 @@ import 'package:kolkata_puja/services/squad_service.dart';
 import 'package:kolkata_puja/services/theme_service.dart';
 import 'package:kolkata_puja/utils/constants.dart';
 import 'package:kolkata_puja/widgets/leaflet_map_components.dart';
+import 'package:kolkata_puja/widgets/pujo_map.dart';
+import 'package:maplibre_gl/maplibre_gl.dart' as ml;
+
+import 'pujo_map_test.dart' show createNativeMapTestPlatform;
 
 class _FakePandalRepository extends PandalRepository {
   final List<Pandal> _pandals = [
@@ -204,5 +209,81 @@ void main() {
         expect(toolsCenter.dy, lessThan(gpsCenter.dy));
       },
     );
+
+    for (final size in [const Size(375, 667), const Size(844, 390)]) {
+      testWidgets('native toolbar stays clear of search at $size', (
+        tester,
+      ) async {
+        final previousFactory = ml.MapLibrePlatform.createInstance;
+        final native = createNativeMapTestPlatform();
+        ml.MapLibrePlatform.createInstance = () => native;
+        PujoMap.nativeMapsEnabled = true;
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        LocationService.enableTestMode = true;
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+          ml.MapLibrePlatform.createInstance = previousFactory;
+          PujoMap.nativeMapsEnabled = false;
+          debugDefaultTargetPlatformOverride = null;
+          LocationService.enableTestMode = false;
+        });
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<SquadService>.value(value: squadService),
+              ChangeNotifierProvider<ThemeService>.value(value: themeService),
+              ChangeNotifierProvider<CustomHoppingTrailService>.value(
+                value: trailService,
+              ),
+              ChangeNotifierProvider<AuthService>.value(value: authService),
+            ],
+            child: MaterialApp(
+              home: MapScreen(repository: _FakePandalRepository()),
+            ),
+          ),
+        );
+        for (
+          var i = 0;
+          i < 50 && find.byType(ml.MapLibreMap).evaluate().isEmpty;
+          i++
+        ) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 10)),
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+        native.onMapStyleLoadedPlatform.call(null);
+        await tester.pump(const Duration(milliseconds: 200));
+        tester
+            .widget<FlutterMap>(find.byType(FlutterMap))
+            .mapController!
+            .rotate(30);
+        await tester.pump(const Duration(milliseconds: 100));
+        final search = tester.getRect(find.byType(TextField).first);
+        for (final tooltip in [
+          'Zoom In',
+          'Zoom Out',
+          'Switch to flat map',
+          'Map Tools & Settings',
+          'Center & Follow My GPS',
+          'Reset to North',
+        ]) {
+          final target = tester.getRect(find.byTooltip(tooltip));
+          expect(
+            target.overlaps(search),
+            isFalse,
+            reason: '$tooltip overlaps search at $size',
+          );
+          expect(target.top, greaterThanOrEqualTo(0));
+          expect(target.bottom, lessThanOrEqualTo(size.height));
+        }
+        await tester.pumpWidget(const SizedBox());
+        debugDefaultTargetPlatformOverride = null;
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 }

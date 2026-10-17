@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../config/app_config.dart';
+import '../widgets/pujo_map.dart';
+import '../widgets/pujo_map_layers.dart';
 import '../models/pandal.dart';
 import '../services/journey_planner.dart';
 import '../services/journey_session.dart';
@@ -156,7 +157,9 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
               children: [
                 Expanded(
                   flex: 5,
-                  child: FlutterMap(
+                  child: PujoMap(
+                    dark: dark,
+                    threeDimensional: false,
                     options: MapOptions(
                       initialCenter: LatLng(
                         widget.stops.first.lat,
@@ -171,16 +174,7 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                       ),
                     ),
                     children: [
-                      TileLayer(
-                        urlTemplate: AppConfig.tileUrlTemplate,
-                        userAgentPackageName: 'com.kolkatapuja.kolkata_puja',
-                        keepBuffer: 2,
-                        panBuffer: 1,
-                        tileDisplay: const TileDisplay.fadeIn(
-                          duration: Duration(milliseconds: 140),
-                        ),
-                      ),
-                      PolylineLayer(
+                      PujoPolylineLayer(
                         polylines: [
                           for (final route in routes)
                             ...buildHighlightedRoutePolylines(
@@ -194,18 +188,13 @@ class _TrailRouteScreenState extends State<TrailRouteScreen> {
                             ),
                         ],
                       ),
-                      MarkerLayer(
+                      PujoMarkerLayer(
                         markers: [
                           ..._nearbyStations,
                           ...buildJourneyMarkers(
                             stops: widget.stops,
                             routes: routes,
                           ),
-                        ],
-                      ),
-                      const RichAttributionWidget(
-                        attributions: [
-                          TextSourceAttribution('OpenStreetMap contributors'),
                         ],
                       ),
                     ],

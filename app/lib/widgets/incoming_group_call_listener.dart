@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/group_call_signaling.dart';
+import '../services/incoming_call_alert.dart';
 import '../services/squad_service.dart';
 import '../screens/group_video_call_screen.dart';
 
@@ -113,8 +114,18 @@ class _IncomingGroupCallListenerState extends State<IncomingGroupCallListener>
         .firstOrNull;
     if (group == null) return;
     _incoming = invite;
-    unawaited(SystemSound.play(SystemSoundType.alert));
-    unawaited(HapticFeedback.vibrate());
+    if (IncomingCallAlert.supported) {
+      unawaited(IncomingCallAlert.invoke<bool>('show', {
+        'invitationId': invite.id,
+        'groupId': invite.group,
+        'callerName': invite.caller,
+        'groupName': group.name,
+        'expiresAt': '${invite.expiresAt.millisecondsSinceEpoch}',
+      }));
+    } else {
+      unawaited(SystemSound.play(SystemSoundType.alert));
+      unawaited(HapticFeedback.vibrate());
+    }
     final dialog = DialogRoute<bool>(
       context: context,
       barrierDismissible: false,
@@ -140,6 +151,9 @@ class _IncomingGroupCallListenerState extends State<IncomingGroupCallListener>
       context,
       rootNavigator: true,
     ).push(dialog);
+    if (accepted != null) {
+      unawaited(IncomingCallAlert.stop(invite.id));
+    }
     if (identical(_dialog, dialog)) {
       _dialog = null;
       _incoming = null;

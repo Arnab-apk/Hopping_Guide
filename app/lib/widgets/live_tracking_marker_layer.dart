@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../services/position_interpolator.dart';
+import 'pujo_map_layers.dart';
 
 /// Rebuilds only markers per frame. Keys preserve member motion across reorder.
 class LiveTrackingMarkerLayer extends StatefulWidget {
@@ -80,7 +81,7 @@ class _LiveTrackingMarkerLayerState extends State<LiveTrackingMarkerLayer>
   }
 
   @override
-  Widget build(BuildContext context) => MarkerLayer(
+  Widget build(BuildContext context) => PujoMarkerLayer(
     markers: [
       for (final marker in widget.markers)
         Marker(

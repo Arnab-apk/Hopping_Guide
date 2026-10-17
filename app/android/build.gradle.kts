@@ -46,6 +46,19 @@ subprojects {
 
 subprojects {
     project.evaluationDependsOn(":app")
+
+    // MapLibre 0.27 emits Java 21 classes. Select its compiler before Android
+    // creates the compile tasks; other plugins retain their own toolchains.
+    if (name == "maplibre_gl") {
+        pluginManager.withPlugin("com.android.library") {
+            val toolchains = extensions.getByType<org.gradle.jvm.toolchain.JavaToolchainService>()
+            tasks.withType<JavaCompile>().configureEach {
+                javaCompiler.set(toolchains.compilerFor {
+                    languageVersion.set(JavaLanguageVersion.of(21))
+                })
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {

@@ -74,6 +74,8 @@ android {
 }
 
 kotlin {
+    // Read MapLibre's Java 21 classes while retaining this app's JVM 17 target.
+    jvmToolchain(21)
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }

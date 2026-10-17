@@ -44,6 +44,36 @@ void main() {
       ),
     ];
 
+    test(
+      'Zoom changes within a band reuse clusters while bounds are stable',
+      () {
+        final bounds = LatLngBounds(
+          const LatLng(22.4, 88.2),
+          const LatLng(22.7, 88.5),
+        );
+        final first = PandalSpatialClusterer.cluster(
+          pandals: pandals,
+          zoom: 14.1,
+          visibleBounds: bounds,
+        );
+        final second = PandalSpatialClusterer.cluster(
+          pandals: pandals,
+          zoom: 14.6,
+          visibleBounds: bounds,
+        );
+        expect(second, same(first));
+        final changed = PandalSpatialClusterer.cluster(
+          pandals: pandals,
+          zoom: 14.6,
+          visibleBounds: LatLngBounds(
+            const LatLng(22.5, 88.3),
+            const LatLng(22.6, 88.4),
+          ),
+        );
+        expect(changed, isNot(same(first)));
+      },
+    );
+
     test('Changing a same-size region replaces cached pins', () {
       final bounds = LatLngBounds(
         const LatLng(22.4, 88.2),
