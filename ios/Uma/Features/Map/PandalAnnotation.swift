@@ -62,11 +62,13 @@ final class SquadMemberAnnotation: NSObject, MKAnnotation {
 /// Custom annotation view — teardrop pin with gold outline, stop numbering, and priority layering atop stations.
 final class PandalAnnotationView: MKAnnotationView {
     static let reuseId = "PandalAnnotationView"
+    private var renderToken = UUID()
 
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         self.canShowCallout = false
         self.collisionMode = .circle
+        self.clusteringIdentifier = "uma.pandal"
         self.centerOffset = CGPoint(x: 0, y: -14)
         self.frame = CGRect(x: 0, y: 0, width: 32, height: 40)
         // High zPriority ensures numbered festival pins layer atop station pins
@@ -74,11 +76,22 @@ final class PandalAnnotationView: MKAnnotationView {
     }
     required init?(coder aDecoder: NSCoder) { fatalError() }
 
+    override func prepareForReuse() {
+        renderToken = UUID()
+        image = nil
+        super.prepareForReuse()
+    }
+
     override func prepareForDisplay() {
         super.prepareForDisplay()
         guard let pAnno = annotation as? PandalAnnotation else { return }
 
         let stopNum = pAnno.stopNumber
+        let pandalID = pAnno.pandal.id
+        let token = UUID()
+        renderToken = token
+        image = nil
+        clusteringIdentifier = stopNum == nil ? "uma.pandal" : nil
         self.zPriority = stopNum != nil
             ? MKAnnotationViewZPriority(rawValue: 1000)
             : MKAnnotationViewZPriority(rawValue: 800)
@@ -101,7 +114,12 @@ final class PandalAnnotationView: MKAnnotationView {
         }
         .frame(width: 32, height: 40)
 
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
+            guard let self,
+                  self.renderToken == token,
+                  let current = self.annotation as? PandalAnnotation,
+                  current.pandal.id == pandalID,
+                  current.stopNumber == stopNum else { return }
             let renderer = ImageRenderer(content: pinView)
             renderer.scale = UIScreen.main.scale
             renderer.proposedSize = .init(width: 32, height: 40)

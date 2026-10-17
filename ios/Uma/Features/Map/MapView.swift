@@ -30,6 +30,8 @@ struct MapView: UIViewRepresentable {
     var userLocation: CLLocationCoordinate2D?
     var cameraRequest: MapCameraRequest? = nil
     var activeTrail: ActiveCustomTrail? = nil
+    var isThreeDimensional: Bool = true
+    var showsMapLabels: Bool = true
     var onTapPandal: (Pandal) -> Void
     var onTapMetro: ((MetroStation) -> Void)? = nil
 
@@ -39,13 +41,7 @@ struct MapView: UIViewRepresentable {
         let map = MKMapView()
         map.delegate = context.coordinator
 
-        // Vector tile configuration — fixes the white-pixel bug.
-        map.preferredConfiguration = MKStandardMapConfiguration(
-            elevationStyle: .realistic,
-            emphasisStyle: .muted
-        )
         map.overrideUserInterfaceStyle = .dark
-        map.pointOfInterestFilter = .excludingAll
         map.showsCompass = false
         map.showsUserLocation = true
         map.showsScale = false
@@ -63,12 +59,14 @@ struct MapView: UIViewRepresentable {
             span: MKCoordinateSpan(latitudeDelta: 0.6, longitudeDelta: 0.6))
         map.setRegion(region, animated: false)
 
+        context.coordinator.syncMapAppearance(map, force: true)
         context.coordinator.syncAnnotations(map)
         return map
     }
 
     func updateUIView(_ map: MKMapView, context: Context) {
         context.coordinator.parent = self
+        context.coordinator.syncMapAppearance(map)
         context.coordinator.syncAnnotations(map)
         context.coordinator.syncOverlays(map, route: highlightedRoute)
         if followUser, let user = userLocation {
@@ -93,12 +91,37 @@ struct MapView: UIViewRepresentable {
         private var lastMetroIds: Set<String> = []
         private var lastFoodIds: Set<String> = []
         private var lastSquadIds: Set<String> = []
+        private var lastThreeDimensional: Bool?
+        private var lastShowsMapLabels: Bool?
         private var lastRoute: WalkingRoute?
         private var hasSyncedRoute = false
         fileprivate var lastSelectedPandalId: String?
         fileprivate var lastCameraRequestId: UUID?
 
         init(_ parent: MapView) { self.parent = parent }
+
+        func syncMapAppearance(_ map: MKMapView, force: Bool = false) {
+            let dimensionChanged = force || lastThreeDimensional != parent.isThreeDimensional
+            let labelsChanged = force || lastShowsMapLabels != parent.showsMapLabels
+            guard dimensionChanged || labelsChanged else { return }
+
+            let configuration = MKStandardMapConfiguration(
+                elevationStyle: parent.isThreeDimensional ? .realistic : .flat,
+                emphasisStyle: .muted
+            )
+            configuration.pointOfInterestFilter = parent.showsMapLabels ? .includingAll : .excludingAll
+            map.preferredConfiguration = configuration
+
+            if dimensionChanged {
+                let camera = map.camera.copy() as! MKMapCamera
+                camera.pitch = parent.isThreeDimensional ? 45 : 0
+                map.isPitchEnabled = parent.isThreeDimensional
+                map.setCamera(camera, animated: !force)
+            }
+
+            lastThreeDimensional = parent.isThreeDimensional
+            lastShowsMapLabels = parent.showsMapLabels
+        }
 
         func apply(_ request: MapCameraRequest, to map: MKMapView) {
             lastCameraRequestId = request.id
@@ -114,15 +137,10 @@ struct MapView: UIViewRepresentable {
             }
         }
 
-        private func zoom(_ map: MKMapView, factor: CLLocationDegrees) {
-            let current = map.region
-            let latitudeDelta = min(1.2, max(0.002, current.span.latitudeDelta * factor))
-            let longitudeDelta = min(1.2, max(0.002, current.span.longitudeDelta * factor))
-            let region = MKCoordinateRegion(
-                center: current.center,
-                span: MKCoordinateSpan(latitudeDelta: latitudeDelta,
-                                       longitudeDelta: longitudeDelta))
-            map.setRegion(region, animated: true)
+        private func zoom(_ map: MKMapView, factor: Double) {
+            let camera = map.camera.copy() as! MKMapCamera
+            camera.altitude = min(500_000, max(120, camera.altitude * factor))
+            map.setCamera(camera, animated: true)
         }
 
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {

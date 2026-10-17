@@ -17,6 +17,8 @@ struct MapTabView: View {
     @State private var searchFocused: Bool = false
     @State private var searchResults: [OmniSearchResult] = []
     @State private var followUser: Bool = false
+    @AppStorage("map_three_dimensional") private var isThreeDimensional = true
+    @AppStorage("map_more_place_names") private var showsMapLabels = true
     @State private var cameraRequest: MapCameraRequest?
     @State private var statusPill: StatusPill?
     @State private var isCalculating = false
@@ -44,6 +46,8 @@ struct MapTabView: View {
                 userLocation: env.location.currentPosition(),
                 cameraRequest: cameraRequest,
                 activeTrail: env.activeTrail,
+                isThreeDimensional: isThreeDimensional,
+                showsMapLabels: showsMapLabels,
                 onTapPandal: { pandal in
                     Haptics.selection()
                     followUser = false
@@ -166,6 +170,17 @@ struct MapTabView: View {
                 FilterChip(title: "Food", icon: "fork.knife",
                            isActive: showFoodSpots) {
                     showFoodSpots.toggle()
+                    Haptics.selection()
+                }
+                FilterChip(title: isThreeDimensional ? "3D" : "2D",
+                           icon: "cube.transparent",
+                           isActive: isThreeDimensional) {
+                    isThreeDimensional.toggle()
+                    Haptics.selection()
+                }
+                FilterChip(title: "Labels", icon: "text.bubble",
+                           isActive: showsMapLabels) {
+                    showsMapLabels.toggle()
                     Haptics.selection()
                 }
                 if let trail = env.activeTrail {
