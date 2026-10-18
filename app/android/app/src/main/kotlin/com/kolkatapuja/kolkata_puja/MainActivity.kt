@@ -25,6 +25,9 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // A window-wide hint covers Flutter and native map surfaces. Android
+        // retains control for supported modes, battery saver and thermal limits.
+        window.attributes = window.attributes.apply { preferredRefreshRate = 120f }
         IncomingCallAlert.busy(this, false)
         readCallIntent(intent)
     }

@@ -18,6 +18,21 @@
       }
     }
   },
+  "hosting": {
+    "site": "kolkata-puja-2026",
+    "public": "hosting",
+    "ignore": ["firebase.json", "**/node_modules/**"],
+    "rewrites": [
+      { "source": "/join", "destination": "/index.html" },
+      { "source": "/join/**", "destination": "/index.html" }
+    ],
+    "headers": [
+      { "source": "/.well-known/assetlinks.json", "headers": [
+        { "key": "Content-Type", "value": "application/json" },
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ] }
+    ]
+  },
   "database": {
     "rules": "database/database.rules.json"
   },

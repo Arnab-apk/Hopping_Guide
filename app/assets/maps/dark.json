@@ -1555,14 +1555,14 @@
         "text-max-angle": 30,
         "text-pitch-alignment": "viewport",
         "text-rotation-alignment": "map",
-        "text-size": 10,
+        "text-size": 12,
         "text-transform": "uppercase"
       },
       "paint": {
-        "text-color": "rgba(80, 78, 78, 1)",
+        "text-color": "#e6e8ed",
         "text-halo-blur": 0,
-        "text-halo-color": "rgba(0, 0, 0, 1)",
-        "text-halo-width": 1,
+        "text-halo-color": "#101318",
+        "text-halo-width": 1.5,
         "text-translate": [
           0,
           0
@@ -1612,10 +1612,13 @@
         ],
         "text-pitch-alignment": "viewport",
         "text-rotation-alignment": "viewport",
-        "text-size": 10
+        "text-size": 12
       },
       "paint": {
-        "text-color": "hsl(0,0%,37%)",
+        "text-color": "#e6e8ed",
+        "text-halo-blur": 0,
+        "text-halo-color": "#101318",
+        "text-halo-width": 1.5,
         "text-translate": [
           0,
           2

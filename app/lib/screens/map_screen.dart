@@ -6288,6 +6288,10 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
     _previousTrailSignature = trailSignature;
     return _cachedLayer = RepaintBoundary(
       child: PujoMarkerLayer(
+        animatedMarkerKeys: {
+          if (widget.selectedPandal != null)
+            ValueKey(widget.selectedPandal!.id),
+        },
         markers: clusterItems.map((item) {
           if (item.isCluster) {
             final count = item.count;
@@ -6329,6 +6333,7 @@ class _ClusteredPandalLayerState extends State<_ClusteredPandalLayer> {
           }
 
           return Marker(
+            key: ValueKey(p.id),
             rotate: true,
             point: LatLng(p.lat, p.lng),
             width: isSelected ? 48 : 38,

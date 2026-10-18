@@ -60,6 +60,10 @@ class _PujoMapState extends State<PujoMap> {
   int _styleGeneration = 0;
   bool _fallback = false, _gesture = false, _cameraBusy = false;
   ml.CameraPosition? _pendingCamera;
+  late double _cameraTilt = widget.threeDimensional ? 45 : 0;
+  List<Map<String, dynamic>> _styleLayers = [];
+  bool _visibilityBusy = false, _visibilityDirty = false;
+  bool _syncingNativeCamera = false;
   static const _nativeEvent = 'pujo-native-camera';
 
   bool get _native => PujoMap.supported && !_fallback;
@@ -86,11 +90,12 @@ class _PujoMapState extends State<PujoMap> {
   @override
   void didUpdateWidget(PujoMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_native &&
-        (oldWidget.dark != widget.dark ||
-            oldWidget.moreNames != widget.moreNames ||
-            oldWidget.threeDimensional != widget.threeDimensional)) {
+    if (_native && oldWidget.dark != widget.dark) {
       _loadStyle();
+    } else if (_native &&
+        (oldWidget.moreNames != widget.moreNames ||
+            oldWidget.threeDimensional != widget.threeDimensional)) {
+      unawaited(_updateVisibility());
     }
     if (_native && oldWidget.threeDimensional != widget.threeDimensional) {
       _gesture = false;
@@ -100,7 +105,7 @@ class _PujoMapState extends State<PujoMap> {
 
   Future<void> _loadStyle() async {
     final generation = ++_styleGeneration;
-    _bridge.styleReady = false;
+    _bridge.beginStyleLoad();
     try {
       final style = await PujoMapStyle.load(
         dark: widget.dark,
@@ -108,12 +113,53 @@ class _PujoMapState extends State<PujoMap> {
         threeDimensional: widget.threeDimensional,
       );
       if (!mounted || generation != _styleGeneration) return;
+      _styleLayers = ((jsonDecode(style) as Map)['layers'] as List)
+          .cast<Map<String, dynamic>>();
       setState(() => _style = style);
       _loadTimeout?.cancel();
       _loadTimeout = Timer(const Duration(seconds: 25), _useFallback);
     } catch (error) {
+      if (!mounted || generation != _styleGeneration) return;
       debugPrint('Vector map style could not load: $error');
       _useFallback();
+    }
+  }
+
+  // Toggling buildings or POIs must not replace the basemap and discard all
+  // native textures, routes and tile state. Serialize rapid settings changes.
+  Future<void> _updateVisibility() async {
+    _visibilityDirty = true;
+    if (_visibilityBusy || !_bridge.styleReady) return;
+    _visibilityBusy = true;
+    try {
+      while (mounted && _native && _bridge.styleReady && _visibilityDirty) {
+        _visibilityDirty = false;
+        final generation = _styleGeneration;
+        final native = _bridge.controller!;
+        final threeD = widget.threeDimensional;
+        final names = widget.moreNames;
+        for (final layer in _styleLayers) {
+          final bool visible;
+          if (layer['type'] == 'fill-extrusion') {
+            visible = threeD;
+          } else if (layer['type'] == 'symbol' &&
+              layer['source-layer'] == 'poi') {
+            visible = names;
+          } else {
+            continue;
+          }
+          if (!mounted ||
+              generation != _styleGeneration ||
+              !identical(native, _bridge.controller)) {
+            return;
+          }
+          await native.setLayerVisibility(layer['id'] as String, visible);
+        }
+      }
+    } catch (error) {
+      debugPrint('Map visibility update failed: $error');
+    } finally {
+      _visibilityBusy = false;
     }
   }
 
@@ -126,16 +172,14 @@ class _PujoMapState extends State<PujoMap> {
   }
 
   void _queueCamera({double? tilt}) {
+    if (tilt != null) _cameraTilt = tilt;
     final camera = _camera.camera;
     _pendingCamera = ml.CameraPosition(
       target: ml.LatLng(camera.center.latitude, camera.center.longitude),
       // MapLibre uses a 512px world tile; FlutterMap's camera uses 256px.
       zoom: camera.zoom - 1,
       bearing: -camera.rotation,
-      tilt:
-          tilt ??
-          _bridge.controller?.cameraPosition?.tilt ??
-          (widget.threeDimensional ? 45 : 0),
+      tilt: _cameraTilt,
     );
     unawaited(_flushCamera());
   }
@@ -161,12 +205,18 @@ class _PujoMapState extends State<PujoMap> {
   void _onCameraMove(ml.CameraPosition position) {
     if (!mounted || !_native) return;
     if (_gesture) {
-      _camera.moveAndRotate(
-        LatLng(position.target.latitude, position.target.longitude),
-        position.zoom + 1,
-        -position.bearing,
-        id: _nativeEvent,
-      );
+      _cameraTilt = widget.threeDimensional ? position.tilt : 0;
+      _syncingNativeCamera = true;
+      try {
+        _camera.moveAndRotate(
+          LatLng(position.target.latitude, position.target.longitude),
+          position.zoom + 1,
+          -position.bearing,
+          id: _nativeEvent,
+        );
+      } finally {
+        _syncingNativeCamera = false;
+      }
       widget.options.onPositionChanged?.call(_camera.camera, true);
     }
     _bridge.cameraChanged();
@@ -205,7 +255,11 @@ class _PujoMapState extends State<PujoMap> {
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.none,
             ),
-            onPositionChanged: original.onPositionChanged,
+            onPositionChanged: (camera, hasGesture) {
+              if (!_syncingNativeCamera) {
+                original.onPositionChanged?.call(camera, hasGesture);
+              }
+            },
             onMapEvent: original.onMapEvent,
             onMapReady: original.onMapReady,
             keepAlive: original.keepAlive,
@@ -237,12 +291,12 @@ class _PujoMapState extends State<PujoMap> {
                           styleString: _style!,
                           initialCameraPosition: ml.CameraPosition(
                             target: ml.LatLng(
-                              MapCamera.of(context).center.latitude,
-                              MapCamera.of(context).center.longitude,
+                              _camera.camera.center.latitude,
+                              _camera.camera.center.longitude,
                             ),
-                            zoom: MapCamera.of(context).zoom - 1,
-                            bearing: -MapCamera.of(context).rotation,
-                            tilt: widget.threeDimensional ? 45 : 0,
+                            zoom: _camera.camera.zoom - 1,
+                            bearing: -_camera.camera.rotation,
+                            tilt: _cameraTilt,
                           ),
                           trackCameraPosition: true,
                           annotationOrder: const [],
@@ -272,11 +326,11 @@ class _PujoMapState extends State<PujoMap> {
                           onStyleLoadedCallback: () {
                             _loadTimeout?.cancel();
                             unawaited(
-                              _bridge.styleLoaded().then((_) {
+                              _bridge.styleLoaded().then((_) async {
                                 if (mounted) {
-                                  _queueCamera(
-                                    tilt: widget.threeDimensional ? 45 : 0,
-                                  );
+                                  await _updateVisibility();
+                                  if (!mounted || !_native) return;
+                                  _queueCamera(tilt: _cameraTilt);
                                 }
                               }),
                             );
@@ -414,6 +468,8 @@ class PujoMapBridge extends ChangeNotifier {
   bool styleReady = false, _disposed = false, _boundsBusy = false;
   bool _writing = false, _dirty = false, _scheduled = false;
   bool _boundsScheduled = false;
+  bool _boundsDirty = false;
+  bool _cameraScheduled = false;
   Timer? _boundsThrottle;
   int _styleEpoch = 0;
   final _features = <Object, List<Map<String, dynamic>>>{};
@@ -453,7 +509,16 @@ class PujoMapBridge extends ChangeNotifier {
 
   void cameraChanged() {
     if (_disposed) return;
-    cameraRevision.value++;
+    // Native events can arrive more often than Flutter can draw. Only hit
+    // targets need projection; visible pins already move in the native renderer.
+    if (!_cameraScheduled) {
+      _cameraScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _cameraScheduled = false;
+        if (!_disposed) cameraRevision.value++;
+      });
+      WidgetsBinding.instance.ensureVisualUpdate();
+    }
     if (_boundsScheduled) return;
     _boundsScheduled = true;
     _boundsThrottle?.cancel();
@@ -463,17 +528,35 @@ class PujoMapBridge extends ChangeNotifier {
     });
   }
 
+  void beginStyleLoad() {
+    if (_disposed) return;
+    ++_styleEpoch;
+    styleReady = false;
+  }
+
   Future<void> _updateBounds() async {
-    if (_boundsBusy || controller == null || _disposed) return;
+    if (controller == null || _disposed) return;
+    _boundsDirty = true;
+    if (_boundsBusy) return;
     _boundsBusy = true;
-    final native = controller!;
     try {
-      final region = await native.getVisibleRegion();
-      if (_disposed || !identical(native, controller)) return;
-      bounds.value = LatLngBounds(
-        LatLng(region.southwest.latitude, region.southwest.longitude),
-        LatLng(region.northeast.latitude, region.northeast.longitude),
-      );
+      while (_boundsDirty && controller != null && !_disposed) {
+        _boundsDirty = false;
+        final native = controller!;
+        final region = await native.getVisibleRegion();
+        if (_disposed || !identical(native, controller)) return;
+        if (_boundsDirty) continue;
+        final next = LatLngBounds(
+          LatLng(region.southwest.latitude, region.southwest.longitude),
+          LatLng(region.northeast.latitude, region.northeast.longitude),
+        );
+        final previous = bounds.value;
+        if (previous == null ||
+            previous.southWest != next.southWest ||
+            previous.northEast != next.northEast) {
+          bounds.value = next;
+        }
+      }
     } catch (_) {
       /* A camera can disappear while a platform request is pending. */
     } finally {
@@ -546,9 +629,47 @@ class PujoMapBridge extends ChangeNotifier {
           iconPitchAlignment: 'viewport',
         ),
         filter: [
-          '==',
-          ['geometry-type'],
-          'Point',
+          'all',
+          [
+            '==',
+            ['geometry-type'],
+            'Point',
+          ],
+          [
+            '!=',
+            ['get', 'mapAligned'],
+            true,
+          ],
+        ],
+        enableInteraction: false,
+      );
+      // Match FlutterMap's rotate contract for the invisible tap target too.
+      // Let native rendering rotate map-aligned pins without a texture upload.
+      await native.addSymbolLayer(
+        'uma-overlays',
+        'uma-map-aligned-markers',
+        const ml.SymbolLayerProperties(
+          iconImage: ['get', 'image'],
+          iconSize: ['get', 'scale'],
+          iconOffset: ['get', 'offset'],
+          iconAnchor: 'center',
+          iconAllowOverlap: true,
+          iconIgnorePlacement: true,
+          iconRotationAlignment: 'map',
+          iconPitchAlignment: 'viewport',
+        ),
+        filter: [
+          'all',
+          [
+            '==',
+            ['geometry-type'],
+            'Point',
+          ],
+          [
+            '==',
+            ['get', 'mapAligned'],
+            true,
+          ],
         ],
         enableInteraction: false,
       );
@@ -563,6 +684,7 @@ class PujoMapBridge extends ChangeNotifier {
           lineJoin: 'round',
           lineCap: 'round',
         ),
+        belowLayerId: 'uma-pinned-markers',
         filter: [
           'all',
           [
@@ -578,7 +700,9 @@ class PujoMapBridge extends ChangeNotifier {
         ],
         enableInteraction: false,
       );
-      if (_disposed || epoch != _styleEpoch) return;
+      if (_disposed || epoch != _styleEpoch || !identical(native, controller)) {
+        return;
+      }
       styleReady = true;
       cameraChanged();
       _scheduleWrite();

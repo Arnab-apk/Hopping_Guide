@@ -13,8 +13,15 @@ import 'pujo_native_marker.dart';
 /// Visible pins are geographic native symbols; Flutter retains their tap
 /// targets and semantics, including buttons inside the geographic popups.
 class PujoMarkerLayer extends StatefulWidget {
-  const PujoMarkerLayer({super.key, required this.markers});
+  const PujoMarkerLayer({
+    super.key,
+    required this.markers,
+    this.refreshArtwork = false,
+    this.animatedMarkerKeys = const {},
+  });
   final List<fm.Marker> markers;
+  final bool refreshArtwork;
+  final Set<Key> animatedMarkerKeys;
   @override
   State<PujoMarkerLayer> createState() => _PujoMarkerLayerState();
 }
@@ -23,6 +30,9 @@ class _PujoMarkerLayerState extends State<PujoMarkerLayer> {
   PujoMapBridge? _bridge;
   List<Offset> _points = [];
   List<fm.Marker> _projectedMarkers = [];
+  List<Widget> _markerWidgets = [];
+  int _revision = 0;
+  bool _artworkOptionsDirty = false;
   bool _busy = false, _dirty = false, _scheduled = false;
   double _pixelRatio = 1;
 
@@ -34,6 +44,9 @@ class _PujoMarkerLayerState extends State<PujoMarkerLayer> {
       _bridge?.cameraRevision.removeListener(_onMapChanged);
       _bridge = bridge;
       _bridge?.cameraRevision.addListener(_onMapChanged);
+      _projectedMarkers = [];
+      _markerWidgets = [];
+      _revision++;
     }
     // Android's batch projection returns physical pixels; iOS/web return
     // logical screen coordinates. Do not divide those platforms by DPR.
@@ -48,6 +61,11 @@ class _PujoMarkerLayerState extends State<PujoMarkerLayer> {
   @override
   void didUpdateWidget(PujoMarkerLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _revision++;
+    if (oldWidget.refreshArtwork != widget.refreshArtwork ||
+        !setEquals(oldWidget.animatedMarkerKeys, widget.animatedMarkerKeys)) {
+      _artworkOptionsDirty = true;
+    }
     _requestProjection();
   }
 
@@ -67,29 +85,53 @@ class _PujoMarkerLayerState extends State<PujoMarkerLayer> {
     if (bridge?.controller == null || !bridge!.styleReady) return;
     _busy = true;
     _dirty = false;
+    final revision = _revision;
+    final native = bridge.controller!;
     try {
       final markers = widget.markers;
       final points = markers.isEmpty
           ? <math.Point>[]
-          : await bridge.controller!.toScreenLocationBatch(
+          : await native.toScreenLocationBatch(
               markers.map(
                 (marker) =>
                     ml.LatLng(marker.point.latitude, marker.point.longitude),
               ),
             );
       if (!mounted || !identical(bridge, _bridge)) return;
-      if (!identical(markers, widget.markers)) {
+      if (!identical(native, bridge.controller) ||
+          revision != _revision ||
+          !bridge.styleReady) {
         _dirty = true;
         return;
       }
       final projected = [
         for (final p in points) Offset(p.x / _pixelRatio, p.y / _pixelRatio),
       ];
+      if (points.length != markers.length) {
+        return;
+      }
       if (identical(markers, _projectedMarkers) &&
+          !_artworkOptionsDirty &&
+          _markerWidgets.length == markers.length &&
           listEquals(projected, _points)) {
         return;
       }
       setState(() {
+        if (!identical(markers, _projectedMarkers) ||
+            _artworkOptionsDirty ||
+            _markerWidgets.length != markers.length) {
+          _markerWidgets = [
+            for (final marker in markers)
+              PujoNativeMarker(
+                marker: marker,
+                bridge: bridge,
+                refreshArtwork:
+                    widget.refreshArtwork ||
+                    widget.animatedMarkerKeys.contains(marker.key),
+              ),
+          ];
+          _artworkOptionsDirty = false;
+        }
         _projectedMarkers = markers;
         _points = projected;
       });
@@ -113,6 +155,7 @@ class _PujoMarkerLayerState extends State<PujoMarkerLayer> {
           if (_points[i].dx.isFinite && _points[i].dy.isFinite)
             _positioned(
               _projectedMarkers[i],
+              _markerWidgets[i],
               _points[i],
               _projectedMarkers[i].key ??
                   ValueKey((
@@ -128,9 +171,8 @@ class _PujoMarkerLayerState extends State<PujoMarkerLayer> {
     );
   }
 
-  Widget _positioned(fm.Marker marker, Offset point, Key key) {
+  Widget _positioned(fm.Marker marker, Widget child, Offset point, Key key) {
     final alignment = marker.alignment ?? Alignment.center;
-    final child = PujoNativeMarker(marker: marker, bridge: _bridge!);
     return Positioned(
       // Keep the native texture attached to its geographic marker when the
       // list is reordered. Do not dispose pins at asynchronous screen bounds:

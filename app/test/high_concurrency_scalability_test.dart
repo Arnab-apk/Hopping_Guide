@@ -27,8 +27,10 @@ void main() {
       stopwatch.stop();
 
       expect(results.length, equals(1000));
+      expect(results.first.length, greaterThanOrEqualTo(338));
       for (final list in results) {
-        expect(list.length, equals(338));
+        expect(list, same(results.first),
+          reason: 'Concurrent reads must share the complete cached catalog');
       }
 
       // Memoized local repository should serve 1,000 queries in under 500ms

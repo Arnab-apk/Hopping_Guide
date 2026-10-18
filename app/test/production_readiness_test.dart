@@ -19,11 +19,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Feature 1: Interactive Spatial Map & Pandal Dataset Integrity', () {
-    test('Master dataset loads 338 verified authentic deduplicated pandals with valid coordinates', () async {
+    test('Master dataset retains baseline coverage and unique pandals with valid coordinates', () async {
       final repo = LocalAssetPandalRepository();
       final pandals = await repo.all();
 
-      expect(pandals.length, equals(338));
+      // Catalog additions must not break integrity checks; retain baseline
+      // coverage and validate every record, including newly bundled pandals.
+      expect(pandals.length, greaterThanOrEqualTo(338));
+      expect(pandals.map((p) => p.id).toSet(), hasLength(pandals.length));
 
       for (final p in pandals) {
         // Must have non-empty ID and name

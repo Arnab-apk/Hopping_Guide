@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.kolkatapuja.kolkata_puja",
+      "sha256_cert_fingerprints": ["AF:05:A1:97:DA:36:E6:3B:1A:B6:49:A5:15:4A:D9:C0:29:CD:B5:EC:29:83:E2:17:53:4E:3C:D8:3E:6E:62:67"]
+    }
+  }
+]

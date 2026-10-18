@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -21,6 +22,8 @@ class _NativeMap extends ml.MapLibrePlatform {
   final writes = <Map<String, dynamic>>[];
   final images = <String, Uint8List>{};
   final symbolLayers = <String, Map<String, dynamic>>{};
+  final visibility = <String, bool>{};
+  Completer<List<math.Point>>? delayedProjection;
   int sources = 0;
   double pixelRatio = 1;
   double projectedX = 120;
@@ -86,6 +89,10 @@ class _NativeMap extends ml.MapLibrePlatform {
     Iterable<ml.LatLng> points,
   ) async {
     projectionCalls++;
+    if (delayedProjection case final pending?) {
+      delayedProjection = null;
+      return pending.future;
+    }
     return [
       for (final _ in points)
         math.Point(projectedX * pixelRatio, 160 * pixelRatio),
@@ -94,6 +101,11 @@ class _NativeMap extends ml.MapLibrePlatform {
 
   @override
   Future<ml.LatLngBounds> getVisibleRegion() async => region;
+  @override
+  Future<void> setLayerVisibility(String layerId, bool visible) async {
+    visibility[layerId] = visible;
+  }
+
   @override
   Future<void> addGeoJsonSource(
     String sourceId,
@@ -117,6 +129,58 @@ class _NativeMap extends ml.MapLibrePlatform {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('hidden map markers defer artwork and resume when visible', (
+    tester,
+  ) async {
+    final native = _NativeMap();
+    final controller = ml.MapLibreMapController(
+      maplibrePlatform: native,
+      initialCameraPosition: const ml.CameraPosition(
+        target: ml.LatLng(22.55, 88.35),
+      ),
+      annotationOrder: const [],
+      annotationConsumeTapEvents: const [],
+    );
+    final bridge = PujoMapBridge()..controller = controller;
+    await bridge.styleLoaded();
+    Widget host(bool enabled) => MaterialApp(
+      home: TickerMode(
+        enabled: enabled,
+        child: Center(
+          child: SizedBox(
+            width: 40,
+            height: 50,
+            child: PujoNativeMarker(
+              refreshArtwork: true,
+              bridge: bridge,
+              marker: const Marker(
+                point: LatLng(22.55, 88.35),
+                width: 40,
+                height: 50,
+                child: ColoredBox(color: Colors.red),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(host(false));
+    await tester.pump(const Duration(seconds: 1));
+    expect(native.images, isEmpty);
+    await tester.pumpWidget(host(true));
+    for (var i = 0; i < 40 && native.images.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 20));
+    }
+    expect(native.images, isNotEmpty);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+    bridge.dispose();
+    controller.dispose();
+  });
 
   test('both bundled styles retain vector sources, attribution, labels and 3D buildings', () async {
     for (final dark in [false, true]) {
@@ -286,6 +350,12 @@ void main() {
         final symbol = native.symbolLayers['uma-pinned-markers']!;
         expect(symbol['icon-pitch-alignment'], 'viewport');
         expect(symbol['icon-allow-overlap'], true);
+        expect(pin['properties']['mapAligned'], false);
+        expect(
+          native
+              .symbolLayers['uma-map-aligned-markers']!['icon-rotation-alignment'],
+          'map',
+        );
         expect(
           tester
               .widget<Opacity>(
@@ -396,6 +466,26 @@ void main() {
       projectionsBeforeUpload,
       reason: 'Overlay writes must not reproject unchanged marker positions',
     );
+    final widgetsBeforeCamera = tester
+        .widgetList(find.byType(PujoNativeMarker))
+        .toList();
+    native.projectedX += 20;
+    for (var i = 0; i < 30; i++) {
+      bridge.cameraChanged();
+    }
+    await tester.pump();
+    await tester.pump();
+    await tester.pump();
+    expect(
+      native.projectionCalls,
+      projectionsBeforeUpload + 1,
+      reason: 'A burst of native camera events needs only one projection',
+    );
+    final widgetsAfterCamera = tester
+        .widgetList(find.byType(PujoNativeMarker))
+        .toList();
+    expect(widgetsAfterCamera[0], same(widgetsBeforeCamera[0]));
+    expect(widgetsAfterCamera[1], same(widgetsBeforeCamera[1]));
     await tester.pumpWidget(host(markers.reversed.toList()));
     await tester.pump();
     await tester.pump();
@@ -406,6 +496,69 @@ void main() {
     bridge.dispose();
     controller.dispose();
   });
+
+  testWidgets(
+    'late projection cannot restore removed markers or outdated artwork settings',
+    (tester) async {
+      final native = _NativeMap();
+      final controller = ml.MapLibreMapController(
+        maplibrePlatform: native,
+        initialCameraPosition: const ml.CameraPosition(
+          target: ml.LatLng(22.55, 88.35),
+        ),
+        annotationOrder: const [],
+        annotationConsumeTapEvents: const [],
+      );
+      final bridge = PujoMapBridge()..controller = controller;
+      await bridge.styleLoaded();
+      final markers = [
+        Marker(
+          key: const ValueKey('static-pin'),
+          point: const LatLng(22.55, 88.35),
+          child: const ColoredBox(color: Colors.red),
+        ),
+      ];
+      Widget host(List<Marker> pins, {bool animate = false}) => MaterialApp(
+        home: PujoMapScope(
+          notifier: bridge,
+          child: PujoMarkerLayer(markers: pins, refreshArtwork: animate),
+        ),
+      );
+      await tester.pumpWidget(host(markers));
+      await tester.pump();
+      await tester.pump();
+      expect(
+        tester
+            .widget<PujoNativeMarker>(find.byType(PujoNativeMarker))
+            .refreshArtwork,
+        false,
+      );
+      await tester.pumpWidget(host(markers, animate: true));
+      await tester.pump();
+      await tester.pump();
+      expect(
+        tester
+            .widget<PujoNativeMarker>(find.byType(PujoNativeMarker))
+            .refreshArtwork,
+        true,
+      );
+      final pending = Completer<List<math.Point>>();
+      native.delayedProjection = pending;
+      bridge.cameraChanged();
+      await tester.pump();
+      await tester.pump();
+      await tester.pumpWidget(host([]));
+      pending.complete([const math.Point(1, 1)]);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(PujoNativeMarker), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      bridge.dispose();
+      controller.dispose();
+    },
+  );
 
   testWidgets(
     'failed vector load falls back and retry keeps the current camera',
@@ -614,7 +767,40 @@ void main() {
       expect(camera.camera.center, const LatLng(22.57, 88.37));
       expect(camera.camera.zoom, 15.5);
       expect(camera.camera.rotation, -70);
-      expect(gestureMoves, greaterThan(0));
+      expect(
+        gestureMoves,
+        1,
+        reason: 'A native gesture must deliver one position callback',
+      );
+
+      final pinBeforeToggle = tester.state(find.byType(PujoNativeMarker));
+      await tester.pumpWidget(host(threeD: false));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(
+        native.sources,
+        1,
+        reason: '2D/3D changes must retain native sources',
+      );
+      expect(
+        tester.state(find.byType(PujoNativeMarker)),
+        same(pinBeforeToggle),
+      );
+      expect(native.visibility.values, contains(false));
+      expect(
+        (native.moves.last[1] as Map)['tilt'],
+        0,
+        reason: '${native.moves}',
+      );
+      await tester.pumpWidget(host());
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(native.sources, 1);
+      expect((native.moves.last[1] as Map)['tilt'], 45);
 
       await tester.pumpWidget(host(dark: true, threeD: false));
       await tester.pump(const Duration(milliseconds: 100));

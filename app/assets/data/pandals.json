@@ -6142,14 +6142,14 @@
   {
     "id": "chinsurah_chapatala_sarbojanin",
     "source_id": "114",
-    "name": "Chapatala Durga Puja Samity",
-    "lat": 22.891124,
-    "lng": 88.398541,
+    "name": "Chapatala Sarbojanin Durgotsav",
+    "lat": 22.8882,
+    "lng": 88.3845,
     "zone": "hooghlyChinsurah",
-    "area": "Chinsurah",
+    "area": "Netaji Subhas Road, Chapatala More, Chinsurah",
     "region": "Hooghly",
     "rating": 4.4,
-    "theme": "Handicraft & Rural Heritage Themes",
+    "theme": "Cultural Icons and Heritage",
     "crowd_level": "high",
     "timings": "05:00 PM - 02:00 AM",
     "transport": [
@@ -6163,36 +6163,35 @@
       "Chuchura Station"
     ],
     "special_features": [
-      "Rural Crafts",
-      "Heritage Motif"
+      "Cultural Icons and Heritage"
     ],
     "image_url": "",
-    "description": "Chapatala Durga Puja Samity highlights rural handicraft and Bengal's rich cultural heritage.",
+    "description": "A historic community puja with over 80 years of celebrations, known for tributes to cultural icons such as Bengali actor Uttam Kumar.",
     "category": "pandal",
     "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 1552
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2138
+      },
       {
         "id": "stn_hooghly_ghat",
         "name": "Hooghly Ghat",
         "name_bn": "হুগলি ঘাট",
         "code": "HYG",
         "kind": "rail",
-        "distance_m": 1540
-      },
-      {
-        "id": "stn_garifa",
-        "name": "Garifa",
-        "name_bn": "গরিফা",
-        "code": "GFAE",
-        "kind": "rail",
-        "distance_m": 2344
-      },
-      {
-        "id": "stn_naihati",
-        "name": "Naihati Junction",
-        "name_bn": "নৈহাটি জংশন",
-        "code": "NH",
-        "kind": "rail",
-        "distance_m": 2639
+        "distance_m": 2218
       }
     ]
   },
@@ -12198,14 +12197,14 @@
   {
     "id": "bandel_keota_nabin_sangha",
     "source_id": "117",
-    "name": "Keota Nabin Sangha Durga Puja",
-    "lat": 22.918542,
-    "lng": 88.381125,
+    "name": "Keota Ujjwal Sangha & Nabin Sangha",
+    "lat": 22.9095,
+    "lng": 88.382,
     "zone": "hooghlyBandel",
-    "area": "Bandel",
+    "area": "Keota, towards Bandel, Chinsurah",
     "region": "Hooghly",
     "rating": 4.5,
-    "theme": "Innovative Illumination & Sculptural Art",
+    "theme": "Grand Community Pandals",
     "crowd_level": "high",
     "timings": "05:00 PM - 03:00 AM",
     "transport": [
@@ -12220,28 +12219,19 @@
       "Bandel Junction"
     ],
     "special_features": [
-      "Illumination",
-      "Sculptural Art"
+      "Grand Community Pandals"
     ],
     "image_url": "",
-    "description": "Keota Nabin Sangha Durga Puja in Bandel features innovative illumination, sculptural art, and grand thematic architecture.",
+    "description": "Community pandals on the outskirts towards Bandel, known for their grand scale. This shared neighborhood pin represents Keota Ujjwal Sangha and Nabin Sangha.",
     "category": "pandal",
     "nearest_stations": [
-      {
-        "id": "stn_bandel",
-        "name": "Bandel Junction",
-        "name_bn": "ব্যান্ডেল জংশন",
-        "code": "BDC",
-        "kind": "rail",
-        "distance_m": 736
-      },
       {
         "id": "stn_hooghly",
         "name": "Hooghly",
         "name_bn": "হুগলি",
         "code": "HGY",
         "kind": "rail",
-        "distance_m": 1502
+        "distance_m": 724
       },
       {
         "id": "stn_hooghly_ghat",
@@ -12249,7 +12239,15 @@
         "name_bn": "হুগলি ঘাট",
         "code": "HYG",
         "kind": "rail",
-        "distance_m": 2186
+        "distance_m": 1567
+      },
+      {
+        "id": "stn_bandel",
+        "name": "Bandel Junction",
+        "name_bn": "ব্যান্ডেল জংশন",
+        "code": "BDC",
+        "kind": "rail",
+        "distance_m": 1684
       }
     ]
   },
@@ -14676,14 +14674,14 @@
   {
     "id": "chinsurah_panchanantala_sarbojonin",
     "source_id": "112",
-    "name": "Panchanantala Sarbojonin Durgatsob Samity",
-    "lat": 22.898421,
-    "lng": 88.391512,
+    "name": "Panchanantala Sarbojanin",
+    "lat": 22.8879,
+    "lng": 88.3814,
     "zone": "hooghlyChinsurah",
-    "area": "Chinsurah",
+    "area": "Kamarpara Road, near Deshbandhu School, Chinsurah",
     "region": "Hooghly",
     "rating": 4.5,
-    "theme": "Contemporary Social and Cultural Issues",
+    "theme": "Artistic Themes and Tranquility",
     "crowd_level": "high",
     "timings": "04:00 PM - 03:00 AM",
     "transport": [
@@ -14699,20 +14697,19 @@
       "Chuchura Station (Howrah Main)"
     ],
     "special_features": [
-      "Contemporary Thought",
-      "Ferry Ghat Access"
+      "Artistic Themes and Tranquility"
     ],
     "image_url": "",
-    "description": "Panchanantala Sarbojonin Durgatsob Samity in Chinsurah focuses on thought-provoking contemporary social and cultural issues.",
+    "description": "Renowned for artistic aesthetics exploring tranquility, including the concept Snigdhato.",
     "category": "pandal",
     "nearest_stations": [
       {
-        "id": "stn_hooghly_ghat",
-        "name": "Hooghly Ghat",
-        "name_bn": "হুগলি ঘাট",
-        "code": "HYG",
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
         "kind": "rail",
-        "distance_m": 874
+        "distance_m": 1245
       },
       {
         "id": "stn_hooghly",
@@ -14720,15 +14717,15 @@
         "name_bn": "হুগলি",
         "code": "HGY",
         "kind": "rail",
-        "distance_m": 1775
+        "distance_m": 2064
       },
       {
-        "id": "stn_garifa",
-        "name": "Garifa",
-        "name_bn": "গরিফা",
-        "code": "GFAE",
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
         "kind": "rail",
-        "distance_m": 2334
+        "distance_m": 2433
       }
     ]
   },
@@ -14917,14 +14914,14 @@
   {
     "id": "chinsurah_peyarabagan_sarbojanin",
     "source_id": "115",
-    "name": "Peyarabagan Sarbojanin Durgotsav",
-    "lat": 22.901542,
-    "lng": 88.381245,
+    "name": "Peyara Bagan Sarbojanin",
+    "lat": 22.8821,
+    "lng": 88.3752,
     "zone": "hooghlyChinsurah",
-    "area": "Chinsurah",
+    "area": "Pearabagan, Chinsurah",
     "region": "Hooghly",
     "rating": 4.3,
-    "theme": "Creative Lighting and Clay Artistry",
+    "theme": "Social Messages and Modern Theme Crafts",
     "crowd_level": "medium",
     "timings": "05:00 PM - 02:00 AM",
     "transport": [
@@ -14939,50 +14936,49 @@
       "Chuchura Station"
     ],
     "special_features": [
-      "Chandan-nagar Lighting",
-      "Clay Craft"
+      "Social Messages and Modern Theme Crafts"
     ],
     "image_url": "",
-    "description": "Peyarabagan Sarbojanin in Chinsurah is famed for dazzling lighting and exquisite clay artistry.",
+    "description": "A popular community puja integrating social messages into complex modern theme crafts.",
     "category": "pandal",
     "nearest_stations": [
-      {
-        "id": "stn_hooghly",
-        "name": "Hooghly",
-        "name_bn": "হুগলি",
-        "code": "HGY",
-        "kind": "rail",
-        "distance_m": 706
-      },
-      {
-        "id": "stn_hooghly_ghat",
-        "name": "Hooghly Ghat",
-        "name_bn": "হুগলি ঘাট",
-        "code": "HYG",
-        "kind": "rail",
-        "distance_m": 1598
-      },
       {
         "id": "stn_chuchura",
         "name": "Chuchura",
         "name_bn": "চুঁচুড়া",
         "code": "CNS",
         "kind": "rail",
-        "distance_m": 1744
+        "distance_m": 1073
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2640
+      },
+      {
+        "id": "stn_chandannagar",
+        "name": "Chandannagar",
+        "name_bn": "চন্দননগর",
+        "code": "CGR",
+        "kind": "rail",
+        "distance_m": 2679
       }
     ]
   },
   {
     "id": "chinsurah_pirtala_sarbojanin",
     "source_id": "113",
-    "name": "Pirtala Durga Puja",
-    "lat": 22.894318,
-    "lng": 88.384215,
+    "name": "Beguntala & Pirtala More",
+    "lat": 22.889,
+    "lng": 88.3795,
     "zone": "hooghlyChinsurah",
-    "area": "Chinsurah",
+    "area": "Beguntala / Pirtala More, Chinsurah",
     "region": "Hooghly",
     "rating": 4.4,
-    "theme": "Traditional Bengali Art Decor",
+    "theme": "Clay Art and Community Celebration",
     "crowd_level": "high",
     "timings": "04:00 PM - 03:00 AM",
     "transport": [
@@ -14997,28 +14993,27 @@
       "Chuchura Station"
     ],
     "special_features": [
-      "Bengali Folk Decor",
-      "Illumination"
+      "Clay Art and Community Celebration"
     ],
     "image_url": "",
-    "description": "Pirtala Durga Puja is beloved in Chinsurah for traditional Bengali folk and art decor.",
+    "description": "Neighborhood favorites featuring beautiful clay structures and vibrant community involvement. This shared area pin represents Beguntala and Pirtala More.",
     "category": "pandal",
     "nearest_stations": [
-      {
-        "id": "stn_hooghly",
-        "name": "Hooghly",
-        "name_bn": "হুগলি",
-        "code": "HGY",
-        "kind": "rail",
-        "distance_m": 1522
-      },
       {
         "id": "stn_chuchura",
         "name": "Chuchura",
         "name_bn": "চুঁচুড়া",
         "code": "CNS",
         "kind": "rail",
-        "distance_m": 1576
+        "distance_m": 1033
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 1902
       },
       {
         "id": "stn_hooghly_ghat",
@@ -15026,7 +15021,7 @@
         "name_bn": "হুগলি ঘাট",
         "code": "HYG",
         "kind": "rail",
-        "distance_m": 1713
+        "distance_m": 2472
       }
     ]
   },
@@ -20497,6 +20492,438 @@
         "code": "KSYM",
         "kind": "metro",
         "distance_m": 1125
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_azad_hind_club",
+    "name": "Chuchura Azad Hind Club",
+    "lat": 22.8839,
+    "lng": 88.3745,
+    "zone": "hooghlyChinsurah",
+    "area": "Pearabagan / Chinsurah Station Road, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Nationalist and Historical Themes",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Nationalist and Historical Themes"
+    ],
+    "image_url": "",
+    "description": "One of Chinsurah's largest crowd-pullers, known for grand nationalist and historical concepts, including a Vande Mataram tribute.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 867
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2444
+      },
+      {
+        "id": "stn_chandannagar",
+        "name": "Chandannagar",
+        "name_bn": "চন্দননগর",
+        "code": "CGR",
+        "kind": "rail",
+        "distance_m": 2751
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_rathtala_durgotsav",
+    "name": "Chuchura Rathtala Durgotsav",
+    "lat": 22.8861,
+    "lng": 88.3721,
+    "zone": "hooghlyChinsurah",
+    "area": "Rathtala More, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Traditional Architecture and Lighting",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Traditional Architecture and Lighting"
+    ],
+    "image_url": "",
+    "description": "Known for traditional architectural decor and high-energy ambient lighting near Rathtala More.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 527
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2233
+      },
+      {
+        "id": "stn_chandannagar",
+        "name": "Chandannagar",
+        "name_bn": "চন্দননগর",
+        "code": "CGR",
+        "kind": "rail",
+        "distance_m": 2752
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_akhan_bazar_durga_puja",
+    "name": "Akhan Bazar Durga Puja",
+    "lat": 22.8967,
+    "lng": 88.3871,
+    "zone": "hooghlyChinsurah",
+    "area": "Akhan Bazar, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Decorative Lighting",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Decorative Lighting"
+    ],
+    "image_url": "",
+    "description": "A commercial-belt puja drawing heavy foot traffic with massive decorative lighting panels.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 1316
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 1512
+      },
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 1943
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_karbala_more_durgotsav",
+    "name": "Karbala More Durgotsav Committee",
+    "lat": 22.8941,
+    "lng": 88.3789,
+    "zone": "hooghlyChinsurah",
+    "area": "Karbala More, towards Pipulpati, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Community Durga Puja",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Community Durga Puja"
+    ],
+    "image_url": "",
+    "description": "A prominent gateway puja at the Karbala More intersection on the northern side of Chinsurah towards Pipulpati.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 1056
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 1334
+      },
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 2157
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_chokbaazar_sarbojanin",
+    "name": "Chokbaazar Sarbojanin",
+    "lat": 22.8912,
+    "lng": 88.3908,
+    "zone": "hooghlyChinsurah",
+    "area": "Chokbaazar, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Environmental and Rural Themes",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Environmental and Rural Themes"
+    ],
+    "image_url": "",
+    "description": "Known for environmentally conscious and rural-focused themes, including Jol Jongol Jomi Jibon.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 1623
+      },
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 2185
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2212
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_tola_phatak_sarbojanin",
+    "name": "Tola Phatak Sarbojanin",
+    "lat": 22.8845,
+    "lng": 88.3894,
+    "zone": "hooghlyChinsurah",
+    "area": "Near Tola Phatak bus stop, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Community Durga Puja",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Community Durga Puja"
+    ],
+    "image_url": "",
+    "description": "Located just off the main road near Tola Phatak bus stop, making it a convenient early stop during a puja parikrama.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 2135
+      },
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 2374
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2732
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_adhya_bari_bonedi",
+    "name": "Adhya Bari (Kamarpara)",
+    "lat": 22.8885,
+    "lng": 88.3821,
+    "zone": "hooghlyChinsurah",
+    "area": "Kamarpara lane, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Bonedi Bari - Hara-Gauri Idol",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Bonedi Bari - Hara-Gauri Idol"
+    ],
+    "image_url": "",
+    "description": "A heritage household puja with nearly 300 years of history, worshipping a rare Hara-Gauri (Shiva-Durga) idol without Mahishasura.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 1304
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2020
+      },
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 2336
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_mondal_bari_bonedi",
+    "name": "Mondal Bari (Kamarpara)",
+    "lat": 22.8881,
+    "lng": 88.3819,
+    "zone": "hooghlyChinsurah",
+    "area": "Kamarpara, near Panchanantala, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Bonedi Bari - Traditional Household Rituals",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Bonedi Bari - Traditional Household Rituals"
+    ],
+    "image_url": "",
+    "description": "A heritage household puja over 185 years old, with historical links to India's freedom struggle and visits by Netaji Subhas Chandra Bose and Mahatma Gandhi.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 1291
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2057
+      },
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 2383
+      }
+    ]
+  },
+  {
+    "id": "chinsurah_halder_bari_bonedi",
+    "name": "Halder Bari (Sandeshwar Tala)",
+    "lat": 22.8928,
+    "lng": 88.3925,
+    "zone": "hooghlyChinsurah",
+    "area": "Sandeshwar Tala, near the temple ghat, Chinsurah",
+    "region": "Hooghly",
+    "theme": "Bonedi Bari - Mahishasuramardini Idol",
+    "timings": "Visiting hours not confirmed",
+    "transport": [],
+    "nearest_metro": null,
+    "nearest_metro_list": [],
+    "nearest_railway": null,
+    "nearest_railway_list": [],
+    "special_features": [
+      "Bonedi Bari - Mahishasuramardini Idol"
+    ],
+    "image_url": "",
+    "description": "A heritage household puja over 450 years old. The Vaishnava family worships Mahishasuramardini and substitutes animal sacrifices with a wax gourd.",
+    "category": "pandal",
+    "nearest_stations": [
+      {
+        "id": "stn_hooghly_ghat",
+        "name": "Hooghly Ghat",
+        "name_bn": "হুগলি ঘাট",
+        "code": "HYG",
+        "kind": "rail",
+        "distance_m": 1398
+      },
+      {
+        "id": "stn_hooghly",
+        "name": "Hooghly",
+        "name_bn": "হুগলি",
+        "code": "HGY",
+        "kind": "rail",
+        "distance_m": 2213
+      },
+      {
+        "id": "stn_chuchura",
+        "name": "Chuchura",
+        "name_bn": "চুঁচুড়া",
+        "code": "CNS",
+        "kind": "rail",
+        "distance_m": 2374
       }
     ]
   }

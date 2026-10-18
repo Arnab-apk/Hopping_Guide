@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:maplibre_gl/maplibre_gl.dart' as ml;
 import 'package:provider/provider.dart';
 
 import 'app.dart';
@@ -34,6 +35,12 @@ Uri? _pendingDeepLink;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // MapLibre 0.27 uses TextureView for this option, avoiding Flutter's
+  // intermediate virtual display and keeping map/UI composition in one frame.
+  ml.MapLibreMap.useHybridComposition = const bool.fromEnvironment(
+    'MAP_TEXTURE_COMPOSITION',
+    defaultValue: true,
+  );
   // Bound decoded map tiles and photos on memory-constrained phones.
   PaintingBinding.instance.imageCache.maximumSizeBytes = 64 * 1024 * 1024;
   GoogleFonts.config.allowRuntimeFetching = false;

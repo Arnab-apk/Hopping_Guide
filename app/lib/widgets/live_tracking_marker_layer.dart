@@ -82,6 +82,7 @@ class _LiveTrackingMarkerLayerState extends State<LiveTrackingMarkerLayer>
 
   @override
   Widget build(BuildContext context) => PujoMarkerLayer(
+    refreshArtwork: true,
     markers: [
       for (final marker in widget.markers)
         Marker(

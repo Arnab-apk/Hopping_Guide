@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Join your group | Uma</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #29221e; background: #fff8ef; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 24px; }
+    main { width: 100%; max-width: 440px; padding: 32px; background: white; border: 1px solid #eadbc9; border-radius: 24px; }
+    .brand { color: #a83c14; font-weight: 800; letter-spacing: .16em; }
+    h1 { font-size: 30px; line-height: 1.2; }
+    p { line-height: 1.6; }
+    code { display: block; padding: 16px; background: #fff3e3; border-radius: 12px; font-size: 24px; letter-spacing: .1em; text-align: center; overflow-wrap: anywhere; }
+    a { color: #923211; }
+    .button { display: block; text-align: center; padding: 15px; margin-top: 24px; border-radius: 12px; background: #a83c14; color: white; font-weight: 700; text-decoration: none; min-height: 48px; }
+    a:focus-visible { outline: 3px solid #185abd; outline-offset: 4px; }
+    [hidden] { display: none !important; }
+    .hint { font-size: 14px; color: #625347; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">UMA</p>
+    <h1 id="title">Join your Puja group</h1>
+    <p id="message">Open Uma to join your friends and plan your Puja hopping together.</p>
+    <section id="invite" hidden>
+      <p>Your group code</p>
+      <code id="code"></code>
+      <a class="button" id="open">Open Uma &amp; join</a>
+      <p class="hint">If your chat browser blocks the app, open this page in Chrome or enter this code in Uma → Hopping Group → Join.</p>
+    </section>
+    <p>Need Uma? <a href="https://github.com/Arnab-apk/Hopping_Guide/releases/latest">Download the Android app</a>. After installing, return to this invite.</p>
+  </main>
+  <script src="/invite.js"></script>
+</body>
+</html>

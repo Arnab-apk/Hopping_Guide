@@ -16,10 +16,15 @@ class PujoNativeMarker extends StatefulWidget {
     super.key,
     required this.marker,
     required this.bridge,
+    this.refreshArtwork = false,
   });
 
   final Marker marker;
   final PujoMapBridge bridge;
+
+  /// Opt in for artwork animated inside nested repaint boundaries (live heads,
+  /// avatars and selection pulses). Stable keys alone do not imply animation.
+  final bool refreshArtwork;
 
   @override
   State<PujoNativeMarker> createState() => _PujoNativeMarkerState();
@@ -38,6 +43,7 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
   Uint8List? _bytes;
   bool _capturePending = false, _capturing = false, _dirty = false;
   bool _nativeReady = false;
+  bool _artworkEnabled = true;
   double _imageDensity = 1;
   Timer? _captureThrottle;
 
@@ -50,10 +56,13 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final wasEnabled = _artworkEnabled;
+    _artworkEnabled = TickerMode.valuesOf(context).enabled;
     _imageDensity = !kIsWeb && defaultTargetPlatform == TargetPlatform.android
         ? MediaQuery.devicePixelRatioOf(context)
         : 1;
     _publishPoint();
+    if (_artworkEnabled && !wasEnabled) _onPaint();
   }
 
   @override
@@ -67,6 +76,7 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
       _nativeReady = false;
     }
     if (oldWidget.marker.point != widget.marker.point ||
+        oldWidget.marker.rotate != widget.marker.rotate ||
         oldWidget.marker.alignment != widget.marker.alignment ||
         oldWidget.marker.width != widget.marker.width ||
         oldWidget.marker.height != widget.marker.height ||
@@ -103,6 +113,7 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
         },
         'properties': {
           'image': _imageId,
+          'mapAligned': marker.rotate != true,
           // Android's bitmap registration inherits screen density. Compensate
           // for it as well as the fixed 2x capture resolution.
           'scale': _imageDensity / 2,
@@ -117,7 +128,7 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
 
   void _onPaint() {
     _dirty = true;
-    if (_capturePending || _capturing || !mounted) return;
+    if (!_artworkEnabled || _capturePending || _capturing || !mounted) return;
     _capturePending = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _capturePending = false;
@@ -127,7 +138,7 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
   }
 
   Future<void> _capture() async {
-    if (_capturing || !mounted || !_dirty) return;
+    if (_capturing || !mounted || !_artworkEnabled || !_dirty) return;
     final boundary =
         _boundaryKey.currentContext?.findRenderObject()
             as RenderRepaintBoundary?;
@@ -164,7 +175,7 @@ class _PujoNativeMarkerState extends State<PujoNativeMarker> {
           // Live location/member markers contain their own repaint boundaries.
           // Refresh their artwork too, so nested compass/avatar updates are
           // reflected even when this outer boundary did not repaint.
-          if (mounted && (_dirty || widget.marker.key != null)) _onPaint();
+          if (mounted && (_dirty || widget.refreshArtwork)) _onPaint();
         });
       } else {
         _capturing = false;
