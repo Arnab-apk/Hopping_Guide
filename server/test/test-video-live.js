@@ -65,6 +65,10 @@ async function main() {
       headers: { Authorization: session.token, 'stream-auth-type': 'jwt' },
       signal: AbortSignal.timeout(25000),
     });
+    if (readCall.status !== 200) {
+      const failure = await readCall.json();
+      console.log('Private call read failure:', failure.code, String(failure.message || '').replace(/eyJ[A-Za-z0-9_.-]+/g, '[redacted]').slice(0, 250));
+    }
     assert.equal(readCall.status, 200, 'Scoped client token must read its private call');
     unrelatedUser = `${uid}_other`;
     await stream.upsertUsers([{ id: unrelatedUser, role: 'user', name: 'Temporary privacy verification' }]);
@@ -98,6 +102,6 @@ async function main() {
 main().catch(error => {
   // Print assertion context/status only, never raw provider responses.
   console.error('Live verification failed:', error.code || error.name,
-    error.operator ? `expected ${error.expected}, received ${error.actual}` : 'check credentials and network access');
+    error.operator ? `${error.message.split('\n')[0]}: expected ${error.expected}, received ${error.actual}` : 'check credentials and network access');
   process.exitCode = 1;
 });

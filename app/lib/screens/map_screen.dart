@@ -1732,7 +1732,9 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final horizontalMapTools = MediaQuery.sizeOf(context).height < 500;
+    final mapHeight = MediaQuery.sizeOf(context).height;
+    final horizontalMapTools =
+        mapHeight < 500 || (_journey.active && mapHeight < 750);
     context.select<SquadService, List<Object?>>(
       (squad) => [
         squad.hasActiveSquad,
@@ -3307,193 +3309,207 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
             // Floating Action Toolbar (Zoom In/Out, Quick Tools, GPS Follow, Compass)
             // Unified vertical stack on the right edge with matching 46x46 dimensions and smooth squircle styling
             Positioned(
-              right: 16,
-              bottom: 24,
-              child: AnimatedSlide(
-                offset: _selectedSquadMember == null
-                    ? Offset.zero
-                    : const Offset(0, 0.04),
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
-                child: AnimatedOpacity(
-                  opacity: _selectedSquadMember == null ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  child: IgnorePointer(
-                    ignoring: _selectedSquadMember != null,
-                    child: Flex(
-                      direction: horizontalMapTools
-                          ? Axis.horizontal
-                          : Axis.vertical,
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Leaflet Zoom Control (Stacked + / −)
-                        LeafletZoomControl(
-                          width: 46.0,
-                          buttonHeight: 44.0,
-                          borderRadius: 16.0,
-                          iconSize: 22.0,
-                          isDark: isDark,
-                          onZoomIn: () {
-                            final currentZoom = _mapController.camera.zoom;
-                            _animatedMapMove(
-                              _mapController.camera.center,
-                              (currentZoom + 1.0).clamp(10.0, 18.0),
-                            );
-                          },
-                          onZoomOut: () {
-                            final currentZoom = _mapController.camera.zoom;
-                            _animatedMapMove(
-                              _mapController.camera.center,
-                              (currentZoom - 1.0).clamp(10.0, 18.0),
-                            );
-                          },
-                        ),
-                        SizedBox(
-                          width: horizontalMapTools ? 12 : 0,
-                          height: horizontalMapTools ? 0 : 12,
-                        ),
-
-                        if (PujoMap.supported) ...[
-                          _buildMapActionButton(
-                            icon: Text(
-                              _threeDimensionalMap ? '2D' : '3D',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            onTap: () async {
-                              HapticFeedback.selectionClick();
-                              setState(
-                                () => _threeDimensionalMap =
-                                    !_threeDimensionalMap,
-                              );
-                              final value = _threeDimensionalMap;
-                              try {
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setBool(
-                                  'map_three_dimensional',
-                                  value,
-                                );
-                              } catch (_) {}
-                            },
-                            tooltip: _threeDimensionalMap
-                                ? 'Switch to flat map'
-                                : 'Switch to 3D map',
-                            isDark: isDark,
-                          ),
-                          SizedBox(
-                            width: horizontalMapTools ? 12 : 0,
-                            height: horizontalMapTools ? 0 : 12,
-                          ),
-                        ],
-                        // Secondary Quick Map Tools (Nearest radar, Theme toggle, App guide)
-                        _buildMapActionButton(
-                          icon: Icon(
-                            Icons.tune_rounded,
-                            color: isDark
-                                ? PujaColors.goldBright
-                                : const Color(0xFF1E293B),
-                            size: 20,
-                          ),
-                          onTap: () => _showMapQuickTools(context, isDark),
-                          tooltip: 'Map Tools & Settings',
-                          isDark: isDark,
-                        ),
-                        SizedBox(
-                          width: horizontalMapTools ? 12 : 0,
-                          height: horizontalMapTools ? 0 : 12,
-                        ),
-
-                        // Center & Follow My GPS Button
-                        _buildMapActionButton(
-                          icon: Icon(
-                            _followUser
-                                ? Icons.navigation_rounded
-                                : Icons.my_location,
-                            color: _followUser
-                                ? Colors.white
-                                : (Theme.of(context).colorScheme.onSurface),
-                            size: 22,
-                          ),
-                          onTap: _toggleFollowUser,
-                          tooltip: _followUser
-                              ? 'Live Tracking Active (Tap for free-roam)'
-                              : 'Center & Follow My GPS',
-                          isDark: isDark,
-                          isActive: _followUser,
-                          activeColor: const Color(0xFF2979FF),
-                        ),
-
-                        // Compass Reset-North Button (only shown when map is rotated)
-                        ValueListenableBuilder<double>(
-                          valueListenable: _cameraRotation,
-                          builder: (context, rotation, child) {
-                            if (rotation.abs() <= 2) {
-                              return const SizedBox.shrink();
-                            }
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                top: horizontalMapTools ? 0 : 10,
-                                left: horizontalMapTools ? 10 : 0,
-                              ),
-                              child: _buildMapActionButton(
-                                icon: Transform.rotate(
-                                  angle: -rotation * math.pi / 180,
-                                  child: Icon(
-                                    Icons.explore_rounded,
-                                    color: isDark
-                                        ? const Color(0xFF00E5FF)
-                                        : PujaColors.durgaRed,
-                                    size: 22,
-                                  ),
-                                ),
-                                onTap: () {
-                                  HapticFeedback.lightImpact();
-                                  _headingUp = false;
-                                  _headingRotationController.stop();
-                                  _mapController.rotate(0.0);
-                                  _showStatusPill(
-                                    'Map re-oriented to North',
-                                    icon: Icons.explore_rounded,
-                                  );
-                                },
-                                tooltip: 'Reset to North',
-                                isDark: isDark,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-          if (_journey.active && !_navigation.active && !_navigation.hasPreview)
-            Positioned(
               left: 12,
               right: 12,
               bottom: 12,
-              child: SafeArea(
-                top: false,
-                child: JourneyCard(
-                  session: _journey,
-                  onDirections: _onJourneyStart,
-                  updating: _replanningJourney,
-                  onTransitArrival: () => _confirmTransitArrival(),
-                  onDetails: _showJourneyDetails,
-                  onClose: () {
-                    _journey.end();
-                    _clearRoute();
-                  },
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4, bottom: 12),
+                    child: AnimatedSlide(
+                      offset: _selectedSquadMember == null
+                          ? Offset.zero
+                          : const Offset(0, 0.04),
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      child: AnimatedOpacity(
+                        opacity: _selectedSquadMember == null ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        child: IgnorePointer(
+                          ignoring: _selectedSquadMember != null,
+                          child: Flex(
+                            direction: horizontalMapTools
+                                ? Axis.horizontal
+                                : Axis.vertical,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              // Leaflet Zoom Control (Stacked + / −)
+                              LeafletZoomControl(
+                                width: 46.0,
+                                buttonHeight: 44.0,
+                                borderRadius: 16.0,
+                                iconSize: 22.0,
+                                isDark: isDark,
+                                onZoomIn: () {
+                                  final currentZoom =
+                                      _mapController.camera.zoom;
+                                  _animatedMapMove(
+                                    _mapController.camera.center,
+                                    (currentZoom + 1.0).clamp(10.0, 18.0),
+                                  );
+                                },
+                                onZoomOut: () {
+                                  final currentZoom =
+                                      _mapController.camera.zoom;
+                                  _animatedMapMove(
+                                    _mapController.camera.center,
+                                    (currentZoom - 1.0).clamp(10.0, 18.0),
+                                  );
+                                },
+                              ),
+                              SizedBox(
+                                width: horizontalMapTools ? 12 : 0,
+                                height: horizontalMapTools ? 0 : 12,
+                              ),
+
+                              if (PujoMap.supported) ...[
+                                _buildMapActionButton(
+                                  icon: Text(
+                                    _threeDimensionalMap ? '2D' : '3D',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface,
+                                    ),
+                                  ),
+                                  onTap: () async {
+                                    HapticFeedback.selectionClick();
+                                    setState(
+                                      () => _threeDimensionalMap =
+                                          !_threeDimensionalMap,
+                                    );
+                                    final value = _threeDimensionalMap;
+                                    try {
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      await prefs.setBool(
+                                        'map_three_dimensional',
+                                        value,
+                                      );
+                                    } catch (_) {}
+                                  },
+                                  tooltip: _threeDimensionalMap
+                                      ? 'Switch to flat map'
+                                      : 'Switch to 3D map',
+                                  isDark: isDark,
+                                ),
+                                SizedBox(
+                                  width: horizontalMapTools ? 12 : 0,
+                                  height: horizontalMapTools ? 0 : 12,
+                                ),
+                              ],
+                              // Secondary Quick Map Tools (Nearest radar, Theme toggle, App guide)
+                              _buildMapActionButton(
+                                icon: Icon(
+                                  Icons.tune_rounded,
+                                  color: isDark
+                                      ? PujaColors.goldBright
+                                      : const Color(0xFF1E293B),
+                                  size: 20,
+                                ),
+                                onTap: () =>
+                                    _showMapQuickTools(context, isDark),
+                                tooltip: 'Map Tools & Settings',
+                                isDark: isDark,
+                              ),
+                              SizedBox(
+                                width: horizontalMapTools ? 12 : 0,
+                                height: horizontalMapTools ? 0 : 12,
+                              ),
+
+                              // Center & Follow My GPS Button
+                              _buildMapActionButton(
+                                icon: Icon(
+                                  _followUser
+                                      ? Icons.navigation_rounded
+                                      : Icons.my_location,
+                                  color: _followUser
+                                      ? Colors.white
+                                      : (Theme.of(context)
+                                            .colorScheme
+                                            .onSurface),
+                                  size: 22,
+                                ),
+                                onTap: _toggleFollowUser,
+                                tooltip: _followUser
+                                    ? 'Live Tracking Active (Tap for free-roam)'
+                                    : 'Center & Follow My GPS',
+                                isDark: isDark,
+                                isActive: _followUser,
+                                activeColor: const Color(0xFF2979FF),
+                              ),
+
+                              // Compass Reset-North Button (only shown when map is rotated)
+                              ValueListenableBuilder<double>(
+                                valueListenable: _cameraRotation,
+                                builder: (context, rotation, child) {
+                                  if (rotation.abs() <= 2) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      top: horizontalMapTools ? 0 : 10,
+                                      left: horizontalMapTools ? 10 : 0,
+                                    ),
+                                    child: _buildMapActionButton(
+                                      icon: Transform.rotate(
+                                        angle: -rotation * math.pi / 180,
+                                        child: Icon(
+                                          Icons.explore_rounded,
+                                          color: isDark
+                                              ? const Color(0xFF00E5FF)
+                                              : PujaColors.durgaRed,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        HapticFeedback.lightImpact();
+                                        _headingUp = false;
+                                        _headingRotationController.stop();
+                                        _mapController.rotate(0.0);
+                                        _showStatusPill(
+                                          'Map re-oriented to North',
+                                          icon: Icons.explore_rounded,
+                                        );
+                                      },
+                                      tooltip: 'Reset to North',
+                                      isDark: isDark,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Keep the controls above the card at its actual height,
+                  // including wrapped transit actions and enlarged text.
+                  if (_journey.active)
+                    SafeArea(
+                      top: false,
+                      child: JourneyCard(
+                        session: _journey,
+                        onDirections: _onJourneyStart,
+                        updating: _replanningJourney,
+                        onTransitArrival: () => _confirmTransitArrival(),
+                        onDetails: _showJourneyDetails,
+                        onClose: () {
+                          _journey.end();
+                          _clearRoute();
+                        },
+                      ),
+                    ),
+                ],
               ),
             ),
+          ],
           if (_navigation.hasPreview || _navigation.active)
             NavigationOverlay(
               session: _navigation,

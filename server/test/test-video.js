@@ -38,7 +38,7 @@ Module._load = function(name, ...args) {
   } };
   return originalLoad.call(this, name, ...args);
 };
-const { handleVideoRequest, CALL_TYPE, TOKEN_TTL, squadCallId } = require('../dist/video');
+const { handleVideoRequest, CALL_TYPE, TOKEN_TTL, TOKEN_CLOCK_SKEW, squadCallId } = require('../dist/video');
 Module._load = originalLoad;
 process.env.STREAM_API_KEY = 'test-key';
 process.env.STREAM_API_SECRET = 'test-secret';
@@ -79,6 +79,10 @@ test('valid member gets a short-lived token for exactly one private room', async
   assert.equal(payload.user_id, 'alice');
   assert.deepEqual(payload.call_cids, [`${CALL_TYPE}:${data.callId}`]);
   assert.equal(payload.exp - payload.iat, TOKEN_TTL);
+  const now = Math.floor(Date.now() / 1000);
+  assert.ok(payload.iat <= now - TOKEN_CLOCK_SKEW, 'Token is usable despite small provider clock skew');
+  assert.ok(payload.iat >= now - TOKEN_CLOCK_SKEW - 2, 'Clock tolerance stays bounded');
+  assert.equal(data.expiresIn, TOKEN_TTL - TOKEN_CLOCK_SKEW);
   assert.equal(data.userId, 'alice');
   assert.equal(JSON.stringify(data).includes('test-secret'), false);
 });

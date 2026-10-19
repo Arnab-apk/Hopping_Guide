@@ -18,6 +18,10 @@ import 'package:kolkata_puja/utils/constants.dart';
 import 'package:kolkata_puja/widgets/leaflet_map_components.dart';
 import 'package:kolkata_puja/widgets/pujo_map.dart';
 import 'package:maplibre_gl/maplibre_gl.dart' as ml;
+import 'package:latlong2/latlong.dart';
+import 'package:kolkata_puja/services/journey_session.dart';
+import 'package:kolkata_puja/services/multimodal_routing_service.dart';
+import 'package:kolkata_puja/widgets/journey_card.dart';
 
 import 'pujo_map_test.dart' show createNativeMapTestPlatform;
 
@@ -280,6 +284,48 @@ void main() {
           expect(target.top, greaterThanOrEqualTo(0));
           expect(target.bottom, lessThanOrEqualTo(size.height));
         }
+        final journey = JourneySession.instance;
+        addTearDown(journey.end);
+        journey.load(await _FakePandalRepository().all(), const [
+          MultimodalRoute(
+            legs: [
+              WalkLeg(
+                startPoint: LatLng(22.59, 88.40),
+                endPoint: LatLng(22.5996, 88.4011),
+                distanceMeters: 1000,
+                durationSeconds: 800,
+                instructions: 'Walk to Chuchura station',
+                points: [LatLng(22.59, 88.40), LatLng(22.5996, 88.4011)],
+              ),
+            ],
+            totalDistanceMeters: 1000,
+            totalDurationSeconds: 800,
+            summary: 'Walking to the station',
+          ),
+        ]);
+        await tester.pump(const Duration(milliseconds: 300));
+        final card = tester.getRect(find.byType(JourneyCard));
+        for (final tooltip in [
+          'Switch to flat map',
+          'Map Tools & Settings',
+          'Center & Follow My GPS',
+        ]) {
+          final control = tester.getRect(find.byTooltip(tooltip));
+          expect(
+            control.overlaps(card),
+            isFalse,
+            reason: '$tooltip is covered by journey card',
+          );
+          expect(
+            control.overlaps(search),
+            isFalse,
+            reason: '$tooltip is covered by search',
+          );
+          expect(control.top, greaterThanOrEqualTo(0));
+        }
+        await tester.tap(find.byTooltip('Map Tools & Settings'));
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.text('Map Tools & Options'), findsOneWidget);
         await tester.pumpWidget(const SizedBox());
         debugDefaultTargetPlatformOverride = null;
         expect(tester.takeException(), isNull);

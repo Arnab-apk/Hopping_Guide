@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../config/theme.dart';
 import '../models/app_user.dart';
+import '../repositories/local_pandal_repository.dart';
 import '../services/auth_service.dart';
 import '../services/pandal_user_state_service.dart';
 import '../services/squad_service.dart';
@@ -248,7 +249,9 @@ class UserProfileSheet extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.w800,
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface,
                                 ),
                               )
                             : null,
@@ -493,14 +496,21 @@ class UserProfileSheet extends StatelessWidget {
                       children: [
                         // Pandals Hopped
                         Expanded(
-                          child: _buildStatItem(
-                            context: context,
-                            isDark: isDark,
-                            icon: Icons.temple_hindu_rounded,
-                            iconColor: PujaColors.durgaRed,
-                            title: '${userState?.visitedCount ?? 0}',
-                            label: 'Pandals Hopped',
-                            sublabel: 'Out of 338',
+                          child: FutureBuilder<int>(
+                            future: LocalAssetPandalRepository().all().then(
+                              (pandals) => pandals.length,
+                            ),
+                            builder: (context, snapshot) => _buildStatItem(
+                              context: context,
+                              isDark: isDark,
+                              icon: Icons.temple_hindu_rounded,
+                              iconColor: PujaColors.durgaRed,
+                              title: '${userState?.visitedCount ?? 0}',
+                              label: 'Pandals Hopped',
+                              sublabel: snapshot.hasData
+                                  ? 'Out of ${snapshot.data}'
+                                  : 'Recorded visits',
+                            ),
                           ),
                         ),
                         Container(

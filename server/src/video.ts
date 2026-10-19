@@ -7,6 +7,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 
 export const CALL_TYPE = 'uma_squad';
 export const TOKEN_TTL = 300;
+export const TOKEN_CLOCK_SKEW = 30;
 let streamClient: StreamClient | undefined;
 let setup: Promise<void> | undefined;
 
@@ -14,7 +15,9 @@ function client(): StreamClient {
   if (!process.env.STREAM_API_KEY || !process.env.STREAM_API_SECRET) {
     throw new Error('Video calling is not configured on the server.');
   }
-  return streamClient ??= new StreamClient(process.env.STREAM_API_KEY, process.env.STREAM_API_SECRET);
+  // Call-type updates can exceed the SDK's 3-second default on a cold server.
+  // Keep each upstream operation bounded within the mobile session deadline.
+  return streamClient ??= new StreamClient(process.env.STREAM_API_KEY, process.env.STREAM_API_SECRET, { timeout: 15000 });
 }
 
 // Tokens grant membership only for one call. Never persist membership in Stream:
@@ -89,8 +92,11 @@ export async function handleVideoRequest(
     });
     send(res, 200, {
       apiKey: process.env.STREAM_API_KEY, userId: uid, callType: CALL_TYPE, callId,
-      token: client().generateCallToken({ user_id: uid, call_cids: [`${CALL_TYPE}:${callId}`], validity_in_seconds: TOKEN_TTL }),
-      expiresIn: TOKEN_TTL,
+      // Stream rejects even small positive clock skew; its SDK backdates only
+      // one second by default. Keep the five-minute total lifetime unchanged.
+      token: client().generateCallToken({ user_id: uid, call_cids: [`${CALL_TYPE}:${callId}`],
+        iat: Math.floor(Date.now() / 1000) - TOKEN_CLOCK_SKEW, validity_in_seconds: TOKEN_TTL }),
+      expiresIn: TOKEN_TTL - TOKEN_CLOCK_SKEW,
     });
   } catch (error: any) {
     const code = /^[A-Za-z0-9_./-]{1,64}$/.test(String(error?.code)) ? error.code : 'unknown';
