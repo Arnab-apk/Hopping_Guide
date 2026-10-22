@@ -26,6 +26,7 @@ enum PandalSortOption: String, CaseIterable, Identifiable {
 
 struct PandalsListView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var sort: PandalSortOption = .default
     @State private var zoneFilter: KolkataZone?
     @State private var searchText: String = ""
@@ -35,11 +36,10 @@ struct PandalsListView: View {
         var list = env.pandals.allPandals
         if let z = zoneFilter { list = list.filter { $0.zone == z } }
         if !searchText.isEmpty {
-            let q = searchText.lowercased()
-            list = list.filter {
-                $0.name.lowercased().contains(q)
-                || $0.theme.lowercased().contains(q)
-                || ($0.nearestMetro ?? "").lowercased().contains(q)
+            let tokens = SearchNormalize.normalize(searchText).split(separator: " ").map(String.init)
+            list = list.filter { pandal in
+                let indexedText = env.pandals.normalizedSearchTextByID[pandal.id] ?? ""
+                return tokens.allSatisfy(indexedText.contains)
             }
         }
 
@@ -76,6 +76,21 @@ struct PandalsListView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    HStack(spacing: 8) {
+                        Image(systemName: "building.columns.fill")
+                            .foregroundStyle(PujaColors.durgaRed)
+                        Text("\(env.pandals.totalCount) pandals across Kolkata")
+                            .font(PujaTypography.rounded(13, weight: .semibold))
+                        Spacer()
+                        Text("OFFLINE READY")
+                            .font(PujaTypography.rounded(9, weight: .heavy))
+                            .tracking(0.5)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 3)
+                }
+
                 if let day = getTodaysPujaDay() {
                     Section {
                         HStack(spacing: 10) {
@@ -125,6 +140,7 @@ struct PandalsListView: View {
             .listStyle(.plain)
             .navigationTitle("Pandals")
             .searchable(text: $searchText, prompt: "Search by name, theme, or metro")
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.16), value: filtered.map(\.id))
             .sheet(item: $detailPandal) { p in
                 PandalDetailView(pandal: p)
             }

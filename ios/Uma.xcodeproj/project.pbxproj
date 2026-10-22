@@ -11,22 +11,29 @@
 		02E62FDFB4FBCD790C6147D5 /* dhunuchi_priest_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = CF6B37FBC604083E2DFC0CB6 /* dhunuchi_priest_crimson.png */; };
 		06682B017C11B23A2ADDF9B9 /* pandals.json in Resources */ = {isa = PBXBuildFile; fileRef = 745FEA082C4EC57F9D1DFA45 /* pandals.json */; };
 		066B4E5BACE167C81E625B24 /* shankha_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 78A84EA04AA47C577539CFF5 /* shankha_crimson.png */; };
+		0D4D2FDC1CEFC69B3600E4AA /* PlusJakartaSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9B027B79AF72D884EBF68EB9 /* PlusJakartaSans-SemiBold.ttf */; };
 		0F85C5075D9630D7A6B2E75D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9A7B64B50D76635047831C9 /* Assets.xcassets */; };
+		122D4AC6BC7F52CE2234B2B2 /* TransitStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A655942969D4001428A9C22 /* TransitStation.swift */; };
 		12A1CD70ED014AA1C892544C /* WalkingRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E832120648A9A1E5C331C5C2 /* WalkingRoute.swift */; };
 		14A9E1BD705EE3E94C4F81B7 /* TrailOptimizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115C0ADE9DA8139E76793EC4 /* TrailOptimizerTests.swift */; };
+		14ABAAA26840E6D90BFE06EA /* stations.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 83917E1A1D6262CCFA72926D /* stations.geojson */; };
 		15814AA08FEB4DE6793AB8E4 /* gada_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 800818D3DCBA89463539423C /* gada_crimson.png */; };
 		1684F850C6CC946806530499 /* helplines.json in Resources */ = {isa = PBXBuildFile; fileRef = CD10E8F010A513FFBDFCEC5D /* helplines.json */; };
 		196BFC7D2B2D78650E7EE35F /* trishul_eyes_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 153C2760891CDE09DE37FF72 /* trishul_eyes_crimson.png */; };
+		1C4FC47233EA737D50558516 /* HindSiliguri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 783FA4115F8AF9733BDF6A92 /* HindSiliguri-Bold.ttf */; };
+		1C512C298059614CD737DAB1 /* PandalPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F4F003D706D16AED47D5C34 /* PandalPhoto.swift */; };
 		1CF9317D945A11D8334CB022 /* durga_face_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 62E0C738643C9DE30376FF86 /* durga_face_gold.png */; };
 		1E2C0AF61CAE948A96E4DDAC /* MetroRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314C4785811BBB9ED69FBADB /* MetroRepository.swift */; };
 		202C613CC03A6BF7D613D73C /* AppRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2318735C2B6876F2ECA9603E /* AppRoot.swift */; };
 		20671A4FCEE2E972F6C34458 /* DouglasPeucker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14C701D60CEE77050A9FAC27 /* DouglasPeucker.swift */; };
+		224E368CBAAB8CD60E990854 /* JetBrainsMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D183772F107887B02ADB57CB /* JetBrainsMono-Bold.ttf */; };
 		2392E703F35C203148DB7A34 /* ashtabhuja_devi_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 7201C0515800C5E46598C04E /* ashtabhuja_devi_gold.png */; };
 		26A1E633BB19989E08A564BD /* HoppingRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06A668E7C23A80F90CE81A0 /* HoppingRoute.swift */; };
 		281E9A9E03EBF5F28701D733 /* durga_sun_trishul_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 5F5500266041738BDAE9EE4E /* durga_sun_trishul_crimson.png */; };
 		2972206F2F823390CDACA2BA /* PujaIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2487D459377DA3802C97D2B9 /* PujaIcons.swift */; };
 		2B367C1F09BA6997FBCA4961 /* PandalRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57AE63C90CE9F8E492AC3691 /* PandalRepository.swift */; };
 		2B368F1EBFE5DCF4C8446389 /* PandalsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 813D56B947911E78226CD2AC /* PandalsListView.swift */; };
+		2B39623B8CD36D3D546DD8A7 /* PandalPhotoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7777BB69787D092DAFD03645 /* PandalPhotoRepository.swift */; };
 		2C94E4ADF8BC21A000D6927A /* MetroStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A460F00CD1A62FB197927E4 /* MetroStation.swift */; };
 		2EF268FB913B408C8EFC4F59 /* StreamVideo in Frameworks */ = {isa = PBXBuildFile; productRef = 03D186B7DD24A50519387753 /* StreamVideo */; };
 		2FAC76D986936F191BC988C4 /* SquadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325312440661DBCC56E8982A /* SquadService.swift */; };
@@ -37,11 +44,14 @@
 		39DF806616C685E15C6C3963 /* SquadChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 198A587AA1E7A9C9C0256A30 /* SquadChatView.swift */; };
 		3C9F2DCC5262299F79B9DC41 /* PandalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 143ED3C6CD7A4094B382B8DB /* PandalDetailView.swift */; };
 		3E0C121F67C72BD491DBE44D /* food_spots.json in Resources */ = {isa = PBXBuildFile; fileRef = E870177625266A9A698DAD61 /* food_spots.json */; };
+		3E1925924ED1AB23CFDE71DA /* JetBrainsMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77D9588A6F8AEDFF7B641FE6 /* JetBrainsMono-Medium.ttf */; };
 		41BD0701223250355876A6A9 /* bhog_sweets_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = F64F2797483441432DE321BB /* bhog_sweets_gold.png */; };
+		42472101A7B7919CBDCB2CE0 /* HindSiliguri-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1BE6B05890C298B173A9E6D9 /* HindSiliguri-Regular.ttf */; };
 		425A485C762127FE0DAE1FEE /* shankha.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E9F488FCE39461BA6FD4F0E /* shankha.png */; };
 		44EB8937E17862AE6F52CD18 /* KolkataZone.swift in Sources */ = {isa = PBXBuildFile; fileRef = E401AAA8623C8B1543E15800 /* KolkataZone.swift */; };
 		477CFD0055FC8AD531F94C5A /* PandalCalloutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F7E031E311152164D78F4AB /* PandalCalloutView.swift */; };
 		47CECE1E75623681F8E940F6 /* GroupVideoCallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F10201F2F1F8C527B14C3D6 /* GroupVideoCallView.swift */; };
+		47E4D3C20435FB6FF60A6F5B /* JetBrainsMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6BE704E10BCFDD9F237D73DE /* JetBrainsMono-Regular.ttf */; };
 		48026B16BE84C847D092A9DE /* PandalAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD21D02B1168A12EC53F705D /* PandalAnnotation.swift */; };
 		48D21C1B114A579AB9B2B91A /* RoutesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3797D2AC593E22CEDF2CEF6A /* RoutesView.swift */; };
 		48F25ED42A033A0DF8F8069A /* PandalSpatialClusterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7036EE2AF15F1855CA860C /* PandalSpatialClusterTests.swift */; };
@@ -53,6 +63,7 @@
 		56A4336CD98B360AE4F07C29 /* dhak_drum_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 433A6B74D12B9E9485761282 /* dhak_drum_gold.png */; };
 		5A0D77D9BFF71D97822716B0 /* Helpline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A89A1FA669EBCF2F880D1D16 /* Helpline.swift */; };
 		5B2808CF84FFBE1859808AC5 /* FoodSpotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446A00224B96314961EBF8B3 /* FoodSpotRepository.swift */; };
+		5B8E520E3237DE505F746386 /* Samarkan.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A6589F62F425C28CD8AF5FF8 /* Samarkan.ttf */; };
 		5C3A7B421DD63EE18624A45D /* DouglasPeuckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79D439ED2B2EDB366A2873F /* DouglasPeuckerTests.swift */; };
 		5F80CCA8EBE50AEBF2A5FE5E /* durga_face_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 40F89B26EB563519E984CA46 /* durga_face_crimson.png */; };
 		60FF0CC95B65C70856A100CA /* ashtabhuja_variant_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = CF7592CC3C3E21E1C962D731 /* ashtabhuja_variant_gold.png */; };
@@ -69,11 +80,15 @@
 		7077B7469B16D8CA2E3CB8EA /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199B96BADE2FFBE0CA32F7E0 /* LiquidGlass.swift */; };
 		70F273C27ED527071B06DF61 /* RoutingCoalescingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3F5DF3C8D6C329F6A3B6B2D /* RoutingCoalescingTests.swift */; };
 		7482DF8407AE80A71084B008 /* StreamVideoSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = E9B97AAE948ABD5148603447 /* StreamVideoSwiftUI */; };
+		7589EB1E1FF47B49CE4D2C80 /* pandal_photos.json in Resources */ = {isa = PBXBuildFile; fileRef = DAF7D6C3E2B8A2B7954697A9 /* pandal_photos.json */; };
 		778CDD8EC49742856AC36192 /* events.json in Resources */ = {isa = PBXBuildFile; fileRef = B1E9DE18DFB1AC30069AA877 /* events.json */; };
+		786D14C0C9067F7059DCA069 /* PandalPhotoGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C208FB971BE1A64729BF40E /* PandalPhotoGalleryView.swift */; };
 		78DE0417BD01877AF87D09EB /* dhaki.png in Resources */ = {isa = PBXBuildFile; fileRef = 38244BD1CF365F633C8EAD29 /* dhaki.png */; };
 		7A07EB76A3D4CFF6E2F52229 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 36F5A5CB29732E8C38B5628A /* FirebaseAuth */; };
 		7C8DFEF5688CAEAF26371D21 /* toilets.json in Resources */ = {isa = PBXBuildFile; fileRef = 78890156B500053412CE0009 /* toilets.json */; };
+		7D3E3AD036FBF426AAD845DB /* PlusJakartaSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6C09F1EFC77F2C91DE53AC68 /* PlusJakartaSans-Regular.ttf */; };
 		7E8BCFB7714099CE938E9576 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA93A3B2A1892920539A2479 /* WelcomeView.swift */; };
+		80755A01B1F053CB834F21CD /* HindSiliguri-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 629992BDB490178837447FBF /* HindSiliguri-SemiBold.ttf */; };
 		863C1A9483BFF3F953CC5BAC /* ChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E49473B8B5E27A04C2B491 /* ChatService.swift */; };
 		8C62F5A44CD64D72B4217452 /* dhaki_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = AFD2313D261FE0243DFE81F4 /* dhaki_gold.png */; };
 		8D99987DBFCED65B404BF51D /* dhak_drum_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 53EE268306AD681853147D98 /* dhak_drum_crimson.png */; };
@@ -82,18 +97,24 @@
 		917E50CAC97D5997860E5669 /* durga_eyes_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = E3A3DCDC12BCABE3D977C3F1 /* durga_eyes_crimson.png */; };
 		93890C2216CDB73875C81591 /* durga_sun_trishul_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 602980E6545B9D5AF5FA882F /* durga_sun_trishul_gold.png */; };
 		9397745FC6B5A87576EC2696 /* bhog_sweets.png in Resources */ = {isa = PBXBuildFile; fileRef = 458E5800DC46E6041679CA68 /* bhog_sweets.png */; };
+		9BFBF0EA013887FE2BB53DF7 /* PlusJakartaSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5E8D2E521DBBFFC886A6E2CE /* PlusJakartaSans-ExtraBold.ttf */; };
 		9F256807E13E8687553F054E /* RoutingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C4FD0D93EFF01891C94E62 /* RoutingService.swift */; };
 		9F97B261DF8CB97FE192AA70 /* LocationFixValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF9F3FE3CD4D5B727C0ABD9A /* LocationFixValidationTests.swift */; };
+		9FD575A3D4F89ABC7327B3B1 /* HindSiliguri-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A7CC84A68F649752152DC143 /* HindSiliguri-Medium.ttf */; };
 		A15F50A0B70539D8B4D7D490 /* Pandal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F2C945DB89A16456074D0CA /* Pandal.swift */; };
 		A171A539700B18A4B3290630 /* LiquidGlassAvailabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 482B6D5B84437ABE809ABF76 /* LiquidGlassAvailabilityTests.swift */; };
+		A676BEA1A929F0D57DDA383F /* FestivalArtworkGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9738728973E4CEB1A2DBE19 /* FestivalArtworkGalleryView.swift */; };
 		A7B2E91178B8EDFAAAA36B1F /* shankha_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 646B5F8997AF5EFF6BCD3FF2 /* shankha_gold.png */; };
 		A94A43EE1A6A1C8021E80521 /* trishul_eyes_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = DDF67E2759F89F99827E4632 /* trishul_eyes_gold.png */; };
 		AA98410A17963DFCE1D13C7E /* ashtabhuja_devi.png in Resources */ = {isa = PBXBuildFile; fileRef = 3B6DBC411CFEF7D8F7B537B8 /* ashtabhuja_devi.png */; };
 		AD96A938442B378BFABCFACF /* PandalSpatialCluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6EFEB1D25CFCCAB96046EB /* PandalSpatialCluster.swift */; };
+		AF893199BF7BF77AFCA993CF /* PlusJakartaSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 06A56C34EC4641C81B936CF7 /* PlusJakartaSans-Medium.ttf */; };
+		B1DB8F8C3164BDEE2BE048C0 /* HindSiliguri-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3BD9648A8D29B4EFB4627820 /* HindSiliguri-OFL.txt */; };
 		B249F9C5DB7CFE39CB0EBC4C /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C1BB51A4ACE9648FD8A9F774 /* FirebaseCore */; };
 		B29CD3553D7E5498DD084094 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B23BBFAD215C833943CB4076 /* FirebaseFirestore */; };
 		B2EBC9AF4B9CC265969135EA /* MapFloatingControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFE963632694CF6C6256391 /* MapFloatingControls.swift */; };
 		B7A8716F2B5B4FF95D188697 /* OmniSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF14099A1C0E740BD8CA8C6A /* OmniSearchService.swift */; };
+		B803E5CF5015170A686ED985 /* TransitStationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 979EA8648398F9C17D8DCFC3 /* TransitStationRepository.swift */; };
 		B8C08333213EDCED1AB9C972 /* kalash_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 6CAA97AAFD820FF30F4B60F6 /* kalash_gold.png */; };
 		BD43C05C4B284ADC65EA5CEE /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B558AA6794EA2CFBD58DB3 /* Haptics.swift */; };
 		C0F63557C9F1F10719C62A3E /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 903A18BC8842EF88CA4E4548 /* Theme.swift */; };
@@ -103,6 +124,7 @@
 		CC41214559F8E1F56285CE61 /* trishul_diya_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = A7BA2A4603F37DEBE6BBF7A0 /* trishul_diya_crimson.png */; };
 		D03175AD34BA6066B9EC5E48 /* PandalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E829CB39507BE843B125FD72 /* PandalCard.swift */; };
 		D1C8E4F6C5F8E398E7C39FE6 /* bhog_sweets_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 1662040FFBFE3C417FA8F989 /* bhog_sweets_crimson.png */; };
+		D3A5CDEE3C0615889716E4E4 /* JetBrainsMono-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 745DA16AA1C68B073941CE3A /* JetBrainsMono-OFL.txt */; };
 		D694E1D13C66129783245AC7 /* SquadMember.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C924EFE344DD2558ACE4FAD /* SquadMember.swift */; };
 		D89AEAFCC4219B1E1ADB2479 /* ashtabhuja_devi_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = EA54F8DB6F9E96EC4F134C81 /* ashtabhuja_devi_crimson.png */; };
 		DDEAA257A39ED1E716249951 /* safety_first_aid.json in Resources */ = {isa = PBXBuildFile; fileRef = 867914A270CFCCBCF595D37A /* safety_first_aid.json */; };
@@ -111,6 +133,8 @@
 		E1FD9B5A575405B7DB013E83 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45CAC1CC3F863173277B5A7E /* LocationService.swift */; };
 		E4155FCB7EDD846D05A4C560 /* OmniSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE0472BDC69481048F3565C /* OmniSearchTests.swift */; };
 		E443769A8A2E6CE71EBF3D81 /* dhaki_crimson.png in Resources */ = {isa = PBXBuildFile; fileRef = 6181BD4E0B3EF5A3CA901AB6 /* dhaki_crimson.png */; };
+		E56D7CFE1DF2AB59999AFD53 /* ReturnHomePlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBBB7F496C86F365FC7B695C /* ReturnHomePlannerView.swift */; };
+		E63DE13E69E91A7C6C397465 /* PlusJakartaSans-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 069E3B5841DF8B8891D4284E /* PlusJakartaSans-OFL.txt */; };
 		E6CA21EBA92D2589C6941656 /* SquadHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F380E388D0141C770E65251 /* SquadHubView.swift */; };
 		E9DCF913F9F410092F3E1617 /* UmaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65E9D342FB9CDBFBFD51D386 /* UmaApp.swift */; };
 		EB5CCF5CC4A02B43AFCD95F6 /* dhak_drum.png in Resources */ = {isa = PBXBuildFile; fileRef = 62C35A21C6A1B72F26430CCA /* dhak_drum.png */; };
@@ -120,6 +144,8 @@
 		F2FBDA3726EAAED719B10E09 /* trishul_eyes.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F639E2D459FC9EEA7901B92 /* trishul_eyes.png */; };
 		F365E97E0A1D107AB8F57F5F /* HelplinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DB382FF8DF22A921013691 /* HelplinesView.swift */; };
 		F7AA1A8B4F9B6AAF8D278AF5 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C8576B164B3BFF01F3F26FE /* MapView.swift */; };
+		FB25CDC84705B72CD401A2D8 /* verified_transit_runs.json in Resources */ = {isa = PBXBuildFile; fileRef = CE91C6AFC6E2D9286251A5AA /* verified_transit_runs.json */; };
+		FF439BE08E8FBCBFF6D91E2C /* PlusJakartaSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0C46500AC86388953B60846F /* PlusJakartaSans-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,9 +160,14 @@
 
 /* Begin PBXFileReference section */
 		03B305DEC620ECDC0A703DB1 /* HelplineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelplineRepository.swift; sourceTree = "<group>"; };
+		069E3B5841DF8B8891D4284E /* PlusJakartaSans-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "PlusJakartaSans-OFL.txt"; sourceTree = "<group>"; };
+		06A56C34EC4641C81B936CF7 /* PlusJakartaSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-Medium.ttf"; sourceTree = "<group>"; };
 		09C7A04E9DF2FF350C8ED98D /* Haversine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haversine.swift; sourceTree = "<group>"; };
+		0A655942969D4001428A9C22 /* TransitStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitStation.swift; sourceTree = "<group>"; };
 		0AA8AA0CB7478396D7B80F3D /* Toilet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toilet.swift; sourceTree = "<group>"; };
 		0BBED3D22032DBE4B22FAC2F /* ashtabhuja_variant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_variant.png; sourceTree = "<group>"; };
+		0C208FB971BE1A64729BF40E /* PandalPhotoGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalPhotoGalleryView.swift; sourceTree = "<group>"; };
+		0C46500AC86388953B60846F /* PlusJakartaSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-Bold.ttf"; sourceTree = "<group>"; };
 		0E9F488FCE39461BA6FD4F0E /* shankha.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shankha.png; sourceTree = "<group>"; };
 		10CFB108F99222CA07E7A2C6 /* SpatialCorridor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpatialCorridor.swift; sourceTree = "<group>"; };
 		115C0ADE9DA8139E76793EC4 /* TrailOptimizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailOptimizerTests.swift; sourceTree = "<group>"; };
@@ -147,6 +178,7 @@
 		1906BF7A7B76AD72A1C3F973 /* dhunuchi_priest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhunuchi_priest.png; sourceTree = "<group>"; };
 		198A587AA1E7A9C9C0256A30 /* SquadChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadChatView.swift; sourceTree = "<group>"; };
 		199B96BADE2FFBE0CA32F7E0 /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
+		1BE6B05890C298B173A9E6D9 /* HindSiliguri-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HindSiliguri-Regular.ttf"; sourceTree = "<group>"; };
 		1C8576B164B3BFF01F3F26FE /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		1C924EFE344DD2558ACE4FAD /* SquadMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadMember.swift; sourceTree = "<group>"; };
 		1F2C945DB89A16456074D0CA /* Pandal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pandal.swift; sourceTree = "<group>"; };
@@ -161,6 +193,7 @@
 		396BDC8FBB9294C6D5B6BC04 /* durga_face.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_face.png; sourceTree = "<group>"; };
 		3B101BB86EF4A37A0211DFBD /* Uma.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Uma.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B6DBC411CFEF7D8F7B537B8 /* ashtabhuja_devi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_devi.png; sourceTree = "<group>"; };
+		3BD9648A8D29B4EFB4627820 /* HindSiliguri-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "HindSiliguri-OFL.txt"; sourceTree = "<group>"; };
 		3E7036EE2AF15F1855CA860C /* PandalSpatialClusterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalSpatialClusterTests.swift; sourceTree = "<group>"; };
 		40F89B26EB563519E984CA46 /* durga_face_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_face_crimson.png; sourceTree = "<group>"; };
 		433A6B74D12B9E9485761282 /* dhak_drum_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhak_drum_gold.png; sourceTree = "<group>"; };
@@ -173,27 +206,37 @@
 		53EE268306AD681853147D98 /* dhak_drum_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhak_drum_crimson.png; sourceTree = "<group>"; };
 		57AE63C90CE9F8E492AC3691 /* PandalRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalRepository.swift; sourceTree = "<group>"; };
 		59DB382FF8DF22A921013691 /* HelplinesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelplinesView.swift; sourceTree = "<group>"; };
+		5E8D2E521DBBFFC886A6E2CE /* PlusJakartaSans-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-ExtraBold.ttf"; sourceTree = "<group>"; };
 		5F5500266041738BDAE9EE4E /* durga_sun_trishul_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_sun_trishul_crimson.png; sourceTree = "<group>"; };
 		5FE0472BDC69481048F3565C /* OmniSearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniSearchTests.swift; sourceTree = "<group>"; };
 		602980E6545B9D5AF5FA882F /* durga_sun_trishul_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_sun_trishul_gold.png; sourceTree = "<group>"; };
 		6181BD4E0B3EF5A3CA901AB6 /* dhaki_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhaki_crimson.png; sourceTree = "<group>"; };
 		61D9B59B3FF7271BB7916F93 /* TrailOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailOptimizer.swift; sourceTree = "<group>"; };
 		6295934639F8E998CB3DFF26 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
+		629992BDB490178837447FBF /* HindSiliguri-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HindSiliguri-SemiBold.ttf"; sourceTree = "<group>"; };
 		62C35A21C6A1B72F26430CCA /* dhak_drum.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhak_drum.png; sourceTree = "<group>"; };
 		62C4FD0D93EFF01891C94E62 /* RoutingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingService.swift; sourceTree = "<group>"; };
 		62E0C738643C9DE30376FF86 /* durga_face_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_face_gold.png; sourceTree = "<group>"; };
 		646B5F8997AF5EFF6BCD3FF2 /* shankha_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shankha_gold.png; sourceTree = "<group>"; };
 		654A4E90D66C7E0F9C6DF759 /* PujaSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PujaSchedule.swift; sourceTree = "<group>"; };
 		65E9D342FB9CDBFBFD51D386 /* UmaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UmaApp.swift; sourceTree = "<group>"; };
+		6BE704E10BCFDD9F237D73DE /* JetBrainsMono-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Regular.ttf"; sourceTree = "<group>"; };
+		6C09F1EFC77F2C91DE53AC68 /* PlusJakartaSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-Regular.ttf"; sourceTree = "<group>"; };
 		6CAA97AAFD820FF30F4B60F6 /* kalash_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kalash_gold.png; sourceTree = "<group>"; };
 		6F10201F2F1F8C527B14C3D6 /* GroupVideoCallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupVideoCallView.swift; sourceTree = "<group>"; };
 		6F380E388D0141C770E65251 /* SquadHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquadHubView.swift; sourceTree = "<group>"; };
 		7201C0515800C5E46598C04E /* ashtabhuja_devi_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_devi_gold.png; sourceTree = "<group>"; };
+		745DA16AA1C68B073941CE3A /* JetBrainsMono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "JetBrainsMono-OFL.txt"; sourceTree = "<group>"; };
 		745FEA082C4EC57F9D1DFA45 /* pandals.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = pandals.json; sourceTree = "<group>"; };
+		7777BB69787D092DAFD03645 /* PandalPhotoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalPhotoRepository.swift; sourceTree = "<group>"; };
+		77D9588A6F8AEDFF7B641FE6 /* JetBrainsMono-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Medium.ttf"; sourceTree = "<group>"; };
+		783FA4115F8AF9733BDF6A92 /* HindSiliguri-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HindSiliguri-Bold.ttf"; sourceTree = "<group>"; };
 		78890156B500053412CE0009 /* toilets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = toilets.json; sourceTree = "<group>"; };
 		78A84EA04AA47C577539CFF5 /* shankha_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shankha_crimson.png; sourceTree = "<group>"; };
+		7F4F003D706D16AED47D5C34 /* PandalPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalPhoto.swift; sourceTree = "<group>"; };
 		800818D3DCBA89463539423C /* gada_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gada_crimson.png; sourceTree = "<group>"; };
 		813D56B947911E78226CD2AC /* PandalsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalsListView.swift; sourceTree = "<group>"; };
+		83917E1A1D6262CCFA72926D /* stations.geojson */ = {isa = PBXFileReference; path = stations.geojson; sourceTree = "<group>"; };
 		867914A270CFCCBCF595D37A /* safety_first_aid.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = safety_first_aid.json; sourceTree = "<group>"; };
 		8F5ABE1BBA76BAF890B9AC0A /* durga_sun_trishul.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = durga_sun_trishul.png; sourceTree = "<group>"; };
 		8F639E2D459FC9EEA7901B92 /* trishul_eyes.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_eyes.png; sourceTree = "<group>"; };
@@ -204,12 +247,16 @@
 		91CEF6289AF224298180AF66 /* GroupVideoApiTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupVideoApiTests.swift; sourceTree = "<group>"; };
 		93706E05A4AAF1B75531AF4A /* trishul_diya_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_diya_gold.png; sourceTree = "<group>"; };
 		96FA1C62F5E1DEE9B5784E54 /* MapSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapSearchBar.swift; sourceTree = "<group>"; };
+		979EA8648398F9C17D8DCFC3 /* TransitStationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitStationRepository.swift; sourceTree = "<group>"; };
 		9806205811F5AEA638F5AFE1 /* trishul_diya.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_diya.png; sourceTree = "<group>"; };
 		9A460F00CD1A62FB197927E4 /* MetroStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetroStation.swift; sourceTree = "<group>"; };
+		9B027B79AF72D884EBF68EB9 /* PlusJakartaSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlusJakartaSans-SemiBold.ttf"; sourceTree = "<group>"; };
 		9F0C8558D620AB0CC6978FAE /* UmaTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = UmaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E49473B8B5E27A04C2B491 /* ChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatService.swift; sourceTree = "<group>"; };
 		A3F41D9CB28766B9CDE331D6 /* gada.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gada.png; sourceTree = "<group>"; };
+		A6589F62F425C28CD8AF5FF8 /* Samarkan.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Samarkan.ttf; sourceTree = "<group>"; };
 		A7BA2A4603F37DEBE6BBF7A0 /* trishul_diya_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_diya_crimson.png; sourceTree = "<group>"; };
+		A7CC84A68F649752152DC143 /* HindSiliguri-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HindSiliguri-Medium.ttf"; sourceTree = "<group>"; };
 		A89A1FA669EBCF2F880D1D16 /* Helpline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpline.swift; sourceTree = "<group>"; };
 		AFD2313D261FE0243DFE81F4 /* dhaki_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhaki_gold.png; sourceTree = "<group>"; };
 		B0EECFF2B82DDFFD91135DB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -221,10 +268,13 @@
 		C8DBD08AD8E8E6B3F9EA6C68 /* gada_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gada_gold.png; sourceTree = "<group>"; };
 		CA93A3B2A1892920539A2479 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		CD10E8F010A513FFBDFCEC5D /* helplines.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = helplines.json; sourceTree = "<group>"; };
+		CE91C6AFC6E2D9286251A5AA /* verified_transit_runs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = verified_transit_runs.json; sourceTree = "<group>"; };
 		CF6B37FBC604083E2DFC0CB6 /* dhunuchi_priest_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dhunuchi_priest_crimson.png; sourceTree = "<group>"; };
 		CF7592CC3C3E21E1C962D731 /* ashtabhuja_variant_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_variant_gold.png; sourceTree = "<group>"; };
 		D11CA548055C9EBCCCDD74DC /* GroupVideoApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupVideoApi.swift; sourceTree = "<group>"; };
+		D183772F107887B02ADB57CB /* JetBrainsMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JetBrainsMono-Bold.ttf"; sourceTree = "<group>"; };
 		D3694A74C7D181CFB3FBEA48 /* FoodSpot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodSpot.swift; sourceTree = "<group>"; };
+		DAF7D6C3E2B8A2B7954697A9 /* pandal_photos.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = pandal_photos.json; sourceTree = "<group>"; };
 		DDF67E2759F89F99827E4632 /* trishul_eyes_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = trishul_eyes_gold.png; sourceTree = "<group>"; };
 		DF9F3FE3CD4D5B727C0ABD9A /* LocationFixValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationFixValidationTests.swift; sourceTree = "<group>"; };
 		E06A668E7C23A80F90CE81A0 /* HoppingRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoppingRoute.swift; sourceTree = "<group>"; };
@@ -234,6 +284,7 @@
 		E829CB39507BE843B125FD72 /* PandalCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandalCard.swift; sourceTree = "<group>"; };
 		E832120648A9A1E5C331C5C2 /* WalkingRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkingRoute.swift; sourceTree = "<group>"; };
 		E870177625266A9A698DAD61 /* food_spots.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = food_spots.json; sourceTree = "<group>"; };
+		E9738728973E4CEB1A2DBE19 /* FestivalArtworkGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FestivalArtworkGalleryView.swift; sourceTree = "<group>"; };
 		E9A7B64B50D76635047831C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EA54F8DB6F9E96EC4F134C81 /* ashtabhuja_devi_crimson.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ashtabhuja_devi_crimson.png; sourceTree = "<group>"; };
 		EF14099A1C0E740BD8CA8C6A /* OmniSearchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OmniSearchService.swift; sourceTree = "<group>"; };
@@ -244,6 +295,7 @@
 		F64F2797483441432DE321BB /* bhog_sweets_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bhog_sweets_gold.png; sourceTree = "<group>"; };
 		F6C58F5C939C7F307712BE37 /* ToiletRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToiletRepository.swift; sourceTree = "<group>"; };
 		F7B558AA6794EA2CFBD58DB3 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		FBBB7F496C86F365FC7B695C /* ReturnHomePlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReturnHomePlannerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -292,6 +344,7 @@
 			children = (
 				E829CB39507BE843B125FD72 /* PandalCard.swift */,
 				143ED3C6CD7A4094B382B8DB /* PandalDetailView.swift */,
+				0C208FB971BE1A64729BF40E /* PandalPhotoGalleryView.swift */,
 				813D56B947911E78226CD2AC /* PandalsListView.swift */,
 			);
 			path = Pandals;
@@ -316,8 +369,10 @@
 				E401AAA8623C8B1543E15800 /* KolkataZone.swift */,
 				9A460F00CD1A62FB197927E4 /* MetroStation.swift */,
 				1F2C945DB89A16456074D0CA /* Pandal.swift */,
+				7F4F003D706D16AED47D5C34 /* PandalPhoto.swift */,
 				1C924EFE344DD2558ACE4FAD /* SquadMember.swift */,
 				0AA8AA0CB7478396D7B80F3D /* Toilet.swift */,
+				0A655942969D4001428A9C22 /* TransitStation.swift */,
 				E832120648A9A1E5C331C5C2 /* WalkingRoute.swift */,
 			);
 			path = Models;
@@ -337,8 +392,10 @@
 				446A00224B96314961EBF8B3 /* FoodSpotRepository.swift */,
 				03B305DEC620ECDC0A703DB1 /* HelplineRepository.swift */,
 				314C4785811BBB9ED69FBADB /* MetroRepository.swift */,
+				7777BB69787D092DAFD03645 /* PandalPhotoRepository.swift */,
 				57AE63C90CE9F8E492AC3691 /* PandalRepository.swift */,
 				F6C58F5C939C7F307712BE37 /* ToiletRepository.swift */,
+				979EA8648398F9C17D8DCFC3 /* TransitStationRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -416,20 +473,49 @@
 		B3FEEB9FE6D922801C8982A1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B43EAB93BA22F6D7242B3BA4 /* Fonts */,
 				DC5178EC54CD4EB3C4B610C0 /* Icons */,
 				B1E9DE18DFB1AC30069AA877 /* events.json */,
 				E870177625266A9A698DAD61 /* food_spots.json */,
 				CD10E8F010A513FFBDFCEC5D /* helplines.json */,
+				783FA4115F8AF9733BDF6A92 /* HindSiliguri-Bold.ttf */,
+				A7CC84A68F649752152DC143 /* HindSiliguri-Medium.ttf */,
+				1BE6B05890C298B173A9E6D9 /* HindSiliguri-Regular.ttf */,
+				629992BDB490178837447FBF /* HindSiliguri-SemiBold.ttf */,
+				D183772F107887B02ADB57CB /* JetBrainsMono-Bold.ttf */,
+				77D9588A6F8AEDFF7B641FE6 /* JetBrainsMono-Medium.ttf */,
+				6BE704E10BCFDD9F237D73DE /* JetBrainsMono-Regular.ttf */,
+				DAF7D6C3E2B8A2B7954697A9 /* pandal_photos.json */,
 				745FEA082C4EC57F9D1DFA45 /* pandals.json */,
+				0C46500AC86388953B60846F /* PlusJakartaSans-Bold.ttf */,
+				5E8D2E521DBBFFC886A6E2CE /* PlusJakartaSans-ExtraBold.ttf */,
+				06A56C34EC4641C81B936CF7 /* PlusJakartaSans-Medium.ttf */,
+				6C09F1EFC77F2C91DE53AC68 /* PlusJakartaSans-Regular.ttf */,
+				9B027B79AF72D884EBF68EB9 /* PlusJakartaSans-SemiBold.ttf */,
 				867914A270CFCCBCF595D37A /* safety_first_aid.json */,
+				A6589F62F425C28CD8AF5FF8 /* Samarkan.ttf */,
+				83917E1A1D6262CCFA72926D /* stations.geojson */,
 				78890156B500053412CE0009 /* toilets.json */,
+				CE91C6AFC6E2D9286251A5AA /* verified_transit_runs.json */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		B43EAB93BA22F6D7242B3BA4 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				3BD9648A8D29B4EFB4627820 /* HindSiliguri-OFL.txt */,
+				745DA16AA1C68B073941CE3A /* JetBrainsMono-OFL.txt */,
+				069E3B5841DF8B8891D4284E /* PlusJakartaSans-OFL.txt */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		B4847745FF152E84C047E78D /* Routes */ = {
 			isa = PBXGroup;
 			children = (
+				E9738728973E4CEB1A2DBE19 /* FestivalArtworkGalleryView.swift */,
+				FBBB7F496C86F365FC7B695C /* ReturnHomePlannerView.swift */,
 				3797D2AC593E22CEDF2CEF6A /* RoutesView.swift */,
 			);
 			path = Routes;
@@ -621,6 +707,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				0F85C5075D9630D7A6B2E75D /* Assets.xcassets in Resources */,
+				1C4FC47233EA737D50558516 /* HindSiliguri-Bold.ttf in Resources */,
+				9FD575A3D4F89ABC7327B3B1 /* HindSiliguri-Medium.ttf in Resources */,
+				B1DB8F8C3164BDEE2BE048C0 /* HindSiliguri-OFL.txt in Resources */,
+				42472101A7B7919CBDCB2CE0 /* HindSiliguri-Regular.ttf in Resources */,
+				80755A01B1F053CB834F21CD /* HindSiliguri-SemiBold.ttf in Resources */,
+				224E368CBAAB8CD60E990854 /* JetBrainsMono-Bold.ttf in Resources */,
+				3E1925924ED1AB23CFDE71DA /* JetBrainsMono-Medium.ttf in Resources */,
+				D3A5CDEE3C0615889716E4E4 /* JetBrainsMono-OFL.txt in Resources */,
+				47E4D3C20435FB6FF60A6F5B /* JetBrainsMono-Regular.ttf in Resources */,
+				FF439BE08E8FBCBFF6D91E2C /* PlusJakartaSans-Bold.ttf in Resources */,
+				9BFBF0EA013887FE2BB53DF7 /* PlusJakartaSans-ExtraBold.ttf in Resources */,
+				AF893199BF7BF77AFCA993CF /* PlusJakartaSans-Medium.ttf in Resources */,
+				E63DE13E69E91A7C6C397465 /* PlusJakartaSans-OFL.txt in Resources */,
+				7D3E3AD036FBF426AAD845DB /* PlusJakartaSans-Regular.ttf in Resources */,
+				0D4D2FDC1CEFC69B3600E4AA /* PlusJakartaSans-SemiBold.ttf in Resources */,
+				5B8E520E3237DE505F746386 /* Samarkan.ttf in Resources */,
 				AA98410A17963DFCE1D13C7E /* ashtabhuja_devi.png in Resources */,
 				D89AEAFCC4219B1E1ADB2479 /* ashtabhuja_devi_crimson.png in Resources */,
 				2392E703F35C203148DB7A34 /* ashtabhuja_devi_gold.png in Resources */,
@@ -657,11 +759,13 @@
 				6992B49C2D5A523542F4161F /* kalash.png in Resources */,
 				6BBA0D33EA2F48F34F24F7B6 /* kalash_crimson.png in Resources */,
 				B8C08333213EDCED1AB9C972 /* kalash_gold.png in Resources */,
+				7589EB1E1FF47B49CE4D2C80 /* pandal_photos.json in Resources */,
 				06682B017C11B23A2ADDF9B9 /* pandals.json in Resources */,
 				DDEAA257A39ED1E716249951 /* safety_first_aid.json in Resources */,
 				425A485C762127FE0DAE1FEE /* shankha.png in Resources */,
 				066B4E5BACE167C81E625B24 /* shankha_crimson.png in Resources */,
 				A7B2E91178B8EDFAAAA36B1F /* shankha_gold.png in Resources */,
+				14ABAAA26840E6D90BFE06EA /* stations.geojson in Resources */,
 				7C8DFEF5688CAEAF26371D21 /* toilets.json in Resources */,
 				6101AD1806A4B68971FEB447 /* trishul_diya.png in Resources */,
 				CC41214559F8E1F56285CE61 /* trishul_diya_crimson.png in Resources */,
@@ -669,6 +773,7 @@
 				F2FBDA3726EAAED719B10E09 /* trishul_eyes.png in Resources */,
 				196BFC7D2B2D78650E7EE35F /* trishul_eyes_crimson.png in Resources */,
 				A94A43EE1A6A1C8021E80521 /* trishul_eyes_gold.png in Resources */,
+				FB25CDC84705B72CD401A2D8 /* verified_transit_runs.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -684,6 +789,7 @@
 				362ADF309D5176E5D77FEDE7 /* ChatMessage.swift in Sources */,
 				863C1A9483BFF3F953CC5BAC /* ChatService.swift in Sources */,
 				20671A4FCEE2E972F6C34458 /* DouglasPeucker.swift in Sources */,
+				A676BEA1A929F0D57DDA383F /* FestivalArtworkGalleryView.swift in Sources */,
 				61F5A8896A8C41E2F210333E /* FoodSpot.swift in Sources */,
 				5B2808CF84FFBE1859808AC5 /* FoodSpotRepository.swift in Sources */,
 				EEC2CDDC0DE3DB023EBF7500 /* GroupVideoApi.swift in Sources */,
@@ -709,11 +815,15 @@
 				477CFD0055FC8AD531F94C5A /* PandalCalloutView.swift in Sources */,
 				D03175AD34BA6066B9EC5E48 /* PandalCard.swift in Sources */,
 				3C9F2DCC5262299F79B9DC41 /* PandalDetailView.swift in Sources */,
+				1C512C298059614CD737DAB1 /* PandalPhoto.swift in Sources */,
+				786D14C0C9067F7059DCA069 /* PandalPhotoGalleryView.swift in Sources */,
+				2B39623B8CD36D3D546DD8A7 /* PandalPhotoRepository.swift in Sources */,
 				2B367C1F09BA6997FBCA4961 /* PandalRepository.swift in Sources */,
 				AD96A938442B378BFABCFACF /* PandalSpatialCluster.swift in Sources */,
 				2B368F1EBFE5DCF4C8446389 /* PandalsListView.swift in Sources */,
 				2972206F2F823390CDACA2BA /* PujaIcons.swift in Sources */,
 				C128C6C21BB92E963408A2A2 /* PujaSchedule.swift in Sources */,
+				E56D7CFE1DF2AB59999AFD53 /* ReturnHomePlannerView.swift in Sources */,
 				48D21C1B114A579AB9B2B91A /* RoutesView.swift in Sources */,
 				9F256807E13E8687553F054E /* RoutingService.swift in Sources */,
 				DE5B862DBE7FF4B602EE801F /* SpatialCorridor.swift in Sources */,
@@ -725,6 +835,8 @@
 				EC1CAB9D69C4299D6F8903F3 /* Toilet.swift in Sources */,
 				37D1EB30E2BDD1B6EF38AEC7 /* ToiletRepository.swift in Sources */,
 				4922727D88C112AE5987BC4E /* TrailOptimizer.swift in Sources */,
+				122D4AC6BC7F52CE2234B2B2 /* TransitStation.swift in Sources */,
+				B803E5CF5015170A686ED985 /* TransitStationRepository.swift in Sources */,
 				E9DCF913F9F410092F3E1617 /* UmaApp.swift in Sources */,
 				CB7260C30DE8D34C5F785430 /* UserStateService.swift in Sources */,
 				12A1CD70ED014AA1C892544C /* WalkingRoute.swift in Sources */,

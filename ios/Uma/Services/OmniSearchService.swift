@@ -27,7 +27,7 @@ enum OmniCategory: String, CaseIterable, Identifiable {
 }
 
 enum OmniResultType: String, Codable, Sendable {
-    case pandal, metro, food
+    case pandal, metro, food, station
 }
 
 struct OmniSearchResult: Identifiable, Hashable, Sendable {
@@ -46,11 +46,12 @@ struct OmniSearchResult: Identifiable, Hashable, Sendable {
     let pandalId: String?
     let metroStationId: String?
     let foodSpotId: String?
+    let transitStationId: String?
 
     var iconName: String {
         switch type {
         case .pandal: return "building.columns"
-        case .metro:  return "tram.fill"
+        case .metro, .station: return "tram.fill"
         case .food:   return "fork.knife"
         }
     }
@@ -110,6 +111,7 @@ final class OmniSearchService: @unchecked Sendable {
         pandals: [Pandal],
         foodSpots: [FoodSpot] = [],
         metroStations: [MetroStation] = [],
+        transitStations: [TransitStation] = [],
         category: OmniCategory = .all,
         limit: Int = 8,
         userLat: Double? = nil,
@@ -118,7 +120,7 @@ final class OmniSearchService: @unchecked Sendable {
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return [] }
 
-        let cacheKey = "\(category.rawValue)|\(trimmed.lowercased())|\(limit)|\(pandals.count)|\(foodSpots.count)|\(metroStations.count)|\(userLat?.description ?? "")|\(userLng?.description ?? "")"
+        let cacheKey = "\(category.rawValue)|\(trimmed.lowercased())|\(limit)|\(pandals.count)|\(foodSpots.count)|\(metroStations.count)|\(transitStations.count)|\(userLat?.description ?? "")|\(userLng?.description ?? "")"
         if let cached = searchCache[cacheKey] { return cached }
 
         var results: [OmniSearchResult] = []
@@ -133,6 +135,11 @@ final class OmniSearchService: @unchecked Sendable {
             for st in metroStations {
                 if let r = scoreMetroStation(st, query: trimmed, userLat: userLat, userLng: userLng) {
                     results.append(r)
+                }
+            }
+            for station in transitStations where category == .all || station.isMetro {
+                if let result = scoreTransitStation(station, query: trimmed, userLat: userLat, userLng: userLng) {
+                    results.append(result)
                 }
             }
         }
@@ -220,7 +227,8 @@ final class OmniSearchService: @unchecked Sendable {
             rating: p.rating,
             pandalId: p.id,
             metroStationId: nil,
-            foodSpotId: nil)
+            foodSpotId: nil,
+            transitStationId: nil)
     }
 
     func scoreMetroStation(_ s: MetroStation, query: String, userLat: Double? = nil, userLng: Double? = nil) -> OmniSearchResult? {
@@ -283,7 +291,45 @@ final class OmniSearchService: @unchecked Sendable {
             rating: nil,
             pandalId: nil,
             metroStationId: s.id,
-            foodSpotId: nil)
+            foodSpotId: nil,
+            transitStationId: nil)
+    }
+
+    func scoreTransitStation(_ station: TransitStation, query: String,
+                             userLat: Double? = nil, userLng: Double? = nil) -> OmniSearchResult? {
+        let q = SearchNormalize.normalize(query)
+        let tokens = q.split(separator: " ").map(String.init)
+        guard !tokens.isEmpty else { return nil }
+        let searchText = SearchNormalize.normalize(([station.name, station.nameBn ?? "", station.code ?? ""] + station.lines).joined(separator: " "))
+        let matched = tokens.allSatisfy(searchText.contains)
+        guard matched else { return nil }
+
+        var score = searchText == q ? 1200.0 : searchText.hasPrefix(q) ? 820.0 : 420.0
+        if tokens.contains("station") || tokens.contains("metro") || tokens.contains("railway") { score += 160 }
+        var distance: Double?
+        if let userLat, let userLng {
+            let meters = haversineMeters(userLat, userLng, station.latitude, station.longitude)
+            distance = meters
+            score += max(0, (15 - meters / 1000) * 5)
+        }
+        let kindColor: UInt32 = station.isMetro ? 0x1A73E8 : 0x9334E6
+        return OmniSearchResult(
+            type: .station,
+            id: station.id,
+            title: station.displayName,
+            subtitle: "\(station.typeLabel) · \(station.lines.first ?? station.network ?? "Kolkata")",
+            latitude: station.latitude,
+            longitude: station.longitude,
+            score: score,
+            matchedField: "Transit station",
+            distanceMeters: distance,
+            badgeText: station.typeLabel.uppercased(),
+            badgeColorHex: kindColor,
+            rating: nil,
+            pandalId: nil,
+            metroStationId: nil,
+            foodSpotId: nil,
+            transitStationId: station.id)
     }
 
     func scoreFoodSpot(_ f: FoodSpot, query: String, userLat: Double? = nil, userLng: Double? = nil) -> OmniSearchResult? {
@@ -348,7 +394,8 @@ final class OmniSearchService: @unchecked Sendable {
             rating: f.rating,
             pandalId: nil,
             metroStationId: nil,
-            foodSpotId: f.id)
+            foodSpotId: f.id,
+            transitStationId: nil)
     }
 }
 

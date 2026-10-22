@@ -1,4 +1,4 @@
-// Repositories/PandalRepository.swift — loads pandals.json (387 entries)
+// Repositories/PandalRepository.swift — bundled directory used by map and search.
 
 import Foundation
 
@@ -6,7 +6,9 @@ final class PandalRepository: @unchecked Sendable {
     static let shared = PandalRepository()
 
     private(set) var allPandals: [Pandal] = []
+    private(set) var normalizedSearchTextByID: [String: String] = [:]
     private(set) var isLoaded = false
+    var totalCount: Int { allPandals.count }
 
     private init() {}
 
@@ -21,6 +23,14 @@ final class PandalRepository: @unchecked Sendable {
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             allPandals = try decoder.decode([Pandal].self, from: data)
+            normalizedSearchTextByID = Dictionary(uniqueKeysWithValues: allPandals.map { pandal in
+                let stationNames = pandal.nearestStations.flatMap { [$0.name, $0.nameBn ?? "", $0.code ?? ""] }
+                let terms = ([pandal.name, pandal.nameBn ?? "", pandal.theme, pandal.area ?? "",
+                              pandal.nearestMetro ?? "", pandal.nearestRailway ?? "", pandal.zone.label]
+                             + stationNames)
+                    .joined(separator: " ")
+                return (pandal.id, SearchNormalize.normalize(terms))
+            })
             isLoaded = true
         } catch {
             print("[PandalRepository] Failed to decode: \(error)")

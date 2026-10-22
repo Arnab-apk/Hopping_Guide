@@ -35,6 +35,11 @@ enum PujaColors {
 }
 
 enum PujaTypography {
+    /// Display face bundled from the Android app's shared asset set.
+    static func festival(_ size: CGFloat) -> Font {
+        .custom("SamarkanNormal", size: size, relativeTo: .title)
+    }
+
     /// Display title — uses Bodoni 72 (system preinstalled) with rounded fallback.
     static func display(_ size: CGFloat, weight: Font.Weight = .bold) -> Font {
         if UIFont(name: "Bodoni 72", size: size) != nil {
@@ -49,7 +54,23 @@ enum PujaTypography {
     }
 
     static func rounded(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .system(size: size, weight: weight, design: .rounded)
+        let name: String
+        if weight == .black || weight == .heavy {
+            name = "PlusJakartaSans-ExtraBold"
+        } else if weight == .bold {
+            name = "PlusJakartaSans-Bold"
+        } else if weight == .semibold {
+            name = "PlusJakartaSans-SemiBold"
+        } else if weight == .medium {
+            name = "PlusJakartaSans-Medium"
+        } else {
+            name = "PlusJakartaSans-Regular"
+        }
+        return .custom(name, size: size, relativeTo: .body)
+    }
+
+    static func bengali(_ size: CGFloat, bold: Bool = false) -> Font {
+        .custom(bold ? "HindSiliguri-Bold" : "HindSiliguri-Regular", size: size, relativeTo: .body)
     }
 
     static func body(_ size: CGFloat = 15, weight: Font.Weight = .regular) -> Font {
@@ -57,7 +78,12 @@ enum PujaTypography {
     }
 
     static func mono(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        .system(size: size, weight: weight, design: .monospaced)
+        let name = weight == .bold || weight == .heavy || weight == .black
+            ? "JetBrainsMono-Bold"
+            : weight == .medium || weight == .semibold
+                ? "JetBrainsMono-Medium"
+                : "JetBrainsMono-Regular"
+        return .custom(name, size: size, relativeTo: .body)
     }
 }
 

@@ -8,6 +8,7 @@ enum LocationTrackingClient: Hashable {
     case map
     case pandalDirectory
     case squad
+    case returnHome
 }
 
 @MainActor

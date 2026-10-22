@@ -156,11 +156,7 @@ struct SquadHubView: View {
                     .foregroundStyle(.secondary)
             }
             .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.background)
-                    .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-            )
+            .liquidCard(cornerRadius: 18)
         }
         .buttonStyle(.plain)
     }
@@ -196,11 +192,7 @@ struct SquadHubView: View {
             }
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-        )
+        .liquidCard(cornerRadius: 18)
     }
 
     private var settingsCard: some View {
@@ -248,11 +240,7 @@ struct SquadHubView: View {
             }
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-        )
+        .liquidCard(cornerRadius: 18)
     }
 
     private var membersCard: some View {
@@ -302,11 +290,7 @@ struct SquadHubView: View {
                 Image(systemName: "chevron.right").foregroundStyle(.secondary)
             }
             .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(.background)
-                    .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-            )
+            .liquidCard(cornerRadius: 18)
         }
         .buttonStyle(.plain)
     }

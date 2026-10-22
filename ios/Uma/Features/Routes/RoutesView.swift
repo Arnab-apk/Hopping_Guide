@@ -25,6 +25,13 @@ struct RoutesView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 14) {
+                    ReturnHomePlannerView()
+                        .padding(.horizontal, 14)
+                        .padding(.top, 8)
+
+                    FestivalArtworkGalleryView()
+                        .padding(.top, 2)
+
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(RouteCategoryFilter.allCases) { cat in
@@ -86,6 +93,7 @@ private struct CategoryChip: View {
             .background(
                 Capsule().fill(isActive ? PujaColors.durgaRed : Color.primary.opacity(0.08))
             )
+            .liquidBackground(isActive ? .regular : .ultraThin, in: Capsule())
         }
         .buttonStyle(.plain)
     }
@@ -122,7 +130,7 @@ private struct RouteCard: View {
                     }
                     if let bn = route.bengaliTitle {
                         Text(bn)
-                            .font(PujaTypography.rounded(11))
+                            .font(PujaTypography.bengali(14))
                             .foregroundStyle(.secondary)
                     }
                     HStack(spacing: 12) {
@@ -186,11 +194,7 @@ private struct RouteCard: View {
             .padding(.top, 6)
         }
         .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.06), radius: 8, y: 2)
-        )
+        .liquidCard(cornerRadius: 18)
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(Color.primary.opacity(0.06), lineWidth: 1)
@@ -204,16 +208,16 @@ private struct TipsCard: View {
             Label("Hopping & Metro Tips", systemImage: "info.circle.fill")
                 .font(PujaTypography.rounded(14, weight: .bold))
                 .foregroundStyle(PujaColors.festivalGold)
-            tip("Metro runs till ~4 AM during Pujo nights — schedule your circuit accordingly.")
+            tip("Operating hours vary by date. Check current metro and railway information before you travel.")
+            tip("No verified departure timetable is bundled in this release, so Uma does not estimate a last train.")
             tip("Best windows: post-Ashtami night (peak lights) and early-morning Dashami.")
             tip("Wear comfortable footwear — Kolkata pandal-hopping averages 6–9 km on foot.")
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(PujaColors.festivalGold.opacity(0.1))
-        )
+        .liquidBackground(.ultraThin, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .stroke(PujaColors.festivalGold.opacity(0.22), lineWidth: 1))
     }
 
     private func tip(_ text: String) -> some View {

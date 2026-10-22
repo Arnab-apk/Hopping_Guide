@@ -31,9 +31,7 @@ struct MapSearchBar: View {
                 }
             }
             .padding(.horizontal, 14).padding(.vertical, 12)
-            .background(
-                Capsule().fill(.ultraThinMaterial)
-            )
+            .liquidBackground(.interactive, in: Capsule())
             .overlay(
                 Capsule().stroke(PujaColors.festivalGold.opacity(0.45), lineWidth: 1)
             )
@@ -77,10 +75,7 @@ struct MapSearchBar: View {
                         }
                     }
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                )
+                .liquidBackground(.regular, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(PujaColors.festivalGold.opacity(0.3), lineWidth: 1)

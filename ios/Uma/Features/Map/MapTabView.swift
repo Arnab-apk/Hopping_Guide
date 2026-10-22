@@ -6,6 +6,7 @@ import MapKit
 
 struct MapTabView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedPandal: Pandal?
     @State private var highlightedRoute: WalkingRoute?
     @State private var showFoodSpots = false
@@ -17,6 +18,8 @@ struct MapTabView: View {
     @State private var searchFocused: Bool = false
     @State private var searchResults: [OmniSearchResult] = []
     @State private var followUser: Bool = false
+    @AppStorage("map_three_dimensional") private var isThreeDimensional = true
+    @AppStorage("map_more_place_names") private var showsMapLabels = true
     @State private var cameraRequest: MapCameraRequest?
     @State private var statusPill: StatusPill?
     @State private var isCalculating = false
@@ -35,7 +38,8 @@ struct MapTabView: View {
                 selectedPandal: $selectedPandal,
                 highlightedRoute: $highlightedRoute,
                 pandals: visiblePandals,
-                metroStations: focusedMetroStations,
+                metroStations: [],
+                transitStations: focusedTransitStations,
                 foodSpots: showFoodSpots ? env.foodSpots.all : [],
                 squadMembers: env.squad.companionMembers.filter(\.shareLocation),
                 showFoodSpots: showFoodSpots,
@@ -44,6 +48,9 @@ struct MapTabView: View {
                 userLocation: env.location.currentPosition(),
                 cameraRequest: cameraRequest,
                 activeTrail: env.activeTrail,
+                isThreeDimensional: isThreeDimensional,
+                showsMapLabels: showsMapLabels,
+                reduceMotion: reduceMotion,
                 onTapPandal: { pandal in
                     Haptics.selection()
                     followUser = false
@@ -52,6 +59,11 @@ struct MapTabView: View {
                 },
                 onTapMetro: { station in
                     showStatus("🚇 \(station.name) · \(station.subtitle)", icon: "tram.fill", color: station.line.color)
+                },
+                onTapTransitStation: { station in
+                    let symbol = station.isMetro ? "tram.fill" : "train.side.front.car"
+                    showStatus("\(station.typeLabel) · \(station.displayName)", icon: symbol,
+                               color: station.isMetro ? PujaColors.metroBlue : PujaColors.railwayPurple)
                 }
             )
             .ignoresSafeArea(edges: .bottom)
@@ -78,9 +90,7 @@ struct MapTabView: View {
                     .font(PujaTypography.rounded(12, weight: .semibold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 14).padding(.vertical, 8)
-                    .background(
-                        Capsule().fill(.ultraThinMaterial)
-                    )
+                    .liquidBackground(.ultraThin, in: Capsule())
                     .overlay(
                         Capsule().stroke(pill.color.opacity(0.7), lineWidth: 1)
                     )
@@ -98,7 +108,7 @@ struct MapTabView: View {
                     onZoomOut: { zoom(by: -1) },
                     onLocate: { locateUser() }
                 )
-                .padding(.bottom, 24)
+                .padding(.bottom, selectedPandal == nil ? 24 : 230)
                 .padding(.trailing, 12)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -139,9 +149,9 @@ struct MapTabView: View {
         .sheet(isPresented: $isShowingZonePicker) {
             zonePickerSheet
         }
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: statusPill)
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedPandal)
-        .animation(.easeInOut(duration: 0.25), value: searchFocused)
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.8), value: statusPill)
+        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.8), value: selectedPandal)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: searchFocused)
     }
 
     // MARK: - Filter chips
@@ -158,7 +168,7 @@ struct MapTabView: View {
                 }
                 FilterChip(title: "Nearby 10km", icon: "location.circle",
                            isActive: isNearbyFilterEnabled) { toggleNearbyFilter() }
-                FilterChip(title: "Metro", icon: "tram.fill",
+                FilterChip(title: "Stations", icon: "tram.fill",
                            isActive: showMetroStations) {
                     showMetroStations.toggle()
                     Haptics.selection()
@@ -166,6 +176,17 @@ struct MapTabView: View {
                 FilterChip(title: "Food", icon: "fork.knife",
                            isActive: showFoodSpots) {
                     showFoodSpots.toggle()
+                    Haptics.selection()
+                }
+                FilterChip(title: isThreeDimensional ? "3D" : "2D",
+                           icon: "cube.transparent",
+                           isActive: isThreeDimensional) {
+                    isThreeDimensional.toggle()
+                    Haptics.selection()
+                }
+                FilterChip(title: "Labels", icon: "text.bubble",
+                           isActive: showsMapLabels) {
+                    showsMapLabels.toggle()
                     Haptics.selection()
                 }
                 if let trail = env.activeTrail {
@@ -246,6 +267,22 @@ struct MapTabView: View {
         }
     }
 
+    private var focusedTransitStations: [TransitStation] {
+        guard showMetroStations || env.activeTrail != nil else { return [] }
+        let stations = env.stations.allStations
+        guard let trail = env.activeTrail, let first = trail.stops.first else { return stations }
+        let lats = trail.stops.map(\.lat)
+        let lngs = trail.stops.map(\.lng)
+        let minLat = (lats.min() ?? first.lat) - 0.035
+        let maxLat = (lats.max() ?? first.lat) + 0.035
+        let minLng = (lngs.min() ?? first.lng) - 0.035
+        let maxLng = (lngs.max() ?? first.lng) + 0.035
+        return stations.filter {
+            $0.latitude >= minLat && $0.latitude <= maxLat &&
+            $0.longitude >= minLng && $0.longitude <= maxLng
+        }
+    }
+
     // MARK: - Actions
 
     private func performSearch() {
@@ -258,7 +295,8 @@ struct MapTabView: View {
             query: searchText,
             pandals: env.pandals.allPandals,
             foodSpots: env.foodSpots.all,
-            metroStations: MetroRepository.allStations,
+            metroStations: [],
+            transitStations: env.stations.allStations,
             userLat: userCoordinate?.latitude, userLng: userCoordinate?.longitude)
     }
 
@@ -285,6 +323,14 @@ struct MapTabView: View {
         case .metro:
             if let id = r.metroStationId, let s = MetroRepository.shared.byId(id) {
                 showStatus("🚇 \(s.name) · \(s.line.label)", icon: "tram.fill", color: s.line.color)
+            }
+        case .station:
+            if let id = r.transitStationId, let station = env.stations.byId(id) {
+                showMetroStations = true
+                cameraRequest = MapCameraRequest(action: .center(station.coordinate))
+                let icon = station.isMetro ? "tram.fill" : "train.side.front.car"
+                let color = station.isMetro ? PujaColors.metroBlue : PujaColors.railwayPurple
+                showStatus("\(station.typeLabel) · \(station.displayName)", icon: icon, color: color)
             }
         case .food:
             if let id = r.foodSpotId, let f = env.foodSpots.all.first(where: { $0.id == id }) {
@@ -464,9 +510,7 @@ private struct FilterChip: View {
             .background(
                 Capsule().fill(isActive ? PujaColors.durgaRed : .clear)
             )
-            .background(
-                Capsule().fill(.ultraThinMaterial)
-            )
+                    .liquidBackground(.ultraThin, in: Capsule())
             .overlay(
                 Capsule().stroke(
                     isActive ? PujaColors.festivalGold : PujaColors.festivalGold.opacity(0.4),

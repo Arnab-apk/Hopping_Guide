@@ -45,8 +45,22 @@ targets:
           - UIInterfaceOrientationPortrait
         UIBackgroundModes: []
         CFBundleDisplayName: Uma
-        CFBundleShortVersionString: "1.0.0"
-        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.1.0"
+        CFBundleVersion: "2"
+        UIAppFonts:
+          - Samarkan.ttf
+          - HindSiliguri-Regular.ttf
+          - HindSiliguri-Medium.ttf
+          - HindSiliguri-SemiBold.ttf
+          - HindSiliguri-Bold.ttf
+          - PlusJakartaSans-Regular.ttf
+          - PlusJakartaSans-Medium.ttf
+          - PlusJakartaSans-SemiBold.ttf
+          - PlusJakartaSans-Bold.ttf
+          - PlusJakartaSans-ExtraBold.ttf
+          - JetBrainsMono-Regular.ttf
+          - JetBrainsMono-Medium.ttf
+          - JetBrainsMono-Bold.ttf
     dependencies:
       - package: Firebase
         product: FirebaseAuth

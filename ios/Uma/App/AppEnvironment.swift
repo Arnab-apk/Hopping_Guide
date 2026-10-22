@@ -8,7 +8,9 @@ import Observation
 final class AppEnvironment {
     // Repositories
     let pandals = PandalRepository.shared
+    let pandalPhotos = PandalPhotoRepository.shared
     let metros = MetroRepository.shared
+    let stations = TransitStationRepository.shared
     let foodSpots = FoodSpotRepository.shared
     let helplines = HelplineRepository.shared
     let toilets = ToiletRepository.shared
@@ -43,7 +45,9 @@ final class AppEnvironment {
 
     func loadBundles() {
         pandals.load()
+        pandalPhotos.load()
         metros  // static
+        stations.load()
         foodSpots.load()
         helplines.load()
         toilets.load()

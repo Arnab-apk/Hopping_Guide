@@ -32,10 +32,7 @@ private struct ControlButton: View {
                 .font(.system(size: 17, weight: .bold))
                 .foregroundStyle(tint ?? .white)
                 .frame(width: 42, height: 42)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                )
+                .liquidBackground(.interactive, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(tint ?? PujaColors.festivalGold.opacity(0.45),

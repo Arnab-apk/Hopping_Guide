@@ -76,11 +76,7 @@ struct PandalCard: View {
                 }
             }
             .padding(14)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(.background)
-                    .shadow(color: .black.opacity(0.06), radius: 6, y: 2)
-            )
+            .liquidCard(cornerRadius: 16)
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(Color.primary.opacity(0.06), lineWidth: 1)

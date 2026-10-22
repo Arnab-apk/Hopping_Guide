@@ -29,6 +29,12 @@ struct PandalDetailView: View {
                             }
                         }
 
+                        let galleryPhotos = env.pandalPhotos.photos(for: pandal.id)
+                        if !galleryPhotos.isEmpty {
+                            PandalPhotoGalleryView(photos: galleryPhotos)
+                                .padding(.top, 2)
+                        }
+
                         if !pandal.theme.isEmpty {
                             infoRow(icon: "paintbrush.pointed.fill",
                                     title: "Theme",
@@ -53,6 +59,36 @@ struct PandalDetailView: View {
                             infoRow(icon: "tram.tunnel.fill",
                                     title: "Nearest Railway",
                                     value: r)
+                        }
+
+                        if !pandal.nearestStations.isEmpty {
+                            VStack(alignment: .leading, spacing: 9) {
+                                Text("Nearby Stations")
+                                    .font(PujaTypography.rounded(14, weight: .bold))
+                                    .padding(.top, 4)
+                                ForEach(pandal.nearestStations.prefix(4)) { station in
+                                    HStack(spacing: 10) {
+                                        Image(systemName: station.kind == "metro" ? "tram.fill" : "train.side.front.car")
+                                            .foregroundStyle(station.kind == "metro" ? PujaColors.metroBlue : PujaColors.railwayPurple)
+                                            .frame(width: 20)
+                                        VStack(alignment: .leading, spacing: 1) {
+                                            Text(station.name)
+                                                .font(PujaTypography.rounded(12, weight: .semibold))
+                                            if let nameBn = station.nameBn, !nameBn.isEmpty {
+                                                Text(nameBn).font(PujaTypography.bengali(13)).foregroundStyle(.secondary)
+                                            }
+                                        }
+                                        Spacer()
+                                        if let distance = station.distanceMeters {
+                                            Text(distance >= 1000
+                                                 ? String(format: "%.1f km", distance / 1000)
+                                                 : "\(Int(distance.rounded())) m")
+                                                .font(PujaTypography.rounded(10, weight: .medium))
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         if !pandal.specialFeatures.isEmpty {
@@ -107,24 +143,41 @@ struct PandalDetailView: View {
 
     private var hero: some View {
         ZStack {
-            LinearGradient(
-                colors: [PujaColors.crimsonVelvet, PujaColors.durgaRed, PujaColors.festivalGold],
-                startPoint: .topLeading, endPoint: .bottomTrailing)
-            VStack {
-                Spacer()
-                PujaIcon.durgaFace(size: 130, color: PujaColors.goldBright)
-                    .padding(.bottom, 20)
-                Spacer().frame(height: 0)
+            if let photo = env.pandalPhotos.cover(for: pandal.id), let url = photo.imageURL {
+                AsyncImage(url: url) { phase in
+                    if let image = phase.image {
+                        image.resizable().scaledToFill()
+                    } else {
+                        festivalHeroArtwork
+                    }
+                }
+            } else {
+                festivalHeroArtwork
             }
             VStack {
                 Spacer()
                 Rectangle()
-                    .fill(LinearGradient(colors: [.clear, Color(.systemBackground)],
+                    .fill(LinearGradient(colors: [.clear, Color(.systemBackground).opacity(0.9)],
                                          startPoint: .top, endPoint: .bottom))
                     .frame(height: 80)
             }
         }
         .frame(height: 220)
+        .clipped()
+    }
+
+    private var festivalHeroArtwork: some View {
+        ZStack {
+            Image("FestivalHero")
+                .resizable()
+                .scaledToFill()
+                .overlay(PujaColors.crimsonVelvet.opacity(0.48))
+            Image("FestivalEyes")
+                .resizable()
+                .scaledToFit()
+                .padding(.horizontal, 84)
+                .opacity(0.82)
+        }
     }
 
     private func infoRow(icon: String, title: String, value: String) -> some View {

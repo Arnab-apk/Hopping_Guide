@@ -4,6 +4,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(AppEnvironment.self) private var env
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var countdown = CountdownTime.toPuja()
     @State private var timer: Timer?
     @State private var headerOpacity: Double = 0
@@ -23,7 +24,7 @@ struct WelcomeView: View {
 
                 // Header — "Uma Asche"
                 Text("Uma Asche")
-                    .font(PujaTypography.display(48, weight: .bold))
+                    .font(PujaTypography.festival(52))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [Color.white, PujaColors.goldSoft, PujaColors.goldBright],
@@ -36,6 +37,13 @@ struct WelcomeView: View {
                     .padding(.horizontal, 24)
 
                 Spacer().frame(height: 24)
+
+                Text("The festival, held close")
+                    .font(PujaTypography.rounded(12, weight: .medium))
+                    .tracking(1.2)
+                    .textCase(.uppercase)
+                    .foregroundStyle(PujaColors.goldSoft.opacity(0.84))
+                    .opacity(headerOpacity)
 
                 // Countdown capsule
                 countdownCapsule
@@ -55,14 +63,22 @@ struct WelcomeView: View {
         .ignoresSafeArea(.keyboard)
         .onAppear {
             startCountdown()
-            withAnimation(.easeOut(duration: 0.9).delay(0.10)) {
-                headerOpacity = 1; headerOffset = 0
-            }
-            withAnimation(.easeOut(duration: 0.9).delay(0.35)) {
+            if reduceMotion {
+                headerOpacity = 1
+                headerOffset = 0
                 countdownOpacity = 1
-            }
-            withAnimation(.easeOut(duration: 0.9).delay(0.55)) {
-                cardOpacity = 1; cardOffset = 0
+                cardOpacity = 1
+                cardOffset = 0
+            } else {
+                withAnimation(.easeOut(duration: 0.9).delay(0.10)) {
+                    headerOpacity = 1; headerOffset = 0
+                }
+                withAnimation(.easeOut(duration: 0.9).delay(0.35)) {
+                    countdownOpacity = 1
+                }
+                withAnimation(.easeOut(duration: 0.9).delay(0.55)) {
+                    cardOpacity = 1; cardOffset = 0
+                }
             }
         }
         .onDisappear { timer?.invalidate() }
@@ -72,59 +88,31 @@ struct WelcomeView: View {
 
     private var background: some View {
         ZStack {
-            // Dark crimson night base
-            PujaColors.bgDark
-                .ignoresSafeArea()
+            GeometryReader { geometry in
+                Image("PujaWelcome")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .clipped()
+                    .overlay(Color.black.opacity(0.52))
+            }
+            .ignoresSafeArea()
 
-            // Soft top vignette for legibility
+            Image("FestivalEyes")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 260)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .padding(.top, 66)
+                .opacity(0.72)
+                .accessibilityHidden(true)
+
             LinearGradient(
-                colors: [PujaColors.bgDark.opacity(0.6), .clear,
-                         .clear, PujaColors.bgDark.opacity(0.85)],
+                colors: [PujaColors.crimsonVelvet.opacity(0.34), .clear,
+                         PujaColors.bgDark.opacity(0.40), PujaColors.bgDark.opacity(0.96)],
                 startPoint: .top, endPoint: .bottom
             )
             .ignoresSafeArea()
-
-            // Stylized Maa Durga eyes motif — two glowing concentric arcs.
-            GeometryReader { geo in
-                ZStack {
-                    // Outer halo
-                    Circle()
-                        .stroke(PujaColors.festivalGold.opacity(0.35), lineWidth: 1.5)
-                        .frame(width: 220, height: 220)
-                        .blur(radius: 1)
-                        .offset(y: -geo.size.height * 0.18)
-
-                    // Inner eye glow
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [PujaColors.goldBright.opacity(0.55),
-                                         PujaColors.festivalGold.opacity(0.18),
-                                         .clear],
-                                center: .center,
-                                startRadius: 5,
-                                endRadius: 110)
-                        )
-                        .frame(width: 240, height: 240)
-                        .offset(y: -geo.size.height * 0.18)
-
-                    // Bindi dot — third eye
-                    Circle()
-                        .fill(PujaColors.durgaRedLight.opacity(0.85))
-                        .frame(width: 12, height: 12)
-                        .offset(y: -geo.size.height * 0.18 - 30)
-
-                    // Soft scattered stars
-                    ForEach(0..<25, id: \.self) { i in
-                        Circle()
-                            .fill(Color.white.opacity(Double.random(in: 0.15...0.6)))
-                            .frame(width: .random(in: 1...2.5), height: .random(in: 1...2.5))
-                            .position(
-                                x: .random(in: 0...geo.size.width),
-                                y: .random(in: 0...geo.size.height * 0.55))
-                    }
-                }
-            }
         }
     }
 
@@ -142,10 +130,7 @@ struct WelcomeView: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.ultraThinMaterial)
-        )
+        .liquidBackground(.ultraThin, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(PujaColors.festivalGold.opacity(0.45), lineWidth: 1)
@@ -160,7 +145,7 @@ struct WelcomeView: View {
                 .font(PujaTypography.display(20, weight: .semibold))
                 .foregroundStyle(PujaColors.festivalGold)
 
-            Text("Discover 380+ verified pandals, walking routes, food spots, and squad tracking — fully offline.")
+            Text("Explore \(env.pandals.totalCount) pandals, photo galleries, walking routes, station planning and squad tracking. Your festival directory works offline.")
                 .font(PujaTypography.rounded(12))
                 .foregroundStyle(.white.opacity(0.75))
                 .multilineTextAlignment(.center)
@@ -219,10 +204,7 @@ struct WelcomeView: View {
         }
         .padding(.horizontal, 22)
         .padding(.vertical, 24)
-        .background(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(.ultraThinMaterial)
-        )
+        .liquidBackground(.regular, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .stroke(PujaColors.festivalGold.opacity(0.35), lineWidth: 1)
